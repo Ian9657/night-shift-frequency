@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 120" preserveAspectRatio="none" shape-rendering="crispEdges">
-  <!-- Existing structural palette; joints widen toward the counter. -->
-  <path fill="#535f60" d="M0 0h640v120H0z"/>
-  <path fill="#4c595a" d="M0 6h640v12H0z"/>
-  <path fill="#566361" d="M0 38h640v52H0z"/>
-  <path fill="#344246" d="M0 0h640v4H0z"/>
-  <path fill="#64716e" d="M0 4h640v2H0z"/>
-  <path fill="#485658" d="M0 36h640v2H0zM0 91h640v2H0zM568 4h1l-37 116h-2z"/>
-</svg>

@@ -1,0 +1,590 @@
+// Checkout controller: current-order state, player actions and the scene
+// model the renderer draws. Cross-order history lives in the shift engine.
+(function (root) {
+  'use strict';
+  const { time, audio, dialogue, radio, records, engine, story, customers, layout, sprites, i18n } = root.NSF;
+
+  const params = new URLSearchParams(root.location?.search || '');
+  const shift = engine.createShift(params.get('seed') || String(Date.now()));
+  const orders = shift.orders;
+  const CUE_DELAY_START = 2, CUE_DELAY_MS = 780;
+
+  const state = {
+    phase: 'title', // title -> shift -> report -> ending -> end
+    eventIndex: 0, selectedId: null, scannedIds: [], paid: false, bagged: false, heatedIds: [],
+    reportShown: false, busy: false, modeOverride: null, reactionCounts: {}, dialogueFlags: new Set(),
+  };
+
+  const fixtureDefault = { scanner: 'scanner', terminal: 'terminal', microwave: 'microwave' };
+  const scene = {
+    customer: { id: orders[0].customer, pose: 'idle', dx: 0, dy: 0, visible: true, prop: null },
+    products: new Map(),
+    extras: [],
+    fixtures: { ...fixtureDefault, drawer: 0, paper: 0 },
+    mood: 'normal',
+    cues: new Set(),
+  };
+  let cueSignature = '', cueReadyAt = 0;
+
+  const order = () => orders[state.eventIndex];
+  const started = () => state.phase === 'shift';
+  const isScanned = item => state.scannedIds.includes(item.id);
+  const scannedItems = (o = order()) => o.items.filter(isScanned);
+  const needsBag = (o = order()) => o.bagPreference !== 'no';
+  const pendingHeat = (o = order()) => o.items.filter(item => item.heat && isScanned(item) && !state.heatedIds.includes(item.id));
+  const hasSavedRecord = (o = order()) => Boolean(shift.decisionFor(o.id));
+  const rescans = (o = order()) => shift.checksFor(o.id).length;
+  const blocked = () => !started() || dialogue.locked || records.view.open;
+
+  function isPaymentReady() {
+    const o = order();
+    return o.items.every(isScanned) && (!o.mismatch || hasSavedRecord()) && !state.paid;
+  }
+
+  // ------------------------------------------------------------ scene helpers
+  function resetProducts() {
+    scene.products.clear();
+    for (const item of order().items) {
+      scene.products.set(item.id, { id: item.id, sprite: item.sprite, x: 0, y: 0, hidden: false, moving: false, flicker: false });
+    }
+    placeProducts(true);
+  }
+
+  // Lane rows: unscanned items wait at the back, scanned items come forward.
+  function homes() {
+    const result = new Map();
+    const { lane } = layout;
+    for (const [items, foot] of [[order().items.filter(i => !isScanned(i)), lane.incomingFoot], [scannedItems(), lane.scannedFoot]]) {
+      const sizes = items.map(item => sprites.size(item.sprite));
+      const span = sizes.reduce((sum, s) => sum + s.w, 0) + lane.gap * Math.max(0, items.length - 1);
+      let x = lane.x + Math.floor((lane.width - span) / 2);
+      items.forEach((item, i) => {
+        result.set(item.id, { x, y: foot - sizes[i].h });
+        x += sizes[i].w + lane.gap;
+      });
+    }
+    return result;
+  }
+
+  function placeProducts(force = false) {
+    const target = homes();
+    for (const product of scene.products.values()) {
+      if (product.moving && !force) continue;
+      const home = target.get(product.id);
+      product.x = home.x;
+      product.y = home.y;
+    }
+  }
+
+  function move(entity, x, y, ms, waypoints = []) {
+    entity.moving = true;
+    const points = [{ t: 0, x: entity.x, y: entity.y }, ...waypoints, { t: 1, x, y }];
+    return time.path(points, ms, (px, py) => { entity.x = px; entity.y = py; }).then(() => { entity.moving = false; });
+  }
+
+  function addExtra(sprite, x, y, options = {}) {
+    const extra = { sprite, x, y, front: true, ...options };
+    scene.extras.push(extra);
+    return extra;
+  }
+  function removeExtra(extra) { scene.extras = scene.extras.filter(e => e !== extra); }
+
+  function handPoint(pose = 'reach') {
+    const arm = customers.frontArm(pose);
+    const [ax, ay] = sprites.anchor(arm, 'hand');
+    return { x: layout.customer.x + scene.customer.dx + ax, y: layout.customer.y + scene.customer.dy + ay };
+  }
+
+  function centred(sprite, point) {
+    const s = sprites.size(sprite);
+    return { x: point.x - Math.floor(s.w / 2), y: point.y - Math.floor(s.h / 2) };
+  }
+
+  async function walk(from, to, ms) {
+    await time.path([{ t: 0, x: from, y: 0 }, { t: 1, x: to, y: 0 }], ms, x => {
+      scene.customer.dx = x;
+      scene.customer.dy = x !== to && Math.floor(Math.abs(x) / 8) % 2 ? 1 : 0;
+    });
+    scene.customer.dy = 0;
+  }
+
+  function flashMood(mood, ms) {
+    scene.mood = mood;
+    time.after(ms, () => { if (scene.mood === mood) scene.mood = 'normal'; });
+  }
+
+  // ------------------------------------------------------------ dialogue
+  function takeReaction(key) {
+    const lines = order().reactions?.[key];
+    if (!lines?.length) return { text: null, lock: false };
+    const count = state.reactionCounts[key] || 0;
+    const entry = lines[Math.min(count, lines.length - 1)];
+    state.reactionCounts[key] = count + 1;
+    return typeof entry === 'string' ? { text: entry, lock: false } : { text: entry.text, lock: Boolean(entry.lock) };
+  }
+  function sayReaction(key) {
+    const reaction = takeReaction(key);
+    if (reaction.text) dialogue.say([reaction.text], { lock: reaction.lock });
+    return reaction.text;
+  }
+  function sayReactionSequence(keys) {
+    const lines = [];
+    let lock = false;
+    for (const key of keys) {
+      if (state.dialogueFlags.has(key)) continue;
+      const reaction = takeReaction(key);
+      if (!reaction.text) continue;
+      state.dialogueFlags.add(key);
+      lines.push(reaction.text);
+      lock = lock || reaction.lock;
+    }
+    if (lines.length) dialogue.say(lines, { lock });
+    return lines;
+  }
+  const sayOnce = key => sayReactionSequence([key])[0] || null;
+  function reactToBlocked(key) { if (!state.busy) sayOnce(key); }
+
+  let waitTimer = null;
+  function scheduleWait(key, ms, condition) {
+    time.cancel(waitTimer);
+    if (!order().reactions?.[key]) return;
+    const current = order();
+    waitTimer = time.after(ms, () => {
+      if (order() === current && !state.busy && !dialogue.locked && condition()) sayOnce(key);
+    });
+  }
+
+  // ------------------------------------------------------------ actions
+  function selectItem(id) {
+    if (blocked() || state.busy || state.bagged) return;
+    const item = order().items.find(entry => entry.id === id);
+    if (!item) return;
+    if (state.paid && (!item.heat || state.heatedIds.includes(item.id))) return;
+    state.selectedId = id;
+  }
+
+  async function scan() {
+    const o = order();
+    if (blocked()) return;
+    if (state.busy || !state.selectedId || state.paid) {
+      if (!state.busy && state.paid) reactToBlocked('scanAfterPay');
+      return;
+    }
+    const item = o.items.find(entry => entry.id === state.selectedId);
+    if (item && isScanned(item) && (!o.mismatch || hasSavedRecord())) {
+      reactToBlocked('redundantScan');
+      return;
+    }
+    const wasScanned = isScanned(item);
+    state.busy = true;
+    state.modeOverride = 'pos.reading';
+    const product = scene.products.get(item.id);
+    const beam = centred(item.sprite, layout.fixtures.scanner.beam);
+    await move(product, beam.x, beam.y, 115);
+    product.moving = true;
+    scene.fixtures.scanner = 'scanner-reading';
+    audio.scan();
+    if (o.mismatch) {
+      // The neighbouring frequency bleeds through the scanner for a moment.
+      product.flicker = true;
+      flashMood('echo', 180);
+      audio.anomaly();
+      time.after(220, () => { product.flicker = false; });
+    }
+    await time.wait(o.mismatch ? 240 : 65);
+    if (!wasScanned) state.scannedIds.push(item.id);
+    state.selectedId = null;
+    await time.wait(45);
+    scene.fixtures.scanner = 'scanner';
+    const home = homes().get(item.id);
+    await move(product, home.x, home.y, 135);
+
+    const keys = [];
+    if (wasScanned) {
+      shift.check(o.id, item.id);
+      keys.push(rescans() > 1 ? 'secondRescan' : 'rescan');
+    } else {
+      const count = scannedItems(o).length;
+      keys.push(count === 1 ? 'firstScan' : count === 2 ? 'secondScan' : 'scan');
+    }
+    if (isPaymentReady()) keys.push('paymentReady');
+    sayReactionSequence(keys);
+    state.busy = false;
+    state.modeOverride = null;
+    if (isPaymentReady()) scheduleWait('waitAtPayment', 4200, isPaymentReady);
+  }
+
+  async function terminalPayment(o) {
+    const c = scene.customer;
+    const prop = { sprite: o.paymentProp, slots: customers.propColors(o.propColor) };
+    for (const [pose, ms, withProp] of [['idle', 140, false], ['reach', 180, true], ['low', 300, true], ['reach', 180, true], ['idle', 120, false]]) {
+      c.pose = pose;
+      c.prop = withProp ? prop : null;
+      if (pose === 'low') {
+        scene.fixtures.terminal = 'terminal-approved';
+        audio.payment(o.paymentType);
+      }
+      await time.wait(ms);
+    }
+    scene.fixtures.terminal = 'terminal';
+  }
+
+  async function cashPayment() {
+    const c = scene.customer;
+    c.pose = 'reach';
+    c.prop = { sprite: 'bill' };
+    await time.wait(90);
+    audio.cashPaper();
+    const hand = handPoint();
+    c.prop = null;
+    const bill = addExtra('bill', hand.x - 7, hand.y - 3);
+    const drop = layout.fixtures.tray.drop;
+    const tx = drop.x - 7, ty = drop.y - 3;
+    const handoff = { x: Math.round(bill.x + (tx - bill.x) * 0.42), y: Math.round(bill.y + (ty - bill.y) * 0.18) };
+    time.after(300, () => { c.pose = 'idle'; });
+    let contacted = false;
+    let drawer = Promise.resolve();
+    const contact = () => {
+      if (contacted) return;
+      contacted = true;
+      audio.cashDrawer();
+      drawer = openDrawer();
+    };
+    const timer = time.after(400, contact);
+    await move(bill, tx, ty, 540, [{ t: 0.12, x: bill.x, y: bill.y }, { t: 0.48, ...handoff }, { t: 0.58, ...handoff }, { t: 0.86, x: tx, y: ty }]);
+    time.cancel(timer);
+    contact();
+    await time.wait(95);
+    removeExtra(bill);
+    c.pose = 'idle';
+    await drawer;
+  }
+
+  async function openDrawer() {
+    for (const step of [3, 6, 6, 3, 0]) {
+      scene.fixtures.drawer = step;
+      await time.wait(84);
+    }
+  }
+
+  async function printReceipt() {
+    audio.receipt();
+    for (const height of [3, 6, 9]) {
+      scene.fixtures.paper = height;
+      await time.wait(70);
+    }
+  }
+
+  async function pay(source) {
+    const o = order();
+    if (blocked()) return;
+    if (state.busy || !isPaymentReady()) {
+      if (!state.busy && !state.paid) reactToBlocked('earlyPayment');
+      return;
+    }
+    if ((o.paymentType === 'cash') !== (source === 'cash')) {
+      reactToBlocked('wrongPayment');
+      return;
+    }
+    time.cancel(waitTimer);
+    state.busy = true;
+    state.modeOverride = 'pos.' + o.paymentType;
+    if (o.paymentType === 'cash') await cashPayment();
+    else await terminalPayment(o);
+    state.paid = true;
+    shift.settle(o.id);
+    await time.wait(60);
+    await printReceipt();
+    state.busy = false;
+    state.modeOverride = null;
+    const heat = pendingHeat(o);
+    if (heat.length === 1) state.selectedId = heat[0].id;
+    let line = null;
+    if (heat.length) sayReaction('heatRequest');
+    else line = sayReaction('pay');
+    if (!needsBag(o) && !heat.length) {
+      if (line) {
+        state.busy = true;
+        await time.wait(dialogue.readTime(line));
+        state.busy = false;
+      }
+      await finishOrder('products');
+    } else if (needsBag(o) && !heat.length) {
+      scheduleWait('waitAtBag', 5200, () => state.paid && !state.bagged && !pendingHeat().length);
+    }
+  }
+
+  async function heat() {
+    const o = order();
+    if (blocked()) return;
+    if (state.busy || !state.paid) {
+      if (!state.busy && !state.paid) reactToBlocked('earlyHeat');
+      return;
+    }
+    if (!state.selectedId) {
+      const pending = pendingHeat(o);
+      if (pending.length !== 1) { reactToBlocked('unneededHeat'); return; }
+      state.selectedId = pending[0].id;
+    }
+    const item = o.items.find(entry => entry.id === state.selectedId);
+    if (!item || !item.heat || state.heatedIds.includes(item.id)) {
+      reactToBlocked('unneededHeat');
+      return;
+    }
+    state.busy = true;
+    const product = scene.products.get(item.id);
+    const cavity = centred(item.sprite, layout.microwaveCavity);
+    await move(product, cavity.x, cavity.y, 145);
+    product.moving = true;
+    product.hidden = true;
+    scene.fixtures.microwave = 'microwave-heating';
+    audio.microwaveStart();
+    await time.wait(500);
+    state.heatedIds.push(item.id);
+    state.selectedId = null;
+    scene.fixtures.microwave = 'microwave';
+    audio.microwaveDone();
+    product.hidden = false;
+    const home = homes().get(item.id);
+    await move(product, home.x, home.y, 155);
+    state.busy = false;
+    const line = sayReaction('heatDone');
+    if (!needsBag(o) && !pendingHeat(o).length) {
+      await time.wait(dialogue.readTime(line));
+      await finishOrder('products');
+    } else if (!pendingHeat(o).length) {
+      scheduleWait('waitAtBag', 5200, () => state.paid && !state.bagged);
+    }
+  }
+
+  async function bag() {
+    if (blocked()) return;
+    if (state.busy || !state.paid || state.bagged || pendingHeat().length) {
+      if (!state.busy) {
+        if (!state.paid) reactToBlocked('earlyBag');
+        else if (pendingHeat().length) reactToBlocked('bagBeforeHeat');
+      }
+      return;
+    }
+    time.cancel(waitTimer);
+    state.busy = true;
+    const opening = sayOnce('bagStarted');
+    await time.wait(opening ? 120 : 0);
+    const stack = layout.fixtures.bags, pack = stack.packing;
+    const bagSprite = addExtra('bag-open', stack.x + 6, stack.y - 12);
+    audio.bag();
+    await move(bagSprite, pack.x, pack.y, 290, [{ t: 0.45, x: stack.x + 3, y: pack.y - 9 }]);
+    await time.wait(80);
+    for (const item of scannedItems()) {
+      const product = scene.products.get(item.id);
+      const target = centred(item.sprite, { x: pack.x + 13, y: pack.y + 12 });
+      await move(product, target.x, target.y, 250);
+      product.moving = true;
+      product.hidden = true;
+      await time.wait(35);
+    }
+    const line = sayReaction('bag');
+    await time.wait(Math.max(360, dialogue.readTime(line)));
+    bagSprite.sprite = 'bag-full';
+    bagSprite.x -= 1;
+    bagSprite.y -= 3;
+    audio.bag();
+    await time.wait(90);
+    state.bagged = true;
+    await finishOrder('bag', bagSprite);
+  }
+
+  async function finishOrder(handoff, bagSprite) {
+    const o = order();
+    state.busy = true;
+    if (handoff === 'products' && o.reactions?.handoff) {
+      const reaction = takeReaction('handoff');
+      if (reaction.text) {
+        dialogue.say([reaction.text], { lock: reaction.lock });
+        await time.wait(dialogue.readTime(reaction.text));
+      }
+    }
+    dialogue.say(o.exitLine ? [o.exitLine] : []);
+    await time.wait(200);
+    scene.customer.pose = 'reach';
+    const hand = handPoint();
+    if (handoff === 'bag') {
+      const target = centred('bag-full', hand);
+      await move(bagSprite, target.x, target.y - 6, 250);
+      removeExtra(bagSprite);
+    } else {
+      for (const item of scannedItems()) {
+        const product = scene.products.get(item.id);
+        const target = centred(item.sprite, hand);
+        await move(product, target.x, target.y, 250);
+        product.moving = true;
+        product.hidden = true;
+      }
+    }
+    state.bagged = true;
+    await time.wait(140);
+    scene.customer.pose = 'idle';
+    if (o.finalReport) {
+      state.busy = false;
+      return;
+    }
+    await time.wait(210);
+    dialogue.clear();
+    await walk(0, layout.customer.walk, 1100);
+    scene.customer.visible = false;
+    await time.wait(360);
+    nextOrder();
+    // Goods appear once the customer has reached the counter.
+    for (const product of scene.products.values()) product.hidden = true;
+    scene.customer.visible = true;
+    await walk(layout.customer.walk, 0, 1100);
+    await time.wait(90);
+    for (const product of scene.products.values()) product.hidden = false;
+    state.busy = false;
+    dialogue.say(order().customerLines, { lock: state.eventIndex === 0 });
+    radio.play(story.radio.orders[state.eventIndex]);
+  }
+
+  function nextOrder() {
+    time.cancel(waitTimer);
+    state.eventIndex = Math.min(state.eventIndex + 1, orders.length - 1);
+    Object.assign(state, {
+      selectedId: null, scannedIds: [], paid: false, bagged: false, heatedIds: [], busy: true,
+      modeOverride: null, reactionCounts: {}, dialogueFlags: new Set(),
+    });
+    scene.extras = [];
+    scene.fixtures = { ...fixtureDefault, drawer: 0, paper: 0 };
+    scene.customer = { id: order().customer, pose: 'idle', dx: layout.customer.walk, dy: 0, visible: true, prop: null };
+    cueSignature = '';
+    resetProducts();
+  }
+
+  function submitDecision(choice) {
+    const o = order();
+    if (!started() || state.busy || dialogue.locked || !o.mismatch || hasSavedRecord() || scannedItems(o).length !== o.items.length) return;
+    if (rescans() < 1) {
+      audio.anomaly();
+      sayOnce('confirmBeforeRescan');
+      return;
+    }
+    shift.commit(o.id, choice);
+    records.close();
+    const prefix = o.decisionKind === 'provenance' ? shift.decisionFor(o.linkedOrderId).decision + '-' : '';
+    dialogue.say([story.records[o.index].afterDecision[prefix + choice]]);
+    if (isPaymentReady()) scheduleWait('waitAtPayment', 4200, isPaymentReady);
+  }
+
+  function printReport() {
+    const o = order();
+    if (!started() || state.busy || dialogue.locked || !o.finalReport || !state.bagged || state.reportShown) return;
+    state.reportShown = true;
+    state.phase = 'report';
+    printReceipt();
+  }
+
+  async function startEnding() {
+    if (state.phase !== 'report') return;
+    state.phase = 'ending';
+    dialogue.clear();
+    if (radio.view.station !== '87.6') radio.tune('87.6');
+    const leaving = walk(0, layout.customer.walk, 1100).then(() => { scene.customer.visible = false; });
+    await time.wait(600);
+    await radio.play([...story.radio.endings[shift.ending()], story.radio.signoff]);
+    await leaving;
+    state.phase = 'end';
+  }
+
+  function startShift() {
+    if (state.phase !== 'title') return;
+    state.phase = 'shift';
+    audio.unlock();
+    audio.startAmbience();
+    dialogue.say(order().customerLines, { lock: true });
+    radio.play([...story.radio.intro, ...story.radio.orders[0]]);
+  }
+
+  // ------------------------------------------------------------ the other frequency
+  radio.setEchoProvider(() => {
+    const i = state.eventIndex;
+    if (state.phase !== 'shift' && state.phase !== 'report') return { key: 'radio.static' };
+    const first = shift.decisionFor(orders[4].id);
+    if (i < 4) return { key: i >= 2 ? 'radio.staticReg' : 'radio.static' };
+    if (!first) return { key: 'radio.echoRecord', vars: { time: orders[4].clock, label: '@item.spareKey' } };
+    if (i === 7 && !hasSavedRecord(orders[7])) return { key: 'radio.echoDoor' };
+    // It reads back the record you did not save.
+    const kept = first.decision === 'keep';
+    return { key: 'radio.echoOpposite', vars: { label: kept ? '@item.cola' : '@item.spareKey', origin: kept ? '@origin.MANUAL' : '@origin.REGISTER' } };
+  });
+
+  // ------------------------------------------------------------ per-frame derived state
+  function cueTargets() {
+    const o = order();
+    const targets = [];
+    if (!started() || state.busy || dialogue.locked || records.view.open) return targets;
+    const awaitingRecord = o.mismatch && scannedItems(o).length === o.items.length && !hasSavedRecord();
+    const selected = o.items.find(item => item.id === state.selectedId);
+    const ready = isPaymentReady();
+    // A record conflict removes guidance; the POS screen itself asks for attention.
+    if (awaitingRecord) return targets;
+    if (selected && !state.paid && !isScanned(selected)) targets.push('scanner');
+    if (ready) targets.push(o.paymentType === 'cash' ? 'tray' : 'terminal');
+    if (state.paid && selected && selected.heat && !state.heatedIds.includes(selected.id)) targets.push('microwave');
+    if (state.paid && needsBag(o) && !pendingHeat(o).length && !state.bagged) targets.push('bags');
+    if (o.finalReport && state.bagged && !state.reportShown) targets.push('printer');
+    if (!state.bagged) {
+      const candidates = state.paid ? pendingHeat(o) : o.items.filter(item => !isScanned(item));
+      for (const item of candidates) if (item.id !== state.selectedId) targets.push('item:' + item.id);
+    }
+    return targets;
+  }
+
+  function update() {
+    placeProducts();
+    for (const product of scene.products.values()) {
+      if (state.bagged && !product.moving) product.hidden = true;
+    }
+    const targets = cueTargets();
+    const signature = targets.slice().sort().join('|');
+    if (signature !== cueSignature) {
+      cueSignature = signature;
+      cueReadyAt = time.now + (state.eventIndex >= CUE_DELAY_START ? CUE_DELAY_MS : 0);
+    }
+    scene.cues = new Set(time.now >= cueReadyAt ? targets : []);
+  }
+
+  // ------------------------------------------------------------ world hit targets
+  function targets() {
+    const list = [];
+    if (state.phase !== 'shift') return list;
+    for (const [name, fixture] of Object.entries(layout.fixtures)) {
+      const size = sprites.size(fixture.sprite);
+      list.push({ name, sprite: scene.fixtures[name] || fixture.sprite, x: fixture.x, y: fixture.y, w: size.w, h: size.h });
+    }
+    if (!state.bagged) {
+      for (const product of scene.products.values()) {
+        if (product.hidden) continue;
+        const size = sprites.size(product.sprite);
+        list.push({ name: 'item:' + product.id, sprite: product.sprite, x: product.x, y: product.y, w: size.w, h: size.h, product: true });
+      }
+    }
+    return list;
+  }
+
+  function activate(name) {
+    if (name.startsWith('item:')) return selectItem(name.slice(5));
+    const actions = {
+      scanner: scan, terminal: () => pay('terminal'), tray: () => pay('cash'), microwave: heat, bags: bag,
+      printer: printReport, pos: () => records.open(), radio: () => radio.tune(),
+    };
+    return actions[name]?.();
+  }
+
+  resetProducts();
+  const controller = {
+    shift, orders, state, scene, order, update, targets, activate, startShift, startEnding,
+    submitDecision, hasSavedRecord, scannedItems,
+    canOpenRecords: () => (state.phase === 'shift' || state.phase === 'report') && !state.busy,
+  };
+  records.attach(controller);
+  root.NSF.game = controller;
+})(globalThis);

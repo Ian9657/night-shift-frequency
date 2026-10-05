@@ -1,5 +1,5 @@
 const assert = require('node:assert/strict');
-const { generate, createShift, groupItems } = require('../js/shift-engine.js');
+const { generate, createShift, groupItems } = require('../js/engine/shift.js');
 const units = Array.from({length: 12}, (_, i) => ({id: 'cola-' + i, productId: 'cola', pos: 'COLA', price: 180}));
 assert.equal(groupItems(units)[0].quantity, 12);
 for (let seed = 0; seed < 500; seed++) {
@@ -14,7 +14,11 @@ for (let seed = 0; seed < 500; seed++) {
   assert.equal(orders[0].speechStyle, 'quiet');
   assert.equal(orders[0].customerLines.length, 1);
   assert.equal(orders[3].paymentType, 'tap');
-  const lines = orders.flatMap(o => o.customerLines).filter(line => !['No bag.', 'Card.', 'Cash.', "I'll tap."].includes(line));
+  assert.equal(orders[4].customer, 'wen');
+  assert.equal(orders[7].customer, 'wenEcho');
+  const regulars = orders.filter(o => !o.mismatch).map(o => o.customer);
+  assert.equal(new Set(regulars).size, 6);
+  const lines = orders.flatMap(o => o.customerLines).filter(line => !['say.noBag', 'say.card', 'say.cash', 'say.tap'].includes(line));
   assert.equal(new Set(lines).size, lines.length);
   for (const order of orders) {
     assert.ok(order.items.length >= 1 && order.items.length <= 2);
@@ -45,9 +49,9 @@ for (const first of ['keep', 'correct']) for (const last of ['linked', 'independ
   }
   assert.equal(shift.decisions.length, 2);
   assert.equal(JSON.stringify(shift.orders), original);
-  assert.equal(shift.currentRegisterObservation('sale-005', 'cola'), 'SPARE KEY');
-  assert.equal(shift.currentRegisterObservation('sale-008', 'cola'), 'SPARE KEY');
-  assert.equal(shift.displayedItems('sale-005')[0].pos, first === 'correct' ? 'COLA 500ML' : 'SPARE KEY');
+  assert.equal(shift.currentRegisterObservation('sale-005', 'cola'), 'item.spareKey');
+  assert.equal(shift.currentRegisterObservation('sale-008', 'cola'), 'item.spareKey');
+  assert.equal(shift.displayedItems('sale-005')[0].pos, first === 'correct' ? 'item.cola' : 'item.spareKey');
   const final = shift.decisionFor('sale-008');
   assert.equal(final.verificationMode, last === 'linked' ? 'LINKED_HISTORY' : 'CURRENT_SCAN');
   assert.equal(final.recordOrigin, first === 'correct' && last === 'linked' ? 'MANUAL' : 'REGISTER');
@@ -61,8 +65,9 @@ for (const first of ['keep', 'correct']) for (const last of ['linked', 'independ
   assert.equal(shift.report().sales, shift.orders.flatMap(o => o.items).reduce((sum, p) => sum + p.price, 0));
   assert.equal(shift.report().overrides, first === 'correct' ? 1 : 0);
   assert.equal(shift.report().links, last === 'linked' ? 1 : 0);
-  const expected = first === 'correct' && last === 'linked' ? 'COLA 500ML' : 'SPARE KEY';
+  const expected = first === 'correct' && last === 'linked' ? 'item.cola' : 'item.spareKey';
   assert.equal(shift.decisionFor('sale-008').finalRecordedLabel, expected);
+  assert.equal(shift.ending(), `${first}-${last}`);
   const snapshot = shift.decisions;
   snapshot[0].finalRecordedLabel = 'CORRUPTED';
   assert.notEqual(shift.decisionFor('sale-005').finalRecordedLabel, 'CORRUPTED');

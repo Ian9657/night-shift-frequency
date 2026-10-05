@@ -1,31 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hans">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="refresh" content="0; url=greybox.html">
-  <title>Night Shift Frequency</title>
+  <title>夜班频率 Night Shift Frequency</title>
   <style>
-    html,
-    body {
-      height: 100%;
-    }
-
+    html, body { height: 100%; margin: 0; }
     body {
       display: grid;
       place-items: center;
-      margin: 0;
-      color: #ebe5cf;
-      background: #11140f;
-      font-family: "Courier New", ui-monospace, monospace;
+      overflow: hidden;
+      background: #07090f;
     }
-
-    a {
-      color: #c5d16d;
+    canvas {
+      display: block;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      touch-action: manipulation;
+    }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
     }
   </style>
 </head>
 <body>
-  <p>Opening <a href="greybox.html">Night Shift Frequency greybox</a>...</p>
+  <canvas data-game aria-label="Night Shift Frequency / 夜班频率"></canvas>
+  <p class="sr-only" data-live aria-live="polite"></p>
+  <script src="assets/sprite-data.js"></script>
+  <script src="assets/font-data.js"></script>
+  <script src="js/content/layout.js"></script>
+  <script src="js/content/strings.js"></script>
+  <script src="js/content/colors.js"></script>
+  <script src="js/content/customers.js"></script>
+  <script src="js/content/story.js"></script>
+  <script src="js/engine/shift.js"></script>
+  <script src="js/core/time.js"></script>
+  <script src="js/render/sprites.js"></script>
+  <script src="js/render/text.js"></script>
+  <script src="js/game/audio.js"></script>
+  <script src="js/game/dialogue.js"></script>
+  <script src="js/game/radio.js"></script>
+  <script src="js/game/records.js"></script>
+  <script src="js/game/checkout.js"></script>
+  <script src="js/render/world.js"></script>
+  <script src="js/render/ui.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>

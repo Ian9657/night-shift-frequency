@@ -2,40 +2,58 @@
 
 - Keep only the current playable version. Do not create legacy builds, dated
   backups, copied source trees or unused asset variants unless explicitly asked.
+  Git history holds earlier versions.
 - After every substantial update, review the affected modules and their callers.
-  Remove obsolete code, unused imports/assets, temporary debug UI and duplicated
-  implementations. Do not leave an old implementation hidden behind CSS.
+  Remove obsolete code, unused strings/sprites, temporary debug UI and duplicated
+  implementations.
 - Refactor when it removes real duplication or clarifies ownership. Avoid broad,
   unrelated rewrites and abstractions created only to split a large file.
-- Preserve gameplay behavior during cleanup. Verify static and dynamically
-  generated asset references before deleting resources.
+- Preserve gameplay behavior during cleanup. `tests/art.test.cjs` and
+  `tests/content.test.cjs` check sprite and string references; keep them passing
+  before deleting resources.
 - Keep orders immutable. Derive rescan/decision eligibility from domain history,
   not duplicate UI flags. Preserve observations separately from committed labels,
   and record origin separately from verification method.
-- Keep normal gameplay in the counter scene. Secondary evidence controls belong
+- Keep normal gameplay in the counter scene. Record evidence and choices belong
   on the POS; do not add an external HUD or reveal record choices before rescan.
-- Keep the root limited to entry pages, README, project instructions/configuration
-  and active source/assets/docs/tests directories. Test screenshots belong under
-  tests/artifacts and are disposable, not version archives.
-- Run the engine, full browser flow, product layout and payment visual tests after
-  major interaction or cleanup changes. Check desktop/mobile screenshots when
-  presentation changes. Report anything not verified.
-- Update README and current build notes with the actual implementation; do not
-  describe planned or removed features as active.
-- Use PixelWorld's 640x360 coordinates for scene objects and motion. Keep native
-  sprite proportions, fixed world heights and integer foot anchors. Resize the
-  entire world uniformly; do not reintroduce per-product depth/pose stretching.
-- Payment silhouettes belong in authored SVG poses. Code switches poses and
-  anchored props; it must not generate or interpolate anatomical outlines.
+- Keep the root limited to `index.html`, README, project instructions/configuration
+  and the `art/`, `assets/`, `docs/`, `js/`, `tests/` directories. Build tools live in
+  `art/tools/`. Test
+  screenshots and art review sheets belong under `tests/artifacts` and are disposable.
+- Run the full verification list after major interaction or cleanup changes.
+  Check desktop and phone screenshots when presentation changes. Report anything
+  not verified.
+- Update README and `docs/build-notes.md` with the actual implementation; do not
+  describe planned or removed features as active. Story changes must stay
+  consistent with `docs/worldview.md`.
+
+## Pixels, art and text
+
+- The world is 480x270 pixels drawn at 2x on a 960x540 canvas. UI text uses the
+  960x540 grid. Positions live in `js/content/layout.js`; use integer coordinates.
+- Shade with the shared tools: hue-shifted ramps (`js/content/colors.js`), `volume`,
+  `light` with normals and `glow` in `art/tools/pixel.cjs`. Outline with each
+  material's darkest tone rather than black.
+- All sprites are indexed to `art/palette.cjs`. Author them in `art/src`, or put an
+  Aseprite edit in `art/overrides/<name>.png` using palette colours only. Never
+  hand-edit `assets/sprite-data.js` or `assets/font-data.js`; `art/png/` is an
+  untracked export (`build-art.cjs --png`). Rebuild
+  with `node art/tools/build-art.cjs` / `python3 art/tools/build-font.py`.
+- Customer variety comes from parts plus slot colours (`js/content/customers.js`),
+  not copied sprites. Poses are authored parts; runtime code only switches parts
+  and attaches props at hand anchors. It must not generate or interpolate limbs.
+- Every player-facing string lives in `js/content/strings.js` with Chinese and
+  English. Rebuild the font after adding characters.
+- All waits and motion use `NSF.time` so tests can change speed. Do not add raw
+  `setTimeout` for game state (audio texture is the only exception).
 
 ## Verification
 
 - `node tests/shift-engine.test.cjs`
+- `node tests/content.test.cjs`
+- `node tests/art.test.cjs`
 - `node tests/browser-flow.cjs`
-- `node tests/product-layout.cjs`
-- `node tests/payment-visual.cjs`
-- `node tests/pixel-world.test.cjs`
-- `node tests/pixel-world-browser.cjs`
+- `node tests/visual.cjs`
 
 Browser tests require Chrome and Playwright; set PLAYWRIGHT_MODULE to an absolute
 module path when Playwright is not installed locally.

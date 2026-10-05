@@ -1,0 +1,127 @@
+GIMP Palette
+Name: Night Shift Frequency
+Columns: 8
+#
+  0   0   0	clear
+  5   7  12	void
+ 14  18  20	ink
+ 10  15  28	night0
+ 16  26  46	night1
+ 23  39  65	night2
+ 32  55  89	night3
+ 45  75 115	night4
+ 67 102 143	night5
+  8  19  31	sea0
+ 14  33  52	sea1
+ 22  49  74	sea2
+ 34  70  95	sea3
+109 143 179	rain
+ 90  74  50	lamp0
+147 119  74	lamp1
+224 179  99	lamp2
+251 231 166	lamp3
+ 31  43  64	haze0
+ 46  52  70	haze1
+ 67  63  66	haze2
+ 20  29  31	wall0
+ 28  40  42	wall1
+ 38  54  55	wall2
+ 50  71  69	wall3
+ 66  91  86	wall4
+ 90 119 112	wall5
+127 154 143	wall6
+223 243 230	tube
+243 246 234	white
+ 20  25  30	steel0
+ 30  37  43	steel1
+ 44  53  61	steel2
+ 63  75  84	steel3
+ 90 104 113	steel4
+127 143 150	steel5
+173 188 189	steel6
+212 221 216	steel7
+ 94  88  72	cream0
+131 124 102	cream1
+168 160 136	cream2
+199 192 165	cream3
+224 218 194	cream4
+241 236 217	cream5
+ 62  63  54	top0
+ 91  91  77	top1
+125 124 104	top2
+162 160 136	top3
+196 194 168	top4
+221 219 196	top5
+ 34  23  15	wood0
+ 60  42  28	wood1
+ 90  63  42	wood2
+125  90  60	wood3
+160 122  84	wood4
+ 89  22  34	red0
+146  39  46	red1
+200  64  58	red2
+207 120 112	red3
+218 170 162	red4
+118  39  16	orange0
+181  82  27	orange1
+223 138  58	orange2
+224 172 118	orange3
+231 203 173	orange4
+171  91  12	yellow0
+236 158  20	yellow1
+239 207  90	yellow2
+238 220 152	yellow3
+ 30  64  42	green0
+ 54 113  71	green1
+ 79 162  95	green2
+120 183 128	green3
+163 201 165	green4
+ 10  26  18	phos0
+ 18  53  34	phos1
+ 44 107  62	phos2
+ 92 191  99	phos3
+180 245 154	phos4
+ 23  67  72	cyan0
+ 43 122 126	cyan1
+ 63 179 179	cyan2
+108 195 186	cyan3
+156 209 198	cyan4
+ 23  38  72	blue0
+ 42  68 127	blue1
+ 62 100 180	blue2
+107 148 196	blue3
+155 187 209	blue4
+121  32  81	pink0
+178  49 109	pink1
+208  92 136	pink2
+217 144 167	pink3
+ 72  59 113	violet0
+106  85 160	violet1
+155 126 181	violet2
+143 138 122	paper0
+201 196 176	paper1
+235 231 214	paper2
+251 249 239	paper3
+ 74  42  34	skin0
+124  74  54	skin1
+168 105  76	skin2
+207 148 114	skin3
+236 194 162	skin4
+ 12  10  10	hair0
+ 30  25  23	hair1
+ 53  44  40	hair2
+ 84  70  62	hair3
+ 12  17  28	cloth0
+ 34  49  79	cloth1
+ 57  83 118	cloth2
+ 82 119 153	cloth3
+121 154 175	cloth4
+ 92  95  86	under0
+131 133 122	under1
+168 168 160	under2
+216 216 208	under3
+107  75  22	accent0
+201 162  74	accent1
+234 208 138	accent2
+ 26  20  18	eye0
+233 228 218	eye1
