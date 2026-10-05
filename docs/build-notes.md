@@ -1,6 +1,6 @@
 # Build notes: pixel-world rewrite
 
-Updated: 2026-10-05. Replaces the SVG/DOM eight-order build (git baseline `1c1df69`).
+Updated: 2026-10-05. Replaces the SVG/DOM eight-order build (git baseline `d72b93b`).
 
 ## What changed
 
