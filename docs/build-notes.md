@@ -28,8 +28,9 @@ Updated: 2026-10-05. Replaces the SVG/DOM eight-order build (git baseline `d72b9
 - **Story.** Worldview in `docs/worldview.md`: Lowtide, Harbor Mart, Night Ferry
   radio (87.6) and the echo frequency (87.7). Orders 5 and 8 carry the spare-key story;
   the four decision combinations end with different radio letters and a closing card.
-- **Bilingual.** Every string is `[zh, en]` in `js/content/strings.js`; language
-  switches live (top-right chip or L) and is remembered per browser.
+- **Text.** English only (an earlier pass was bilingual zh/en). Every string is in
+  `js/content/strings.js`. The source font is a 22 KB Latin subset of Fusion Pixel
+  12px; `build-font.py` bakes only the glyphs the strings use.
 
 ## Art refinement (480x270)
 
@@ -72,15 +73,15 @@ order-5 record. Closing totals derive from the ledger.
 
 - `shift-engine.test.cjs`: 500 seeds, four decision paths, immutability, idempotent
   settlement, lineup — pass.
-- `content.test.cjs`: 151 bilingual strings, referenced keys across 200 seeds, story
-  keys, four endings, glyph coverage — pass.
+- `content.test.cjs`: 146 strings, referenced keys across 200 seeds, no orphaned
+  strings, story keys, four endings, glyph coverage — pass.
 - `art.test.cjs`: 60 sprites rebuilt identically, indices inside the palette, PNG
   export round-trips, every sprite referenced, fixtures on the counter, hand anchors
   reach counter and terminal — pass.
 - `browser-flow.cjs`: real pointer clicks through all eight orders on all four
-  branches, report, ending, language toggle, narrow viewport, no page errors — pass.
+  branches, report, ending, sound toggle, narrow viewport, no page errors — pass.
 - `visual.cjs`: card contact, cash hand-off, heating, scanner bleed, echo caption,
-  English record view, landscape phone — pass; screenshots reviewed.
+  record view, landscape phone — pass; screenshots reviewed.
 
 ## Not verified / known limits
 

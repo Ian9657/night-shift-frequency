@@ -1,6 +1,6 @@
 // Captures key frames for human review and checks that each authored pose or
 // state is actually reached: card contact, cash hand-off, heating, the record
-// order's scanner bleed, the 87.7 echo caption, English UI and a phone in
+// order's scanner bleed, the 87.7 echo caption, the record view and a phone in
 // landscape. Screenshots go to tests/artifacts/visual-*.png.
 const path = require('node:path');
 const assert = require('node:assert/strict');
@@ -35,8 +35,6 @@ async function finish(page, index) {
     const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
     page.on('pageerror', e => errors.push(e.message));
     await page.goto(URL_BASE + '?seed=visual-check');
-    await page.evaluate(() => localStorage.setItem('nsf-language', 'zh'));
-    await page.reload();
     await click(page, 'ui:start');
     await speed(page, 12);
 
@@ -86,11 +84,9 @@ async function finish(page, index) {
     await page.waitForFunction(() => NSF.debug.radio.view.echo && NSF.debug.radio.caption());
     await page.waitForTimeout(400);
     await shot(page, 'radio-echo');
-    await page.keyboard.press('l');
     await click(page, 'pos');
     await click(page, 'ui:choice:keep');
-    await shot(page, 'record-choices-en');
-    assert.equal(await page.evaluate(() => NSF.i18n.getLanguage()), 'en');
+    await shot(page, 'record-choices');
     await page.close();
 
     // Phone held sideways.
@@ -103,7 +99,7 @@ async function finish(page, index) {
     assert.equal(await phone.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
     await phone.close();
     assert.deepEqual(errors, []);
-    console.log('PASS: key poses, heating, scanner bleed, echo radio, English UI and landscape phone captured.');
+    console.log('PASS: key poses, heating, scanner bleed, echo radio, record view and landscape phone captured.');
   } finally {
     await browser.close();
   }

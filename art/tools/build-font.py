@@ -13,15 +13,15 @@ import subprocess
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-FONT = os.path.join(ROOT, 'art/font/fusion-pixel-12px-proportional-zh_hans.ttf')
+FONT = os.path.join(ROOT, 'art/font/fusion-pixel-12px-latin-subset.ttf')
 TOP, ROWS = 2, 14  # glyph rows kept from the 16px raster
 
 strings = json.loads(subprocess.check_output(
     ['node', '-e', "process.stdout.write(JSON.stringify(require('./js/content/strings.js').strings))"],
     cwd=ROOT))
 chars = set(chr(c) for c in range(32, 127))
-for zh, en in strings.values():
-    chars.update(re.sub(r'\{\w+\}', '', zh + en))
+for text in strings.values():
+    chars.update(re.sub(r'\{\w+\}', '', text))
 chars.update('¥0123456789:.#·…—×↑↓')  # symbols drawn directly by js/render/ui.js
 
 font = ImageFont.truetype(FONT, 12)

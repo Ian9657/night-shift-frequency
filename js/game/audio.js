@@ -261,7 +261,7 @@
   }
 
   function dialogueTick(character) {
-    if (!character || /\s|[.,!?;。，！？；…、]/.test(character)) return;
+    if (!character || /\s|[.,!?;…]/.test(character)) return;
     tickStep += 1;
     if (tickStep % 3 !== 1 && Math.random() < 0.82) return;
     const ctx = audio();

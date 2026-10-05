@@ -3,7 +3,7 @@
 // different history. Captions are string keys resolved at draw time.
 (function (root) {
   'use strict';
-  const { time, audio, i18n } = root.NSF;
+  const { time, audio, strings } = root.NSF;
   const STATIONS = ['87.6', '87.7'];
 
   const view = { station: '87.6', key: null, vars: {}, startedAt: 0, duration: 0, echo: false };
@@ -13,9 +13,7 @@
   let finished = [];
 
   function lineDuration(key, vars) {
-    const text = i18n.t(key, vars);
-    const perChar = /[　-鿿]/.test(text) ? 150 : 52;
-    return Math.max(2600, text.length * perChar + 1200);
+    return Math.max(2600, strings.t(key, vars).length * 52 + 1200);
   }
 
   function show(key, vars = {}, echo = false) {
@@ -79,7 +77,7 @@
     setEchoProvider(fn) { echoProvider = fn; },
     caption() {
       if (!view.key) return '';
-      return i18n.t(view.key, view.vars);
+      return strings.t(view.key, view.vars);
     },
     // Fraction of the caption revealed, for a slow typewriter.
     progress() { return view.key ? Math.min(1, (time.now - view.startedAt) / Math.max(1, view.duration * 0.55)) : 0; },

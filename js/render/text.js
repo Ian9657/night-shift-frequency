@@ -29,15 +29,14 @@
     return total;
   }
 
-  // Wraps by words for Latin text and by character for CJK. Never breaks
-  // before closing punctuation.
+  // Wraps by words.
   function wrap(text, maxWidth) {
-    const tokens = text.match(/[　-鿿＀-￯“”‘’…—·]|[^\s　-鿿＀-￯“”‘’…—·]+|\s+/g) || [];
+    const tokens = text.match(/\S+|\s+/g) || [];
     const lines = [];
     let line = '';
     for (const token of tokens) {
       const candidate = line + token;
-      if (line && width(candidate.trimEnd()) > maxWidth && !/^[，。、？！：；”’…）]$/.test(token)) {
+      if (line && width(candidate.trimEnd()) > maxWidth) {
         lines.push(line.trimEnd());
         line = token.trimStart();
       } else {

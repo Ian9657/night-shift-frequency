@@ -3,8 +3,8 @@
 // clickable region drawn here is registered for the input router.
 (function (root) {
   'use strict';
-  const { text, i18n, dialogue, radio, records, layout, time, audio, engine } = root.NSF;
-  const t = i18n.t;
+  const { text, strings, dialogue, radio, records, layout, time, audio, engine } = root.NSF;
+  const t = strings.t;
   const C = {
     ink: '#101517', paper: '#ece8d0', paperShade: '#b4ae94', phosphor: '#aef08c', phosphorDim: '#55b066',
     amber: '#f5d873', red: '#ff8466', cyan: '#63d4d0', white: '#f1f5e6', panel: '#0b1311', panelLine: '#2a6a48',
@@ -145,20 +145,12 @@
   function chips(ctx, game) {
     const sound = audio.muted ? t('ui.soundOff') : t('ui.soundOn');
     let x = SW - 8;
-    for (const [value, action, name] of [[sound, () => { audio.muted = !audio.muted; }, 'sound'], [t('ui.lang'), toggleLanguage, 'lang']]) {
-      const w = text.width(value) + 12;
-      x -= w;
-      ctx.fillStyle = 'rgba(7,9,15,0.55)';
-      ctx.fillRect(x, 2, w, 17);
-      text.draw(ctx, value, x + 6, 3, C.white);
-      hit(x, 2, w, 17, action, name);
-      x -= 6;
-    }
-  }
-
-  function toggleLanguage() {
-    i18n.setLanguage(i18n.getLanguage() === 'zh' ? 'en' : 'zh');
-    try { root.localStorage.setItem('nsf-language', i18n.getLanguage()); } catch (_) { /* storage unavailable */ }
+    const w = text.width(sound) + 12;
+    x -= w;
+    ctx.fillStyle = 'rgba(7,9,15,0.55)';
+    ctx.fillRect(x, 2, w, 17);
+    text.draw(ctx, sound, x + 6, 3, C.white);
+    hit(x, 2, w, 17, () => { audio.muted = !audio.muted; }, 'sound');
   }
 
   // ------------------------------------------------------------ record view
@@ -214,8 +206,8 @@
       heading(t('rec.choose'));
       m.choices.forEach(choice => {
         const index = controls.findIndex(c => c.kind === 'choice' && c.choice === choice);
-        const caption = choice === 'keep' ? `${t('rec.keep')}：${label(o.items[0].pos)}`
-          : choice === 'correct' ? `${t('rec.correct')}：${label(o.items[0].real)}`
+        const caption = choice === 'keep' ? `${t('rec.keep')}: ${label(o.items[0].pos)}`
+          : choice === 'correct' ? `${t('rec.correct')}: ${label(o.items[0].real)}`
             : choice === 'linked' ? t('rec.linkedChoice', { order: shortId(o.linkedOrderId).slice(1) }) : t('rec.independent');
         const focused = records.view.focus === index;
         if (focused) { ctx.fillStyle = 'rgba(85,176,102,0.18)'; ctx.fillRect(x + 16, cy - 2, w - 32, LINE + 2); }
@@ -348,5 +340,5 @@
     return null;
   }
 
-  root.NSF.ui = { draw, hitTest, get targets() { return targets.slice(); }, toggleLanguage };
+  root.NSF.ui = { draw, hitTest, get targets() { return targets.slice(); } };
 })(globalThis);

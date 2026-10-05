@@ -42,8 +42,9 @@
 - Customer variety comes from parts plus slot colours (`js/content/customers.js`),
   not copied sprites. Poses are authored parts; runtime code only switches parts
   and attaches props at hand anchors. It must not generate or interpolate limbs.
-- Every player-facing string lives in `js/content/strings.js` with Chinese and
-  English. Rebuild the font after adding characters.
+- The game is English-only. Every player-facing string lives in
+  `js/content/strings.js`; rebuild the font after adding characters, and widen the
+  subset in `art/font/` if a character falls outside it.
 - All waits and motion use `NSF.time` so tests can change speed. Do not add raw
   `setTimeout` for game state (audio texture is the only exception).
 

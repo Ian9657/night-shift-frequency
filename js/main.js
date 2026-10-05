@@ -1,7 +1,7 @@
 // Boot: canvas scaling, the frame loop and input routing.
 (function (root) {
   'use strict';
-  const { time, layout, world, ui, game, records, sprites, i18n, dialogue, radio } = root.NSF;
+  const { time, layout, world, ui, game, records, sprites, dialogue, radio } = root.NSF;
   const canvas = document.querySelector('[data-game]');
   const ctx = canvas.getContext('2d');
   const live = document.querySelector('[data-live]');
@@ -9,11 +9,6 @@
   canvas.width = W;
   canvas.height = H;
   ctx.imageSmoothingEnabled = false;
-
-  try {
-    const saved = root.localStorage.getItem('nsf-language');
-    i18n.setLanguage(saved || (navigator.language?.startsWith('zh') ? 'zh' : 'en'));
-  } catch (_) { /* storage unavailable: keep default */ }
 
   // Fill the window. Exact whole or half scales (world pixels = 2 canvas pixels)
   // are used when the window is within 4% of one; otherwise the canvas fits, and
@@ -69,7 +64,6 @@
   });
   root.addEventListener('keydown', event => {
     if (records.key(event.key)) { event.preventDefault(); return; }
-    if (event.key === 'l' || event.key === 'L') ui.toggleLanguage();
     if ((event.key === 'Enter' || event.key === ' ') && game.state.phase === 'title') game.startShift();
   });
 

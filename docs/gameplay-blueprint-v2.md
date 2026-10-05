@@ -1,48 +1,67 @@
-# Night Shift Frequency：八单玩法验证蓝图
+# Night Shift Frequency: eight-order gameplay blueprint
 
-版本：2.0 · 2026-09-20
+Version 2.0 · 2026-09-20
 
-状态：机制设计基线，八单机制已实现，真人验收尚未完成。2026-10-05 的像素世界重做保留了本文的记录规则（第 5、8 单的选择、来源与核对的区分），但叙事层以 [世界观设定](worldview.md) 为准：备用钥匙现在有完整的故事、电台回声与四种结局，第 6 节「不增加钥匙背景故事」的限制不再适用。实现与验证见 [构建说明](build-notes.md)。
+Status: mechanics baseline. The eight-order mechanics are implemented; human playtesting
+has not been done. The 2026-10-05 pixel-world rebuild keeps this document's record rules
+(the order 5 and 8 choices, and the separation of origin from verification), but the
+narrative layer now follows [the worldview](worldview.md): the spare key has a full
+story, a radio echo and four endings, so section 6's "no key backstory" limit no longer
+applies. Button labels below are the original candidates; the shipped labels are in
+`js/content/strings.js`. Implementation and verification: [build notes](build-notes.md).
 
-## 1. 要证明什么
+## 1. What this has to prove
 
-日常订单把玩家训练成一个熟练店员；异常订单让玩家决定如何处理彼此矛盾的证据。第五单的决定必须改变第八单玩家判断证据的方式。
+Ordinary orders train the player into a competent clerk; anomalous orders make the
+player decide how to handle contradictory evidence. The order 5 decision must change how
+the player weighs evidence in order 8.
 
-当前 demo 的优势是场景、操作反馈与异常编排，主要不足是决策空间。扩展成功的标准不是订单更多，而是玩家能说明自己做过什么判断、依据是什么，以及后来发生了什么。
+The earlier demo was strong on scene, operation feedback and staged anomalies; its main
+weakness was decision space. Success is not more orders. It is a player who can explain
+what they judged, on what basis, and what happened afterwards.
 
-本轮范围：订单生成、核查与提交、跨订单历史、后果回访、对白条件与试玩验证。复用现有商品和设备。只允许表达选择和记录所必需的界面调整，不升级场景、美术、音乐或其他系统。
+Scope of this round: order generation, checking and committing, cross-order history,
+consequence callbacks, conditional dialogue and playtest validation. Reuse existing
+products and devices. Only UI changes needed to express choices and records are allowed;
+no upgrades to scene, art, music or other systems.
 
-十五单是后续扩展目标。八单核心未经验证前，不增加经营评分、库存经营、限时压力、复杂找零、多结局、自由生成对白或争议暂存资源。
+Fifteen orders is a later goal. Until the eight-order core is validated: no business
+scoring, inventory management, time pressure, complex change-making, multiple endings,
+freely generated dialogue or dispute holding areas.
 
-## 2. 核心原则
+## 2. Core principles
 
-- 随机的是合法订单组合，基本操作规则保持稳定。
-- 核查只获取证据，提交才确定记录。重新扫描永远不代表自动选择人工更正。
-- 保留登记与人工更正都能完成交易；没有选错后强制重来的路径。
-- 世界可以撒谎，游戏内部的玩家行为记录必须准确。
-- 玩家历史要影响下一次工作判断，不能只作为结尾彩蛋。
-- 重要冲突后至少一单普通交易；本次第五单后保留两单。
-- 顾客承认玩家做了什么，不替玩家判定哪种现实正确。
-- 信息含义可以不确定，按钮用途、交易规则和状态反馈必须清楚。
+- What is random is the combination of valid orders; the basic operating rules stay fixed.
+- Checking only gathers evidence; committing decides the record. A re-scan never means
+  an automatic manual correction.
+- Both keeping the register entry and correcting it complete the sale; there is no
+  wrong choice that forces a retry.
+- The world may lie; the game's record of player behaviour must be exact.
+- Player history must affect the next working judgement, not just be an ending easter egg.
+- At least one ordinary sale follows any major conflict; here, two follow order 5.
+- Customers acknowledge what the player did, never ruling on which reality is correct.
+- Meaning may be uncertain; button purpose, transaction rules and state feedback must be clear.
 
-## 3. 八单结构
+## 3. Eight-order structure
 
-| 单数 | 类型 | 内容与约束 | 设计作用 |
+| Order | Type | Content and constraints | Design role |
 | --- | --- | --- | --- |
-| 1 | 固定或轻随机 | 1–2 件、card、常规装袋，无加热 | 建立扫描、付款、交接 |
-| 2 | 受约束随机 | 保证现金体验；商品与袋需求变化 | 建立付款和交接差异 |
-| 3 | 受约束随机 | 保证一件可加热商品，付款后提出加热需求 | 建立服务顺序 |
-| 4 | 受约束随机 | 完全正常；可出现明确合理的内部商品简称 | 强化系统通常可信 |
-| 5 | 手工冲突 A | 可乐与登记名称冲突；核查后明确二选一 | 第一次留下有责任的记录 |
-| 6 | 受约束随机 | 简短普通单，不解释上一单 | 恢复操作节奏 |
-| 7 | 受约束随机 | 普通交易，不加入新的显著异常 | 留下记忆间隔 |
-| 8 | 手工回访 A | 引用第五单真实提交记录，处理本单关联 | 历史成为当前判断的依据 |
+| 1 | Fixed or lightly random | 1–2 items, card, normal bagging, no heating | Teach scan, pay, hand-off |
+| 2 | Constrained random | Guaranteed cash; items and bag need vary | Teach payment and hand-off differences |
+| 3 | Constrained random | One heatable item, heating requested after payment | Teach service order |
+| 4 | Constrained random | Fully normal; may include a clearly reasonable internal short name | Reinforce that the system is usually reliable |
+| 5 | Authored conflict A | Cola vs register name; after checking, an explicit either/or | First accountable record |
+| 6 | Constrained random | Short ordinary order, no explanation of the last | Restore rhythm |
+| 7 | Constrained random | Ordinary sale, no new notable anomaly | Memory gap |
+| 8 | Authored callback A | References the actual order 5 record; resolve this sale's link | History becomes evidence |
 
-收班报告在第八单之后出现，不另算一单。旧六单中的 five 对白、数量闪烁和负营业额不自动搬入新版本；是否重用取决于它们能否支持本轮实验。不保留旧版可执行副本。
+The shift report follows order 8 and is not an order. The old six-order "five" dialogue,
+count flicker and negative sales are not carried over automatically; reuse depends on
+whether they support this experiment. No old executable copy is kept.
 
-## 4. 普通订单生成
+## 4. Ordinary order generation
 
-先生成订单配方，再选择匹配的商品和手写对白。例如：
+Generate an order recipe first, then matching products and hand-written dialogue, e.g.:
 
 ```text
 itemCount: 2
@@ -53,65 +72,105 @@ customerContext: after_work
 dialogueDensity: low
 ```
 
-生成顺序：班次槽位约束 → 合法配方 → 商品组合 → 顾客情境 → 条件对白。第五、八单固定，不交给随机池抽取。
+Order: shift slot constraints → valid recipe → product set → customer context →
+conditional dialogue. Orders 5 and 8 are fixed and never drawn from the random pool.
 
-硬约束：
+Hard constraints:
 
-- 商品、价格、可加热属性来自同一商品目录；普通登记必须与目录对应。
-- heat_one 恰好指定一件可加热商品，且该商品属于订单；先付款再加热。
-- 支付和无袋组合必须有现存可完成的交互路径。
-- 同一句闲聊本班最多一次；必要操作提示允许再次查看或重述。
-- 首单不叠加服务变化，前三单逐步引入规则。
-- 主线订单、回访引用和随机订单之间不存在缺失依赖。
+- Products, prices and heatability come from one catalogue; ordinary register entries
+  must match it.
+- heat_one names exactly one heatable item in the order; payment comes before heating.
+- Every payment / no-bag combination has a completable interaction path.
+- Each small-talk line appears at most once per shift; necessary operating prompts may
+  be reviewed or repeated.
+- The first order adds no service variation; the first three introduce rules gradually.
+- No missing dependencies between story orders, callbacks and random orders.
 
-软约束：降低连续相同支付方式、最近三单主商品、相邻加热单和频繁无袋单的权重。资源池小时允许重复，不能为避免重复生成非法订单。
+Soft constraints: down-weight repeated payment types, the main products of the last
+three orders, adjacent heating orders and frequent no-bag orders. Small pools may
+repeat; never generate an invalid order to avoid repetition.
 
-随机实现使用班次 seed；玩法随机与音色、装饰随机分开。同一 seed 和同一玩家决定应复现相同订单及后果。采用有限候选筛选与加权抽取，候选为空时回退到已验证的简单配方，并记录回退原因，避免无限重抽。
+Randomness uses a shift seed, kept separate from sound and decoration randomness. The
+same seed and the same player decisions reproduce the same orders and consequences.
+Use bounded candidate filtering and weighted picks; with no candidates, fall back to a
+verified simple recipe and log why, rather than re-rolling forever.
 
-普通单需改变实际操作节奏，例如数量、付款、加热、交接方式；仅换商品名称不算玩法变化。催促目前只能是社会反应，不能暗中引入耐心惩罚。
+Ordinary orders must change the actual operating rhythm (quantity, payment, heating,
+hand-off); swapping product names alone is not variation. Hurrying is only a social
+reaction for now; no hidden patience penalty.
 
-## 5. 第五单：发现、核查、理解、决定
+## 5. Order 5: notice, check, understand, decide
 
-初始可见事实：实物是 COLA 500ML，首次登记为 SPARE KEY，价格相同。本轮只争议商品身份，避免同时引入金额和找零问题。
+Initially visible facts: the item is COLA 500ML, first registered as SPARE KEY, same
+price. Only the item's identity is in dispute this round, to avoid also raising amount
+and change problems.
 
-玩家可以重复扫描、查看实物与登记对照、阅读有限的顾客反应。第一次复扫确认名称没有恢复；之后复扫不改变记录，也不无限提供新台词。等待不是解锁必需证据的唯一方式。
+The player can re-scan, compare item and register, and read limited customer
+reactions. The first re-scan confirms the name did not recover; later re-scans change
+nothing and do not produce endless new lines. Waiting is not the only way to unlock
+required evidence.
 
-两种提交操作在核对完成后同时可用，使用 POS 内明确、相近权重的操作区域：
+Both commit actions become available together after the check, as clear, equally
+weighted controls on the POS:
 
-- `KEEP REGISTER RECORD`：本单最终登记保留 SPARE KEY。
-- `CORRECT TO ITEM`：本单最终登记改为 COLA 500ML，并保存人工更正来源。
+- `KEEP REGISTER RECORD`: this sale's final entry stays SPARE KEY.
+- `CORRECT TO ITEM`: this sale's final entry becomes COLA 500ML, saved with a manual
+  correction origin.
 
-提交前展示将保存的结果；选中后到正式提交前允许改选。提交只写入一次，然后两条路径都正常付款、装袋与离场。扫描器继续只承担核查，不用重复点击次数暗中决定分支。
+Show what will be saved before committing; the choice can change until committed. The
+commit writes once; both paths then pay, bag and leave normally. The scanner only
+checks; click counts never secretly decide the branch.
 
-两种理由需要在世界中成立：保留者依据系统曾经可靠、金额吻合、内部名称可能不同；更正者依据实物包装和重复核查。第四单可用 COFFEE 与 BOSS BLACK COFFEE 这样的合理简称建立背景，但它不能证明 SPARE KEY 合理，也不应凭空制造扣工资等惩罚来强迫犹豫。
+Both rationales must hold up in the world. Keeping relies on the system's past
+reliability, a matching amount and possible internal naming; correcting relies on the
+packaging and repeated checks. Order 4 can establish background with a reasonable short
+name like COFFEE vs BOSS BLACK COFFEE, but that must not justify SPARE KEY, and no
+invented penalties (docked pay) should force hesitation.
 
-候选顾客反应只承认行为：保留后 “That what it says?”；更正后 “You can change those?”。具体文案待试玩，不锁成最终剧本。
+Candidate customer reactions only acknowledge the action: after keeping, "That what it
+says?"; after correcting, "You can change those?". Final wording waits for playtests.
 
-## 6. 第八单：让历史参与新判断
+## 6. Order 8: let history take part in a new judgement
 
-第八单仍使用已有可乐资产。POS 提供第五单的交易号、当时保存的名称及来源。沿用普通交易也使用的记录格式，避免突然出现剧情说明弹窗。关联应清楚可查，不把隐藏来源当作难度。
+Order 8 reuses the cola. The POS shows order 5's transaction number, the name saved
+then and its origin, in the same record format as ordinary sales, so no sudden story
+popup. The link must be clearly inspectable; hiding the source is not difficulty.
 
-| 第五单决定 | 第八单看到的历史 | 当前问题 |
+| Order 5 decision | History seen in order 8 | The question now |
 | --- | --- | --- |
-| 保留登记 | SPARE KEY，来源 REGISTER，引用第五单交易号 | 是否让未经更正的旧登记继续作为本次依据？ |
-| 人工更正 | COLA 500ML，来源 MANUAL，引用第五单交易号 | 名称吻合是否只是复用了自己之前的更正，而非独立验证？ |
+| Kept register | SPARE KEY, origin REGISTER, citing order 5 | Should an uncorrected old entry stand as this sale's basis? |
+| Manual correction | COLA 500ML, origin MANUAL, citing order 5 | Is a matching name just reusing your own earlier correction rather than independent verification? |
 
-第八单需要玩家决定的是“本单记录是否沿用旧交易”，与第五单的身份更正不同：
+Order 8 asks whether this sale's record reuses the old transaction, which differs from
+order 5's identity correction:
 
-- `USE LINKED ENTRY`：接受所显示的旧记录作为本单依据，并保存引用关系。
-- `VERIFY THIS SALE`：重新核对本单实物及扫描结果，再明确保存独立的本单记录；不覆盖第五单。
+- `USE LINKED ENTRY`: accept the shown old record as this sale's basis and save the link.
+- `VERIFY THIS SALE`: re-check this sale's item and scan, then save an independent record
+  for this sale; order 5 is not overwritten.
 
-核查当前实物仍可在决定前进行。按钮文字是候选，必须根据 POS 可读空间调整，不能为了沉浸感把操作藏在未知热点里。
+The current item can still be checked before deciding. Button text is a candidate and
+must fit the POS; operations must never be hidden in unknown hotspots for immersion.
 
-独立扫描的候选结果仍为 SPARE KEY。这样人工更正分支面对“过去自己的修改”和“当前机器读取”的冲突；保留分支则面对“旧记录与当前机器一致，但二者是否算独立证据”的问题。顾客可以说 “Same one as before.”，但不提供事实裁决。第一版不增加不可见钥匙或强制解释的背景故事。
+The independent scan still reads SPARE KEY. The correction branch then faces "my past
+edit" versus "the machine now"; the keep branch faces "the old record agrees with the
+machine, but is that independent evidence?". The customer may say "Same one as
+before.", but gives no ruling on the facts.
 
-两种处理都正常结账。小票显示本单最终条目与来源；报表准确列出人工更正和引用次数。先验证可信的后果链，再考虑添加一处明确设计的报表异常。不能同时扭曲所有证据。
+Both paths check out normally. The receipt shows the final entry and origin; the report
+counts manual corrections and links exactly. Validate a believable consequence chain
+first, then consider one deliberately designed report anomaly. Never distort all
+evidence at once.
 
-待验证风险：VERIFY THIS SALE 可能成为始终更稳妥的默认选项。先观察理由，不为平衡选择率随意加倒计时或惩罚；若缺少真正判断，修改证据结构后再测。
+Risk to validate: VERIFY THIS SALE may become the always-safer default. Observe the
+reasons first; do not add timers or penalties to balance pick rates. If there is no
+real judgement, change the evidence structure and retest.
 
-## 7. 状态与记录契约
+## 7. State and record contract
 
-`orderState` 管当前选择、已扫描、付款、加热、装袋及待提交决定。`shiftState` 管 seed、订单安排、已用对白、交易记录和决策历史。渲染内容单独从事实和明确的异常规则推导。
+`orderState` holds the current selection, scanned items, payment, heating, bagging and
+the pending decision. `shiftState` holds the seed, order schedule, used dialogue,
+transactions and decision history. Rendering derives separately from facts and explicit
+anomaly rules.
 
 ```js
 const decisionRecord = {
@@ -128,56 +187,100 @@ const decisionRecord = {
 };
 ```
 
-商品身份用稳定 ID，标签用于显示。历史采用追加记录；后续更正另写一条引用原记录的事件。重复点击、动画回调或 render 不得重复提交。普通换单只重置 orderState。
+Item identity uses stable IDs; labels are for display. History is append-only; a later
+correction is a new event referencing the original. Repeated clicks, animation
+callbacks or renders must never commit twice. Moving to the next order resets only
+orderState.
 
-订单是不可变输入；原始读数不能被最终保存标签覆盖。复扫和是否提交从历史推导，不在 UI 中保存另一套计数/标记。recordOrigin 表示标签来源，verificationMode 表示核查依据；引用旧人工记录仍是 MANUAL + LINKED_HISTORY，不算一次新的人工更正。
+Orders are immutable input; raw readings are never overwritten by the final saved
+label. Re-scan and commit eligibility derive from history, not from separate UI
+counters or flags. recordOrigin is where the label came from; verificationMode is what
+it was checked against. Reusing an old manual record is MANUAL + LINKED_HISTORY and does
+not count as a new manual correction.
 
-报表先从真实交易推导。如果以后要显示额外一次更正，使用独立的 presentation anomaly 规则并保存其触发原因；不能篡改真实计数。金额与记录来源分别维护，不能因名字变化自动改变销售额。
+The report derives from real transactions. If an extra correction is ever shown, it
+uses a separate presentation-anomaly rule that records its trigger; real counts are
+never altered. Amounts and record origin are kept separately; a name change never
+changes sales.
 
-本轮只需班次内记忆，不要求跨刷新存档。测试日志记录 seed、订单、核查、决定和回访行为，默认本地保存，不接外部遥测。
+This round needs only in-shift memory, no save across reloads. Playtest logs record
+seed, orders, checks, decisions and callbacks, stored locally, with no external telemetry.
 
-## 8. 对白与熟练操作
+## 8. Dialogue and fluent operation
 
-对白采用手写条件片段：情境、触发条件、使用次数、必要信息、阅读保护分别标记。关键证据可重新查看。普通寒暄与反馈允许边操作边读，保护锁仅用于确实需要停手的节点。
+Dialogue uses hand-written conditional fragments, each tagged with context, trigger, use
+count, required information and read protection. Key evidence can be reviewed again.
+Ordinary small talk and feedback can be read while working; the protection lock is only
+for moments that truly need the player to stop.
 
-先测量普通单的等待，再有限开放输入缓冲，例如扫描收尾时记住下一件商品选择。缓冲不得跨订单、不得排队提交分支、不得绕过必要核对；执行时重新检查合法性。避免全面提速或让两位顾客共享一套订单状态。
+Measure waiting in ordinary orders first, then open limited input buffering (e.g.
+remembering the next item selection as a scan finishes). Buffering never crosses
+orders, never queues branch commits and never skips required checks; legality is
+re-checked on execution. Avoid a global speed-up or two customers sharing one order state.
 
-异常期间减少下一步描边，但两个合法选择必须同样可发现。没有“推荐答案”高亮。
+During anomalies, reduce next-step outlines, but both valid choices must be equally
+discoverable. No "recommended answer" highlight.
 
-## 9. 实施顺序与退出条件
+## 9. Implementation order and exit criteria
 
-1. 维护当前版本与运行说明；整理订单重置边界，以回归测试验证变更。
-2. 建立班次历史与独立的显示推导，先验证交易提交一次、换单不丢历史。
-3. 在固定订单中实现第五单两条路径和第八单两种后续处理，先跑通全部组合。
-4. 加入六个普通槽位的配方生成、seed 和约束回退；不改变两个关键槽位。
-5. 调整必要的 POS 操作、记录查看和条件对白，再测完整八单节奏。
-6. 无引导试玩后决定扩至十五单，或继续修改核心选择。
+1. Maintain the current build and run notes; tidy order reset boundaries with regression tests.
+2. Build shift history and separate display derivation; first verify a sale commits once
+   and history survives order changes.
+3. Implement both order 5 paths and both order 8 follow-ups in fixed orders; run all combinations.
+4. Add recipe generation, seeds and constraint fallbacks for the six ordinary slots,
+   leaving the two key slots unchanged.
+5. Adjust necessary POS operations, record viewing and conditional dialogue, then test
+   the full eight-order rhythm.
+6. After unguided playtests, decide whether to expand to fifteen orders or keep revising
+   the core choice.
 
-工程整理围绕状态、生成器和记录推导的实际需要进行，不把全面重构或美术提升作为开始验证的前置条件。
+Engineering cleanup follows the real needs of state, generator and record derivation; a
+full refactor or art upgrade is not a prerequisite for validation.
 
-## 10. 验证方案
+## 10. Validation plan
 
-功能验证覆盖第五单保留/更正 × 第八单沿用/独立的四条组合：都能付款、交接、收班；原始历史不变；当前来源、小票和报表相符。测试重复点击、重复复扫、动画期间输入和换单后的旧回调。
+Functional validation covers keep/correct (order 5) × link/independent (order 8): all
+four pay, hand off and close; original history is unchanged; current origin, receipt
+and report agree. Test repeated clicks, repeated re-scans, input during animation and
+stale callbacks after changing orders.
 
-生成验证覆盖一批固定 seeds：恰好八单、关键槽位固定、商品与服务相容、普通单价格正确、必教规则覆盖、闲聊不重复、回退可完成。软约束统计单独查看，不能当作硬失败。
+Generation validation covers a fixed batch of seeds: exactly eight orders, key slots
+fixed, products compatible with services, correct ordinary prices, required rules
+taught, no repeated small talk, fallbacks completable. Soft-constraint statistics are
+reviewed separately and are not hard failures.
 
-首次用户测试建议 5–8 人，属于方向性观察，不代表统计结论。核心观察：
+First user tests: 5–8 people, directional rather than statistical. Core observations:
 
-- 理解选择：能说清保留和更正分别保存什么。
-- 认出后果：在研究者提示前，认出第八单引用了此前处理。
-- 形成理由：用实物、扫描、来源或过去可靠性解释决定。
-- 继续工作：能在不靠主持人指导的情况下完成两次处理。
+- Understanding the choice: can say what keep and correct each save.
+- Recognising the consequence: notices order 8 references the earlier handling before
+  being prompted.
+- Forming reasons: explains the decision with the item, scan, origin or past reliability.
+- Continuing to work: completes both decisions without facilitator help.
 
-不把多数玩家选同一条路直接判定为失败，也不把长时间犹豫视为成功。记录核查行为和决策用时，仅用于结合访谈判断是在思考还是迷路。
+A majority choosing the same path is not a failure, and long hesitation is not success.
+Record checking behaviour and decision time only to judge, with interviews, whether
+players were thinking or lost.
 
-完整试玩组在结束后访谈，避免第五单提问提前暴露回访意图。另设少量界面理解测试，可在第五单后提问。录下自发反应与需要提示后的回答，两者分开计。
+Interview full-run players afterwards, so questions at order 5 don't reveal the
+callback. Run a few separate UI-comprehension tests that may ask questions after order
+5. Count spontaneous reactions and prompted answers separately.
 
-扩展门槛：多数首次玩家能独立理解选择、认出引用并说出证据理由；不存在阻断交易的问题。若只得到“又一个 glitch”的反应，优先改第五到第八单的关联和后果，不增加订单。
+Expansion gate: most first-time players independently understand the choices,
+recognise the reference and state evidence-based reasons, with no blocking issues. If
+the only reaction is "just another glitch", fix the order 5–8 link and consequences
+before adding orders.
 
-## 11. 后续十五单方向
+## 11. Toward fifteen orders
 
-八单验证通过后，考虑约十单建立/恢复节奏、五单改变证据状态。具体数量由时长与疲劳测试决定。关键节点仍手工安排在阶段内，普通单受约束生成，重要异常后保留正常交易。
+Once eight orders validate, consider about ten orders that build and restore rhythm and
+five that change the state of the evidence; exact numbers come from length and fatigue
+tests. Key beats stay hand-placed within phases, ordinary orders stay constrained
+random, and normal sales follow major anomalies.
 
-下一轮需要协作者重点研究：两个决定是否都说得通；更正分支是否比保留分支明显更有内容；第八单是否真的需要处理历史来源；十五单能否保持劳动节奏而不疲劳。
+Next round, collaborators should study: whether both decisions make sense; whether the
+correction branch clearly has more content than the keep branch; whether order 8 really
+needs to deal with record provenance; whether fifteen orders keep the work rhythm
+without fatigue.
 
-本轮成功意味着：玩家能用自己留下的证据讲述这一班发生的事情。此后才值得扩大内容规模。
+Success this round means the player can tell what happened on this shift using the
+evidence they left behind. Only then is it worth growing the content.

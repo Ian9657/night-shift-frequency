@@ -2,7 +2,7 @@
 // input lock used by a few deliberate lines. Lines are string keys.
 (function (root) {
   'use strict';
-  const { time, audio, i18n } = root.NSF;
+  const { time, audio, strings } = root.NSF;
   const TYPE_MS = 26, COMMA_MS = 60, STOP_MS = 90, BETWEEN_LINES_MS = 1350;
 
   const view = { key: null, vars: {}, shown: 0, revision: 0 };
@@ -10,13 +10,13 @@
   let timers = [];
 
   function delayAfter(ch) {
-    if (/[.!?。！？…]/.test(ch)) return STOP_MS;
-    if (/[,;，；、]/.test(ch)) return COMMA_MS;
+    if (/[.!?…]/.test(ch)) return STOP_MS;
+    if (/[,;]/.test(ch)) return COMMA_MS;
     return TYPE_MS;
   }
   function typingDuration(key, vars) {
     if (!key) return 0;
-    return [...i18n.t(key, vars)].reduce((sum, ch) => sum + delayAfter(ch), TYPE_MS);
+    return [...strings.t(key, vars)].reduce((sum, ch) => sum + delayAfter(ch), TYPE_MS);
   }
   function readTime(key, vars) { return key ? typingDuration(key, vars) + BETWEEN_LINES_MS : 0; }
 
@@ -31,7 +31,7 @@
     if (!key) return;
     const tick = () => {
       if (revision !== view.revision) return;
-      const text = [...i18n.t(key, vars)];
+      const text = [...strings.t(key, vars)];
       if (view.shown >= text.length) return;
       view.shown += 1;
       audio.dialogueTick(text[view.shown - 1]);
@@ -65,7 +65,7 @@
     say, clear, readTime,
     get locked() { return locked; },
     // Visible text for the current language, respecting typewriter progress.
-    visibleText() { return view.key ? [...i18n.t(view.key, view.vars)].slice(0, view.shown).join('') : ''; },
-    fullText() { return view.key ? i18n.t(view.key, view.vars) : ''; },
+    visibleText() { return view.key ? [...strings.t(view.key, view.vars)].slice(0, view.shown).join('') : ''; },
+    fullText() { return view.key ? strings.t(view.key, view.vars) : ''; },
   };
 })(globalThis);

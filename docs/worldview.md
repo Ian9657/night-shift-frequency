@@ -1,98 +1,118 @@
-# 夜班频率：世界观设定
+# Night Shift Frequency: world and story
 
-版本：1.0 · 2026-10-05 · 对应当前八单版本。剧情与文本修改需与本文一致。
+Version 1.0 · 2026-10-05 · matches the current eight-order build. Story and text
+changes must stay consistent with this document.
 
-## 一句话
+## In one line
 
-1990 年代的海边小镇「低潮镇」。下雨的夜里，海湾对岸那座废弃中继塔会把「隔壁频率」串进来：
-另一个几乎一模一样、只有细节不同的低潮镇。收音机、扫码枪这些靠无线电工作的东西会先听到它。
+Lowtide, a seaside town in the 1990s. On rainy nights the abandoned relay tower across
+the bay lets the *neighbouring frequency* bleed in: another Lowtide, almost identical,
+different only in small details. Anything that works by radio, the radio itself and the
+wireless barcode scanner, hears it first.
 
-## 体验曲线
+## Shape of the night
 
-这一夜不是一路升级的恐怖，而是：
+This is not a horror ramp. The night goes:
 
 ```text
-日常工作 → 轻微荒诞 → 安静的不安 → 孤独 → 天亮，一切恢复正常
+ordinary work → light absurdity → quiet unease → loneliness → daylight, everything normal again
 ```
 
-前几单像真的在上班（参考《Papers, Please》的劳动感）；中段开始有说不上来的不对劲；
-接近结尾时，玩家应该感到只剩自己和这台系统；交班后电台收台，像阳光照回店里。
-玩家只在柜台后面工作，不在店里走动。收银机是主要工具，但不是整个画面。
+The first orders should feel like an actual job (the routine of *Papers, Please*). In the
+middle, something is off in a way you can't name. Near the end the player should feel
+alone with the system. After the shift the radio signs off, like sunlight coming back
+into the store. The player only works behind the counter and never walks the store.
+The register is the main tool, but not the whole picture.
 
-## 地点
+## Places
 
-- **港湾便利店（Harbor Mart）**：码头边的 24 小时便利店。玩家是凌晨两点到三点的夜班店员，收银机编号 REG#02。
-  玩家只在柜台后面，透过正对门口的落地玻璃看到外面。
-- **窗外**：路灯、湿漉漉的街面、海堤栏杆、黑色的海。对岸山上有几户灯火，还有那座中继塔，塔顶的红灯一闪一闪。
-  玻璃上挂着「OPEN 24H」灯牌，从店里看是反的。
-- **墙上**：挂钟，以及一张潮汐表。潮汐是镇上的时间单位。
-- **中继塔**：海岸无线中继站，已停用十二年。传说下雨时它还在「发报」。我们不解释它为什么这样，只呈现它造成的现象。
+- **Harbor Mart**: a 24-hour convenience store by the pier. The player is the clerk on
+  the 2–3 a.m. shift at register REG#02, seeing the outside only through the glass
+  storefront facing the counter.
+- **Outside**: a street lamp, wet road, the seawall railing, black water. A few lit
+  windows on the far shore, and the relay tower with its blinking red light. An
+  "OPEN 24H" sign hangs in the glass, reversed from inside.
+- **On the wall**: a clock and a tide table. Tides are how the town keeps time.
+- **The relay tower**: a coastal radio relay, out of service for twelve years. People
+  say it still transmits when it rains. We never explain why; we only show what it does.
 
-## 两个频率
+## Two frequencies
 
-- **FM 87.6「夜航台」**：深夜点播节目，主持人**阿岚**。语气温和、疲惫，像是在陪所有睡不着的人。
-  她读天气、点歌、失物招领和听众留言。阿岚是玩家在这一夜唯一稳定的陪伴。
-- **FM 87.7「回声台」**：平时只有沙沙声，偶尔夹着「REG#02」。从第 5 单开始，它会用平板的声音念出收银记录，
-  而且念的是**另一边**的记录：你保存了「备用钥匙」，它就念「可乐，人工更正」；反过来也一样。
-  回声台从不解释，也不评判。
+- **FM 87.6, *Night Ferry***: a late-night request show hosted by **Lan**. Warm and
+  tired, keeping everyone who can't sleep company. She reads the weather, requests, lost
+  and found, and listener messages. Lan is the player's only steady company all night.
+- **FM 87.7, the echo**: static most of the time, with the odd "REG#02" in it. From
+  order 5 it reads register records in a flat voice, and it reads the *other side's*
+  record: if you saved SPARE KEY, it reads "COLA 500ML, manual"; and the reverse.
+  The echo never explains and never judges.
 
-**原则：世界可以撒谎，游戏里关于玩家行为的记录必须准确。** 账本、小票和报表永远如实记录玩家做了什么；
-异常只出现在扫描读数、电台和人物身上。
+**Rule: the world may lie, but the game's record of what the player did must be exact.**
+The ledger, receipts and report always record the player's actions faithfully. Anomalies
+appear only in scanner readings, on the radio and in people.
 
-## 人物
+## People
 
-- **阿雯**（第 5 单）：穿黄色雨衣，长发偏分。进门时在打电话：「嗯，我到了。钥匙我放店里，你来拿就行。」
-  她买了一瓶可乐，收银机却登记成「备用钥匙」。
-- **来取钥匙的人**（第 8 单）：同一张脸，青绿色雨衣，头发分向相反（美术上是镜像的发型）。
-  「我来拿钥匙。她说放在这儿了。」她是阿雯的妹妹，或者是隔壁频率里的阿雯。游戏不回答这个问题。
-- **常客**：码头工人老陈、出租车司机老周、送外卖的阿涛、护士安娜、上夜班的小美、睡不着的学生若若、
-  听夜航台的阿凯、戴毛线帽的码头工阿慧、玩乐队的阿森、早起的李阿婆。他们只聊天气、船和睡眠，
-  不知道也不评论异常。
+- **Wen** (order 5): yellow raincoat, long hair with a side part. She comes in on the
+  phone: "Yeah, I'm here. I'll leave the key at the shop. Just come get it." She buys a
+  cola that the register records as a SPARE KEY.
+- **The one who comes for the key** (order 8): the same face, a teal raincoat, hair
+  parted the other way (the hair sprite is mirrored). "I'm here for the key. She said
+  she left it here." She is Wen's sister, or Wen from the neighbouring frequency. The
+  game never answers that.
+- **Regulars**: Old Chen the dock worker, Old Zhou the taxi driver, Tao on deliveries,
+  Ana the nurse, Mei off a late office shift, Ruo the student who can't sleep, Kai who
+  listens to Night Ferry, Hui the dock worker in a beanie, Sam from a band, and Granny
+  Li, up early. They talk about weather, boats and sleep. They don't notice or comment
+  on anomalies.
 
-## 一夜的节奏
+## The night, order by order
 
-| 时间 | 单 | 电台 87.6 | 作用 |
+| Time | Order | Radio 87.6 | Purpose |
 | --- | --- | --- | --- |
-| 02:12 | 1 | 开场、雨会下到天亮 | 熟悉流程（刷卡、装袋） |
-| 02:18 | 2 | 给夜班店员点歌 | 现金、不要袋子 |
-| 02:24 | 3 | 中继塔的传说 | 先付款再加热 |
-| 02:30 | 4 | 失物招领：黄雨靴，左脚 | 完全正常的一单 |
-| 02:41 | 5 | 无署名留言：备用钥匙留在港湾便利店 | 第一次记录决定 |
-| 02:46 | 6 | 「如果你听到了别的台，那不是我们」 | 恢复节奏 |
-| 02:52 | 7 | 雨小了，天快亮了 | 记忆间隔 |
-| 02:58 | 8 | 同一条留言，这次是妹妹署名 | 历史成为新的依据 |
-| 03:04 | 交班 | 最后一封来信 + 收台 | 四种结局之一 |
+| 02:12 | 1 | Opening; rain until dawn | Learn the routine (card, bag) |
+| 02:18 | 2 | A song request for the night clerk | Cash, no bag |
+| 02:24 | 3 | The relay tower legend | Pay first, then heat |
+| 02:30 | 4 | Lost and found: a yellow rain boot, left foot | A completely normal order |
+| 02:41 | 5 | Unsigned message: the spare key is at Harbor Mart | First record decision |
+| 02:46 | 6 | "If you heard another station, that wasn't us." | Recover the rhythm |
+| 02:52 | 7 | Rain easing, nearly light | Memory gap |
+| 02:58 | 8 | The same message, signed by the sister | History becomes evidence |
+| 03:04 | Close | One last letter, then sign-off | One of four endings |
 
-## 四种结局（交班后夜航台读出）
+## Four endings (read by Night Ferry after the shift)
 
-| #005 | #008 | 最后一封来信 |
+| #005 | #008 | The last letter |
 | --- | --- | --- |
-| 保留登记（钥匙） | 沿用 #005 | 拿到钥匙，门开着，屋里坐着一个和她一模一样的姐姐。 |
-| 保留登记（钥匙） | 按本次扫描 | 现在有两把钥匙；一扇门，两边都有人回了家。 |
-| 改为实物（可乐） | 沿用 #005 | 店员说那只是一瓶可乐；她在门口坐到天亮，也许本来就没有钥匙。 |
-| 改为实物（可乐） | 按本次扫描 | 钥匙找到了，门开了，但她总觉得那不是姐姐留下的那一把。 |
+| Keep register (key) | Use #005 | She got the key; the door was open and her sister, identical to her, was waiting inside. |
+| Keep register (key) | Use this scan | There are two keys now; one door, and someone came home on both sides. |
+| Correct to item (cola) | Use #005 | The clerk said it was just a cola; she sat at the door till morning. Maybe there never was a key. |
+| Correct to item (cola) | Use this scan | The key turned up and the door opened, but it doesn't feel like the one her sister left. |
 
-结局都不是惩罚，没有对错。它们是玩家的记录在另一个人身上留下的回声。
+No ending is a punishment and none is correct. Each is the echo the player's record
+leaves on someone else.
 
-## 写作规则
+## Writing rules
 
-- 安静、具体、日常。没有 jump scare，没有血，没有直接说出口的超自然解释。
-- 恐怖感来自「记录与现实不一致」，以及「有人因为你的记录而得到了不同的结果」。
-- 顾客只承认玩家做了什么，不替玩家判断哪一个现实是对的。
-- 每条文本都要有中文和英文，两种语言语气一致，不逐字直译。
-- 新地点（仓库、员工休息室、店门口）可以以后再加，但都要服从「无线电串台」这一条规则。
+- Quiet, specific, everyday. No jump scares, no gore, no spoken supernatural explanation.
+- The unease comes from records disagreeing with reality, and from someone getting a
+  different outcome because of what you recorded.
+- Customers acknowledge what the player did; they never decide which reality is right.
+- New places (stockroom, staff room, the front door) can come later, but all of them
+  follow the one rule: radio bleed.
 
-## 以后可以长出来的东西
+## Room to grow
 
-旧六单版里验证过、可以回收的异常（都要服从「无线电串台」规则）：
+Anomalies proven in the old six-order build that can return (all must follow the
+radio-bleed rule):
 
-- 顾客说「不是五个人」，玩家并没有提到五。
-- 付款后 POS 先显示「5 ITEMS」，再跳回「2 ITEMS」。
-- POS 屏幕说谎，但打印出来的小票是对的。
-- 交班报表出现负数销售额。
+- A customer says "It's not five people," though the player never mentioned five.
+- After payment the POS shows "5 ITEMS", then snaps back to "2 ITEMS".
+- The POS screen lies, but the printed receipt is right.
+- The shift report shows negative sales.
 
-新的点子：
+New ideas:
 
-- 第 4 单失物招领里的黄雨靴（左脚），可以在后续某单里出现右脚。
-- 回声台的报时比夜航台慢一分钟。
-- 潮汐表上有一天的潮位画错了，那一天就是中继塔停用的日子。
+- The yellow rain boot from order 4's lost and found (left foot) could turn up later as
+  a right foot.
+- The echo's time signal runs one minute behind Night Ferry's.
+- One day on the tide table has the tide drawn wrong: the day the tower went dark.

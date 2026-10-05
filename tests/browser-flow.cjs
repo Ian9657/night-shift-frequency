@@ -14,7 +14,7 @@ const { chromium, artifacts, URL_BASE, click, playOrder } = require('./browser-h
       const errors = [];
       page.on('pageerror', e => errors.push(e.message));
       await page.goto(URL_BASE + '?seed=browser-check');
-      await page.evaluate(() => { localStorage.setItem('nsf-language', 'zh'); NSF.debug.time.speed = 12; });
+      await page.evaluate(() => { NSF.debug.time.speed = 12; });
       await click(page, 'ui:start');
       for (let i = 0; i < 8; i++) {
         const order = await playOrder(page, [first, last], name).catch(async error => {
@@ -45,19 +45,15 @@ const { chromium, artifacts, URL_BASE, click, playOrder } = require('./browser-h
       await page.close();
       console.log('path ok:', name);
     }
-    // Language switch and narrow viewport.
+    // Narrow portrait viewport: the scene fits without page overflow; sound toggles.
     const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
     await page.goto(URL_BASE + '?seed=browser-check');
-    await page.evaluate(() => localStorage.setItem('nsf-language', 'en'));
-    await page.reload();
-    await page.waitForTimeout(300);
-    assert.equal(await page.evaluate(() => NSF.i18n.getLanguage()), 'en');
-    await page.screenshot({ path: path.join(artifacts, 'mobile-title-en.png') });
-    await click(page, 'ui:lang');
-    assert.equal(await page.evaluate(() => NSF.i18n.getLanguage()), 'zh');
+    await click(page, 'ui:sound');
+    assert.equal(await page.evaluate(() => NSF.audio.muted), true);
+    await page.screenshot({ path: path.join(artifacts, 'mobile-title.png') });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
     await page.close();
-    console.log('PASS: four record branches, report, ending, language toggle, narrow viewport.');
+    console.log('PASS: four record branches, report, ending, sound toggle, narrow viewport.');
   } finally {
     await browser.close();
   }

@@ -2,7 +2,7 @@
 // model the renderer draws. Cross-order history lives in the shift engine.
 (function (root) {
   'use strict';
-  const { time, audio, dialogue, radio, records, engine, story, customers, layout, sprites, i18n } = root.NSF;
+  const { time, audio, dialogue, radio, records, engine, story, customers, layout, sprites } = root.NSF;
 
   const params = new URLSearchParams(root.location?.search || '');
   const shift = engine.createShift(params.get('seed') || String(Date.now()));
