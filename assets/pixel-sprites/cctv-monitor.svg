@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 96" shape-rendering="crispEdges">
+  <rect width="128" height="96" fill="none"/>
+
+  <!-- 1. SOLID INDUSTRIAL CEILING MOUNT: consolidated clean planar clusters -->
+  <!-- ceiling dark contact rim -->
+  <path fill="#292d30" d="M16 0h46v2H16zM14 2h50v3H14z"/>
+  <!-- massive cast flange plate: unified broad bevels -->
+  <path fill="#7c8184" d="M16 0h46v3H16z"/>
+  <path fill="#51575b" d="M14 3h50v4H14z"/>
+
+  <!-- 2. HEAVY CONDUIT CABLE: unified industrial rubber run -->
+  <path fill="#24282b" d="M51 6h3v5h-3zM52 11h3v6h-3zM49 17h4v4h-4zM42 21h7v4h-7zM34 25h8v4h-8zM31 29h4v4h-4z"/>
+
+  <!-- 3. SOLID VERTICAL STEM (firm anchor without micro-slices) -->
+  <path fill="#30363a" d="M34 7h12v9H34z"/>
+  <path fill="#737b80" d="M35 7h6v9h-6z"/>
+
+  <!-- 4. ARTICULATED CLAMP-STYLE SWIVEL KNUCKLE (consolidated blocks, powerful locking pivot) -->
+  <!-- main knuckle yoke: solid block -->
+  <path fill="#30363a" d="M30 16h20v10H30z"/>
+  <path fill="#737b80" d="M33 17h8v7h-8z"/>
+  <!-- Pivot end belongs to the joint mass, without an isolated bright bolt. -->
+  <path fill="#30363a" d="M25 18h5v6h-5z"/>
+  <!-- angled neck firmly reaching into camera back -->
+  <path fill="#30363a" d="M36 26h14v6H36z"/>
+  <path fill="#737b80" d="M38 26h10v5H38z"/>
+
+  <!-- 5. CAMERA REAR GLAND & CAP -->
+  <path fill="#30363a" d="M30 33h4v5h-4z"/>
+  <path fill="#51575b" d="M31 34h2v3h-2z"/>
+  <path fill="#292e32" d="M34 30h8v12h-8z"/>
+  <path fill="#555d63" d="M35 31h6v10h-6z"/>
+  <path fill="#292e32" d="M42 30h2v14h-2z"/>
+
+  <!-- 6. EXTENDED CAMERA CYLINDER: strong 2:1 core shadow & directional body planes -->
+  <!-- deep underside drop shadow running full length -->
+  <path fill="#292e32" d="M42 38h42v10H42zM52 48h28v4H52z"/>
+  
+  <!-- lower barrel shadow flank (continuous, strengthening barrel length) -->
+  <path fill="#555d63" d="M44 34h42v8H44zM48 42h36v4H48zM54 46h26v3H54z"/>
+  
+  <!-- continuous core shadow line / longitudinal cylinder fold defining body axis -->
+  <path fill="#555d63" d="M43 32h42v3H43zM49 35h36v2H49z"/>
+
+  <!-- mid barrel body: continuous directional plane stretching forward -->
+  <path fill="#7f878c" d="M43 27h42v5H43zM50 32h34v3H50z"/>
+
+  <!-- prominent upper cast shadow: overhang shadow cast by sunshield along entire body length -->
+  <path fill="#30363a" d="M41 23h48v4H41zM65 27h24v3H65z"/>
+
+
+  <!-- 7. EXTENDED DEEP SUNSHIELD HOOD (continuous dynamic canopy) -->
+  <!-- hood back rim & side flange -->
+  <path fill="#393f43" d="M34 18h58v4H34zM92 22h8v22h-8z"/>
+  <!-- hood sloped canopy: long sweeping 2:1 angle -->
+  <path fill="#9da3a5" d="M35 19h56v3H35zM45 22h48v2H45zM57 24h38v2H57zM69 26h28v2H69z"/>
+  <!-- hood crisp crest ridge -->
+  <path fill="#babfbe" d="M36 19h54v1H36z"/>
+  <!-- hood forward visor peak -->
+  <path fill="#a5aaab" d="M90 22h8v5h-8zM92 27h6v8h-6zM94 35h4v8h-4z"/>
+  <path fill="#4c5459" d="M98 22h2v22h-2zM94 43h4v2h-4z"/>
+
+  <!-- 8. RECESSED LENS ASSEMBLY (UNTOUCHED: maintaining established mechanical depth) -->
+  <!-- Level 1: Outer front bezel ring -->
+  <path fill="#292e32" d="M78 31h20v24H78zM82 55h12v4h-12z"/>
+  <path fill="#4c5459" d="M80 33h16v20H80z"/>
+  <path fill="#90999d" d="M81 33h14v2h-14zM81 35h2v16h-2z"/>
+  <!-- Broken casing rim catches ambient light; the underside stays in shadow. -->
+  <path fill="#7f878c" d="M96 38h1v15h-1zM84 54h8v1h-8z"/>
+
+  <!-- Level 2: Stepped inner bevel -->
+  <path fill="#141c14" d="M83 36h12v15H83z"/>
+  <path fill="#242e22" d="M84 37h10v13H84z"/>
+
+  <!-- Level 3: Deep dark cavity -->
+  <path fill="#080c06" d="M85 38h9v11h-9z"/>
+
+  <!-- Level 4: Heavy-duty threaded lens core -->
+  <path fill="#121810" d="M86 40h7v8h-7z"/>
+  <path fill="#1e261c" d="M87 41h5v6h-5z"/>
+
+  <!-- Level 5: Optical cold coated glass reflection -->
+  <path fill="#4e6252" d="M88 42h3v3h-3z"/>
+  <path fill="#869e8a" d="M89 42h1v1h-1z"/>
+  <!-- inner occlusions -->
+  <path fill="#040604" d="M83 36h12v2H83zM93 36h2v15h-2z"/>
+</svg>

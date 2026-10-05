@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 180" shape-rendering="crispEdges">
+  <!-- Existing L-shaped footprint; the service surface and device anchors stay fixed. -->
+  <path fill="#192428" d="M6 82l158-74h430l46 34v12l-8 2v18l-18 5H202l-54 42H16l-10-6z"/>
+  <!-- Continuous laminate sheet, rear upstand and return joint. -->
+  <path fill="#adb6b3" d="M12 76l152-68h428l40 30v12l-48 10H196l-54 40H18z"/>
+  <path fill="#c9cec2" d="M14 75l152-64h422l40 29v7l-47 10H193l-53 40H18z"/>
+  <path fill="#d1d5c9" d="M28 70l142-56h410l34 26l-36 8H188l-54 34H28z"/>
+  <path fill="#84958d" d="M164 8h428l40 30v3l-42-30H165L14 77l-2-1z"/>
+  <path fill="#b8c3b6" d="M166 11h423l37 28h-4l-34-25H168L28 73h-6z"/>
+  <path fill="#a4b1a5" d="M161 17h2l25 34-2 1z"/>
+  <path fill="#dce0d3" d="M163 17h1l25 34-1 1z"/>
+  <!-- A shallow laminate edge reflection, shorter than the structural band. -->
+  <path fill="#dce1d2" d="M218 49h166v1H218zM441 49h112v1H441z" opacity=".45"/>
+  <!-- Broad, low-contrast reflected light instead of disconnected scratches. -->
+  <path fill="#dde0d3" d="M206 19h180l8 3H204zM38 68h85l20-8h6l-24 11H38z" opacity=".32"/>
+  <path fill="#b5bfb2" d="M215 43h178v2H211z" opacity=".25"/>
+  <path fill="#d2b785" d="M438 14h90l18 10-8 8h-80l-20-8z" opacity=".16"/>
+  <path fill="#d2b785" d="M458 14h60l12 8-8 3h-54l-10-5z" opacity=".12"/>
+  <!-- Continuous rolled edge: upper bevel, vertical fascia, dark undercut. -->
+  <path fill="#273538" d="M12 76h126l54-24h388l52-12v10l-50 14H198l-54 40H18l-6-4z"/>
+  <path fill="#aab9ac" d="M14 76h123l54-24h389l49-11v2l-48 12H192l-54 24H16z"/>
+  <path fill="#526962" d="M16 79h121l55-24h388l49-12v4l-48 13H195l-56 26H18z"/>
+  <path fill="#314743" d="M18 86h121l56-26h386v4H198l-54 40H18z"/>
+  <path fill="#192428" d="M18 91h120l58-27h384v6H202l-54 38H18z"/>
+  <path fill="#73897e" d="M132 79h5v6l-5 2zM578 55h3v5h-3z"/>
+  <!-- Return cabinet: one shallow drawer above a quiet service door. -->
+  <path fill="#566865" d="M18 90h120v72H18z"/>
+  <path fill="#273538" d="M18 90h6v72h-6zM132 90h6v82h-6z"/>
+  <path fill="#405752" d="M24 90h108v7H24z"/>
+  <path fill="#607267" d="M26 98h104v1H26z"/>
+  <path fill="#354b46" d="M24 112h108v2H24z"/>
+  <path fill="#526960" d="M24 114h108v2H24z"/>
+  <path fill="#2b403b" d="M57 101h42v4H57z"/>
+  <path fill="#70816f" d="M59 101h38v1H59z"/>
+  <path fill="#50645c" d="M25 117h2v32h-2zM129 117h2v32h-2z"/>
+  <path fill="#485e5a" d="M24 150h108v12H24z"/>
+  <path fill="#46595a" d="M138 108l60-40v104h-60z"/>
+  <path fill="#3c504c" d="M140 111l51-35v6l-51 35z"/>
+  <path fill="#2c3b3d" d="M194 76h6v88h-6z"/>
+  <!-- Load-bearing rail and shaded employee knee well. -->
+  <path fill="#2e4143" d="M198 72h18v100h-18zM216 70h398v10H216z"/>
+  <path fill="#52675f" d="M204 76h8v78h-8z"/>
+  <path fill="#202c2f" d="M196 68h22v8h-22z"/>
+  <path fill="#35484a" d="M216 80h204v82H216z"/>
+  <path fill="#405451" d="M234 85h168v57H234z"/>
+  <path fill="#2e4143" d="M216 80l18 5v57l-18 20zM402 85l18-5v82l-18-20z"/>
+  <path fill="#293c3b" d="M234 85h168v10H234z"/>
+  <path fill="#344a45" d="M234 95h168v3H234z"/>
+  <path fill="#495d59" d="M234 142h168l18 20H216z"/>
+  <path fill="#273538" d="M234 138h168v4H234z"/>
+  <path fill="#52665d" d="M232 145h171l3 3H229z"/>
+  <!-- A recessed rubber standing mat belongs to the employee floor, not the worktop. -->
+  <path fill="#293c39" d="M253 146h129l14 11H239z"/>
+  <path fill="#334b43" d="M253 147h128l9 7H245z"/>
+  <path fill="#40564b" d="M256 148h121v1H256zM250 152h134v1H250z"/>
+  <!-- Flush utility doors: recessed pulls share a datum, no decorative frames. -->
+  <path fill="#52635f" d="M420 80h194v82H420z"/>
+  <path fill="#1d292c" d="M420 70h8v92h-8zM606 70h8v92h-8z"/>
+  <path fill="#3f554f" d="M428 80h178v8H428z"/>
+  <path fill="#607065" d="M432 89h79v1h-79zM522 89h80v1h-80z"/>
+  <path fill="#374f49" d="M515 88h3v67h-3z"/>
+  <path fill="#607064" d="M518 90h1v64h-1z"/>
+  <path fill="#293e39" d="M475 94h30v5h-30zM528 94h30v5h-30z"/>
+  <path fill="#70816e" d="M477 94h26v1h-26zM530 94h26v1h-26z"/>
+  <path fill="#455d55" d="M477 98h26v1h-26zM530 98h26v1h-26z"/>
+  <path fill="#495d59" d="M428 150h178v12H428z"/>
+  <path fill="#3c534d" d="M430 150h174v2H430z"/>
+  <path fill="#536963" d="M431 113h4v33h-4zM597 113h5v33h-5z"/>
+  <!-- Recessed plinths stop at the open work space. -->
+  <path fill="#293b3d" d="M18 162h180v12H18zM420 162h194v10H420z"/>
+  <path fill="#172125" d="M18 174h180v6H18zM420 172h194v8H420z"/>
+</svg>

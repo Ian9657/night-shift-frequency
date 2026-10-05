@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 56" shape-rendering="crispEdges">
+  <!-- 1. DROP SHADOW ON COUNTERTOP -->
+  <path fill="#121614" d="M12 50h24v4H12z" opacity=".8"/>
+  <path fill="#0a0c0a" d="M14 51h20v2H14z"/>
+
+  <!-- 2. CAN SILHOUETTE & OUTER RIM CONTOURS -->
+  <path fill="#161412" d="M15 6h18v2h2v4h-1v36h1v2h-2v2H15v-2h-2v-2h1V12h-1V8h2z"/>
+
+  <!-- 3. ALUMINUM LID & BEVELED CHIME (Top Chime) -->
+  <path fill="#788480" d="M16 7h16v3H16z"/>
+  <path fill="#b4c2be" d="M17 7h14v1H17z"/> <!-- shiny metallic rim top -->
+  <path fill="#4e5856" d="M17 9h14v2H17z"/> <!-- lid indentation basin -->
+  
+  <!-- Can Pull Tab (Silver rivet and ring tab) -->
+  <path fill="#8a9692" d="M22 8h4v3h-4z"/>
+  <path fill="#c6d5ca" d="M23 9h2v1h-2z"/>
+  
+
+  <!-- Upper neck taper -->
+  <path fill="#8a9692" d="M15 11h18v2H15z"/>
+  <path fill="#4e5856" d="M15 12h18v1H15z"/>
+
+  <!-- 4. CAN BODY (Deep Roast Black Coffee: Matte Charcoal, Gold, Crimson) -->
+  <path fill="#1c1816" d="M14 13h20v34H14z"/>
+  <!-- Specular cylindrical highlight strip -->
+  <path fill="#2e2622" d="M16 13h2v34h-2z"/>
+  
+
+  <!-- Metallic Gold Band (BOSS style canned coffee ribbon) -->
+  <path fill="#9c782c" d="M14 20h20v4H14z"/>
+  <path fill="#d4aa48" d="M14 21h20v2H14z"/>
+   <!-- gold cylinder reflection -->
+  <!-- Micro text block on gold band -->
+  <path fill="#1c1816" d="M19 21h10v2H19z"/>
+  
+
+  <!-- Deep Crimson Accent Block -->
+  <path fill="#6c1a1a" d="M14 26h20v3H14z"/>
+  <path fill="#962828" d="M14 26h20v1H14z"/>
+  
+  <path fill="#d9ddce" d="M16 27h16v1H16z"/>
+
+  <!-- Brand Emblem Silhouette -->
+  <path fill="#d4aa48" d="M22 32h4v5h-4z"/>
+  <path fill="#dcc17b" d="M23 33h2v3h-2z"/>
+  
+
+  <!-- Volume and Barcode lower markings -->
+  <path fill="#d9ddce" d="M16 41h7v1h-7zM16 43h5v1h-5z"/>
+  <path fill="#8a9692" d="M27 40h6v4h-6z"/>
+  
+
+  <!-- 5. BOTTOM CHIME & BASE CRIMP -->
+  <path fill="#54605e" d="M15 47h18v2H15z"/>
+  <path fill="#8a9692" d="M16 48h16v1H16z"/>
+  <path fill="#343c3a" d="M15 49h18v1H15z"/>
+<path fill="#44544d" d="M15 14h2v5h-2zM15 30h2v8h-2z"/><path fill="#a7baac" d="M17 48h7v1h-7z"/>
+</svg>

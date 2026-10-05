@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 160" shape-rendering="crispEdges">
+<path fill="#4a4936" d="M34 65h27v6h12v8h7v20h4v53H13V97h4V80h8v-9h9z"/><path fill="#7c7957" d="M34 70h26v7h11v7h6v19h3v47H17V98h4V86h8v-9h5z"/><path fill="#6e6c4e" d="M63 87h8v20h4v43H62zM24 129h8v21h-8z"/><path fill="#a4a07a" d="M25 84h6v18h-5v-8h-3zM65 82h6v9h-6z"/>
+<g transform="translate(-2 0)"><path fill="#78695c" d="M40 52L57 52L57 69L40 69Z"/>
+<path fill="#bd987e" d="M43 55L54 55L54 67L43 67Z"/>
+<path fill="#3b3334" d="M29 15L62 15L62 20L70 20L70 34L25 34L25 24L29 24Z"/>
+<path fill="#8a705f" d="M28 35L33 35L33 46L28 46ZM63 35L68 35L68 46L63 46ZM32 28L63 28L63 50L58 50L58 58L39 58L39 52L32 52Z"/>
+<path fill="#bd987e" d="M34 27L61 27L61 50L56 50L56 56L41 56L41 51L34 51Z"/>
+<path fill="#ad8b74" d="M58 36L61 36L61 48L57 48L57 53L54 53L54 48L57 48L57 41L58 41Z"/>
+<path fill="#d6b49a" d="M37 30L59 30L59 35L37 35ZM49 38L52 38L52 46L49 46Z"/>
+<path fill="#3d3430" d="M35 38L43 38L43 39L35 39ZM54 38L62 38L62 39L54 39ZM39 39L42 39L42 42L39 42ZM56 39L59 39L59 42L56 42Z"/>
+<path fill="#876252" d="M47 45L53 45L53 47L47 47ZM43 51L55 51L55 53L43 53Z"/>
+<path fill="#3b3334" d="M25 20L65 20L65 27L74 27L74 69L63 69L63 31L32 31L32 69L23 69L23 30L25 30ZM30 27L58 27L58 33L30 33Z"/>
+<path fill="#998769" d="M29 20L63 20L63 23L29 23Z"/>
+<path fill="#514546" d="M27 25L30 25L30 46L27 46ZM66 34L70 34L70 52L66 52Z"/>
+<path fill="#b6a68b" d="M35 67L57 67L57 69L35 69Z"/></g>
+<path fill="#c3b69a" d="M33 69h28l-11 19H42z"/><path fill="#4a4936" d="M29 74l16 16-10 11-11-20zM64 74L51 90l10 11 11-20z"/><path fill="#6e6c4e" d="M47 100h3v50h-3z"/><path fill="#b9aa83" d="M53 107h3v3h-3z"/><path fill="#b9aa83" d="M53 128h3v3h-3z"/>
+<path fill="#4a4936" d="M20 78h12v12h-4v17h-3v18H12v-23h3V87h5z"/><path fill="#7c7957" d="M21 82h7v10h-4v18h-2v13h-7v-20h3V89h3z"/><path fill="#a4a07a" d="M19 94h3v17h-3z"/><path fill="#8a705f" d="M12 123h13v14h-3v3h-8v-4h-2z"/><path fill="#bd987e" d="M14 125h9v10h-3v3h-4v-4h-2z"/><path fill="#4a4936" d="M68 79h11v9h5v16h3v22H74v-19h-3V94h-3z"/><path fill="#7c7957" d="M73 84h5v10h3v16h3v14h-8v-19h-3z"/><path fill="#a4a07a" d="M78 99h3v15h-3z"/><path fill="#8a705f" d="M74 124h13v13h-3v3h-8v-4h-2z"/><path fill="#bd987e" d="M76 126h9v9h-3v3h-4v-4h-2z"/>
+</svg>

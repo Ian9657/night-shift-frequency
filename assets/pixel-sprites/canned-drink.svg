@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 56" shape-rendering="crispEdges">
+  <path fill="#2d2a25" d="M9 5h22v4h3v39h-3v4H9v-4H6V9h3z"/>
+  <path fill="#8b3f39" d="M10 8h20v4h2v34h-2v3H10v-3H8V12h2z"/>
+  <path fill="#b65548" d="M13 10h12v37H11V13h2z"/>
+  <path fill="#6f332f" d="M26 12h4v33h-4z"/>
+  <path fill="#c06755" d="M12 12h3v13h-3zM12 29h3v15h-3z"/>
+
+  <!-- rolled metal top, pull tab, and bottom crimp -->
+  <path fill="#a8b6ab" d="M11 6h18v3H11z"/>
+  <path fill="#d2dbca" d="M14 7h10v1H14z"/>
+  <path fill="#708078" d="M12 9h16v2H12z"/>
+  <path fill="#485a53" d="M17 10h8v2h-8z"/>
+  <path fill="#b1c1ae" d="M19 10h4v1h-4z"/>
+  
+  <path fill="#2a211d" d="M10 47h20v3H10z"/>
+  <path fill="#665c4b" d="M13 47h12v2H13z"/>
+
+  <!-- wrapped label and cylindrical highlights -->
+  <path fill="#e8dec0" d="M13 18h11v7H13z"/>
+  <path fill="#e1e4cf" d="M15 19h6v2h-6z"/>
+  <path fill="#cbbf9e" d="M24 20h4v4h-4z"/>
+  <path fill="#56312f" d="M14 32h12v5H14z"/>
+  <path fill="#c9b16b" d="M17 33h5v2h-5z"/>
+  <path fill="#412927" d="M26 33h3v4h-3z"/>
+  <path fill="#5a2927" d="M29 16h2v25h-2z"/>
+<path fill="#7b3c35" d="M23 27h3v5h-3z"/><path fill="#384b43" d="M11 48h16v1H11z"/>
+</svg>

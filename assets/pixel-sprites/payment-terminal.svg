@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 64" shape-rendering="crispEdges">
+  <!-- Compact swivel foot, secondary to the upright terminal. -->
+  <path fill="#0c1014" d="M29 58h36v4H29z"/>
+  <path fill="#26303c" d="M33 56h28v3H33z"/>
+  <path fill="#14181e" d="M41 49h12v9H41z"/>
+  <path fill="#3c505b" d="M42 51h6v5h-6z"/>
+  <!-- Customer-facing deck with short stepped shoulders, not an isometric box. -->
+  <path fill="#10141a" d="M32 2h26v3h4v5h3v39h-3v5H29v-4h-3V15h2V7h4z"/>
+  <path fill="#405360" d="M33 5h24v3h3v19H29V12h2V8h2z"/>
+  <path fill="#657a82" d="M34 4h22v1H34z"/>
+  <!-- Screen and key groups share one shallow operating deck. -->
+  <path fill="#10141a" d="M33 8h24v13H33z"/>
+  <path fill="#26342e" d="M35 10h20v9H35z"/>
+  <path fill="#527062" d="M36 10h17v2H36z"/>
+  <path fill="#3c505b" d="M32 23h17v5H32z"/>
+  <path fill="#202834" d="M37 23h1v5h-1zM43 23h1v5h-1zM32 25h17v1H32z"/>
+  <path fill="#286834" d="M52 23h5v5h-5z"/>
+  <!-- Quiet rear shell; narrow side wall carries the employee-visible indicator. -->
+  <path fill="#28323e" d="M29 30h27v20H29z"/>
+  <path fill="#3c505b" d="M30 30h24v2H30z"/>
+  <path fill="#1e2630" d="M29 47h27v3H29z"/>
+  <path fill="#181e26" d="M57 14h5v34h-5z"/>
+  <path fill="#0a0c10" d="M55 32h5v6h-5z"/>
+  <path fill="#26342e" d="M56 34h3v2h-3z"/>
+<path fill="#2c3a44" d="M29 32h7v15h-7z"/><path fill="#202c36" d="M51 33h3v13h-3z"/><path fill="#354852" d="M35 57h17v1H35z"/>
+</svg>

@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 48" shape-rendering="crispEdges">
+  <!-- outline shadow -->
+  <path fill="#282420" d="M25 5h9v3h6v5h5v6h5v21h-5v5H7v-5H4V28h4v-5h5v-5h5v-5h4V9h3z"/>
+
+  <!-- shell body – rigid clear plastic container -->
+  <path fill="#687c77" d="M27 7h6v3h5v5h5v6h4v18h-4v4H9v-4H6V28h4v-5h5v-5h5v-5h4V10h3z"/>
+
+  <!-- shell interior – recessed depth -->
+  <path fill="#8d9c91" d="M28 8h4v3h5v5h4v5h3v14h-3v2H12v-2h-2V27h3v-4h5v-5h4v-4h3z"/>
+
+  <!-- transparent front window -->
+  <path fill="#bcd0b8" d="M29 10h3v2h5v5h3v4h2v13h-2v1H14v-1h-2V27h3v-3h4v-5h4v-3h3z" opacity=".18"/>
+
+  <!-- sandwich bread – top slice following diagonal, irregular inner crust -->
+  <path fill="#c4a058" d="M31 14h1v2h4v5h3v2h1v3H21v-2h2v-3h4v-4h4z"/>
+  <path fill="#d8b468" d="M32 15h1v2h3v4h2v2h-4v-4h-3zM22 24h6v2h-6z"/>
+  <path fill="#e8c880" d="M33 16h1v2h2v2h-2v-1h-1z"/>
+
+  <!-- FILLINGS: Organic rhythm, broken stratified geology -->
+  
+  <!-- Cheese: drooping corner, folded melt profile, not a flat line -->
+  <path fill="#dfaa32" d="M22 24h18v2H22zM28 26h4v2h-4zM37 26h2v1h-2z"/>
+  <path fill="#f0ca52" d="M24 24h12v1h-12zM29 25h3v2h-3z"/>
+
+  <!-- Lettuce: ruffled, wavy leaf edges that spill out unevenly -->
+  <path fill="#466e38" d="M19 25h3v2h-3zM23 26h6v2h-6zM32 25h5v2h-5zM38 26h4v3h-4z"/>
+  <path fill="#5c8a4c" d="M19 26h2v1h-2zM24 26h4v1h-4zM33 26h3v1h-3zM39 27h3v1h-3z"/>
+  
+
+  <!-- Egg salad / Mayo dollops peeking through gaps -->
+  <path fill="#e5e5cd" d="M22 27h3v2h-3zM30 27h3v2h-3zM36 28h2v1h-2z"/>
+  
+
+  <!-- Ham / Cold cuts: dual folded layers, scalloped edges, tucks in and out -->
+  <path fill="#b43c30" d="M20 29h22v2h-2v1h-4v-1h-6v2h-6v-1h-4z"/>
+  <path fill="#cc5446" d="M21 29h7v1h-7zM31 29h9v1h-9zM25 31h4v1h-4z"/>
+  
+
+  <!-- sandwich bread – bottom slice: natural uneven contour -->
+  <path fill="#b08848" d="M18 33h24v3H18z"/>
+  <path fill="#d2ae6c" d="M20 33h10v2H20zM33 33h8v1h-8z"/>
+  <path fill="#906830" d="M18 36h24v2H18z"/>
+
+  <!-- shell hard edges – thick solid lines, rigid plastic read -->
+  <!-- right diagonal staircase -->
+  <path fill="#50665c" d="M27 5h2v4h-2zM32 9h2v5h-2zM37 14h2v5h-2zM42 19h2v6h-2z"/>
+  <!-- right vertical -->
+  <path fill="#50665c" d="M46 20h2v19h-2z"/>
+  <!-- bottom -->
+  <path fill="#50665c" d="M8 39h40v2H8z"/>
+  <!-- left staircase -->
+  <path fill="#50665c" d="M6 27h2v12H6zM10 22h2v5h-2zM15 17h2v5h-2zM20 12h2v5h-2zM25 8h2v4h-2z"/>
+
+  <!-- shell bottom thickness – visible rigid material -->
+  <path fill="#3c4a3c" d="M8 41h40v3H8z"/>
+  <path fill="#2c3630" d="M9 44h38v2H9z"/>
+
+  <!-- edge highlights – crisp plastic glare -->
+  
+
+  <!-- heat seal line -->
+  <path fill="#7c947c" d="M10 38h36v1H10z" opacity=".35"/>
+
+  <!-- pull tab label -->
+  <path fill="#ccb038" d="M35 8h5v3h-5z"/>
+  <path fill="#a08828" d="M36 8h3v2h-3z"/>
+<path fill="#a6bbab" d="M14 28h2v7h-2z" opacity=".35"/><path fill="#bacab5" d="M13 37h10v1H13z" opacity=".5"/>
+</svg>

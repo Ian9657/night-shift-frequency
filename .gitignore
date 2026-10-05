@@ -1,0 +1,4 @@
+.DS_Store
+tests/artifacts/
+node_modules/
+__pycache__/

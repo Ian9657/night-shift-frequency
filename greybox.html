@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Night Shift Frequency - Greybox</title>
+  <link rel="stylesheet" href="css/greybox.css?v=grid-1">
+  <link rel="stylesheet" href="css/register-review.css?v=grid-1">
+  <link rel="stylesheet" href="css/pixel-world.css?v=grid-1">
+  <link rel="preload" href="assets/pixel-sprites/microwave-heating.svg?v=feedback-10" as="image" type="image/svg+xml">
+  <link rel="preload" href="assets/pixel-sprites/bag-film-filled.svg?v=feedback-10" as="image" type="image/svg+xml">
+</head>
+<body>
+  <main class="game-shell" aria-label="Night Shift Frequency greybox prototype">
+    <section class="game-frame" data-state="wait_customer">
+      <div class="back-wall">
+        <img class="customer-aisle" src="assets/pixel-sprites/customer-aisle.svg?v=feedback-10" alt="" aria-hidden="true">
+        <div class="store-entry" aria-hidden="true">
+          <img class="sprite" src="assets/pixel-sprites/store-entry.svg?v=feedback-10" alt="">
+          <svg class="entry-reflections" viewBox="0 0 128 96" shape-rendering="crispEdges">
+            <g>
+              <path class="entry-second-light" fill="#465d59" d="M12 20h40v2H12zM72 20h39v2H72z"/>
+              <g class="entry-figure">
+                <path fill="#3d514e" d="M88 28h10v3h3v12h-3v6h8v5h6v26H77V55h5v-6h7v-5h-4V32h3z"/>
+                <path fill="#4b5e55" d="M89 32h9v10h-9zM88 51h11v5H88z"/>
+                <path fill="#324745" d="M81 59h5v21h-5zM102 57h5v23h-5zM90 59h6v21h-6z"/>
+                <path fill="#9ba996" d="M67 46h51v3H67z"/>
+                <path fill="#5c7974" d="M67 49h51v2H67z"/>
+              </g>
+            </g>
+          </svg>
+        </div>
+        <div class="clock">
+          <img class="sprite" src="assets/pixel-sprites/clock.svg?v=feedback-10" alt="" aria-hidden="true">
+          <svg class="clock-hands" viewBox="0 0 96 96" aria-hidden="true" shape-rendering="crispEdges">
+            <path data-clock-hour fill="#202a29"/>
+            <path data-clock-minute fill="#182221"/>
+            <path fill="#0d1314" d="M45 45h5v5h-5z"/>
+            <path fill="#36413d" d="M46 46h2v2h-2z"/>
+          </svg>
+          <span class="clock-time" data-clock>02:12</span>
+          <span class="clock-customers" data-customer-count>CUST 001</span>
+        </div>
+        <img class="cctv-monitor sprite" src="assets/pixel-sprites/cctv-monitor.svg?v=feedback-10" alt="CCTV monitor">
+        <img class="shelves sprite" src="assets/pixel-sprites/shelving-system.svg?v=feedback-10" alt="Convenience store shelves">
+        <img class="hot-warmer sprite" src="assets/pixel-sprites/hot-warmer.svg?v=feedback-10" alt="Hot food warmer">
+      </div>
+
+      <div class="customer-zone">
+        <img class="customer sprite" data-customer src="assets/pixel-sprites/customer-detail-01-natural.svg?v=shift-4" alt="Customer">
+        <svg class="dialogue hidden" data-dialogue viewBox="0 0 320 104" role="status" aria-live="polite" aria-atomic="true">
+          <path class="dialogue-shadow" data-dialogue-part="shadow"></path>
+          <path class="dialogue-outline" data-dialogue-part="outline"></path>
+          <path class="dialogue-bubble" data-dialogue-part="bubble"></path>
+          <path class="dialogue-bubble-inset" data-dialogue-part="inset"></path>
+          <path class="dialogue-corner-cut" data-dialogue-part="corner"></path>
+          <text data-dialogue-text text-anchor="middle"></text>
+        </svg>
+      </div>
+
+      <div class="counter">
+        <img class="microwave sprite" src="assets/pixel-sprites/microwave-edge.svg?v=feedback-10" alt="Microwave on side counter">
+        <img class="countertop sprite" src="assets/pixel-sprites/countertop.svg?v=feedback-10" alt="" aria-hidden="true">
+        <button class="coin-tray" type="button" data-action="cash-pay" aria-label="Take cash payment">
+          <img class="sprite" src="assets/pixel-sprites/coin-tray.svg?v=feedback-10" alt="" aria-hidden="true">
+        </button>
+        <img class="cutlery-caddy sprite" src="assets/pixel-sprites/cutlery-caddy.svg?v=feedback-10" alt="" aria-hidden="true">
+        <img class="clutter-note sprite" src="assets/pixel-sprites/note.svg?v=feedback-10" alt="" aria-hidden="true">
+        <img class="clutter-receipt sprite" src="assets/pixel-sprites/crumpled-receipt.svg?v=feedback-10" alt="" aria-hidden="true">
+        <section class="pos" aria-label="POS screen">
+          <button class="pos-record-target" type="button" data-review-sale aria-label="View transaction records"></button>
+          <img class="pos-shell sprite" src="assets/pixel-sprites/pos-register.svg?v=feedback-12" alt="" aria-hidden="true">
+          <div class="pos-header">
+            <span>REG#02</span>
+            <span data-pos-mode>READY</span>
+          </div>
+          <div class="pos-list" data-pos-list></div>
+          <div class="pos-footer">
+            <span data-pos-total>TOTAL ¥0</span>
+            <span data-pos-status>WAITING</span>
+          </div>
+          <svg class="pos-mismatch-display" data-mismatch-display viewBox="0 0 192 128" aria-label="POS register" role="img">
+            <defs>
+              <clipPath id="pos-screen-clip">
+                <path d="M28 26h112v44H28z"/>
+              </clipPath>
+            </defs>
+            <g class="pos-screen-copy" clip-path="url(#pos-screen-clip)" font-family="Monaco, Menlo, Consolas, 'Lucida Console', monospace" font-size="9.2" font-weight="600">
+              <g data-pos-normal>
+              <text x="34" y="43" data-match-item="0"></text>
+              <text x="34" y="54" data-match-item="1"></text>
+              <text x="136" y="43" text-anchor="end" font-size="8.2" data-item-quantity="0"></text>
+              <text x="136" y="54" text-anchor="end" font-size="8.2" data-item-quantity="1"></text>
+              <path class="pos-screen-rule" d="M34 57h102"/>
+              <text x="34" y="67" font-size="8.1" data-match-prompt></text>
+              </g>
+              <text x="34" y="34" font-size="9.8" data-match-status></text>
+              <g class="hidden" data-pos-comparison>
+                <g class="pos-screen-label">
+                  <text x="34" y="42" font-size="7">ITEM</text>
+                  <text x="34" y="51" font-size="7">REG</text>
+                  <text x="34" y="59" font-size="7">ITEM</text>
+                  <text x="34" y="67" font-size="7">REG</text>
+                </g>
+                <text x="60" y="42" font-size="7.1" data-item-source="0"></text>
+                <text x="60" y="51" font-size="7.1" data-register-source="0"></text>
+                <text x="60" y="59" font-size="7.1" data-item-source="1"></text>
+                <text x="60" y="67" font-size="7.1" data-register-source="1"></text>
+              </g>
+              <g class="hidden" data-pos-count-alert>
+                <text x="34" y="48" font-size="14.2" data-count-anomaly></text>
+                <text x="34" y="65" font-size="8.2" data-count-scanned></text>
+              </g>
+            </g>
+          </svg>
+          <button class="confirm-button hidden" type="button" data-confirm-items aria-label="Confirm item match" title="Confirm item match">
+            <svg viewBox="0 0 192 128" aria-hidden="true" shape-rendering="crispEdges">
+              <path class="confirm-key" d="M100 108h8v7h-8z" fill="#3c824e" stroke="#f0f0d8" stroke-width="1"/>
+              <path d="M102 111v2h4v-3" fill="none" stroke="#f0f0d8" stroke-width="1"/>
+            </svg>
+          </button>
+        </section>
+
+        <button class="scanner" type="button" data-action="scan" aria-label="Scan selected item">
+          <img class="sprite" src="assets/pixel-sprites/scanner.svg?v=feedback-10" alt="" aria-hidden="true">
+          <span>SCAN ITEM</span>
+          <b data-scanner-light></b>
+        </button>
+
+        <section class="work-area" aria-label="Product and scan area">
+          <div class="placement-label" aria-hidden="true">ITEMS</div>
+          <div class="scan-pad" data-scan-pad><span aria-hidden="true">SCAN</span></div>
+          <div class="products" data-products></div>
+        </section>
+
+        <button class="payment-terminal" type="button" data-action="pay" aria-label="Take payment">
+          <img class="sprite" src="assets/pixel-sprites/payment-terminal.svg?v=feedback-10" alt="" aria-hidden="true">
+          <svg class="payment-confirmation" viewBox="0 0 88 64" aria-hidden="true" shape-rendering="crispEdges">
+            <path fill="#55d66a" d="M56 34h3v2h-3z"/>
+          </svg>
+          <span>CARD TERMINAL</span>
+          <b data-payment-light></b>
+        </button>
+
+        <div class="bag-stack" data-bag-stack>
+          <button class="bag-area" type="button" data-action="bag" aria-label="Bag completed order">
+            <img class="sprite" src="assets/pixel-sprites/bag-flat-stack.svg?v=feedback-16" alt="" aria-hidden="true">
+            <span>BAG</span>
+          </button>
+        </div>
+
+        <button class="receipt-printer" type="button" data-action="report" aria-label="Receipt and report printer">
+          <img class="sprite" src="assets/pixel-sprites/receipt-printer.svg?v=feedback-10" alt="" aria-hidden="true">
+          <span>RECEIPT</span>
+          <div class="receipt-paper" data-receipt></div>
+        </button>
+
+        <div class="cash-drawer" data-cash-drawer aria-hidden="true"></div>
+        <div class="trash-can" aria-hidden="true"></div>
+      </div>
+      <button class="start-shift" type="button" data-start-shift aria-label="Start shift">
+        <span>START SHIFT</span>
+        <b>CLICK TO BEGIN</b>
+      </button>
+    </section>
+  </main>
+
+  <dialog class="register-review" data-register-review aria-labelledby="review-title">
+    <header><h2 id="review-title">REG#02 / TRANSACTION RECORD</h2><button type="button" data-close-review aria-label="Close records">×</button></header>
+    <div data-review-body></div>
+    <fieldset data-review-choices hidden><legend>RECORD ACTION</legend></fieldset>
+    <dl class="record-preview" data-review-preview aria-live="polite"></dl>
+    <footer><button type="button" data-review-rescan>BACK TO COUNTER</button><button type="button" data-submit-record disabled>SAVE RECORD</button></footer>
+  </dialog>
+  <script src="js/shift-engine.js?v=shift-5"></script>
+  <script src="js/register-ui.js?v=shift-5"></script>
+  <script src="js/pixel-world.js?v=grid-1"></script>
+  <script src="js/payment-motion.js?v=grid-1"></script>
+  <script src="js/greybox.js?v=grid-1"></script>
+</body>
+</html>

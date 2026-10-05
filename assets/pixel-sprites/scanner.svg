@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" shape-rendering="crispEdges">
+  <rect width="72" height="72" fill="none"/>
+
+  <!-- 1. COUNTER DROP SHADOW & HEAVY CRADLE BASE -->
+  <path fill="#0c1014" d="M8 62h56v6H8z"/>
+  <!-- Coiled heavy rubber drop cable extending to register -->
+  <path fill="#161c22" d="M12 60h8v4h-8zM20 62h5v3h-5zM25 64h5v2h-5z"/>
+  
+  <!-- Cradle Stand Housing (weighted countertop dock holding the scanner) -->
+  <path fill="#182028" d="M12 48h48v16H12z"/>
+  <path fill="#28323e" d="M14 50h44v12H14z"/>
+  <path fill="#405360" d="M16 50h40v4H16z"/>
+  <path fill="#657a82" d="M16 50h30v1H16z"/>
+  <path fill="#1e2630" d="M14 60h44v2H14z"/>
+  <!-- Cradle recess well receiving scanner handle -->
+  <path fill="#0e141a" d="M22 46h28v14H22z"/>
+
+  <!-- 2. HANDHELD SCANNER BODY: rugged industrial dark slate-black polymer -->
+  <!-- Contoured Ergonomic Grip Handle (angled downwards into cradle) -->
+  <path fill="#161c22" d="M26 36h20v22H26z"/>
+  <path fill="#3c505b" d="M28 38h16v18H28z"/>
+  <path fill="#657a82" d="M28 39h3v15h-3z"/>
+  <path fill="#202834" d="M31 53h9v3h-9z"/>
+  <!-- Handle rear textured rubber grip pad -->
+  <path fill="#121820" d="M40 40h4v14h-4z"/>
+  <path fill="#1e2632" d="M40 42h3v10h-3z"/>
+  <!-- Forward trigger switch (recessed index finger trigger) -->
+  <path fill="#0e1216" d="M24 42h4v8h-4z"/>
+  <path fill="#38485a" d="M25 44h2v4h-2z"/>
+
+  <!-- 3. HEAVY-DUTY SCANNER HEAD: shock-absorbing rubber bumper & housing -->
+  <!-- Outer impact-resistant matte rubber armor rim -->
+  <path fill="#101418" d="M16 12h40v26H16z"/>
+  <path fill="#28323e" d="M18 14h36v22H18z"/>
+  <path fill="#181e26" d="M50 18h4v18h-4z"/>
+  
+  <!-- Main upper head shell (deep cool slate-black engineering polymer) -->
+  <path fill="#405360" d="M20 10h32v8H20z"/>
+  <path fill="#657a82" d="M22 10h28v2H22z"/> <!-- top chamfer highlight -->
+  <path fill="#242e3a" d="M18 16h36v4H18z"/>
+
+  <!-- Top Good-Read Status LED Indicator Strip -->
+  <path fill="#141c18" d="M30 8h12v3H30z"/>
+  <path fill="#345442" d="M31 9h10v1H31z"/>
+  <path fill="#5cb878" d="M34 9h4v1h-4z"/> <!-- ready green diode pip -->
+
+  <!-- 4. CORE OPTICAL SCANNING WINDOW (CENTERED AT x:24-48, y:22-38) -->
+  <!-- Deeply recessed optic chamber surround -->
+  <path fill="#080a0c" d="M22 20h28v18H22z"/>
+  <path fill="#141a20" d="M23 21h26v16H23z"/>
+  <path fill="#4c5e72" d="M24 37h24v1H24z"/>
+
+  <!-- Ruby Red Optical Filter Window (translucent red laser/sensor shield) -->
+  <path fill="#421216" d="M24 22h24v14H24z"/>
+  <path fill="#6c1e24" d="M26 24h20v10H26z"/>
+  
+  <!-- Horizontal internal laser scan engine / CMOS aiming line slit -->
+  <path fill="#9c2a34" d="M27 28h18v2H27z"/>
+  <path fill="#d84250" d="M30 29h12v1H30z"/> <!-- central laser emitter glint -->
+  <path fill="#f4828e" d="M34 29h4v1h-4z"/> <!-- focal optic core -->
+
+  <!-- Anti-reflective window glass specular highlight (diagonal corner gleam) -->
+  <path fill="#a76269" d="M40 23h7v2h-7z"/>
+  <path fill="#733e49" d="M45 25h2v2h-2z"/>
+<path fill="#344b58" d="M18 21h3v13h-3z"/><path fill="#4b6470" d="M22 13h25v2H22z"/><path fill="#293d46" d="M17 55h4v4h-4zM51 55h5v4h-5z"/>
+</svg>

@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 56" shape-rendering="crispEdges">
+  <!-- 1. DROP SHADOW ON COUNTER -->
+  <path fill="#161814" d="M12 50h32v4H12z" opacity=".8"/>
+  <path fill="#0a0c0a" d="M16 51h24v2H16z"/>
+
+  <!-- 2. WRAPPER CONTOUR & PLASTIC GUSSET EDGES -->
+  <!-- Outer dark silhouette -->
+  <path fill="#1a201c" d="M26 6h4v3h4v4h4v5h4v6h4v7h3v13h-3v4h-6v2H16v-2h-6v-4H7V31h3v-7h4v-6h4v-5h4v-4h4z"/>
+
+  <!-- Transparent Poly Film Packaging (slightly reflective cool white/sage hue) -->
+  <path fill="#4e5c54" d="M27 8h2v2h4v4h4v5h4v6h4v7h2v12h-2v3h-5v2H16v-2h-5v-3H9V32h2v-7h4v-6h4v-5h4v-4h4z"/>
+  <path fill="#7a8c80" d="M27 9h2v2h3v4h4v5h4v6h3v7h2v10h-2v2h-4v2H17v-2h-4v-2h-2V33h2v-7h3v-6h4v-5h4v-4h3z"/>
+
+  <!-- 3. RICE GRAIN SURFACE (Left and Right visible white shoulders) -->
+  <!-- Rice texture left -->
+  <path fill="#e2e8e0" d="M15 28h10v18H13v-8h2z"/>
+  <path fill="#e3e9dc" d="M16 29h8v16H14v-6h2z"/>
+   <!-- rice grain facet shadows -->
+  
+  <!-- Rice texture right -->
+  <path fill="#e2e8e0" d="M31 28h10v10h2v8H31z"/>
+  <path fill="#e3e9dc" d="M32 29h8v8h2v6H32z"/>
+  
+
+  <!-- 4. CRISP NORI SEAWEED WRAP (Dense charcoal-olive wrap covering apex & center) -->
+  <path fill="#0d1410" d="M24 12h8v8h-8zM21 18h14v10H21zM20 28h16v20H20z"/>
+  <path fill="#18241c" d="M25 13h6v6h-6zM22 19h12v9H22zM21 29h14v18H21z"/>
+  <path fill="#25342a" d="M23 20h2v16h-2zM31 22h2v14h-2z"/> <!-- subtle specular luster on roasted seaweed -->
+
+  <!-- 5. PACKAGING TEAR-STRIP (Red center pull tape with instructions) -->
+  <!-- Red vertical tear tape line down center -->
+  <path fill="#b82626" d="M27 10h2v38h-2z"/>
+  <path fill="#cc5148" d="M28 10h1v38h-1z"/>
+  
+  <!-- Top Pull Tab ① -->
+  <path fill="#c8b862" d="M26 9h4v3h-4z"/>
+   <!-- digit 1 -->
+
+  <!-- Side tear indicators ② & ③ (subtle notches on bottom corners) -->
+  <path fill="#c8b862" d="M12 47h3v3h-3zM41 47h3v3h-3z"/>
+  
+
+  <!-- 6. FLAVOR / EXPIRATION LABEL (Tuna Mayo sticker) -->
+  <path fill="#1a201a" d="M22 34h12v10H22z"/>
+  <path fill="#e1e3d6" d="M23 35h10v8H23z"/>
+  <!-- Blue text block for Tuna-Mayo -->
+  <path fill="#245a8a" d="M24 37h8v2h-8z"/>
+  <path fill="#d44234" d="M24 40h4v1h-4z"/> <!-- price accent / calorie badge -->
+   <!-- barcode hint -->
+
+  <!-- Crinkled clear plastic corner seal corners -->
+  <path fill="#a4b4a8" d="M10 49h3v2h-3zM43 49h3v2h-3z" opacity=".6"/>
+<path fill="#bfcebf" d="M15 30h2v6h-2z" opacity=".4"/><path fill="#3b5044" d="M32 23h2v8h-2z" opacity=".5"/>
+</svg>

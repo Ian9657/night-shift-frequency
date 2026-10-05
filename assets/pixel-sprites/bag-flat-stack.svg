@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 64" shape-rendering="crispEdges">
+  <!-- Back bag -->
+  <g transform="translate(3 11) scale(1 .82)" opacity=".34">
+    <path fill="#6f8479" d="M28 22h10l4 4h33l4-4h10l3 6h7v13l-7 4H24l-7-4V28h8z"/>
+    <path fill="#c5d1c9" fill-opacity=".52" d="M26 28h67v13l-5 3H30l-5-3V31z"/>
+    <path fill="#d8e0d7" fill-opacity=".42" d="M31 19h11l5 8h-8l-3-4h-3l-2 4h-6zM77 19h11l7 8h-8l-4-4h-3l-2 4h-6z"/>
+    <path fill="#e3e9df" fill-opacity=".28" d="M30 28h56v2H34v2h-4z"/>
+    <path fill="#9aac9f" fill-opacity=".22" d="M32 33h48v2H36z"/>
+  </g>
+
+  <!-- Middle bag -->
+  <g transform="translate(7 5) scale(1 .91)" opacity=".58">
+    <path fill="#64786f" d="M27 22h11l4 5h32l5-5h11l3 7h7v13l-7 4H24l-7-4V29h7z"/>
+    <path fill="#cad6ce" fill-opacity=".68" d="M25 28h68v14l-5 3H30l-5-3V31z"/>
+    <path fill="#dce4da" fill-opacity=".60" d="M30 18h12l5 9h-8l-3-4h-4l-2 4h-6zM78 18h12l7 9h-8l-4-4h-4l-2 4h-6z"/>
+    <path fill="#e5ebe2" fill-opacity=".38" d="M29 28h58v2H33v2h-4z"/>
+    <path fill="#80958a" fill-opacity=".20" d="M31 42h54l-4 3H35z"/>
+    <path fill="#9eafa4" fill-opacity=".28" d="M31 33h50v2H35z"/>
+    <g fill="#547563" fill-opacity=".34">
+      <path d="M55 36h6v2h-4v4h-2zM64 36h6v6h-2v-4h-4zM58 40h8v2H58z"/>
+    </g>
+  </g>
+
+  <!-- Front bag -->
+  <g transform="translate(12 0)" opacity=".98">
+    <path fill="#5b6f67" d="M23 23h12l5 5h35l5-5h12l3 7h7v15l-7 4H22l-7-4V30h8z"/>
+    <path fill="#d1ddd5" fill-opacity=".92" d="M21 29h74v15l-6 4H29l-8-4V32z"/>
+    <path fill="#e7ede5" fill-opacity=".88" d="M28 18h13l6 10h-9l-3-5h-4l-3 5h-7zM79 18h13l8 10h-9l-4-5h-4l-2 5h-8z"/>
+    <path fill="#f1f5ef" fill-opacity=".46" d="M27 29h62v2H31v2h-4z"/>
+    <path fill="#8a9d92" fill-opacity=".28" d="M28 44h59l-4 4H32z"/>
+    <path fill="#99ab9f" fill-opacity=".32" d="M34 31h3l7 12h-3zM77 31h3l-7 12h-3z"/>
+    <path fill="#a7b8ad" fill-opacity=".28" d="M29 36l8 4h19l7-3 13 4 10-4 7 4v2H30l-7-3z"/>
+    <path fill="#eef3ec" fill-opacity=".42" d="M30 25h17v2H30zM56 24h9v2H56zM72 26h16v2H72z"/>
+    <path fill="#e4ebe2" fill-opacity=".28" d="M37 40h13v2H37zM57 41h18v2H57z"/>
+    <g fill="#547563" opacity=".68">
+      <path d="M51 36h8v2h-6v6h-2zM63 36h8v8h-2v-6h-6zM55 41h12v2H55z"/>
+      <path d="M49 46h11v1H49zM64 46h12v1H64z"/>
+    </g>
+  </g>
+</svg>
