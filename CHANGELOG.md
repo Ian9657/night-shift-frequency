@@ -5,7 +5,43 @@ verified and what was not.
 
 ## Unreleased
 
-### Character asset production contract · 2026-10-06
+### Changed (in progress — built by the art tools, not yet used by the game)
+
+- Customer proportions measured from the reference body: shoulders about 2.5 head
+  widths, neck about 0.65, the trunk at 0.87 and the arms at 0.86 of anatomical
+  length, short tops ending above the hip bones; hanging arms stand a little off
+  the body. A `stand` pose (both arms hanging) is the standard neutral body. The
+  anchor table in docs/character-assets.md is recomputed to match.
+- The counter top rises to 1.05 m and the counter deepens (near edge at 0.505 m) so
+  its near edge stays at the bottom of the view: the counter now meets a standard
+  customer at the navel, just below the hanging elbow, a tall one at the belt or
+  lower belly and a short one at the upper belly, showing every head, neck,
+  shoulders and chest. The spec separates the counter-top height on the body from
+  the lower occlusion line seen from the clerk.
+- An acceptance sample (`build-art.cjs --preview sample`, `art-sample.png`): one
+  average customer in a plain T-shirt resting both hands on the counter, shown as a
+  structure view with skeleton lines, shaded without the counter, and in the store.
+  Towards it: the trapezius slopes from high on the neck to a lower, rounder
+  shoulder; the upper chest sits under it; the waist tapers; the chest's underside
+  turns darker; resting hands sit about shoulder width apart with the elbows hanging
+  by the body, and press a tight shadow into the counter.
+- Character work is paused here as a checkpoint: the sample is not approved yet. A
+  hand-drawn five-heads-tall study of Nell (kept outside the repository) suggests the
+  final figures should be drawn by hand, with the rig only placing joints.
+
+### Verified
+
+- The standard body compared side by side with the reference at equal head size;
+  every customer still reaches the counter in their poses; the store and the people
+  sheet re-rendered with the raised counter.
+
+### Not verified
+
+- `art.test` still fails by design until the runtime uses the new sprites.
+- The acceptance sample is not approved; the other customers were not re-reviewed
+  after the shoulder changes; faces keep the earlier style.
+
+## 2026-10-06 · Character asset contract (`f293341`)
 
 - Added docs/character-assets.md: native authoring grid, standard front anchors,
   body presets, layering/occlusion, palette and naming rules, reserved animation
@@ -29,6 +65,8 @@ verified and what was not.
 - Not verified: native sprite authoring, runtime adapter, animation clips, walk
   pacing and device screenshots. Full gameplay/art/browser tests were not run for
   this documentation-only change.
+
+## 2026-10-06 · Customers on the sculpted body (`74c8f4f`)
 
 ### Changed (in progress — built by the art tools, not yet used by the game)
 

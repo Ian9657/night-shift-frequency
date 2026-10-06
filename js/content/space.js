@@ -9,7 +9,10 @@
   const screen = Object.freeze({ width: 480, height: 270 });
 
   const room = Object.freeze({ halfW: 1.69, back: 1.97, ceiling: 2.555 });
-  const counter = Object.freeze({ y: 0.95, near: 0.6, far: 1.14, thick: 0.045 });
+  // The counter top stands at about a standing customer's navel (1.68 m figure),
+  // a little below the hanging elbow: at the belt or lower belly of a tall customer,
+  // the upper belly of a short one. Deep enough that its near edge stays on screen.
+  const counter = Object.freeze({ y: 1.05, near: 0.505, far: 1.14, thick: 0.045 });
   // Customers are drawn on a shared canvas (people.cjs) at this depth: 151 px per
   // metre, the reference figure's head top at 1.68 m, centred on the camera axis;
   // headroom above it fits figures up to about 1.95 m.

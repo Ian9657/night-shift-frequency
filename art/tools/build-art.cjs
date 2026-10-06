@@ -218,6 +218,49 @@ function rigSheet(sprites, flat) {
   return sheet;
 }
 
+// The acceptance sample (docs/character-assets.md): one average customer in a
+// plain fitted T-shirt, both hands resting on the counter. Three panels: the
+// structure (flat tones, no counter, skeleton lines through neck root, shoulders,
+// elbows, wrists, ribcage, waist and pelvis), the shaded body without the counter,
+// and the counter view.
+function sampleSheet(sprites) {
+  const { figure } = require(path.join(SRC, 'people.cjs'));
+  const { ramp } = require('../../js/content/colors.js');
+  const slots = { ...customers.slotColors('kit'), ...Object.fromEntries(ramp('#7d8fa3', 5, { at: 2 }).map((hex, i) => ['cloth' + i, hex])) };
+  const person = { height: 1.68, build: 'average', arms: [1, 1], hands: [1, 1], legs: 'grey', body: 'tee' };
+  const [ox, oy] = space.customerOrigin();
+  const [cx, cy, cw, ch] = [152, 20, 176, 190];
+  const panels = [];
+  for (const mode of ['structure', 'shaded', 'counter']) {
+    const f = figure(person, 'both-rest', { flat: mode === 'structure' });
+    const local = { ...sprites, back: f.back, front: f.front, counter: f.counter, over: f.over };
+    const [hx, hy] = f.back.anchors.head;
+    const surface = new Surface(480, 270, [24, 34, 52, 255]);
+    const put = name => surface.draw(local, name, ...(local[name].anchors.at || [0, 0]));
+    if (mode === 'counter') { put('store-back'); put('store-sides'); }
+    for (const [name, shifted] of [['back', false], [`person-head-oval-${f.gaze}`, true], ['person-hair-short', true], ['front', false]]) {
+      surface.draw(local, name, ox + (shifted ? hx : 0), oy + (shifted ? f.dy + hy : 0), { slots });
+    }
+    if (mode === 'counter') put('store-counter');
+    surface.draw(local, 'counter', ox, oy, { slots });
+    if (mode === 'counter') for (const name of ['store-scanner', 'store-terminal']) put(name);
+    surface.draw(local, 'over', ox, oy, { slots });
+    if (mode === 'structure') {
+      const L = f.landmarks, ink = [255, 60, 170, 255];
+      const dot = ([x, y]) => { for (const [i, j] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]) { const X = ox + x + i, Y = oy + y + j; if (X >= 0 && Y >= 0 && X < 480 && Y < 270) surface.rgba.set(ink, (Y * 480 + X) * 4); } };
+      const line = ([x0, y0], [x1, y1]) => { const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0), 1); for (let t = 0; t <= n; t++) { const X = Math.round(ox + x0 + (x1 - x0) * t / n), Y = Math.round(oy + y0 + (y1 - y0) * t / n); if (X >= 0 && Y >= 0 && X < 480 && Y < 270) surface.rgba.set([255, 140, 210, 255], (Y * 480 + X) * 4); } };
+      for (const i of [0, 1]) { line(L.neckRoot, L.shoulders[i]); line(L.shoulders[i], L.elbows[i]); line(L.elbows[i], L.wrists[i]); }
+      line(L.chin, L.neckRoot); line(L.ribs[0], L.ribs[1]); line(L.waist[0], L.waist[1]); line(L.pelvis[0], L.pelvis[1]);
+      line(L.ribs[0], L.waist[0]); line(L.ribs[1], L.waist[1]); line(L.waist[0], L.pelvis[0]); line(L.waist[1], L.pelvis[1]);
+      [L.chin, L.neckRoot, ...L.shoulders, ...L.elbows, ...L.wrists].forEach(dot);
+    }
+    panels.push(surface);
+  }
+  const scale = 3, sheet = new Surface(panels.length * (cw + 4), ch, [255, 255, 255, 255]);
+  panels.forEach((surface, n) => { for (let y = 0; y < ch; y++) surface.rgba.copy(sheet.rgba, (y * sheet.width + n * (cw + 4)) * 4, ((cy + y) * 480 + cx) * 4, ((cy + y) * 480 + cx + cw) * 4); });
+  return sheet.png(scale);
+}
+
 function customerSheet(sprites) {
   const ids = Object.keys(customers.customers);
   const cell = 96;
@@ -254,6 +297,12 @@ function main() {
   fs.mkdirSync(REVIEW, { recursive: true });
   const sprites = loadSprites(preview);
   if (preview) {
+    if (preview === 'sample') {
+      Object.assign(sprites, loadSprites('store3d'), loadSprites('people'));
+      fs.writeFileSync(path.join(REVIEW, 'art-sample.png'), sampleSheet(sprites));
+      console.log('preview sample written');
+      return;
+    }
     if (preview === 'store3d') {
       Object.assign(sprites, loadSprites('people'));
       fs.writeFileSync(path.join(REVIEW, 'art-store.png'), store(sprites).png(3));

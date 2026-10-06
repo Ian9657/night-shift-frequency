@@ -34,8 +34,13 @@ grid and camera live in `js/content/space.js`.
 | Centre axis | X = 88 (mirror axis 87.5) |
 | Standard figure | 1.68 m: crown at Y = 40, chin at Y = 73 |
 | Head budget | 33 px crown to chin, about 36 px with hair; about 7 heads tall, as in the reference lineup |
-| Counter | The counter's far edge hides everything below Y ≈ 166 for the standard figure (about 0.85 m above the floor) |
+| Counter top | 1.05 m (`space.counter.y`): at the navel of the standard figure, just below its hanging elbow; the belt or lower belly of a tall figure, the upper belly of a short one, never the chest |
+| Occlusion line | Seen from the clerk, the counter's far edge hides the body below about 0.97 m, canvas row ≈ 148 for the standard figure: lower than the counter top, because the customer stands back from the edge |
 | Scaling | None. Pixels are authored at this size; no filtered, non-integer or stretched resampling |
+
+Keep the two counter heights apart. Garment lines (waist, belt, hem) follow the
+body's own landmarks, never the occlusion line on screen; a pose that touches the
+counter reaches the counter top, not the occlusion line.
 
 Heights are real: the head stays the same size and height changes go mostly into
 the legs (the trunk takes about a quarter of the difference), so taller people
@@ -46,11 +51,14 @@ squat, big-headed figure (about 5 heads): it reads as a child next to the store.
 
 Builds are `slim`, `average`, `broad` and `heavy` (art/src/people.cjs `BUILDS`):
 they set shoulder, chest, waist and hip widths and depths, neck and arm thickness,
-measured against the fixed head (the shoulders' outline about two head widths
-across). Height, arm length and thickness and hand length and width are each
-person's own (`person.height`, `arms`, `hands` in customers.js). Age is a face,
-hair and posture attribute, not a build. Do not introduce a child build without a
-story requirement, and do not hard-code gender into animation rules.
+measured against the fixed head and the reference body: the shoulders' outline about
+2.5 head widths across, the neck about 0.65, the hanging arms a little off the body.
+As in the reference, the trunk is drawn at about 0.87 of anatomical length and the
+arms at about 0.86 (still long enough to rest a hand on the counter); short tops end
+just above the hip bones. Height, arm length and thickness and hand length and width
+are each person's own (`person.height`, `arms`, `hands` in customers.js). Age is a
+face, hair and posture attribute, not a build. Do not introduce a child build
+without a story requirement, and do not hard-code gender into animation rules.
 
 Every frame carries integer local anchors. Left/right mean the character's
 anatomical left/right (front view: character-left is screen-right). The table
@@ -63,14 +71,14 @@ coordinates with the same anchor names, and moving hands must move their anchors
 | crown | (88, 40) | Placement and height |
 | chin | (88, 73) | Head attachment |
 | neck | (88, 85) | Neck/torso connection (base of the neck) |
-| chest | (88, 110) | Torso reference |
-| waist | (88, 139) | Garment fit |
-| pelvis | (88, 159) | Lower-body reference |
-| shoulder_l / shoulder_r | (104, 91) / (72, 91) | Sleeve roots |
-| elbow_l / elbow_r | (108, 139) / (68, 139) | Arm bends |
-| wrist_l / wrist_r | (108, 181) / (68, 181) | Hand attachment (below the counter when hanging) |
-| hip_l / hip_r | (99, 167) / (77, 167) | Leg roots |
-| knee_l / knee_r | (100, 229) / (76, 229) | Below the canvas; for reference only |
+| chest | (88, 107) | Torso reference |
+| waist | (88, 132) | Garment fit |
+| pelvis | (88, 150) | Lower-body reference |
+| shoulder_l / shoulder_r | (109, 91) / (67, 91) | Sleeve roots |
+| elbow_l / elbow_r | (116, 132) / (60, 132) | Arm bends |
+| wrist_l / wrist_r | (120, 168) / (56, 168) | Hand attachment (hidden by the counter when hanging) |
+| hip_l / hip_r | (99, 157) / (77, 157) | Leg roots |
+| knee_l / knee_r | (100, 227) / (76, 227) | Below the canvas; for reference only |
 
 Hanging hands reach the upper-to-middle thigh. Inspect joints with a temporary
 review overlay (`art-rig-flat.png`); never show that overlay during gameplay.
@@ -88,11 +96,11 @@ face → hair-front → front-arm → accessories. Each authored pose specifies 
 ordered parts and prop insertion point; an accessory behind the face belongs
 before the face, and a held prop may sit between palm and fingers.
 
-Counter poses require explicit `behind`, `counter-contact` and `over-device`
-passes; the rig renders them as the `back` and `front` layers (behind the counter,
-under and over the hair), `counter` and `over` layers. The room and devices remain scene-owned occluders. Do not draw the whole
-customer above the counter. Test hair, sleeve, palm and prop occlusion in the
-actual counter scene, not just on a blank sheet.
+Counter poses require explicit `behind`, `counter-contact` and `over-device` passes;
+the rig renders them as the `back` and `front` layers (behind the counter, under and
+over the hair), `counter` and `over` layers. The room and devices remain scene-owned
+occluders. Do not draw the whole customer above the counter. Test hair, sleeve, palm
+and prop occlusion in the actual counter scene, not just on a blank sheet.
 
 Runtime may switch authored parts, translate them on integer coordinates, mirror
 approved symmetric parts, attach props at grip anchors and swap palette slots.

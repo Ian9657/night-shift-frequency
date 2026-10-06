@@ -348,17 +348,18 @@ function toCanvas([X, Y, Z]) {
   return [Math.round(sx - OX), Math.round(sy - OY)];
 }
 
-// Half-widths, depths and the upper-arm radius in metres, sized against the fixed
-// head (0.22 m tall, about 0.155 m wide) the way character sprites are drawn: the
-// shoulders' outline about two head widths across (a little less when slim, more
-// when broad), a slender neck about half a head wide, a clear waist, hips no wider
-// than the shoulders, slim arms. `hand` scales the hand, `armLength` the arms; a
-// person may set their own `arms` and `hands` factors.
+// Half-widths, depths and the upper-arm radius in metres, measured from the
+// reference body (docs/character-assets.md): against the fixed head (0.155 m wide)
+// the shoulders' outline is about 2.5 head widths across, the neck about 0.65, the
+// hanging arms stand a little off the body. Arms are about 0.86 of anatomical
+// length, as in the reference, yet still long enough to rest a hand on the counter;
+// the fingertips reach mid-thigh.
+// `hand` scales the hand, `armLength` the arms; a person may set their own `arms` and `hands` factors.
 const BUILDS = {
-  slim: { shoulder: 0.138, chest: 0.108, chestDepth: 0.08, waist: 0.088, waistDepth: 0.07, hip: 0.108, neck: 0.036, arm: 0.029, belly: 0, hand: 0.95, armLength: 1.03 },
-  average: { shoulder: 0.146, chest: 0.118, chestDepth: 0.086, waist: 0.098, waistDepth: 0.075, hip: 0.12, neck: 0.04, arm: 0.032, belly: 0, hand: 1, armLength: 1 },
-  broad: { shoulder: 0.168, chest: 0.14, chestDepth: 0.098, waist: 0.128, waistDepth: 0.086, hip: 0.132, neck: 0.048, arm: 0.038, belly: 0.006, hand: 1.06, armLength: 0.99 },
-  heavy: { shoulder: 0.165, chest: 0.158, chestDepth: 0.122, waist: 0.165, waistDepth: 0.112, hip: 0.165, neck: 0.052, arm: 0.043, belly: 0.03, hand: 1.06, armLength: 0.97 },
+  slim: { shoulder: 0.165, chest: 0.128, chestDepth: 0.082, waist: 0.105, waistDepth: 0.072, hip: 0.12, neck: 0.046, arm: 0.032, belly: 0, hand: 0.95, armLength: 0.88 },
+  average: { shoulder: 0.18, chest: 0.148, chestDepth: 0.09, waist: 0.11, waistDepth: 0.08, hip: 0.132, neck: 0.05, arm: 0.036, belly: 0, hand: 1, armLength: 0.86 },
+  broad: { shoulder: 0.205, chest: 0.165, chestDepth: 0.104, waist: 0.145, waistDepth: 0.09, hip: 0.15, neck: 0.056, arm: 0.042, belly: 0.006, hand: 1.06, armLength: 0.85 },
+  heavy: { shoulder: 0.2, chest: 0.18, chestDepth: 0.128, waist: 0.18, waistDepth: 0.118, hip: 0.18, neck: 0.06, arm: 0.047, belly: 0.03, hand: 1.06, armLength: 0.84 },
 };
 
 // Landmarks hang from the chin: the head sprite is a fixed size (about 0.22 m), so
@@ -374,7 +375,8 @@ function rigFor(person, pose = {}) {
   const h = person.height, b = BUILDS[person.build], dy = space.figureOffset(h);
   const drop = pose.drop || [0, 0], forward = pose.forward || 0, [roll, pitch] = pose.lean || [0, 0], shift = pose.shift || 0;
   const [armLength, armWidth] = [(person.arms?.[0] ?? 1) * b.armLength, person.arms?.[1] ?? 1];
-  const chin = h - HEAD_M, notch = chin - 0.078, s = 1 + 0.25 * (h - 1.68) / 0.49;   // 0.49 m: Nell's neck to hip
+  // The trunk is drawn a little shorter than anatomy (0.87), as in the reference body.
+  const chin = h - HEAD_M, notch = chin - 0.078, s = 0.87 * (1 + 0.25 * (h - 1.68) / 0.49);   // 0.49 m: neck to hip at 1.68 m
   const hip = notch - 0.49 * s, pivot = [0, hip, BODY_Z];
   const turn = (p, a, c) => {                                          // roll a, then pitch c, about the hips
     let [x, y, z] = v3.sub(p, pivot);
@@ -427,8 +429,9 @@ function solveArm(S, W, upper, fore, pole) {
 //   'swipe' a bank card standing in the card terminal's top slot, held by its edge
 //   'take'  an open hand out over the counter, palm up, for change or a receipt
 const POSES = {
+  'stand': { gaze: 'clerk', left: ['hang'], right: ['hang'] },
   'one-rest': { gaze: 'down', left: ['rest', [-0.07, 1.04]], right: ['hang'], lean: [0, 0.03], shift: -0.007 },
-  'both-rest': { gaze: 'downLeft', left: ['rest', [-0.115, 1.06]], right: ['rest', [0.13, 1.075, 0.7]], drop: [0, 0.01], lean: [0.015, 0.05] },
+  'both-rest': { gaze: 'downLeft', left: ['rest', [-0.15, 1.06]], right: ['rest', [0.16, 1.08]], drop: [0, 0.01], lean: [0.015, 0.05] },
   'phone-call': { gaze: 'phoneSide', left: ['rest', [-0.07, 1.04]], right: ['ear'], drop: [0.012, 0.011], lean: [0.035, 0], shift: 0.007, headFollow: 0.5 },
   'phone-check': { gaze: 'phone', left: ['hold'], right: ['hold'], drop: [0.01, 0.01], forward: 0.02, lean: [0, 0.05] },
   'phone-one': { gaze: 'phone', left: ['hang'], right: ['hold1'], drop: [0.008, 0], lean: [0.01, 0.05], shift: 0.004 },
@@ -512,9 +515,9 @@ function armPose(R, side, [mode, at]) {
       // middle, fingers loosely curled and together, so the wrist bends gently into
       // it. at[2] turns the hand onto its little-finger side.
       const W = [at[0], space.counter.y + 0.022, at[1]];
-      const f = [0.7 * -side, 0, -0.75], tilt = at[2] || 0;
+      const f = [0.4 * -side, 0, -1], tilt = at[2] || 0;
       const hand = frame(f, v3.add([0, Math.cos(tilt), 0], v3.mul(inward, -Math.sin(tilt))));
-      return solve(W, [side * 0.45, -0.5, 0.75], { ...hand, curl: tilt ? [0.9, 0.8] : [0.45, 0.55] });
+      return solve(W, [side * 0.15, -0.6, 1], { ...hand, curl: tilt ? [0.9, 0.8] : [0.45, 0.55] });
     }
     case 'hold': {
       // The flip phone open at the lower chest: the keypad half lies in both hands,
@@ -584,8 +587,8 @@ function armPose(R, side, [mode, at]) {
       return solve(W, [side * 0.5, -1, 0.5], { ...hand, curl: [0.25, 0.35] });
     }
     default: {
-      const E = v3.add(S, [side * 0.025, -R.upper * 0.99, -0.02]);
-      const W = v3.add(E, [-side * 0.005, -R.fore * 0.96, -0.06]);
+      const E = v3.add(S, [side * 0.04, -R.upper * 0.99, -0.02]);
+      const W = v3.add(E, [side * 0.018, -R.fore * 0.96, -0.06]);
       return { mode, side, S, E, W, hand: { ...handFrame(v3.sub(W, E), [side, 0, 0], side), curl: [0.5, 0.5] } };
     }
   }
@@ -601,7 +604,7 @@ const SHOULDER_BLEND = 0.11;                                         // metres a
 const lerp = (a, b, t) => v3.add(a, v3.mul(v3.sub(b, a), t));
 
 function deltoidCentre(R, A) {
-  return sculpt.vec.add(A.S, [A.side * 0.005, 0.008, 0]);
+  return sculpt.vec.add(A.S, [A.side * 0.008, -0.004, 0]);
 }
 
 // An arm: the upper arm full under the deltoid and slimmer above the elbow; the
@@ -657,10 +660,12 @@ function bodyField(R, arms, garment) {
     return p => cone([p[0], p[1], Z + (p[2] - Z) * x0 / depth], a, bb, ra, rb) * depth / x0;
   };
   const torsoParts = [
-    // from the base of the neck almost level out to the point of the shoulder
-    p => cone(p, [-0.02, R.notch + 0.024, Z + 0.015], [-(b.shoulder - 0.045), R.notch + 0.002 - drop(-1), Z + 0.01], 0.026 + pad, 0.034 + pad),
-    p => cone(p, [0.02, R.notch + 0.024, Z + 0.015], [b.shoulder - 0.045, R.notch + 0.002 - drop(1), Z + 0.01], 0.026 + pad, 0.034 + pad),
-    p => ellipsoid(p, [0, R.notch - 0.05, Z + 0.005], [b.chest + 0.025 + pad, 0.07, b.chestDepth - 0.012 + pad]),
+    // trapezius: from high on the side of the neck, sloping about 20 degrees down to
+    // the point of the shoulder, where the deltoid rounds it off
+    p => cone(p, [-0.026, R.notch + 0.034, Z + 0.018], [-(b.shoulder - 0.04), R.notch - 0.028 - drop(-1), Z + 0.008], 0.02 + pad, 0.03 + pad),
+    p => cone(p, [0.026, R.notch + 0.034, Z + 0.018], [b.shoulder - 0.04, R.notch - 0.028 - drop(1), Z + 0.008], 0.02 + pad, 0.03 + pad),
+    // upper chest under the collarbones: below the trapezius, so the shoulder line stays a slope
+    p => ellipsoid(p, [0, R.notch - 0.07, Z + 0.005], [b.chest + 0.012 + pad, 0.06, b.chestDepth - 0.012 + pad]),
     // ribcage: widest across the chest, ending above the waist
     p => ellipsoid(p, [0, R.chest, Z], [b.chest + pad, 0.13 * R.s, b.chestDepth + pad]),
     trunk([0, R.chest - 0.06 * R.s, Z], b.chest - 0.01 + pad, [0, R.waist, Z], b.waist + pad, b.waistDepth + pad),
@@ -669,11 +674,11 @@ function bodyField(R, arms, garment) {
   // A long coat carries on below the hips and flares a little; anything else ends in
   // a hem just below them, over the trousers.
   if (garment.long) torsoParts.push(trunk([0, R.hip, Z], b.hip + pad, [0, R.hip - 0.5, Z], b.hip + pad + 0.04, b.waistDepth + 0.01 + pad));
-  const hem = garment.long ? R.hip - 0.55 : R.hip - 0.04;
+  const hem = garment.long ? R.hip - 0.55 : R.hip + 0.05;           // short tops end just above the hip bones
   // Pelvis and legs, in trousers: seen above the counter on taller people.
   const hipX = b.hip * 0.55, legR = b.hip * 0.47;
   const legParts = [
-    trunk([0, R.hip + 0.02, Z], b.hip, [0, R.hip - 0.09, Z], b.hip - 0.01, b.waistDepth),
+    trunk([0, R.hip + 0.09, Z], b.hip - 0.005, [0, R.hip - 0.09, Z], b.hip - 0.01, b.waistDepth),
     ...[-1, 1].map(side => p => cone(p, [side * hipX, R.hip - 0.05, Z], [side * (hipX + 0.005), R.hip - 0.5, Z - 0.01], legR, legR * 0.72)),
   ];
   if (b.belly > 0) torsoParts.push(p => ellipsoid(p, [0, R.waist + 0.045, Z - b.belly * 0.4], [b.waist + 0.005 + pad, 0.15 * R.s, b.waistDepth + b.belly * 0.8 + pad]));
@@ -692,7 +697,7 @@ function bodyField(R, arms, garment) {
     t = Math.max(t, hem - q[1]);
     for (const d of deltoids) t = smin(t, v3.len(v3.sub(p, d.c)) - d.r, 0.03);
     const n = neckField(q);
-    let d = smin(t, n, 0.012), tag = n < t ? 'neck' : 'torso';
+    let d = smin(t, n, 0.024), tag = n < t ? 'neck' : 'torso';           // the neck flows into the trapezius
     const legs = Math.min(...legParts.map(field => field(q)));
     if (legs < d) { d = legs; tag = 'legs'; }
     arms.forEach((A, i) => {
@@ -750,6 +755,13 @@ function plaid(P) {
 
 const GARMENTS = {
   plain: { pad: 0 },
+
+  // The acceptance sample: a fitted crew-neck T-shirt with short sleeves, so the
+  // body's structure shows (docs/character-assets.md).
+  tee: {
+    pad: 0.005,
+    paint(hit, R, level, { arm }) { return arm !== undefined && arm > 0.12 ? { material: 'skin' } : null; },
+  },
 
   // Nell: raincoat with a stand collar open in a V over a light top, overlapping fronts, a belt.
   raincoat: {
@@ -956,7 +968,7 @@ function shadeHit(hit, R, garment, arms, flat) {
   // and deep creases a step darker.
   const [nx, ny] = hit.n;
   let level = flat ? 1 : nx < -0.5 ? (ny > 0.15 ? 3 : 2) : nx < 0.35 ? 2 : nx < 0.78 ? 1 : 0;
-  if (!flat && ny < -0.6) level = Math.max(0, level - 1);
+  if (!flat && ny < (hit.tag === 'torso' ? -0.32 : -0.6)) level = Math.max(0, level - 1);
   if (!flat && hit.ao < 0.3) level = Math.max(0, level - 1);
   if (!flat && hit.tag.startsWith('arm')) {
     const A = arms.find(a => a.side === sideOf(hit.tag)), inside = v3.add(v3.norm(v3.sub(A.S, A.E)), v3.norm(v3.sub(A.W, A.E)));
@@ -1040,7 +1052,10 @@ function poseParts(R, pose, garment, { flat = false } = {}) {
       if (!other) { mark = 'edge'; break; }
       if (other.tag === hit.tag) { if (other.P[2] > hit.P[2] + 0.06) { mark = 'edge'; break; } continue; }
       const [a, b] = [hit.tag, other.tag];
-      if (a.startsWith('arm') && b.startsWith('hand')) { mark = 'edge'; break; }          // the cuff
+      if (a.startsWith('arm') && b.startsWith('hand')) {                                  // the cuff, unless the forearm is bare
+        if (shaded[i].material !== 'skin') { mark = 'edge'; break; }
+        continue;
+      }
       if (a.startsWith('hand') && b.startsWith('arm')) continue;
       if (b === 'legs' && a !== 'legs' && !a.startsWith('hand')) { mark = 'edge'; break; } // a hem over the trousers
       if (a === 'legs' && b === 'torso') continue;
@@ -1069,6 +1084,16 @@ function poseParts(R, pose, garment, { flat = false } = {}) {
     const held = hit.tag === 'card' || outSides.has(sideOf(hit.tag));
     const layer = hit.P[2] < space.counter.far ? (held ? over : counter) : forward ? front : back;
     layer.px(i % W, Math.floor(i / W), tidy[i]);
+  });
+  // A resting hand presses on the laminate: a tight shadow just below and beside it.
+  const restSides = new Set(arms.filter(A => A.mode === 'rest').map(A => A.side));
+  hits.forEach((hit, i) => {
+    if (!hit || !hit.tag.startsWith('hand') || !restSides.has(sideOf(hit.tag))) return;
+    const x = i % W, y = Math.floor(i / W);
+    for (const [dx, dy] of [[0, 2], [1, 2], [-1, 1], [1, 1]]) {
+      const nx = x + dx, ny = y + dy;
+      if (nx >= 0 && ny >= 0 && nx < W && ny < H && !hits[ny * W + nx] && !counter.get(nx, ny)) counter.px(nx, ny, 'top2');
+    }
   });
   for (const A of arms.filter(A => A.mode === 'take')) over.anchor('palm', ...toCanvas(v3.add(A.W, v3.add(v3.mul(A.hand.f, 0.05 * R.hand * R.handLength), v3.mul(A.hand.n, -0.02)))));
   back.anchor('head', ...R.headOffset);
@@ -1175,10 +1200,20 @@ module.exports = () => {
 module.exports.POSES = POSES;
 
 // One figure in one pose from a person spec, for the rig review sheets: its layers,
-// and joints to mark (shoulder, elbow, wrist per arm; neck, chest, waist and hip
-// on the body's centre line, including those hidden by the counter).
+// joints to mark (shoulder, elbow, wrist per arm; neck, chest, waist and hip on the
+// body's centre line, including those hidden by the counter) and named landmarks
+// for the structure view.
 module.exports.figure = (person, name, options) => {
   const pose = POSES[name], R = rigFor(person, pose), parts = poseParts(R, pose, GARMENTS[person.body] || GARMENTS.plain, options);
   const centre = [R.notch, R.chest, R.waist, R.hip].map(y => toCanvas(R.lean([0, y, BODY_Z - 0.1])));
-  return { dy: R.dy, gaze: pose.gaze, ...parts, joints: [...parts.arms.flatMap(A => [A.S, A.E, A.W].map(toCanvas)), ...centre] };
+  const at = P => toCanvas(R.lean(P));
+  const [left, right] = parts.arms;
+  const landmarks = {
+    chin: at([0, R.chin, BODY_Z - 0.05]), neckRoot: at([0, R.notch, BODY_Z - 0.06]),
+    neckSides: [-1, 1].map(s => at([s * R.b.neck, R.notch + 0.02, BODY_Z - 0.03])),
+    shoulders: [left, right].map(A => toCanvas(A.S)), elbows: [left, right].map(A => toCanvas(A.E)), wrists: [left, right].map(A => toCanvas(A.W)),
+    ribs: [-1, 1].map(s => at([s * R.b.chest, R.chest, BODY_Z - 0.03])), waist: [-1, 1].map(s => at([s * R.b.waist, R.waist, BODY_Z - 0.03])),
+    pelvis: [-1, 1].map(s => at([s * R.b.hip, R.hip, BODY_Z - 0.03])), centre,
+  };
+  return { dy: R.dy, gaze: pose.gaze, ...parts, landmarks, joints: [...parts.arms.flatMap(A => [A.S, A.E, A.W].map(toCanvas)), ...centre] };
 };
