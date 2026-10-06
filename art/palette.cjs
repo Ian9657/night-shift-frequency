@@ -37,6 +37,9 @@ const colors = [
   ...named('pink', ramp('#d05c88', 4, { at: 2 })),
   ...named('violet', ramp('#6a55a0', 3, { at: 1 })),
   ...named('paper', ['#8f8a7a', '#c9c4b0', '#ebe7d6', '#fbf9ef']),
+  // Harbor Mart brand: buoy orange and navy
+  ...named('buoy', ramp('#e8622a', 5)),
+  ...named('navy', ramp('#223e6b', 5)),
   // Remappable slots: each customer supplies its own ramps (see js/content/customers.js).
   ...named('skin', ['#4a2a22', '#7c4a36', '#a8694c', '#cf9472', '#ecc2a2']),
   ...named('hair', ['#0c0a0a', '#1e1917', '#352c28', '#54463e']),

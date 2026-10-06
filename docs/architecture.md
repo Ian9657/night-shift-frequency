@@ -95,6 +95,24 @@ js/content/strings.js + art/font/*.ttf
 `assets/` is build output that is committed so players need no build. Tests rebuild it
 and fail if the committed copy is stale.
 
+### First-person store (in progress, build time only)
+
+The pseudo-3D store is rendered by the art build and is not yet drawn by the game.
+`js/content/space.js` holds the room in metres and the one camera (projection, rays,
+the customer canvas); it is meant to serve the runtime too, for click regions and
+product paths. Two renderers use it:
+
+- `art/tools/raycast.cjs` ray-casts boxes and quads with a depth buffer and outlines
+  (room, counter, devices; `art/src/store3d.cjs`). Device faces are drawn at their
+  on-screen size and laid across box faces.
+- `art/tools/sculpt.cjs` ray-marches signed-distance fields (customers' bodies and
+  held props in `art/src/people.cjs`, the scanner gun). A figure is a skeleton in
+  metres; arms are solved by two-bone IK against the counter; each pose is rendered
+  into depth layers (`back`, `front`, `counter`, `over`) that interleave with the head
+  sprite, hair and counter devices. Hands are drawn sprites placed at the wrist.
+
+`build-art.cjs --preview store3d` composes these into review sheets.
+
 ## Audio
 
 All sound is synthesised with Web Audio: room tone, machines, dialogue ticks, the

@@ -102,6 +102,16 @@ Columns: 8
 201 196 176	paper1
 235 231 214	paper2
 251 249 239	paper3
+118  15   9	buoy0
+183  46  17	buoy1
+232  98  42	buoy2
+230 146 106	buoy3
+233 188 163	buoy4
+ 16  29  52	navy0
+ 34  62 107	navy1
+ 55  99 147	navy2
+ 83 138 180	navy3
+132 172 193	navy4
  74  42  34	skin0
 124  74  54	skin1
 168 105  76	skin2
