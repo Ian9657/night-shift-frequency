@@ -5,6 +5,22 @@ verified and what was not.
 
 ## Unreleased
 
+### Added — months of night shifts on the counter
+
+- On the clerk's right: the staff rota on a clipboard (the same signature in every
+  night's box), two loose receipts and an old magazine; a receipt spike with the
+  night's receipts sits in front of the lane. A sticky note is stuck to the
+  register's bezel. None is clickable.
+
+### Verified (counter props)
+
+- All five checks pass. Desktop screenshots (card sale, heating) were reviewed close up.
+
+### Not verified (counter props)
+
+- The magazine's cover photo reads only as colour blocks at this size. Nothing on the
+  rota or sticky note is legible text yet; the clerk's name comes with naming.
+
 ### Changed — the card terminal faces the customer
 
 - The card terminal stands on a swivel stand turned toward the customer, as a 2005

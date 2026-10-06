@@ -228,5 +228,6 @@ Not implemented yet:
   clerk's own number.
 - Naming the clerk on a sign-in sheet.
 - Drift that grows through the night (clock jumps, borrowed lines, the clerk's own
-  notes); counter props that show months of night shifts.
+  notes). The counter's props are there (sign-in sheet, rota, receipts, magazine,
+  sticky note) but don't change through the night yet.
 - Customers who stayed becoming more frequent as the night goes on.

@@ -54,6 +54,13 @@
     phone: { x: 0.47, z: 0.63, w: 0.048, h: 0.022, d: 0.095, yaw: 0.35 },
     can: { x: 0.36, z: 0.66, w: 0.066, h: 0.115, d: 0.066 },
     signIn: { x: -0.5, z: 0.67, w: 0.21, h: 0.012, d: 0.13, yaw: -0.2 },
+    // Months of night shifts, on the clerk's right: the rota on a clipboard, loose
+    // receipts, an old magazine and a receipt spike.
+    rota: { x: 0.17, z: 0.62, w: 0.19, h: 0.01, d: 0.13, yaw: 0.1 },
+    receipt1: { x: 0.29, z: 0.77, w: 0.05, h: 0.002, d: 0.11, yaw: 0.6 },
+    receipt2: { x: 0.53, z: 0.56, w: 0.05, h: 0.002, d: 0.1, yaw: -0.4 },
+    magazine: { x: 0.63, z: 0.65, w: 0.16, h: 0.006, d: 0.21, yaw: -0.18 },
+    spike: { x: -0.03, z: 0.63, w: 0.055, h: 0.12, d: 0.055 },
   });
 
   // Where goods sit: the customer puts them down at the far lane; scanned goods come nearer.

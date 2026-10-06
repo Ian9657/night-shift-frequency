@@ -284,6 +284,34 @@ function front() {
     if ((t * 9) % 1 > 0.35 && (t * 9) % 1 < 0.65 && u > 0.1 && u < 0.45) return 'blue2';  // the same signature, every row
     return null;
   }, { name: 'sign-in' });
+  // The staff rota on a clipboard: seven nights across, the same signature in every
+  // night's box.
+  const { rota, receipt1, receipt2, magazine } = space.personal;
+  s.box(rota, RAMP.wood, (f, u, t) => {
+    if (f !== 'top') return null;
+    if (t > 0.86) return u > 0.35 && u < 0.65 ? 'steel6' : null;                             // the clip
+    if (u < 0.06 || u > 0.94 || t < 0.06) return null;                                        // the board's edge
+    if (t > 0.7) return (u * 7) % 1 < 0.1 ? 'paper1' : 'paper2';                               // the days
+    if ((u * 7) % 1 < 0.1 || (t * 5) % 1 < 0.12) return 'paper1';
+    return t > 0.42 && t < 0.62 && (u * 7) % 1 > 0.25 && (u * 7) % 1 < 0.8 ? 'blue2' : 'paper3';
+  }, { name: 'rota' });
+  // Loose receipts, a few printed lines on each.
+  for (const slip of [receipt1, receipt2]) {
+    s.box(slip, RAMP.paper, (f, u, t) => (f === 'top' && (t * 8) % 1 < 0.25 && u > 0.15 && u < (t > 0.8 ? 0.5 : 0.85) ? 'paper1' : f === 'top' ? 'white' : null), { name: 'receipt' });
+  }
+  // An old magazine: red masthead, a cover photo, cover lines, the barcode.
+  s.box(magazine, RAMP.paper, (f, u, t) => {
+    if (f !== 'top') return null;
+    if (t > 0.82) return u > 0.1 && u < 0.85 && t > 0.86 && t < 0.95 && (u * 9) % 1 < 0.7 ? 'white' : 'red2';
+    if (u > 0.12 && u < 0.88 && t > 0.2 && t < 0.78) {
+      if (Math.hypot((u - 0.55) * 1.4, t - 0.52) < 0.16) return 'skin3';                       // a face
+      if (Math.hypot((u - 0.55) * 1.2, t - 0.62) < 0.22) return 'wood1';                       // hair
+      return 'cyan2';
+    }
+    if (t < 0.17 && u > 0.7 && u < 0.92) return (u * 40) % 1 < 0.5 ? 'ink' : 'white';         // barcode
+    if (t < 0.17 || u < 0.12) return (t * 12) % 1 < 0.35 && u < 0.6 ? 'yellow2' : 'paper3';   // cover lines
+    return 'paper3';
+  }, { name: 'magazine' });
   s.outline();
   return s.layer('main');
 }
@@ -390,6 +418,8 @@ function sprites() {
     p.rect(8, 61, 16, 5, 'buoy2').hline(8, 23, 61, 'buoy3');                                  // brand badge
     p.rect(70, 62, 2, 2, 'phos4');                                                              // power light
     for (let x = 30; x < 62; x += 3) p.vline(x, 61, 66, 'cream2');                              // vents
+    p.rect(65, 57, 12, 11, 'yellow2').hline(65, 76, 57, 'yellow3').px(76, 67, 'yellow1');          // a sticky note
+    p.hline(67, 74, 60, 'blue1').hline(67, 72, 62, 'blue1').hline(68, 73, 64, 'blue1');
   })), (f, u, t) => {
     if (f !== 'top') return null;
     if (u < 0.03 || u > 0.97 || t < 0.1 || t > 0.9) return 'steel2';                          // the bezel
@@ -579,6 +609,25 @@ function sprites() {
     if (h > 0.042 && h < 0.07) return hit.n[0] < -0.4 ? 'cream2' : 'cream4';                   // the label band
     return null;
   });
+  // A receipt spike: a steel rod on a round base with the night's receipts on it.
+  const { spike } = space.personal;
+  result['store-spike'] = (() => {
+    const v = sculpt.vec, base = counter.y;
+    const slips = [[0.018, 0.4, 0.15], [0.03, -0.7, -0.2], [0.042, 1.2, 0.1], [0.055, 0.1, -0.12]];
+    const slipFrame = ([, yaw, tilt]) => {
+      const f = [Math.cos(yaw), Math.sin(tilt), Math.sin(yaw)], n = v.norm([-f[1] * Math.cos(yaw), 1, -f[1] * Math.sin(yaw)]);
+      return [v.norm(f), n, v.norm([f[1] * n[2] - f[2] * n[1], f[2] * n[0] - f[0] * n[2], f[0] * n[1] - f[1] * n[0]])];
+    };
+    const field = P => [Math.min(
+      sculpt.cylinder(P, [spike.x, spike.z], 0.026, base, base + 0.008),
+      sculpt.cylinder(P, [spike.x, spike.z], 0.0022, base, base + spike.h),
+      ...slips.map(s => sculpt.box(P, [spike.x, base + s[0], spike.z], slipFrame(s), [0.028, 0.0012, 0.04], 0.001))), 0];
+    return sculpted({ ...spike, w: 0.11, d: 0.11 }, field, RAMP.steel, hit => {
+      const y = hit.P[1] - base;
+      if (y > 0.012 && Math.hypot(hit.P[0] - spike.x, hit.P[2] - spike.z) > 0.004) return hit.n[1] > 0.3 ? 'white' : 'paper2';
+      return null;
+    });
+  })();
   return result;
 }
 
