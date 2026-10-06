@@ -14,16 +14,17 @@ A 480×270 pixel-art browser game. Download it, open it, play. No install, no bu
 Open `index.html` in a browser and click **START SHIFT**.
 
 - Click an item, then the scanner. When everything is scanned, take payment the way the
-  customer asks: card or phone on the card terminal, cash into the drawer under the register.
+  customer asks: card on the card terminal, cash into the drawer under the register.
 - Ready meals are heated after payment: click the microwave. Click the bags to bag an order.
 - Click the register screen to see the transaction record. When the register and the
   item disagree, scan the item again at the counter before the record choices appear.
 - Click the radio to switch between 87.6 and 87.7.
-- The top-right button toggles sound. A landscape window works best.
+- Click the flip phone on the counter for settings: volume, radio, sounds and silent
+  mode. The shift waits while it is open. A landscape window works best.
 
 `index.html?seed=review-01` replays the same shift. The current shift's seed is shown
 on the closing card and printed to the browser console. Reloading starts a new shift;
-nothing is saved.
+only the phone's settings are remembered.
 
 ## What's in it
 

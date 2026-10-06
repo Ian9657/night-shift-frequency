@@ -5,6 +5,33 @@ verified and what was not.
 
 ## Unreleased
 
+### Added — the flip phone as the settings menu
+
+- Clicking the clerk's flip phone flips it open close up (closed, half, open frames
+  drawn in `art/src/handset.cjs`) and pauses the shift: `NSF.time.paused` stops the
+  game clock while `uiNow` keeps the phone animating, and the radio drops back.
+- Its screen lists VOLUME, RADIO and SOUNDS (0–5, drawn as signal bars) and SILENT
+  MODE, with a status bar showing the shift clock. Rows, bars and the handset's keys
+  are clickable; arrow keys, Enter and Escape work too. A click outside, BACK or the
+  end key puts it away. Settings are kept in localStorage.
+- Audio now plays through `sounds` and `radio` buses into `master`, so the levels apply.
+- The SOUND: ON/OFF chip in the corner is gone (silent mode replaces it).
+- Song requests to *Night Ferry* wait for the station's music; recorded as not yet
+  built in `docs/worldview.md`.
+- README still said "card or phone"; fixed.
+
+### Verified (phone)
+
+- All five checks pass. The browser flow opens the phone, checks the game clock is
+  frozen, sets silent mode and a radio level by clicking, and closes it. The new
+  desktop screenshot of the open phone was reviewed.
+
+### Not verified (phone)
+
+- The phone on a real touch screen, and how the levels sound by ear (only that the
+  gains apply without errors). The radio voice already scheduled for a line keeps
+  playing, ducked, for up to a few seconds after the phone opens.
+
 ### Changed — the register keypad, printer, phone and radio dial
 
 - The register's typing keyboard is a cash-register keypad: department keys with

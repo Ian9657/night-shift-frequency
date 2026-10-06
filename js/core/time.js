@@ -1,8 +1,11 @@
 // One game clock drives every wait, tween and timer. Tests raise `speed`
-// instead of patching browser timers.
+// instead of patching browser timers. `paused` stops the game clock (the phone is
+// open); `uiNow` keeps running at the same speed for what animates over it.
 (function (root) {
   'use strict';
   let now = 0;
+  let uiNow = 0;
+  let paused = false;
   let speed = 1;
   let last = null;
   let timers = [];
@@ -43,7 +46,11 @@
   }
 
   function tick(timestamp) {
-    if (last !== null) now += Math.min(100, timestamp - last) * speed;
+    if (last !== null) {
+      const step = Math.min(100, timestamp - last) * speed;
+      uiNow += step;
+      if (!paused) now += step;
+    }
     last = timestamp;
     for (;;) {
       const due = timers.filter(t => t.at <= now).sort((a, b) => a.at - b.at)[0];
@@ -56,6 +63,9 @@
 
   const api = {
     get now() { return now; },
+    get uiNow() { return uiNow; },
+    get paused() { return paused; },
+    set paused(value) { paused = Boolean(value); },
     get speed() { return speed; },
     set speed(value) { speed = Math.max(0.1, Number(value) || 1); },
     after, cancel, wait, path, tick,

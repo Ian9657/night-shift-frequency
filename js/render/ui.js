@@ -1,9 +1,10 @@
 // Screen-grid (960x540) layers: POS text, speech bubble, radio captions, the
-// record view, the shift report, the title and the closing card. Every
+// record view, the shift report, the title, the closing card and the phone held
+// up close. Every
 // clickable region drawn here is registered for the input router.
 (function (root) {
   'use strict';
-  const { text, strings, dialogue, radio, records, layout, time, audio, engine, space, customers } = root.NSF;
+  const { text, strings, dialogue, radio, records, layout, time, audio, engine, space, customers, sprites, phone } = root.NSF;
   const t = strings.t;
   const C = {
     ink: '#101517', paper: '#ece8d0', paperShade: '#b4ae94', phosphor: '#aef08c', phosphorDim: '#55b066',
@@ -142,16 +143,63 @@
     });
   }
 
-  // ------------------------------------------------------------ chips
-  function chips(ctx, game) {
-    const sound = audio.muted ? t('ui.soundOff') : t('ui.soundOn');
-    let x = SW - 8;
-    const w = text.width(sound) + 12;
-    x -= w;
+  // ------------------------------------------------------------ the phone, close up
+  // The handset (art/src/handset.cjs) at 2x, flipping open; on its inner screen the
+  // settings: a status bar with the shift clock, three levels drawn as signal-style
+  // bars, silent mode and the BACK soft key. Click a row, a bar or a key; a click
+  // outside puts the phone away.
+  const PHONE_ROWS = { master: 'phone.master', radio: 'phone.radio', sounds: 'phone.sounds', silent: 'phone.silent' };
+  const LCD = { back: '#d6e6ec', ink: '#14223a', bar: '#223e6b', dim: '#9fb4c0', select: '#223e6b', light: '#f3f6ea' };
+  function phoneView(ctx, game) {
+    if (!phone.view.open) return;
+    const name = ['handset-closed', 'handset-half', 'handset-open'][phone.frame()];
+    if (!phone.view.open) return;
     ctx.fillStyle = 'rgba(7,9,15,0.55)';
-    ctx.fillRect(x, 2, w, 17);
-    text.draw(ctx, sound, x + 6, 3, C.white);
-    hit(x, 2, w, 17, () => { audio.muted = !audio.muted; }, 'sound');
+    ctx.fillRect(0, 0, SW, SH);
+    hit(0, 0, SW, SH, () => phone.close(), 'phone-away');
+    const size = sprites.size(name), image = sprites.get(name);
+    const px = 600, py = SH - size.h * 2 - 18;
+    ctx.drawImage(image, px, py, size.w * 2, size.h * 2);
+    hit(px, py, size.w * 2, size.h * 2, () => {}, null);                 // the handset itself swallows stray clicks
+    if (name !== 'handset-open') return;
+    const at = anchor => { const [ax, ay] = sprites.anchor(name, anchor); return [px + ax * 2, py + ay * 2]; };
+    for (const [key, w, h] of [['up', 24, 16], ['down', 24, 16], ['left', 16, 20], ['right', 16, 20], ['ok', 16, 14], ['softL', 44, 16], ['softR', 44, 16], ['end', 40, 18]]) {
+      const [kx, ky] = at(key);
+      const press = { softL: 'ok', softR: 'back', end: 'back' }[key] || key;
+      hit(kx - w / 2, ky - h / 2, w, h, () => phone.press(press), 'phone-' + key);
+    }
+    const [x0, y0] = at('lcd'), [x1, y1] = at('lcdEnd'), w = x1 - x0, h = y1 - y0;
+    ctx.fillStyle = LCD.back;
+    ctx.fillRect(x0, y0, w, h);
+    // Status bar: signal, the shift clock, battery.
+    ctx.fillStyle = LCD.bar;
+    ctx.fillRect(x0, y0, w, 16);
+    ctx.fillStyle = LCD.light;
+    for (let i = 0; i < 4; i++) ctx.fillRect(x0 + 4 + i * 4, y0 + 11 - i * 2, 3, 3 + i * 2);
+    ctx.fillRect(x1 - 20, y0 + 5, 14, 7); ctx.fillRect(x1 - 6, y0 + 7, 2, 3);
+    ctx.fillStyle = LCD.bar; ctx.fillRect(x1 - 19, y0 + 6, 3, 5);
+    text.draw(ctx, game.order().clock, x0 + w / 2, y0 + 1, LCD.light, { align: 'center' });
+    text.draw(ctx, t('phone.title'), x0 + w / 2, y0 + 20, LCD.ink, { align: 'center' });
+    phone.rows.forEach((row, i) => {
+      const ry = y0 + 40 + i * 24, selected = phone.view.row === i;
+      if (selected) { ctx.fillStyle = LCD.select; ctx.fillRect(x0 + 2, ry - 2, w - 4, 20); }
+      const ink = selected ? LCD.light : LCD.ink;
+      text.draw(ctx, t(PHONE_ROWS[row]), x0 + 5, ry, ink);
+      if (row === 'silent') {
+        text.draw(ctx, t(audio.muted ? 'phone.on' : 'phone.off'), x1 - 5, ry, ink, { align: 'right' });
+        hit(x0, ry - 2, w, 20, () => { phone.select(i); phone.toggleSilent(); }, 'phone-silent');
+        return;
+      }
+      hit(x0, ry - 2, w - 44, 20, () => phone.select(i), 'phone-row-' + row);
+      const level = audio.level(row);
+      for (let b = 0; b < 5; b++) {
+        const bx = x1 - 42 + b * 8, bh = 4 + b * 2;
+        ctx.fillStyle = b < level ? ink : (selected ? '#5a7397' : LCD.dim);
+        ctx.fillRect(bx, ry + 14 - bh, 6, bh);
+        hit(bx - 1, ry - 2, 8, 20, () => { phone.select(i); phone.setLevel(row, level === b + 1 ? b : b + 1); }, `phone-${row}-${b + 1}`);
+      }
+    });
+    text.draw(ctx, t('phone.back'), x1 - 5, y1 - 16, LCD.ink, { align: 'right' });
   }
 
   // ------------------------------------------------------------ record view
@@ -330,7 +378,7 @@
     report(ctx, game);
     ending(ctx, game);
     title(ctx, game);
-    chips(ctx, game);
+    phoneView(ctx, game);
     ctx.restore();
   }
 

@@ -45,7 +45,8 @@ const { chromium, artifacts, URL_BASE, idle, click, playOrder } = require('./bro
       await page.close();
       console.log('path ok:', name);
     }
-    // Narrow portrait viewport: the scene fits without page overflow; sound toggles.
+    // Narrow portrait viewport: the scene fits without page overflow; the phone opens,
+    // pauses the shift, sets silent mode and a level, and is put away.
     const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
     const errors = [];
     page.on('pageerror', e => errors.push(e.message));
@@ -85,8 +86,18 @@ const { chromium, artifacts, URL_BASE, idle, click, playOrder } = require('./bro
     await idle(page);
     assert.equal(await page.evaluate(id => NSF.debug.game.state.scannedIds.includes(id), item), true);
 
-    await click(page, 'ui:sound');
+    await click(page, 'phone');
+    await page.waitForFunction(() => NSF.debug.time.paused && NSF.phone.frame() === 2);
+    const frozen = await page.evaluate(() => NSF.debug.time.now);
+    await page.waitForTimeout(150);
+    assert.equal(await page.evaluate(() => NSF.debug.time.now), frozen);
+    await click(page, 'ui:phone-silent');
     assert.equal(await page.evaluate(() => NSF.audio.muted), true);
+    await click(page, 'ui:phone-radio-2');
+    assert.equal(await page.evaluate(() => NSF.audio.level('radio')), 2);
+    await click(page, 'ui:phone-softR');
+    await page.waitForFunction(() => !NSF.phone.view.open);
+    assert.equal(await page.evaluate(() => NSF.debug.time.paused), false);
     assert.deepEqual(errors, []);
     await page.close();
     console.log('PASS: four record branches, report, ending, audio smoke, failure recovery, seed, narrow viewport.');

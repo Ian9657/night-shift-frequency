@@ -89,6 +89,11 @@ async function finish(page, index) {
     await click(page, 'pos');
     await click(page, 'ui:choice:keep');
     await shot(page, 'record-choices');
+    await page.keyboard.press('Escape');
+    await click(page, 'phone');
+    await page.waitForFunction(() => NSF.phone.frame() === 2);
+    await page.keyboard.press('ArrowDown');
+    await shot(page, 'settings-phone');
     await page.close();
 
     // Phone held sideways.
@@ -102,7 +107,7 @@ async function finish(page, index) {
     assert.equal(await phone.evaluate(() => document.querySelector('canvas').getBoundingClientRect().bottom <= innerHeight), true, 'the whole view fits the phone');
     await phone.close();
     assert.deepEqual(errors, []);
-    console.log('PASS: key poses, heating, scanner bleed, echo radio, record view and landscape phone captured.');
+    console.log('PASS: key poses, heating, scanner bleed, echo radio, record view, settings phone and landscape phone captured.');
   } finally {
     await browser.close();
   }

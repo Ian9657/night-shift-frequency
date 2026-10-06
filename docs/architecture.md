@@ -22,8 +22,8 @@ How the code is organised and why. For what changed when, see
 | --- | --- | --- |
 | Content | `js/content/` | The store in metres and its camera (`space.js`), screen positions derived from it (`layout.js`), customer poses, strings, colour ramps, customer looks, story and radio script. Data only, plus small pure helpers. |
 | Engine | `js/engine/shift.js` | The shift's domain: order generation from a seed, re-scan checks, record decisions, settlement, the report and the ending key. No DOM, audio or time. |
-| Core | `js/core/time.js` | The single game clock: `wait`, `after`, stepped `path` motion. Tests speed it up. |
-| Game | `js/game/` | Interaction: `checkout.js` (current-order state, scene model, player actions), `dialogue.js`, `radio.js` (the player), `broadcast.js` (what is on air), `records.js` (the POS record view), `audio.js` (synthesised sound). |
+| Core | `js/core/time.js` | The single game clock: `wait`, `after`, stepped `path` motion. Tests speed it up. `paused` stops it while the phone is open; `uiNow` keeps running for what animates over it. |
+| Game | `js/game/` | Interaction: `checkout.js` (current-order state, scene model, player actions), `dialogue.js`, `radio.js` (the player), `broadcast.js` (what is on air), `records.js` (the POS record view), `phone.js` (the flip phone as the settings menu), `audio.js` (synthesised sound). |
 | Render | `js/render/` | `sprites.js` (indexed sprites → cached canvases, slot recolouring, moods, outlines), `text.js` (bitmap font), `world.js` (480×270 world), `ui.js` (960×540 overlays and their click regions). |
 | Boot | `js/main.js` | Canvas sizing, the frame loop, input routing, test hooks (`NSF.debug`). |
 
@@ -64,6 +64,7 @@ from; only the click priority (UI, then products, then fixtures) is defined sepa
 | Station, caption, queue | `radio.js` | Plays what it is given. |
 | What plays when; what 87.7 says | `broadcast.js` | Reads game state through `attach(controller)`. |
 | Record view open/draft/focus | `records.js` | Its model is derived from the engine on every draw. |
+| Phone open/frame/selected row | `phone.js` | Levels and silent mode live in `audio.js`; the phone saves them to localStorage. |
 
 Rule: one source of truth per fact. Derive, don't copy.
 
@@ -121,7 +122,8 @@ sprites carry their top-left as anchor `at`. Two renderers use it:
 ## Audio
 
 All sound is synthesised with Web Audio: room tone, machines, dialogue ticks, the
-radio bed and voice. There are no audio files. Ambient drift uses real timers on
+radio bed and voice. There are no audio files. Everything plays through a `sounds` or a
+`radio` bus into `master`; the phone's settings set their levels. Ambient drift uses real timers on
 purpose; it is texture, not game state. Everything else waits on `NSF.time`.
 
 ## Randomness
@@ -147,8 +149,8 @@ Not covered: natural-speed pacing, audio mix, accessibility beyond the record vi
 
 New systems get their own module in `js/game/` instead of growing `checkout.js`. The
 checkout reports shift progress; other modules decide what happens around it. The
-planned night timeline, phone and radio dial (see [worldview.md](worldview.md)) follow
-this pattern.
+phone (`phone.js`) follows this pattern; the planned night timeline, texting and radio
+dial (see [worldview.md](worldview.md)) will too.
 
 ## Deliberately not done
 
@@ -156,7 +158,7 @@ this pattern.
 | --- | --- | --- |
 | ES modules / a bundler | Would break opening `index.html` from disk | The game needs online hosting with a build step |
 | Compressing the sprite bundle | ~740 KB is fine for a one-shot download | It grows past a few MB (run-length encoding would shrink it a lot) |
-| Saving | One shift per session by design | The game spans several nights |
+| Saving | One shift per session by design (only the phone's settings persist) | The game spans several nights |
 | Keyboard control of counter actions | Pointer-first pixel game | Accessibility becomes a goal |
 | Phone-size UI text | Requires a scalable UI layout | The radio dial and phone UI are built |
 | One declaration for drawing and clicking world objects | Low risk today | The radio dial adds many small interactive parts |

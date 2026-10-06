@@ -2,7 +2,7 @@
 // model the renderer draws. Cross-order history lives in the shift engine.
 (function (root) {
   'use strict';
-  const { time, audio, dialogue, radio, records, broadcast, engine, story, customers, layout, sprites } = root.NSF;
+  const { time, audio, dialogue, radio, records, broadcast, engine, story, customers, layout, sprites, phone } = root.NSF;
 
   const params = new URLSearchParams(root.location?.search || '');
   const shift = engine.createShift(params.get('seed') || String(Date.now()));
@@ -587,7 +587,7 @@
     if (name.startsWith('item:')) return guarded(() => selectItem(name.slice(5)));
     const actions = {
       scanner: scan, terminal: () => pay('terminal'), drawer, microwave: heat, bags: bag,
-      printer: printReport, pos: () => records.open(), radio: () => radio.tune(),
+      printer: printReport, pos: () => records.open(), radio: () => radio.tune(), phone: () => phone.open(),
     };
     return actions[name] ? guarded(actions[name]) : undefined;
   }

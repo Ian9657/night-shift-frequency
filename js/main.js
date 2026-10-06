@@ -1,7 +1,7 @@
 // Boot: canvas scaling, the frame loop and input routing.
 (function (root) {
   'use strict';
-  const { time, layout, world, ui, game, records, sprites, dialogue, radio } = root.NSF;
+  const { time, layout, world, ui, game, records, sprites, dialogue, radio, phone } = root.NSF;
   const canvas = document.querySelector('[data-game]');
   const ctx = canvas.getContext('2d');
   const live = document.querySelector('[data-live]');
@@ -35,7 +35,7 @@
   // slack: goods first, then machines from the nearest-drawn back, since machines
   // overlap in the first-person view.
   function worldTarget(point) {
-    if (game.state.phase !== 'shift' || records.view.open) return null;
+    if (game.state.phase !== 'shift' || records.view.open || phone.view.open) return null;
     const x = Math.floor(point.x / K), y = Math.floor(point.y / K);
     const list = game.targets();
     const hit = target => [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]
@@ -61,7 +61,7 @@
     canvas.style.cursor = targetAt(toScreen(event)) ? 'pointer' : 'default';
   });
   root.addEventListener('keydown', event => {
-    if (records.key(event.key)) { event.preventDefault(); return; }
+    if (phone.key(event.key) || records.key(event.key)) { event.preventDefault(); return; }
     if ((event.key === 'Enter' || event.key === ' ') && game.state.phase === 'title') game.startShift();
   });
 
@@ -103,7 +103,7 @@
   // Test hooks: client-space centres of every clickable target.
   console.info(`Night Shift Frequency · seed ${game.shift.seed} · replay with ?seed=${encodeURIComponent(game.shift.seed)}`);
   root.NSF.debug = {
-    game, time, records, radio, dialogue, seed: game.shift.seed,
+    game, time, records, radio, dialogue, phone, seed: game.shift.seed,
     targets() {
       render();
       const rect = canvas.getBoundingClientRect();

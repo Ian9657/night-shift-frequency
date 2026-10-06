@@ -36,11 +36,13 @@
       drawer: { sprite: 'store-drawer', busy: 'store-drawer-open', drop: point(drawer.x, drawer.y + drawer.h, counter.near - space.drawerTravel * 0.4) },
       bags: { sprite: 'store-bags', stack: point(bags.x, counter.y + 0.03, bags.z), packing: point(bags.x - 0.04, counter.y, bags.z - 0.13) },
       radio: { sprite: 'store-radio', echo: 'store-radio-echo', dial: face(radio.x, radio.w, radio.z - radio.d / 2, counter.y, counter.y + radio.h, [26 / 48, 45 / 48], [5 / 28, 14 / 28]) },
+      // The clerk's flip phone: opens close up as the settings menu (js/game/phone.js).
+      phone: { sprite: 'store-phone' },
       printer: { sprite: 'store-printer', slot: point(printer.x, counter.y + printer.h, printer.z + printer.d * 0.16) },
     }),
-    // Drawn with the machines but not clicked: the security monitor, the clerk's phone
-    // and half-finished can of coffee.
-    decor: Object.freeze(['store-cctv', 'store-phone', 'store-can']),
+    // Drawn with the machines but not clicked: the security monitor and the clerk's
+    // half-finished can of coffee.
+    decor: Object.freeze(['store-cctv', 'store-can']),
     // Goods wait at the far side of the lane and come forward once scanned.
     lane: { x: laneLeft.x, width: laneRight.x - laneLeft.x, incomingFoot: laneLeft.y, scannedFoot: point(0, counter.y, lane.scannedZ).y, gap: 4 },
     microwaveCavity: point(microwave.x - 0.05, counter.y + 0.13, microwave.z - microwave.d / 2 + 0.06),

@@ -1,6 +1,7 @@
 // Synthesised diegetic sound: room tone, machines, dialogue ticks and the
 // counter radio. No music tracks. Ambient drift uses real time on purpose:
-// it is texture, not game state.
+// it is texture, not game state. Everything plays through two buses, `sounds` and
+// `radio`, into `master`; the phone's settings set their levels (0–5).
 (function (root) {
   'use strict';
   const SFX_GAIN = 2.65;
@@ -11,14 +12,32 @@
   let radioBed = null;
   let tickStep = 0;
   let muted = false;
+  let bus = null;
+  const levels = { master: 5, radio: 5, sounds: 5 };
+  let radioDuck = 1;
   const between = (min, max) => min + Math.random() * (max - min);
+  const gainOf = level => (level / 5) ** 2;
 
   function audio() {
     const Context = root.AudioContext || root.webkitAudioContext;
     if (!Context || muted) return null;
-    if (!context) context = new Context();
+    if (!context) {
+      context = new Context();
+      const master = context.createGain(), sounds = context.createGain(), radio = context.createGain();
+      sounds.connect(master); radio.connect(master); master.connect(context.destination);
+      bus = { master, sounds, radio };
+      applyLevels();
+    }
     if (context.state === 'suspended') context.resume().catch(() => {});
     return context;
+  }
+
+  function applyLevels() {
+    if (!bus) return;
+    const now = context.currentTime;
+    bus.master.gain.setTargetAtTime(gainOf(levels.master), now, 0.03);
+    bus.sounds.gain.setTargetAtTime(gainOf(levels.sounds), now, 0.03);
+    bus.radio.gain.setTargetAtTime(gainOf(levels.radio) * radioDuck, now, 0.03);
   }
 
   function tone({ frequency, duration, type = 'square', gain = 0.035, delay = 0, endFrequency = frequency, lowpass = 2200 }) {
@@ -34,7 +53,7 @@
     volume.gain.exponentialRampToValueAtTime(0.0001, end);
     filter.type = 'lowpass';
     filter.frequency.setValueAtTime(lowpass, start);
-    osc.connect(filter); filter.connect(volume); volume.connect(ctx.destination);
+    osc.connect(filter); filter.connect(volume); volume.connect(bus.sounds);
     osc.start(start); osc.stop(end + 0.01);
   }
 
@@ -56,7 +75,7 @@
     filter.frequency.setValueAtTime(frequency, start);
     volume.gain.setValueAtTime(gain * SFX_GAIN, start);
     volume.gain.exponentialRampToValueAtTime(0.0001, start + duration);
-    source.connect(filter); filter.connect(volume); volume.connect(ctx.destination);
+    source.connect(filter); filter.connect(volume); volume.connect(bus.sounds);
     source.start(start); source.stop(start + duration);
   }
 
@@ -106,7 +125,7 @@
     ambienceStarted = true;
     const master = ctx.createGain();
     master.gain.value = 0.58;
-    master.connect(ctx.destination);
+    master.connect(bus.sounds);
     for (const [type, frequency, gain] of [['triangle', 58, 0.013], ['sine', 119, 0.0054]]) {
       const osc = ctx.createOscillator(), volume = ctx.createGain();
       osc.type = type; osc.frequency.value = frequency; volume.gain.value = gain;
@@ -126,7 +145,7 @@
   function startRadioBed(ctx) {
     const master = ctx.createGain();
     master.gain.value = 1;
-    master.connect(ctx.destination);
+    master.connect(bus.radio);
     const hiss = loop(ctx, master, { filterType: 'bandpass', frequency: 3100, gain: 0.0026, duration: 1.7, drift: false });
     const hum = loop(ctx, master, { filterType: 'lowpass', frequency: 180, gain: 0.0018, duration: 2.1, drift: false });
     radioBed = { master, hiss, hum, station: '87.6' };
@@ -164,7 +183,7 @@
       volume.gain.setValueAtTime(0.0001, t);
       volume.gain.exponentialRampToValueAtTime((echo ? 0.05 : 0.07) * between(0.6, 1), t + syllable * 0.3);
       volume.gain.exponentialRampToValueAtTime(0.0001, t + syllable);
-      source.connect(band); band.connect(low); low.connect(volume); volume.connect(ctx.destination);
+      source.connect(band); band.connect(low); low.connect(volume); volume.connect(bus.radio);
       source.start(t); source.stop(t + syllable);
       t += syllable + (Math.random() < 0.18 ? between(0.12, 0.28) : between(0.01, 0.05));
     }
@@ -222,7 +241,7 @@
     const cabinet = ctx.createOscillator(), cabinetVolume = ctx.createGain();
     master.gain.setValueAtTime(0.0001, start);
     master.gain.exponentialRampToValueAtTime(0.013 * SFX_GAIN, start + 0.05);
-    master.connect(ctx.destination);
+    master.connect(bus.sounds);
     motor.type = 'triangle'; motor.frequency.setValueAtTime(116, start);
     wobble.type = 'sine'; wobble.frequency.setValueAtTime(6.6, start);
     wobbleAmount.gain.setValueAtTime(1.4, start);
@@ -271,14 +290,28 @@
     volume.gain.setValueAtTime(0.0001, start);
     volume.gain.exponentialRampToValueAtTime(0.0028 * SFX_GAIN * DIALOGUE_TICK_GAIN, start + 0.0012);
     volume.gain.exponentialRampToValueAtTime(0.0001, end);
-    osc.connect(filter); filter.connect(volume); volume.connect(ctx.destination);
+    osc.connect(filter); filter.connect(volume); volume.connect(bus.sounds);
     osc.start(start); osc.stop(end + 0.002);
+  }
+
+  // The phone: a short keypad beep, and the clack of the lid opening or shutting.
+  function phoneKey() {
+    tone({ frequency: 1400, duration: 0.05, type: 'sine', gain: 0.008, lowpass: 3000 });
+  }
+  function phoneFlip(opening) {
+    noise({ duration: 0.02, gain: 0.012, frequency: opening ? 2600 : 1900 });
+    tone({ frequency: opening ? 420 : 300, endFrequency: opening ? 380 : 220, duration: 0.04, type: 'triangle', gain: 0.012, delay: 0.012, lowpass: 1600 });
   }
 
   root.NSF.audio = {
     unlock: audio, startAmbience, scan, payment, anomaly, cashPaper, cashDrawer, microwaveStart, microwaveDone,
     stopMicrowave, receipt, bag, dialogueTick, resetTicks() { tickStep = 0; },
-    radioStation, radioTune, radioVoice,
+    radioStation, radioTune, radioVoice, phoneKey, phoneFlip,
+    // Levels 0–5 for 'master', 'radio' and 'sounds'.
+    level(name) { return levels[name]; },
+    setLevel(name, value) { levels[name] = Math.max(0, Math.min(5, Math.round(value))); applyLevels(); },
+    // While the phone is open the radio drops back, as when the clerk looks away from it.
+    set radioDucked(value) { radioDuck = value ? 0.3 : 1; applyLevels(); },
     set muted(value) { muted = Boolean(value); if (muted && context) context.suspend(); else if (context) context.resume(); },
     get muted() { return muted; },
   };

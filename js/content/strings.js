@@ -7,8 +7,6 @@
     'title.name': 'NIGHT SHIFT FREQUENCY',
     'title.place': 'LOWTIDE · HARBOR MART · 2 A.M.',
     'title.start': 'START SHIFT',
-    'ui.soundOn': 'SOUND: ON',
-    'ui.soundOff': 'SOUND: OFF',
     'ui.radioHint': 'Click the radio to change station',
     'title.hint': 'Click to play · sound starts after you begin',
     'end.title': 'SHIFT OVER',
@@ -29,6 +27,15 @@
     'item.spareKey': 'SPARE KEY',
 
     // POS screen
+    'phone.title': 'SETTINGS',
+    'phone.master': 'VOLUME',
+    'phone.radio': 'RADIO',
+    'phone.sounds': 'SOUNDS',
+    'phone.silent': 'SILENT MODE',
+    'phone.on': 'ON',
+    'phone.off': 'OFF',
+    'phone.back': 'BACK',
+
     'pos.ready': 'READY',
     'pos.waiting': 'WAITING FOR ITEMS',
     'pos.total': 'TOTAL {amount}',

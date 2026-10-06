@@ -223,7 +223,9 @@ Not implemented yet:
 - The 01:00–05:00 night (the build runs 02:12–03:04 in eight orders) and ending at
   the radio sign-off with clocking out.
 - Free tuning across the band and per-person frequencies.
-- The flip phone, texting, and the text from the clerk's own number.
+- Texting from the flip phone (the phone opens only as the settings menu now): song
+  requests to *Night Ferry*, which need the station's music, and the text from the
+  clerk's own number.
 - Naming the clerk on a sign-in sheet.
 - Drift that grows through the night (clock jumps, borrowed lines, the clerk's own
   notes); counter props that show months of night shifts.

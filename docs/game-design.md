@@ -103,6 +103,14 @@ The four combinations lead to four letters read by *Night Ferry* after the shift
   5 is decided it reads the record the player did **not** save.
 - Clicking the radio switches stations.
 
+## The phone
+
+- Clicking the clerk's flip phone on the counter flips it open close up and pauses the
+  shift (the game clock stops; the radio drops back). A click outside, BACK or Escape
+  puts it away and the shift resumes.
+- Its screen holds the settings: VOLUME, RADIO and SOUNDS levels (0–5) and SILENT MODE.
+  Click a row or a bar, or use the arrow keys and Enter. The browser remembers them.
+
 ## Record contract
 
 ```js
@@ -142,5 +150,5 @@ If the only reaction is "just another glitch", strengthen the link between order
 ## Where this goes next
 
 [worldview.md](worldview.md) describes the target: a 01:00–05:00 night ending when the
-radio signs off, free tuning, a flip phone for texting, a named clerk and drift that
+radio signs off, free tuning, texting from the phone (song requests to *Night Ferry*), a named clerk and drift that
 grows through the night. The record rules in this document stay as they are.
