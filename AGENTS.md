@@ -26,7 +26,9 @@
 - Each document has one job; keep it current and don't duplicate between them:
   `README.md` (players), `CONTRIBUTING.md` (workflow), `docs/architecture.md` (how the
   code is organised), `docs/game-design.md` (rules of the current game),
-  `docs/worldview.md` (world and story, including the target design), `CHANGELOG.md`
+  `docs/worldview.md` (world and story, including the target design),
+  `docs/character-assets.md` (the contract for customer artwork: scale, anchors,
+  layers, naming, animation; a target, not a description of the build), `CHANGELOG.md`
   (what changed and how it was verified). Add a CHANGELOG entry for every substantial
   change, including what was not verified. Never describe planned or removed features
   as active outside `docs/worldview.md`'s clearly marked target sections.

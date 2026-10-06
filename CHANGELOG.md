@@ -5,6 +5,31 @@ verified and what was not.
 
 ## Unreleased
 
+### Character asset production contract · 2026-10-06
+
+- Added docs/character-assets.md: native authoring grid, standard front anchors,
+  body presets, layering/occlusion, palette and naming rules, reserved animation
+  interface, timings and acceptance criteria. It explicitly distinguishes the
+  contract and generated reference images from the playable runtime.
+- Added the target implementation phases to worldview.md; classified the new
+  character specification as reserved art/design text in LICENSE; listed its role
+  in AGENTS.md.
+- Revised to the first-person counter scale: the 96 × 128 grid (about 5.3 heads,
+  squatter than its own reference images at about 6.8) became the customer canvas
+  in space.js (176 × 210, 151.5 px per metre, a 1.68 m figure about 7 heads tall);
+  the anchor table is computed from the rig; builds, per-person heights, arms and
+  hands follow people.cjs and customers.js; layers map to the rig's back, front,
+  counter and over; naming fields are camelCase so the hyphen-joined keys split
+  unambiguously. The generated lineup is a style reference only and is not assigned
+  to the cast.
+- Verified: cross-checked current customer layers, hand-anchor caller, palette
+  pipeline and time ownership against the specification; documentation links and
+  whitespace reviewed; the revised anchor table matches the rig's joints. No code,
+  sprite bundle or reference image changed by this document.
+- Not verified: native sprite authoring, runtime adapter, animation clips, walk
+  pacing and device screenshots. Full gameplay/art/browser tests were not run for
+  this documentation-only change.
+
 ### Changed (in progress — built by the art tools, not yet used by the game)
 
 - **Every customer rebuilt on the sculpted body.** Garments can add shapes (a hood,

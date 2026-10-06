@@ -42,7 +42,7 @@ licensed for reuse. This covers:
 - art/src/, art/overrides/, art/palette.cjs, art/palette.gpl
 - assets/sprite-data.js (the built artwork)
 - js/content/strings.js, js/content/story.js, js/content/customers.js
-- docs/worldview.md, docs/game-design.md
+- docs/worldview.md, docs/game-design.md, docs/character-assets.md
 
 You may view these files and play the game. You may not copy, modify,
 redistribute or reuse them, in whole or in part, without written permission.

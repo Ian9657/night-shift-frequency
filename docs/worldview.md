@@ -184,6 +184,29 @@ player heard, sent and recorded along the way, and which letter June reads.
 - The echo's time signal runs one minute behind *Night Ferry*'s.
 - One day on the tide table is drawn wrong: the day the tower went dark.
 
+## Target: character asset pipeline
+
+Not implemented in the playable build. The next character asset pass follows the
+[Character Asset Specification](character-assets.md), which owns pixel dimensions,
+anchors, layers, naming, palette constraints, animation timing and acceptance gates.
+The generated lineup is a style reference only, not a runtime sprite system and not
+assigned to the cast.
+
+1. Freeze the authoring contract at the first-person counter scale and approve one
+   native-pixel standard body.
+2. Author shared idle and talk parts; validate outfit/body compatibility first.
+3. Stress-test the paper doll with the ten approved looks and compatible parts.
+4. Add counter handover and context-relevant interactions. Keep normal play at
+   the counter; walk and side/back views follow only when staging needs them.
+5. Add a small reusable gesture library with explicit outfit/prop compatibility.
+   Start with direct character action lists; add tag-based selection only when
+   there is a concrete selection requirement.
+6. Expand NPCs by assembling verified parts rather than generating new whole images.
+
+Runtime uses authored parts and integer offsets/flips, not procedural limb motion
+or arbitrary sprite rotation. New views and poses must preserve the quiet, tired
+2005 night-shift cast; they must not replace story identities implicitly.
+
 ## Current build vs. this document
 
 Implemented now: Lowtide, Harbor Mart, the window view and tower; *Night Ferry* on 87.6
