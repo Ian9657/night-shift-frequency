@@ -5,6 +5,23 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — the card terminal faces the customer
+
+- The card terminal stands on a swivel stand turned toward the customer, as a 2005
+  chip-and-PIN terminal would: the clerk sees its back (sticker, vents, status lights
+  that turn green on approval, a coiled cable), the card slot on top and the glow of
+  the customer-facing screen along its far edge. The customer's card goes into the top
+  slot as before.
+
+### Verified (terminal)
+
+- All five checks pass. Idle and in-use desktop screenshots were reviewed close up.
+
+### Not verified (terminal)
+
+- The terminal's own screen is no longer visible to the player; approval shows only
+  as the green light and the sound.
+
 ### Changed — carrier bags hang under the counter
 
 - The stack of bags on the counter top is gone. White carrier bags now hang in a

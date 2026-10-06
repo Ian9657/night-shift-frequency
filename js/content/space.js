@@ -27,7 +27,9 @@
     microwave: [{ x: -1.02, z: 1.04, w: 0.46, h: 0.27, d: 0.34 }],
     pos: [{ x: -0.5, z: 0.99, w: 0.44, h: 0.4, d: 0.28 }, { x: -0.43, z: 0.78, w: 0.32, h: 0.035, d: 0.14 }],
     scanner: [{ x: -0.21, z: 0.95, w: 0.09, h: 0.19, d: 0.12 }],
-    terminal: [{ x: 0.23, z: 0.95, w: 0.09, h: 0.17, d: 0.1 }],
+    // The chip-and-PIN terminal is turned on its stand to face the customer.
+    terminal: [{ x: 0.23, z: 0.95, w: 0.085, h: 0.15, d: 0.07, yaw: Math.PI - 0.45, y: counter.y + 0.02 },
+      { x: 0.23, z: 0.95, w: 0.12, h: 0.02, d: 0.12 }],
     // Carrier bags hang in a bundle on the clerk's side of the counter, their handles
     // hooked over its near lip.
     bags: [{ x: 0.12, z: 0.495, w: 0.26, h: 0.18, d: 0.01, y: counter.y - 0.18 }],

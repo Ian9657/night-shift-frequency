@@ -553,7 +553,7 @@ function armPose(R, side, [mode, at]) {
       // The card stands in the slot on top of the terminal, its face to the clerk,
       // its upper half showing; the hand comes from the side and pinches its outer
       // edge, so most of the card stays in view.
-      const t = space.fixtures.terminal[0], top = space.counter.y + t.h;
+      const t = space.fixtures.terminal[0], top = t.y + t.h;
       const card = [t.x, top + CARD[1] * 0.15, t.z + 0.01];
       const pinch = v3.add(card, [side * (CARD[0] + 0.004), CARD[1] * 0.45, 0.006]);
       const hand = frame([-side, -0.45, -0.25], [0, 0.35, 1]);

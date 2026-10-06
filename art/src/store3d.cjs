@@ -432,14 +432,21 @@ function sprites() {
   result['store-scanner'] = scanner(false);
   result['store-scanner-reading'] = scanner(true);
 
-  // Card terminal: backlit LCD, keypad with the coloured row, the card slot on top.
-  const terminal = approved => fixture(F.terminal, [RAMP.dark], [both(panel('front', 16, 30, p => {
-    p.rect(1, 2, 14, 9, 'steel1').rect(2, 3, 12, 7, approved ? 'phos3' : 'phos2');
-    if (approved) text(p, 4, 4, 'OK', 'phos0');
-    else p.rect(5, 4, 6, 4, 'phos0').hline(5, 10, 5, 'phos3');                                 // insert card
-    for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) p.rect(2 + c * 4, 13 + r * 3, 3, 2, 'steel5');
-    p.rect(2, 26, 3, 2, 'red2').rect(6, 26, 3, 2, 'yellow2').rect(10, 26, 3, 2, 'green2');
-  })), (f, u, t) => (f === 'top' && t > 0.45 && t < 0.55 && u > 0.15 && u < 0.85 ? 'ink' : null)]);
+  // Chip-and-PIN terminal on its swivel stand, turned to face the customer, so the
+  // clerk sees its back: a maker's sticker, vents, status lights (green once approved)
+  // and the coiled cable dropping to the stand; on top the card slot, its far edge lit
+  // by the screen the customer is reading.
+  const terminal = approved => fixture(F.terminal, [RAMP.dark, RAMP.steel], [both(panel('back', 16, 28, p => {
+    p.rect(3, 3, 10, 6, 'paper2').hline(4, 11, 5, 'steel3').hline(4, 9, 7, 'steel3');           // sticker
+    for (let y = 11; y < 17; y += 2) p.hline(4, 11, y, 'ink');                                   // vents
+    p.px(4, 20, approved ? 'green4' : 'green1').px(7, 20, 'buoy2').px(10, 20, approved ? 'green4' : 'steel3');
+    for (let y = 22; y < 28; y++) p.px(12 + (y % 2), y, 'steel5').px(13 - (y % 2), y, 'ink');   // coiled cable
+  }), (f, u, t) => {
+    if (f !== 'top') return null;
+    if (t > 0.45 && t < 0.58 && u > 0.12 && u < 0.88) return 'ink';                           // card slot
+    if (t < 0.3) return approved ? 'phos4' : 'phos2';                                          // screen glow
+    return null;
+  }), (f, u, t) => (f === 'top' && Math.hypot(u - 0.5, t - 0.5) < 0.18 ? 'steel2' : null)]);   // the swivel
   result['store-terminal'] = terminal(false);
   result['store-terminal-approved'] = terminal(true);
 
