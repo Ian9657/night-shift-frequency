@@ -7,6 +7,43 @@ verified and what was not.
 
 ### Changed (in progress — built by the art tools, not yet used by the game)
 
+- **Every customer rebuilt on the sculpted body.** Garments can add shapes (a hood,
+  a tall collar) and paint by position on the body and along the sleeves: Kit's
+  hoodie, Hal's quilted vest over a flannel shirt, Dana's blazer, Tess's scrubs over a
+  long-sleeved top with pen and ID badge, Walt's cardigan with shirt and tie, Ana's
+  peacoat, Dex's windbreaker with a red band, Bonnie's cable sweater, Sam's open denim
+  jacket, Edie's blouse under a fringed shawl, and Nell's raincoat. Each customer has a
+  main pose and a variant (`person.poses`); the people sheet shows all of them.
+- Sleeves are slimmer (thinner arms, less cloth than the body). Hands are sculpted
+  again, kept simple (palm, one finger block with painted partings, thumb), at their
+  true size and per-person length and width (`person.hands`); the drawn hand sprites
+  are gone.
+- Below the hips: short garments end in a hem over a pelvis and legs in trousers
+  (`person.legs`), long coats carry on as a skirt, so taller people show their
+  hips and thighs above the counter instead of a longer trunk.
+- Character-sprite proportions against the fixed head: the shoulders' outline about
+  two head widths across, a slender neck about half a head wide with the neck clear
+  between chin and collar, a defined waist, hips no wider than the shoulders, slim
+  arms; a near-level shoulder line out to the point of the shoulder with smaller
+  deltoids. Bodies are shaded by planes (lit side, front, shadow side, undersides) instead
+  of per-pixel light, so no blotches cross the trunk.
+- New pose `phone-one` (one hand, head down; Kit). A handed-over card is pinched by
+  one narrow end, its length pointing toward the clerk.
+
+### Verified
+
+- `shift-engine`, `content`, `browser-flow` and `visual` pass; the people sheet was
+  inspected at game scale.
+
+### Not verified
+
+- `art.test` still fails by design until the runtime uses the new sprites.
+- A receiving hand (palm up) reads much like a resting one from the clerk's side.
+
+## 2026-10-06 · First-person store, figure rig and devices (`20c6551`)
+
+### Changed (in progress — built by the art tools, not yet used by the game)
+
 - **First-person store** (`art/src/store3d.cjs`): one camera in metres
   (`js/content/space.js`: eye 1.57 m, ~100° lens, raised horizon) and a ray caster
   (`art/tools/raycast.cjs`) render the back wall and view, side shelving and fridge,

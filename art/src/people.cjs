@@ -348,15 +348,17 @@ function toCanvas([X, Y, Z]) {
   return [Math.round(sx - OX), Math.round(sy - OY)];
 }
 
-// Half-widths, depths and the upper-arm radius in metres; `hand` scales the hand,
-// `armLength` the arms. A person may set their own `arms: [length, width]` factors.
-// Builds differ through the whole figure, not only the waist: chest width and
-// depth, neck, arms, waist sides and belly.
+// Half-widths, depths and the upper-arm radius in metres, sized against the fixed
+// head (0.22 m tall, about 0.155 m wide) the way character sprites are drawn: the
+// shoulders' outline about two head widths across (a little less when slim, more
+// when broad), a slender neck about half a head wide, a clear waist, hips no wider
+// than the shoulders, slim arms. `hand` scales the hand, `armLength` the arms; a
+// person may set their own `arms` and `hands` factors.
 const BUILDS = {
-  slim: { shoulder: 0.175, chest: 0.13, chestDepth: 0.085, waist: 0.105, waistDepth: 0.075, hip: 0.13, neck: 0.05, arm: 0.04, belly: 0, hand: 0.95 , armLength: 1.03 },
-  average: { shoulder: 0.18, chest: 0.15, chestDepth: 0.095, waist: 0.13, waistDepth: 0.085, hip: 0.155, neck: 0.055, arm: 0.047, belly: 0, hand: 1 , armLength: 1 },
-  broad: { shoulder: 0.215, chest: 0.18, chestDepth: 0.11, waist: 0.16, waistDepth: 0.095, hip: 0.17, neck: 0.062, arm: 0.055, belly: 0.01, hand: 1.06 , armLength: 0.99 },
-  heavy: { shoulder: 0.205, chest: 0.2, chestDepth: 0.135, waist: 0.2, waistDepth: 0.125, hip: 0.205, neck: 0.066, arm: 0.063, belly: 0.038, hand: 1.06 , armLength: 0.97 },
+  slim: { shoulder: 0.138, chest: 0.108, chestDepth: 0.08, waist: 0.088, waistDepth: 0.07, hip: 0.108, neck: 0.036, arm: 0.029, belly: 0, hand: 0.95, armLength: 1.03 },
+  average: { shoulder: 0.146, chest: 0.118, chestDepth: 0.086, waist: 0.098, waistDepth: 0.075, hip: 0.12, neck: 0.04, arm: 0.032, belly: 0, hand: 1, armLength: 1 },
+  broad: { shoulder: 0.168, chest: 0.14, chestDepth: 0.098, waist: 0.128, waistDepth: 0.086, hip: 0.132, neck: 0.048, arm: 0.038, belly: 0.006, hand: 1.06, armLength: 0.99 },
+  heavy: { shoulder: 0.165, chest: 0.158, chestDepth: 0.122, waist: 0.165, waistDepth: 0.112, hip: 0.165, neck: 0.052, arm: 0.043, belly: 0.03, hand: 1.06, armLength: 0.97 },
 };
 
 // Landmarks hang from the chin: the head sprite is a fixed size (about 0.22 m), so
@@ -394,7 +396,8 @@ function rigFor(person, pose = {}) {
     h, b, dy, person, s, dropM: drop, lean, unlean, headOffset: [Math.round((c1[0] - c0[0]) * follow), Math.round((c1[1] - c0[1]) * follow)],
     chin, notch, chest: notch - 0.165 * s, waist: notch - 0.355 * s, hip,
     upper: 0.186 * h * armLength, fore: 0.146 * h * armLength, arm: b.arm * armWidth, hand: b.hand * h / 1.7 * (0.5 + armLength / 2),
-    shoulderJoint: side => lean([side * (b.shoulder - 0.045), notch - 0.05 - drop[side < 0 ? 0 : 1], BODY_Z - forward]),
+    handLength: (person.hands?.[0] ?? 1), handWidth: (person.hands?.[1] ?? 1), legs: person.legs || 'navy',
+    shoulderJoint: side => lean([side * (b.shoulder - 0.04), notch - 0.036 - drop[side < 0 ? 0 : 1], BODY_Z - forward]),
   };
 }
 
@@ -419,6 +422,7 @@ function solveArm(S, W, upper, fore, pole) {
 //   'hang'  the arm hangs, the hand below the counter
 //   'ear'   an open flip phone held to the ear
 //   'hold'  both hands hold an open flip phone low in front, thumbs on the keys
+//   'hold1' one hand holds the open flip phone low in front, thumb on the keys
 //   'reach' a bank card held out toward the clerk
 //   'swipe' a bank card standing in the card terminal's top slot, held by its edge
 //   'take'  an open hand out over the counter, palm up, for change or a receipt
@@ -427,6 +431,7 @@ const POSES = {
   'both-rest': { gaze: 'downLeft', left: ['rest', [-0.115, 1.06]], right: ['rest', [0.13, 1.075, 0.7]], drop: [0, 0.01], lean: [0.015, 0.05] },
   'phone-call': { gaze: 'phoneSide', left: ['rest', [-0.07, 1.04]], right: ['ear'], drop: [0.012, 0.011], lean: [0.035, 0], shift: 0.007, headFollow: 0.5 },
   'phone-check': { gaze: 'phone', left: ['hold'], right: ['hold'], drop: [0.01, 0.01], forward: 0.02, lean: [0, 0.05] },
+  'phone-one': { gaze: 'phone', left: ['hang'], right: ['hold1'], drop: [0.008, 0], lean: [0.01, 0.05], shift: 0.004 },
   'card': { gaze: 'clerk', left: ['hang'], right: ['reach'], drop: [0.006, 0], lean: [0, 0.06] },
   'card-reader': { gaze: 'downRight', left: ['rest', [-0.08, 1.05]], right: ['swipe'], drop: [0.004, 0], lean: [0, 0.03] },
   'receive': { gaze: 'clerk', left: ['rest', [-0.09, 1.06]], right: ['take'], lean: [0, 0.05], shift: 0.004 },
@@ -509,7 +514,7 @@ function armPose(R, side, [mode, at]) {
       const W = [at[0], space.counter.y + 0.022, at[1]];
       const f = [0.7 * -side, 0, -0.75], tilt = at[2] || 0;
       const hand = frame(f, v3.add([0, Math.cos(tilt), 0], v3.mul(inward, -Math.sin(tilt))));
-      return solve(W, [side * 0.45, -0.5, 0.75], { ...hand, stamp: tilt ? 'side' : 'rest' });
+      return solve(W, [side * 0.45, -0.5, 0.75], { ...hand, curl: tilt ? [0.9, 0.8] : [0.45, 0.55] });
     }
     case 'hold': {
       // The flip phone open at the lower chest: the keypad half lies in both hands,
@@ -521,7 +526,9 @@ function armPose(R, side, [mode, at]) {
       const kp = prop.halves[0], [pw, low, up] = kp.axes;
       const palm = v3.add(kp.c, v3.add(v3.mul(pw, side * 0.033), v3.add(v3.mul(up, -0.014), v3.mul(low, 0.008 + (side < 0 ? 0.008 : 0)))));
       const hand = frame(v3.mul(pw, -side), v3.mul(up, -1));
-      return solve(null, [side * 0.3, -1, 0.5], { ...hand, stamp: 'hold' }, side > 0 ? prop : null, { at: palm, reach: 0.05 * hs });
+      const on = (w, l) => v3.add(kp.c, v3.add(v3.mul(up, FLIP[2] + 0.006), v3.add(v3.mul(pw, side * w), v3.mul(low, l))));
+      const thumb = side < 0 ? [on(0.028, 0.02), on(0.014, -0.004)] : [on(0.028, 0.014), on(0.005, 0.012)];
+      return solve(null, [side * 0.3, -1, 0.5], { ...hand, curl: [0.15, 0.2], thumb }, side > 0 ? prop : null, { at: palm, reach: 0.05 * hs * R.handLength });
     }
     case 'ear': {
       // The lid against the ear, the keypad half angled down toward the mouth; the
@@ -534,17 +541,29 @@ function armPose(R, side, [mode, at]) {
       const prop = flipPhone(hinge, v3.norm([-side * 0.3, -0.5, -0.8]), lid, width);
       const palm = v3.add(hinge, v3.add(v3.mul(out, 0.022), v3.mul(lid, -0.012)));
       const hand = frame(lid, out);
-      return solve(null, [side * 0.4, -1, -0.45], { ...hand, stamp: 'ear' }, prop, { at: palm, reach: 0.05 * hs });
+      return solve(null, [side * 0.4, -1, -0.45], { ...hand, curl: [0.35, 0.45] }, prop, { at: palm, reach: 0.05 * hs * R.handLength });
     }
     case 'reach': {
       // The hand well out over the counter toward the clerk, the elbow kept back so
-      // the forearm foreshortens; the card pinched between thumb and index finger,
-      // standing up to face the clerk beside the hand and clear of the palm.
+      // the forearm foreshortens. The card is pinched by one narrow end between thumb
+      // and index finger, its length pointing on toward the clerk, face up.
       const W = [side * 0.06, space.counter.y + 0.2, Math.max(0.82, BODY_Z - 0.62 * (R.upper + R.fore) - 0.04)];
       const hand = frame([-side * 0.3, -0.12, -1], [side, 0.25, 0]);
-      const pinch = v3.add(W, v3.add(v3.mul(hand.f, 0.085 * hs), v3.mul(hand.r, 0.012)));
-      const prop = { kind: 'card', c: v3.add(pinch, [-side * 0.03, -0.004, -0.01]), axes: [[1, 0, 0], [0, 1, 0], [0, 0, 1]] };
-      return solve(W, [side * 0.5, -1, 0.6], { ...hand, stamp: 'pinch' }, prop);
+      const pinch = v3.add(W, v3.add(v3.mul(hand.f, 0.085 * hs * R.handLength), v3.mul(hand.r, 0.014 * hs)));
+      const long = v3.norm([-side * 0.25, -0.25, -1]), face = v3.norm(v3.sub([0, 1, 0], v3.mul(long, v3.dot([0, 1, 0], long))));
+      const prop = { kind: 'card', c: v3.add(pinch, v3.mul(long, CARD[0] - 0.008)), axes: [long, cross(face, long), face] };
+      return solve(W, [side * 0.5, -1, 0.6], { ...hand, curl: [1.1, 0.9], thumbTip: v3.add(pinch, v3.mul(face, 0.006)) }, prop);
+    }
+    case 'hold1': {
+      // One hand holds the open flip phone low in front: the keypad half lies along
+      // the palm, the fingers curl up round its sides, the thumb is on the keys.
+      const hinge = R.lean([side * 0.03, R.chest - 0.02, BODY_Z - 0.28]);
+      const prop = flipPhone(hinge, v3.norm([0, -0.35, 0.94]), v3.norm([0, 0.95, 0.3]), [1, 0, 0]);
+      const kp = prop.halves[0], [, low, up] = kp.axes;
+      const palm = v3.add(kp.c, v3.add(v3.mul(up, -0.017), v3.mul(low, 0.01)));
+      const hand = frame(v3.mul(low, -1), v3.mul(up, -1));
+      const thumbTip = v3.add(kp.c, v3.add(v3.mul(up, FLIP[2] + 0.006), v3.mul(low, -0.008)));
+      return solve(null, [side * 0.4, -1, 0.5], { ...hand, curl: [0.6, 0.5], thumbTip }, prop, { at: palm, reach: 0.05 * hs * R.handLength });
     }
     case 'swipe': {
       // The card stands in the slot on top of the terminal, its face to the clerk,
@@ -555,19 +574,19 @@ function armPose(R, side, [mode, at]) {
       const pinch = v3.add(card, [side * (CARD[0] + 0.004), CARD[1] * 0.45, 0.006]);
       const hand = frame([-side, -0.45, -0.25], [0, 0.35, 1]);
       const prop = { kind: 'card', c: card, axes: [[1, 0, 0], [0, 1, 0], [0, 0, 1]], above: top };
-      return solve(null, [side * 0.6, -1, 0.4], { ...hand, stamp: 'pinch' }, prop, { at: pinch, reach: 0.08 * hs });
+      return solve(null, [side * 0.6, -1, 0.4], { ...hand, curl: [1, 0.8], thumbTip: v3.add(pinch, [0, 0, -0.007]) }, prop, { at: pinch, reach: 0.08 * hs * R.handLength });
     }
     case 'take': {
       // The hand out over the counter, palm up and loosely cupped, fingers toward
       // the clerk; whatever is handed over sits at the 'palm' anchor.
       const W = [side * 0.07, space.counter.y + 0.13, Math.max(0.9, BODY_Z - 0.55 * (R.upper + R.fore))];
       const hand = frame([-side * 0.25, 0.05, -1], [0, -1, 0]);
-      return solve(W, [side * 0.5, -1, 0.5], { ...hand, stamp: 'take' });
+      return solve(W, [side * 0.5, -1, 0.5], { ...hand, curl: [0.25, 0.35] });
     }
     default: {
       const E = v3.add(S, [side * 0.025, -R.upper * 0.99, -0.02]);
       const W = v3.add(E, [-side * 0.005, -R.fore * 0.96, -0.06]);
-      return { mode, side, S, E, W, hand: handFrame(v3.sub(W, E), [side, 0, 0], side) };
+      return { mode, side, S, E, W, hand: { ...handFrame(v3.sub(W, E), [side, 0, 0], side), curl: [0.5, 0.5] } };
     }
   }
 }
@@ -578,7 +597,6 @@ function armPose(R, side, [mode, at]) {
 // torso with the deltoids; the arms blend into the deltoids near the shoulder only,
 // so the shoulder line runs on into the arm while an arm hanging beside the body
 // stays separate from it. Held props are part of the same field.
-const LIGHT = sculpt.vec.norm([-0.5, 0.62, -0.6]);                  // upper left, in front, as on the faces
 const SHOULDER_BLEND = 0.11;                                         // metres around the deltoid where arm and torso merge
 const lerp = (a, b, t) => v3.add(a, v3.mul(v3.sub(b, a), t));
 
@@ -604,9 +622,33 @@ function armField(A, b, pad) {             // b: the arm radius
   };
 }
 
+// A hand, kept simple: palm, the four fingers as one slightly curled block (their
+// partings are painted), and the thumb. Its frame is anatomical (handFrame) and
+// kept within the wrist's range (limitWrist). hl and hw scale its length and width.
+function handParts(A, hl, hw) {
+  const { cone, ellipsoid, box, local } = sculpt;
+  const { f, n, r } = A.hand, [c1, c2] = A.hand.curl || [0.4, 0.5], W = A.W;
+  const at = (a, b, c) => v3.add(W, v3.add(v3.mul(f, a * hl), v3.add(v3.mul(r, b * hw), v3.mul(n, c * hw))));
+  const palmC = at(0.048, 0, -0.002);
+  const bend = a => ({ dir: v3.norm(v3.sub(v3.mul(f, Math.cos(a)), v3.mul(n, Math.sin(a)))), up: v3.norm(v3.add(v3.mul(n, Math.cos(a)), v3.mul(f, Math.sin(a)))) });
+  const K = at(0.088, -0.002, -0.002), b1 = bend(c1), b2 = bend(c1 + c2);
+  const J = v3.add(K, v3.mul(b1.dir, 0.042 * hl));
+  const seg1 = v3.add(K, v3.mul(b1.dir, 0.021 * hl)), seg2 = v3.add(J, v3.mul(b2.dir, 0.016 * hl));
+  const [B, T] = A.hand.thumb || [at(0.025, 0.032, -0.006),
+    A.hand.thumbTip || v3.add(at(0.025, 0.032, -0.006), v3.mul(v3.norm(v3.add(v3.mul(f, 0.55), v3.add(v3.mul(r, 0.55), v3.mul(n, -0.35)))), 0.05 * hl))];
+  const M = v3.add(lerp(B, T, 0.5), v3.mul(r, 0.004 * hw));
+  return [
+    p => ellipsoid(local(p, palmC, [r, n, f]), [0, 0, 0], [0.042 * hw, 0.0135 * hw, 0.046 * hl]),
+    p => cone(p, at(-0.015, 0, 0), at(0.02, 0, 0), 0.022 * hw, 0.026 * hw),
+    p => box(p, seg1, [r, b1.up, b1.dir], [0.036 * hw, 0.0105 * hw, 0.022 * hl], 0.008 * hw),
+    p => box(p, seg2, [r, b2.up, b2.dir], [0.033 * hw, 0.009 * hw, 0.017 * hl], 0.007 * hw),
+    p => Math.min(cone(p, B, M, 0.0105 * hw, 0.009 * hw), cone(p, M, T, 0.009 * hw, 0.008 * hw)),
+  ];
+}
+
 function bodyField(R, arms, garment) {
   const { b } = R, Z = BODY_Z, pad = garment.pad || 0;
-  const { ellipsoid, cone, cylinder, box, smin } = sculpt;
+  const { ellipsoid, cone, box, smin } = sculpt;
   const drop = side => R.dropM[side < 0 ? 0 : 1];
   // The trunk is wider than it is deep: cones are evaluated with depth stretched,
   // and the distance divided back so the march never oversteps.
@@ -615,36 +657,54 @@ function bodyField(R, arms, garment) {
     return p => cone([p[0], p[1], Z + (p[2] - Z) * x0 / depth], a, bb, ra, rb) * depth / x0;
   };
   const torsoParts = [
-    p => cone(p, [-0.02, R.notch + 0.035, Z + 0.015], [-(b.shoulder - 0.06), R.notch - 0.012 - drop(-1), Z + 0.01], 0.028 + pad, 0.04 + pad),
-    p => cone(p, [0.02, R.notch + 0.035, Z + 0.015], [b.shoulder - 0.06, R.notch - 0.012 - drop(1), Z + 0.01], 0.028 + pad, 0.04 + pad),
+    // from the base of the neck almost level out to the point of the shoulder
+    p => cone(p, [-0.02, R.notch + 0.024, Z + 0.015], [-(b.shoulder - 0.045), R.notch + 0.002 - drop(-1), Z + 0.01], 0.026 + pad, 0.034 + pad),
+    p => cone(p, [0.02, R.notch + 0.024, Z + 0.015], [b.shoulder - 0.045, R.notch + 0.002 - drop(1), Z + 0.01], 0.026 + pad, 0.034 + pad),
     p => ellipsoid(p, [0, R.notch - 0.05, Z + 0.005], [b.chest + 0.025 + pad, 0.07, b.chestDepth - 0.012 + pad]),
     // ribcage: widest across the chest, ending above the waist
     p => ellipsoid(p, [0, R.chest, Z], [b.chest + pad, 0.13 * R.s, b.chestDepth + pad]),
     trunk([0, R.chest - 0.06 * R.s, Z], b.chest - 0.01 + pad, [0, R.waist, Z], b.waist + pad, b.waistDepth + pad),
     trunk([0, R.waist, Z], b.waist + pad, [0, R.hip, Z], b.hip + pad, b.waistDepth + 0.005 + pad),
-    trunk([0, R.hip, Z], b.hip + pad, [0, R.hip - 0.4, Z], b.hip - 0.005 + pad, b.waistDepth + 0.005 + pad),   // on below the counter
+  ];
+  // A long coat carries on below the hips and flares a little; anything else ends in
+  // a hem just below them, over the trousers.
+  if (garment.long) torsoParts.push(trunk([0, R.hip, Z], b.hip + pad, [0, R.hip - 0.5, Z], b.hip + pad + 0.04, b.waistDepth + 0.01 + pad));
+  const hem = garment.long ? R.hip - 0.55 : R.hip - 0.04;
+  // Pelvis and legs, in trousers: seen above the counter on taller people.
+  const hipX = b.hip * 0.55, legR = b.hip * 0.47;
+  const legParts = [
+    trunk([0, R.hip + 0.02, Z], b.hip, [0, R.hip - 0.09, Z], b.hip - 0.01, b.waistDepth),
+    ...[-1, 1].map(side => p => cone(p, [side * hipX, R.hip - 0.05, Z], [side * (hipX + 0.005), R.hip - 0.5, Z - 0.01], legR, legR * 0.72)),
   ];
   if (b.belly > 0) torsoParts.push(p => ellipsoid(p, [0, R.waist + 0.045, Z - b.belly * 0.4], [b.waist + 0.005 + pad, 0.15 * R.s, b.waistDepth + b.belly * 0.8 + pad]));
-  const deltoids = arms.map(A => ({ c: deltoidCentre(R, A), r: R.arm * 1.08 + pad }));
-  const armFields = arms.map(A => armField(A, R.arm, pad));
+  const sleeve = Math.min(pad, 0.009);                                 // sleeves are thinner cloth than the body
+  const deltoids = arms.map(A => ({ c: deltoidCentre(R, A), r: R.arm * 0.98 + sleeve }));
+  const armFields = arms.map(A => armField(A, R.arm, sleeve));
+  const hands = arms.map(A => handParts(A, R.hand * R.handLength, R.hand * R.handWidth));
   const props = arms.filter(A => A.prop).map(A => A.prop);
   const neckField = p => cone(p, [0, R.chin + 0.01, Z + 0.01], [0, R.notch - 0.03, Z], b.neck, b.neck + 0.006);
-  const collar = garment.collar ? p => cylinder(p, [0, Z + 0.005], b.neck + 0.02, R.notch - 0.01, R.notch + 0.045) : null;
+  const extras = garment.extra ? garment.extra(R) : [];
 
   return p => {
     const q = R.unlean(p);                                             // the trunk leans; arms and hands are already placed
     let t = torsoParts[0](q);
     for (let i = 1; i < torsoParts.length; i++) t = smin(t, torsoParts[i](q), 0.05);
+    t = Math.max(t, hem - q[1]);
     for (const d of deltoids) t = smin(t, v3.len(v3.sub(p, d.c)) - d.r, 0.03);
     const n = neckField(q);
     let d = smin(t, n, 0.012), tag = n < t ? 'neck' : 'torso';
+    const legs = Math.min(...legParts.map(field => field(q)));
+    if (legs < d) { d = legs; tag = 'legs'; }
     arms.forEach((A, i) => {
       const a = armFields[i](p);
       const k = 0.045 * Math.max(0, 1 - v3.len(v3.sub(p, deltoids[i].c)) / SHOULDER_BLEND);
       if (a < d) tag = 'arm:' + A.side;
       d = smin(d, a, k);
+      let h = Infinity;
+      for (const field of hands[i]) h = smin(h, field(p), 0.004);
+      if (h < d) { d = h; tag = 'hand:' + A.side; }
     });
-    if (collar) { const c = collar(p); if (c < d) { d = c; tag = 'collar'; } }
+    for (const [name, field] of extras) { const c = field(q); if (c < d) { d = c; tag = name; } }
     for (const prop of props) {
       const c = prop.kind === 'phone'
         ? Math.min(...prop.halves.map(half => box(p, half.c, half.axes, FLIP, 0.003)))
@@ -655,36 +715,233 @@ function bodyField(R, arms, garment) {
   };
 }
 
-// Garments: thickness over the body, an optional stand collar, which material the
-// sleeves are, and surface details painted by position on the body (so a belt
-// follows the waist and its curve in perspective).
+// Garments: thickness over the body (`pad`), extra shapes (a hood, a tall collar),
+// what the trunk and sleeves are made of, and details painted by position on the
+// body, so a belt or a pocket follows the body's surface and perspective. A
+// painter gets the hit, the rig, the lit tone level and where on the body it is:
+// x across, y up, z depth (unleaned; front is z < BODY_Z) and, on an arm, the
+// distance from the shoulder joint.
 const RAMPS = {
   cloth: ['cloth1', 'cloth2', 'cloth3', 'cloth4'], under: ['under1', 'under2', 'under3', 'under3'], skin: ['skin1', 'skin2', 'skin3', 'skin3'],
-  phone: ['steel3', 'steel4', 'steel5', 'steel6'], card: ['blue1', 'blue2', 'blue3', 'blue3'],
+  accent: ['accent0', 'accent1', 'accent2', 'accent2'], phone: ['steel3', 'steel4', 'steel5', 'steel6'], card: ['blue1', 'blue2', 'blue3', 'blue3'],
 };
-const OUTLINE = { cloth: 'cloth0', under: 'under0', skin: 'skin0', phone: 'steel1', card: 'blue0' };
+const OUTLINE = { cloth: 'cloth0', under: 'under0', skin: 'skin0', accent: 'accent0', phone: 'steel1', card: 'blue0' };
+// Trousers, by name: [outline, shadow, mid, light, highlight].
+const TROUSERS = {
+  navy: ['navy0', 'navy1', 'navy2', 'navy3', 'navy3'], black: ['ink', 'steel0', 'steel1', 'steel2', 'steel2'],
+  khaki: ['cream0', 'cream1', 'cream2', 'cream3', 'cream3'], brown: ['wood0', 'wood1', 'wood2', 'wood3', 'wood3'],
+  grey: ['steel1', 'steel2', 'steel3', 'steel4', 'steel4'],
+};
+
+// Shared shapes and marks.
+const lighter = level => ({ level: Math.min(3, level + 1) });
+const darker = level => ({ level: Math.max(0, level - 1) });
+// A V opening whose half-width grows from 0 at `top - depth` to `width` at `top`.
+const vHalf = (y, top, depth, width) => (y > top ? width : y < top - depth ? -1 : width * (y - (top - depth)) / depth);
+// The stand collar: a short cylinder round the base of the neck.
+const standCollar = (height, flare) => R => [['collar', p => sculpt.cylinder(p, [0, BODY_Z + 0.005], R.b.neck + flare, R.notch - 0.01, R.notch + height)]];
+// A round mark (button, stud) at (cx, cy) on the front.
+const dot = (x, y, cx, cy, r) => Math.hypot(x - cx, y - cy) < r;
+// Red and dark flannel checks.
+function plaid(P) {
+  const a = Math.floor(P[0] * 55) % 3 === 0, b = Math.floor(P[1] * 55) % 3 === 0;
+  return a && b ? { color: 'under0' } : a || b ? { color: 'under1' } : { material: 'under' };
+}
+
 const GARMENTS = {
   plain: { pad: 0 },
-  // Nell's raincoat: stand collar open in a V over a light top, the fronts overlapping, a belt.
+
+  // Nell: raincoat with a stand collar open in a V over a light top, overlapping fronts, a belt.
   raincoat: {
-    pad: 0.012, collar: true,
-    paint(hit, R, level) {
-      const [x, y, z] = R.unlean(hit.P), { notch, waist } = R;
+    pad: 0.012, long: true, extra: standCollar(0.045, 0.02),
+    paint(hit, R, level, { x, y, z, front }) {
       if (hit.tag !== 'torso' && hit.tag !== 'collar') return null;
-      if (z < BODY_Z && Math.abs(x) < Math.min(0.03, Math.max(0, (y - (notch - 0.07)) * 0.5))) return { material: 'under' };
+      if (front && Math.abs(x) < Math.min(0.03, Math.max(0, (y - (R.notch - 0.07)) * 0.5))) return { material: 'under' };
       if (hit.tag !== 'torso') return null;
-      if (Math.abs(y - waist) < 0.016) return y < waist - 0.011 ? { color: 'cloth0' } : { level: Math.max(0, level - 1) };
-      if (z < BODY_Z && y < notch - 0.07 && Math.abs(x - 0.035) < 0.0035) return { color: 'cloth1' };
+      if (Math.abs(y - R.waist) < 0.016) return y < R.waist - 0.011 ? { color: 'cloth0' } : darker(level);
+      if (front && y < R.notch - 0.07 && Math.abs(x - 0.035) < 0.0035) return { color: 'cloth1' };
+      return null;
+    },
+  },
+
+  // Kit: pullover hoodie, the hood bunched behind the neck, drawstrings, a front pocket.
+  hoodie: {
+    pad: 0.016,
+    extra: R => [['collar', p => {
+      const c = [0, R.notch + 0.012, BODY_Z + 0.02], q = v3.sub(p, c);
+      const ring = Math.hypot(Math.hypot(q[0], q[2] * 1.25) - (R.b.neck + 0.045), q[1] * 1.3) - 0.028;
+      return Math.max(ring, (c[2] - 0.035) - p[2]);
+    }]],
+    paint(hit, R, level, { x, y, z, front }) {
+      if (hit.tag === 'collar') return front ? null : darker(level);
+      if (hit.tag !== 'torso' || !front) return null;
+      for (const [sx, len] of [[-0.022, 0.13], [0.022, 0.11]]) {
+        if (Math.abs(x - sx) < 0.003 && y < R.notch && y > R.notch - len) return { color: y < R.notch - len + 0.012 ? 'under1' : 'under3' };
+      }
+      const top = R.waist + 0.035;
+      if (y < top && y > top - 0.005 && Math.abs(x) < 0.09) return { color: 'cloth1' };
+      if (y < top && Math.abs(Math.abs(x) - (0.09 + (top - y) * 0.4)) < 0.0045) return { color: 'cloth1' };
+      return null;
+    },
+  },
+
+  // Hal: quilted down vest over a red flannel shirt; the shirt shows at the arms and collar.
+  vest: {
+    pad: 0.022, sleeve: 'under',
+    paint(hit, R, level, { x, y, z, front, arm }) {
+      if (arm !== undefined) return plaid(hit.P);
+      if (hit.tag !== 'torso') return null;
+      if (Math.abs(x) > R.b.shoulder - 0.05 && y > R.chest - 0.03) return plaid(hit.P);         // the armholes
+      if (front && Math.abs(x) < vHalf(y, R.notch + 0.03, 0.06, 0.04)) return plaid(hit.P);    // shirt at the neck
+      if (front && Math.abs(x) < 0.0025 && y < R.notch - 0.03) return { color: 'cloth0' };      // zip
+      const k = ((R.notch - y) / 0.05) % 1;
+      if (y < R.notch - 0.02) return k < 0.1 ? darker(level) : k < 0.2 ? lighter(level) : null;
+      return null;
+    },
+  },
+
+  // Dana: blazer with notched lapels over a white shirt, one button, a breast pocket.
+  blazer: {
+    pad: 0.012,
+    paint(hit, R, level, { x, y, z, front }) {
+      if (hit.tag !== 'torso' || !front) return null;
+      const v = vHalf(y, R.notch + 0.03, 0.15, 0.05), ax = Math.abs(x);
+      if (ax < v) return y > R.notch - 0.01 && ax > v - 0.018 ? { color: 'under3' } : { material: 'under' };    // shirt and its collar
+      if (v >= 0 && ax < v + 0.035) return Math.abs(ax - v - 0.035) < 0.004 || Math.abs(ax - v) < 0.003 ? { color: 'cloth0' } : lighter(level);
+      if (dot(x, y, 0, R.notch - 0.16, 0.007)) return { color: 'cloth0' };
+      if (x > 0.045 && x < 0.1 && Math.abs(y - R.chest - 0.035) < 0.003) return { color: 'cloth0' };
+      return null;
+    },
+  },
+
+  // Tess: hospital scrubs with short sleeves over a navy long-sleeved top, pen, ID badge.
+  scrubs: {
+    pad: 0.008, sleeve: 'under',
+    paint(hit, R, level, { x, y, z, front, arm }) {
+      if (arm !== undefined) return arm < 0.12 ? { material: 'cloth' } : null;
+      if (hit.tag !== 'torso' || !front) return null;
+      if (Math.abs(x) < vHalf(y, R.notch + 0.02, 0.09, 0.035)) return { material: 'under' };
+      if (Math.abs(Math.abs(x) - vHalf(y, R.notch + 0.02, 0.09, 0.035)) < 0.004) return lighter(level);
+      if (x > -0.11 && x < -0.04 && y > R.chest - 0.035 && y < R.chest + 0.025 && (Math.abs(x + 0.11) < 0.003 || Math.abs(x + 0.04) < 0.003 || Math.abs(y - R.chest - 0.025) < 0.003)) return { color: 'cloth1' };
+      if (Math.abs(x + 0.06) < 0.004 && y > R.chest + 0.01 && y < R.chest + 0.045) return { color: 'accent1' };
+      if (x > 0.045 && x < 0.085 && y > R.chest - 0.005 && y < R.chest + 0.045) {
+        if (x < 0.062 && y > R.chest + 0.018) return { color: 'blue2' };
+        return { color: Math.abs(y - R.chest - 0.005) < 0.004 ? 'paper1' : 'paper3' };
+      }
+      return null;
+    },
+  },
+
+  // Walt: cardigan with ribbed front bands over a shirt and a striped tie, wooden buttons, pockets.
+  cardigan: {
+    pad: 0.014,
+    paint(hit, R, level, { x, y, z, front }) {
+      if (hit.tag !== 'torso' || !front) return null;
+      const v = vHalf(y, R.notch + 0.03, 0.2, 0.06), ax = Math.abs(x);
+      if (ax < v) {
+        const tie = 0.006 + (R.notch - y) * 0.06;
+        if (y < R.notch + 0.005 && ax < tie) return { color: Math.floor((x + y) * 160) % 3 ? 'accent1' : 'accent0' };
+        return y > R.notch - 0.01 && ax > v - 0.02 ? { color: 'under3' } : { material: 'under' };
+      }
+      if (ax < (v < 0 ? 0.012 : v + 0.012)) return Math.floor(y * 200) % 2 ? lighter(level) : null;   // ribbed band
+      for (let k = 1; k < 5; k++) if (dot(x, y, 0.004, R.notch - 0.2 - k * 0.05, 0.007)) return { color: 'wood2' };
+      if (Math.abs(y - R.waist - 0.03) < 0.003 && ax > 0.05 && ax < 0.11) return { color: 'cloth1' };
+      return null;
+    },
+  },
+
+  // Ana: double-breasted peacoat, collar turned up, wide lapels, two rows of silver buttons.
+  peacoat: {
+    pad: 0.022, long: true, extra: standCollar(0.065, 0.032),
+    paint(hit, R, level, { x, y, z, front }) {
+      if (hit.tag === 'collar') return front && Math.abs(x) < 0.025 ? { material: 'under' } : null;
+      if (hit.tag !== 'torso' || !front) return null;
+      const v = vHalf(y, R.notch + 0.04, 0.12, 0.03), ax = Math.abs(x);
+      if (ax < v) return { material: 'under' };
+      if (v >= 0 && ax < v + 0.055) return Math.abs(ax - v - 0.055) < 0.004 ? { color: 'cloth0' } : lighter(level);
+      for (const cy of [R.notch - 0.13, R.notch - 0.2, R.notch - 0.27]) for (const cx of [-0.05, 0.05]) {
+        if (dot(x, y, cx, cy, 0.009)) return { color: dot(x, y, cx - 0.002, cy + 0.002, 0.004) ? 'accent2' : 'accent0' };
+      }
+      return null;
+    },
+  },
+
+  // Dex: zip windbreaker, a red band across the chest and round the sleeves, small stand collar.
+  windbreaker: {
+    pad: 0.018, extra: standCollar(0.04, 0.025),
+    paint(hit, R, level, { x, y, z, front, arm }) {
+      if (arm !== undefined) return arm > 0.09 && arm < 0.12 ? { material: 'accent' } : null;
+      if (hit.tag !== 'torso') return null;
+      if (y > R.chest + 0.015 && y < R.chest + 0.055) return { material: 'accent' };
+      if (front && Math.abs(x) < 0.0028 && y < R.notch) return { color: Math.floor(y * 300) % 2 ? 'steel5' : 'steel3' };
+      return null;
+    },
+  },
+
+  // Bonnie: fisherman's sweater, ribbed crew neck and cuffs, three cables, moss stitch.
+  sweater: {
+    pad: 0.016,
+    paint(hit, R, level, { x, y, z, front, arm }) {
+      if (arm !== undefined) return arm > R.upper + R.fore - 0.05 ? (Math.floor(hit.P[0] * 250 + hit.P[2] * 250) % 2 ? darker(level) : null) : null;
+      if (hit.tag !== 'torso') return null;
+      if (y > R.notch - 0.012) return Math.floor(x * 220) % 2 ? darker(level) : lighter(level);
+      if (!front) return null;
+      for (const cx of [-0.065, 0, 0.065]) {
+        const d = Math.abs(x - cx);
+        if (d > 0.013 && d < 0.017) return darker(level);
+        if (d < 0.013) return Math.floor(y * 70 + Math.abs(x - cx) * 140) % 3 === 0 ? darker(level) : lighter(level);
+      }
+      return (Math.floor(x * 300) + Math.floor(y * 300)) % 7 === 0 ? darker(level) : null;
+    },
+  },
+
+  // Sam: denim jacket open over a black T-shirt, point collar, flap pockets, gold topstitching.
+  denim: {
+    pad: 0.012,
+    paint(hit, R, level, { x, y, z, front }) {
+      if (hit.tag !== 'torso' || !front) return null;
+      const ax = Math.abs(x), open = 0.042 + Math.max(0, R.notch - y) * 0.03;
+      if (ax < open) return y > R.notch - 0.004 && y < R.notch + 0.004 ? { color: 'under3' } : { material: 'under' };
+      if (ax < open + 0.004) return { color: 'cloth0' };
+      if (Math.abs(ax - open - 0.011) < 0.002 && Math.floor(y * 200) % 2) return { color: 'accent2' };
+      if (y > R.notch - 0.03 && ax < 0.1) return Math.abs(y - (R.notch - 0.03)) < 0.004 ? { color: 'cloth0' } : lighter(level);   // collar points
+      if (ax > 0.06 && ax < 0.11 && y > R.chest - 0.01 && y < R.chest + 0.04) {
+        if (y > R.chest + 0.025) return Math.abs(y - R.chest - 0.025) < 0.003 ? { color: 'cloth0' } : lighter(level);
+        if (dot(ax, y, 0.085, R.chest + 0.02, 0.005)) return { color: 'accent2' };
+        if (Math.abs(ax - 0.06) < 0.003 || Math.abs(ax - 0.11) < 0.003) return { color: 'cloth1' };
+      }
+      return null;
+    },
+  },
+
+  // Edie: lavender blouse with a round collar under a knitted shawl draped over the
+  // shoulders and upper arms, open at the front, fringed.
+  shawl: {
+    pad: 0.01, body: 'under', sleeve: 'under',
+    paint(hit, R, level, { x, y, z, front, arm }) {
+      const knit = () => (Math.floor((hit.P[0] + hit.P[1]) * 130) % 5 === 0 ? darker(level) : { material: 'cloth' });
+      if (arm !== undefined) {
+        if (arm < 0.15) return knit();
+        return arm < 0.162 && Math.floor(hit.P[0] * 160 + hit.P[2] * 160) % 2 ? { color: 'cloth1' } : null;
+      }
+      if (hit.tag !== 'torso') return null;
+      const ax = Math.abs(x), edge = R.notch - 0.04 - 0.14 * Math.min(1, ax / (R.b.shoulder - 0.02));
+      const opening = front && ax < 0.035 + Math.max(0, R.notch - y) * 0.35;
+      if (y > edge && !opening) return knit();
+      if (y > edge - 0.012 && y <= edge && !opening && Math.floor(x * 160) % 2) return { color: 'cloth1' };   // fringe
+      if (front && y > R.notch - 0.02 && ax < 0.055) return { color: 'under3' };                            // the blouse's collar
       return null;
     },
   },
 };
 
-const sideOf = tag => (tag.startsWith('arm') ? Number(tag.split(':')[1]) : 0);
+const sideOf = tag => (tag.startsWith('arm') || tag.startsWith('hand') ? Number(tag.split(':')[1]) : 0);
 function materialOf(tag, garment) {
-  if (tag === 'neck') return 'skin';
+  if (tag === 'neck' || tag.startsWith('hand')) return 'skin';
+  if (tag === 'legs') return 'legs';
   if (tag === 'phone' || tag === 'card') return tag;
-  if (tag.startsWith('arm') && garment.sleeve) return garment.sleeve;
+  if (tag.startsWith('arm')) return garment.sleeve || 'cloth';
+  if (tag === 'torso') return garment.body || 'cloth';
   return 'cloth';
 }
 
@@ -693,12 +950,27 @@ function materialOf(tag, garment) {
 // garment's paint.
 function shadeHit(hit, R, garment, arms, flat) {
   let material = materialOf(hit.tag, garment);
-  const lum = (0.2 + 0.8 * Math.max(0, v3.dot(hit.n, LIGHT))) * (0.55 + 0.45 * hit.ao);
-  let level = flat ? 1 : lum < 0.36 ? 0 : lum < 0.62 ? 1 : lum < 0.95 ? 2 : 3;
+  if (material === 'legs' && R.legs === 'cloth') material = 'cloth';
+  // Shaded by planes, as a pixel artist would: the side toward the light (left), the
+  // front, the side away; a highlight only where the form also turns up; undersides
+  // and deep creases a step darker.
+  const [nx, ny] = hit.n;
+  let level = flat ? 1 : nx < -0.5 ? (ny > 0.15 ? 3 : 2) : nx < 0.35 ? 2 : nx < 0.78 ? 1 : 0;
+  if (!flat && ny < -0.6) level = Math.max(0, level - 1);
+  if (!flat && hit.ao < 0.3) level = Math.max(0, level - 1);
   if (!flat && hit.tag.startsWith('arm')) {
     const A = arms.find(a => a.side === sideOf(hit.tag)), inside = v3.add(v3.norm(v3.sub(A.S, A.E)), v3.norm(v3.sub(A.W, A.E)));
     const q = v3.sub(hit.P, A.E);
     if (v3.len(inside) > 0.3 && v3.len(q) < R.arm * 1.5 && v3.dot(q, v3.norm(inside)) > 0) level = Math.max(0, level - 1);
+  }
+  if (material === 'legs') {
+    const t = TROUSERS[R.legs];
+    return { color: flat ? t[2] : t[1 + Math.min(level, 2)], material: 'legs', outline: t[0] };
+  }
+  if (!flat && hit.tag.startsWith('hand')) {                                 // partings between the fingers
+    const A = arms.find(a => a.side === sideOf(hit.tag)), q = v3.sub(hit.P, A.W);
+    const along = v3.dot(q, A.hand.f) / (R.hand * R.handLength), across = v3.dot(q, A.hand.r) / (R.hand * R.handWidth);
+    if (along > 0.098 && [-0.02, 0, 0.018].some(g => Math.abs(across - g) < 0.0022)) return { color: 'skin1', material };
   }
   const prop = arms.find(A => A.prop && A.prop.kind === material)?.prop;
   if (prop && material === 'phone' && !flat) {
@@ -728,115 +1000,16 @@ function shadeHit(hit, R, garment, arms, flat) {
       if (z < BODY_Z && t > 0.1 && t < 0.9 && Math.hypot(x - a[0] - t * (e[0] - a[0]), y - a[1] - t * (e[1] - a[1])) < 0.0035) level = Math.max(0, level - 1);
     }
   }
-  const over = !flat && garment.paint && garment.paint(hit, R, level);
+  let where = null;
+  if (!flat && garment.paint) {
+    const [x, y, z] = R.unlean(hit.P), A = hit.tag.startsWith('arm') && arms.find(a => a.side === sideOf(hit.tag));
+    where = { x, y, z, front: z < BODY_Z, arm: A ? v3.len(v3.sub(hit.P, A.S)) : undefined };
+  }
+  const over = where && garment.paint(hit, R, level, where);
   if (over && over.color) return { color: over.color, material };
   if (over && over.material) material = over.material;
   if (over && over.level !== undefined) level = over.level;
   return { color: RAMPS[material][level], material };
-}
-
-// ------------------------------------------------------------------ drawn hands
-// Hands are small and drawn by hand, one per use, as the viewer's-left hand (the
-// person's right); the other hand is the mirror image. `*` marks the wrist, which
-// sits on the arm's wrist point. Keys: o outline, s shadow, m skin, l lit, h highlight.
-const HANDS = {
-  // flat on the counter, turned in, fingers dropping to the laminate, thumb inside
-  rest: `
-...*...........
-.olllmmmo......
-olllmmmmmo.....
-ollmmmmmmmo....
-olmmmmmmmmmo...
-olmmmmmmmmmsoo.
-olmmmmmmmmsmmo.
-oslmmmmmmmsmmmo
-.oshmshmshsmmso
-.olmslmslmso.o.
-.olmslmslmso...
-.oomsomsomso...
-..oso.oso.so...
-...o...o..o....`,
-  // on its little-finger side, loosely closed, thumb on top
-  side: `
-...*........
-.ollmmmo....
-ollmmmmmo...
-olmmmmmmmoo.
-olmmmmmmmlmo
-olmmmmmmlmmo
-.olmmmmlmmso
-.olhmhmmmso.
-.olmslmsmso.
-..olmslmmo..
-..osmsmmso..
-...oosooo...`,
-  // palm up under the phone's side, fingers round its edge, thumb on the keys
-  hold: `
-.......ooo...
-......olllo..
-.....ollmmo..
-*...olmmmso..
-olloolmmso...
-ollmmmmmmo...
-olmmmmmmmmoo.
-oslmmmmmmmsso
-.osmsmsmmsso.
-..osmsmsmmo..
-...oooooo....`,
-  // round the phone at the ear, fingers up its back
-  ear: `
-...oooo....
-..olllmo...
-.olmmmmmo..
-.olmlmlmo..
-.olmlmlmso.
-oollmlmmso.
-olmmmmmmsso
-olmmmmmmsmo
-.olmmmmmmo.
-.olmmmmmso.
-..olmmmso..
-..olmmso...
-...*.......`,
-  // closed, thumb over the index finger, pinching a card that runs off to the right
-  pinch: `
-...*.......
-.olllmo....
-olllmmmoooo
-ollmmmmllmo
-olmmmmmmmso
-olhmmmmmsso
-oslhmmmmso.
-.oslmhmsso.
-.osslmmso..
-..ossmso...
-...oooo....`,
-  // palm up and loosely cupped, fingers toward the clerk, thumb outside
-  take: `
-...*........
-.olllmmo....
-ollhhhmmo...
-olhhhhhmmo..
-osllhhhhmmoo
-.osllhhhmmlo
-.osllllhmmmo
-.osslllllmso
-.olmlmlmlmo.
-.olmlmlmlmo.
-..olmlmlmo..
-..ooooooo...`,
-};
-const HAND_KEYS = { o: 'skin0', s: 'skin1', m: 'skin2', l: 'skin3', h: 'skin4', '*': 'skin2' };
-
-// Draw arm A's hand onto layer p at its wrist, mirrored for the viewer's right.
-function drawHand(p, A) {
-  const rows = HANDS[A.hand.stamp].replace(/^\n/, '').split('\n');
-  const width = Math.max(...rows.map(r => r.length));
-  const ay = rows.findIndex(r => r.includes('*')), ax = rows[ay].indexOf('*');
-  const [wx, wy] = toCanvas(A.W), flip = A.side > 0;
-  rows.forEach((row, j) => [...row].forEach((ch, i) => {
-    if (HAND_KEYS[ch]) p.px(flip ? wx + ax - i : wx - ax + i, wy - ay + j, HAND_KEYS[ch]);
-  }));
 }
 
 // ------------------------------------------------------------------ rendering a pose
@@ -846,8 +1019,7 @@ function drawHand(p, A) {
 // held out over the counter or onto the card terminal, drawn over the machines;
 // its 'palm' anchor is where a receiving hand holds what it is given). Outlines run round
 // the silhouette and where one part passes in front of another, never across the
-// shoulder where arm and torso are one surface. Hands are drawn ones (HANDS),
-// placed at each wrist, with the sleeve's end laid back over the wrist.
+// shoulder where arm and torso are one surface; the cuff edges the wrist.
 // The back layer's 'head' anchor is how far the lean moves the head sprite.
 function poseParts(R, pose, garment, { flat = false } = {}) {
   const arms = [armPose(R, -1, pose.left), armPose(R, 1, pose.right)];
@@ -868,14 +1040,18 @@ function poseParts(R, pose, garment, { flat = false } = {}) {
       if (!other) { mark = 'edge'; break; }
       if (other.tag === hit.tag) { if (other.P[2] > hit.P[2] + 0.06) { mark = 'edge'; break; } continue; }
       const [a, b] = [hit.tag, other.tag];
+      if (a.startsWith('arm') && b.startsWith('hand')) { mark = 'edge'; break; }          // the cuff
+      if (a.startsWith('hand') && b.startsWith('arm')) continue;
+      if (b === 'legs' && a !== 'legs' && !a.startsWith('hand')) { mark = 'edge'; break; } // a hem over the trousers
+      if (a === 'legs' && b === 'torso') continue;
       if (a.startsWith('arm') && !b.startsWith('arm') && b !== 'phone' && b !== 'card') {
         if (!nearShoulder(hit.P)) { mark = 'edge'; break; }
         continue;
       }
       if (b.startsWith('arm') && !a.startsWith('arm') && a !== 'phone' && a !== 'card') continue;
-      if (other.P[2] > hit.P[2] + (a === 'phone' || a === 'card' ? 0.003 : 0.012)) { mark = 'edge'; break; }
+      if (other.P[2] > hit.P[2] + (a === 'phone' || a === 'card' || a.startsWith('hand') ? 0.003 : 0.012)) { mark = 'edge'; break; }
     }
-    if (mark === 'edge') colors[i] = OUTLINE[shaded[i].material];
+    if (mark === 'edge') colors[i] = shaded[i].outline || OUTLINE[shaded[i].material];
   }
   // Tidy single stray pixels inside a part.
   const tidy = colors.slice();
@@ -883,10 +1059,9 @@ function poseParts(R, pose, garment, { flat = false } = {}) {
     const i = y * W + x;
     if (!colors[i]) continue;
     const around = [colors[i - 1], colors[i + 1], colors[i - W], colors[i + W]];
-    if (around.every(c => c && c === around[0]) && around[0] !== colors[i] && !Object.values(OUTLINE).includes(colors[i])) tidy[i] = around[0];
+    if (around.every(c => c && c === around[0]) && around[0] !== colors[i] && !Object.values(OUTLINE).includes(colors[i]) && colors[i] !== 'skin1') tidy[i] = around[0];
   }
   const back = canvas(), front = canvas(), counter = canvas(), over = canvas();
-  const layerOf = [];
   const outSides = new Set(arms.filter(A => ['reach', 'swipe', 'take'].includes(A.mode)).map(A => A.side));
   hits.forEach((hit, i) => {
     if (!hit) return;
@@ -894,22 +1069,8 @@ function poseParts(R, pose, garment, { flat = false } = {}) {
     const held = hit.tag === 'card' || outSides.has(sideOf(hit.tag));
     const layer = hit.P[2] < space.counter.far ? (held ? over : counter) : forward ? front : back;
     layer.px(i % W, Math.floor(i / W), tidy[i]);
-    layerOf[i] = layer;
   });
-  for (const A of arms) {
-    if (A.mode === 'hang') continue;
-    const layer = ['hold', 'ear'].includes(A.mode) ? front : A.mode === 'rest' ? counter : over;
-    drawHand(layer, A);
-    // the sleeve's last centimetre, over the top of the wrist
-    const u = v3.norm(v3.sub(A.W, A.E)), [wx, wy] = toCanvas(A.W), r = Math.ceil(R.arm * space.scaleAt(A.W[2])) + 2;
-    for (let y = wy - r; y <= wy + r; y++) for (let x = wx - r; x <= wx + r; x++) {
-      const i = y * W + x, hit = x >= 0 && y >= 0 && x < W && y < H ? hits[i] : null;
-      if (!hit || hit.tag !== 'arm:' + A.side) continue;
-      const along = v3.dot(v3.sub(hit.P, A.W), u);
-      if (along > -0.01 && along < 0.015) layerOf[i].px(x, y, tidy[i]);
-    }
-  }
-  for (const A of arms.filter(A => A.mode === 'take')) over.anchor('palm', ...toCanvas(v3.add(A.W, v3.add(v3.mul(A.hand.f, 0.05 * R.hand), v3.mul(A.hand.n, -0.02)))));
+  for (const A of arms.filter(A => A.mode === 'take')) over.anchor('palm', ...toCanvas(v3.add(A.W, v3.add(v3.mul(A.hand.f, 0.05 * R.hand * R.handLength), v3.mul(A.hand.n, -0.02)))));
   back.anchor('head', ...R.headOffset);
   return { back, front, counter, over, arms };
 }

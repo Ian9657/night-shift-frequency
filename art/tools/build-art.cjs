@@ -169,11 +169,11 @@ function store(sprites, id = 'nell', pose = process.env.POSE || 'phone-call') {
 // each of their poses.
 function peopleSheet(sprites) {
   const shots = Object.entries(customers.customers).flatMap(([id, c]) => (c.person.poses || []).map(pose => [id, pose]));
-  const [cx, cy, cw, ch] = [176, 8, 128, 182];
-  const sheet = new Surface(shots.length * (cw + 4), ch, [255, 255, 255, 255]);
+  const [cx, cy, cw, ch] = [176, 8, 128, 182], cols = 8;
+  const sheet = new Surface(Math.min(cols, shots.length) * (cw + 4), Math.ceil(shots.length / cols) * (ch + 4), [255, 255, 255, 255]);
   shots.forEach(([id, pose], n) => {
-    const scene = store(sprites, id, pose);
-    for (let y = 0; y < ch; y++) scene.rgba.copy(sheet.rgba, (y * sheet.width + n * (cw + 4)) * 4, ((cy + y) * 480 + cx) * 4, ((cy + y) * 480 + cx + cw) * 4);
+    const scene = store(sprites, id, pose), dx = (n % cols) * (cw + 4), dy = Math.floor(n / cols) * (ch + 4);
+    for (let y = 0; y < ch; y++) scene.rgba.copy(sheet.rgba, ((dy + y) * sheet.width + dx) * 4, ((cy + y) * 480 + cx) * 4, ((cy + y) * 480 + cx + cw) * 4);
   });
   return sheet;
 }
@@ -183,11 +183,11 @@ function peopleSheet(sprites) {
 // drops shading to show form alone; pink marks are shoulder, elbow and wrist, and
 // neck, chest, waist and hip on the centre line (also where the counter hides them).
 const RIG_TESTS = [
-  { height: 1.68, build: 'average', arms: [1, 1] }, { height: 1.88, build: 'average', arms: [1.03, 0.95] },
-  { height: 1.52, build: 'average', arms: [0.97, 1] }, { height: 1.72, build: 'heavy', arms: [0.97, 1.08] },
-  { height: 1.72, build: 'slim', arms: [1.04, 0.88] },
+  { height: 1.68, build: 'average', arms: [1, 1], hands: [1, 1] }, { height: 1.88, build: 'average', arms: [1.03, 0.95], hands: [1.08, 1] },
+  { height: 1.52, build: 'average', arms: [0.97, 1], hands: [0.94, 0.96] }, { height: 1.72, build: 'heavy', arms: [0.97, 1.08], hands: [1, 1.12] },
+  { height: 1.72, build: 'slim', arms: [1.04, 0.88], hands: [1.06, 0.9] },
 ];
-const RIG_POSES = ['both-rest', 'phone-call', 'phone-check', 'card', 'card-reader', 'receive'];
+const RIG_POSES = ['both-rest', 'phone-call', 'phone-one', 'phone-check', 'card', 'card-reader', 'receive'];
 function rigSheet(sprites, flat) {
   const { figure } = require(path.join(SRC, 'people.cjs'));
   const { ramp } = require('../../js/content/colors.js');

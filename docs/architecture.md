@@ -109,7 +109,8 @@ product paths. Two renderers use it:
   held props in `art/src/people.cjs`, the scanner gun). A figure is a skeleton in
   metres; arms are solved by two-bone IK against the counter; each pose is rendered
   into depth layers (`back`, `front`, `counter`, `over`) that interleave with the head
-  sprite, hair and counter devices. Hands are drawn sprites placed at the wrist.
+  sprite, hair and counter devices. Hands are simple sculpted forms (palm, one finger
+  block, thumb) whose frame follows anatomy and the wrist's range.
 
 `build-art.cjs --preview store3d` composes these into review sheets.
 
