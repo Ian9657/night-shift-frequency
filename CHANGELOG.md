@@ -5,6 +5,27 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — the register keypad, printer, phone and radio dial
+
+- The register's typing keyboard is a cash-register keypad: department keys with
+  coloured caps, a number pad and tall TOTAL and CLEAR keys, on a grey body.
+- The receipt printer no longer sits behind the radio as if stacked on it: it stands
+  by the bags and the card terminal, and the radio moved to the clerk's right front.
+- The clerk's flip phone is sculpted: silver clamshell, hinge barrel, aerial stub,
+  lit outer display, the lid seam and a strap with a red bead charm.
+- The radio shows its analogue dial again: the runtime LED digits over it are gone,
+  the scale has ticks but no numbers, and a red needle sits at the low end (one pixel
+  further right on 87.7).
+
+### Verified (register, printer, phone, radio)
+
+- All five checks pass. Desktop (card sale, echo radio) and phone-landscape
+  screenshots were reviewed.
+
+### Not verified (register, printer, phone, radio)
+
+- The phone is still small on screen (about 15 px) and not clickable yet.
+
 ### Changed — Walt, Hal and Sam dressed as the worldview says
 
 - Walt (taxi driver) wears a worn trench coat, double-breasted with wide lapels, a

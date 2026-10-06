@@ -25,12 +25,14 @@
   // A fixture may be made of several boxes; the first is its click target.
   const fixtures = Object.freeze({
     microwave: [{ x: -1.02, z: 1.04, w: 0.46, h: 0.27, d: 0.34 }],
-    pos: [{ x: -0.5, z: 0.99, w: 0.44, h: 0.4, d: 0.28 }, { x: -0.42, z: 0.78, w: 0.36, h: 0.035, d: 0.14 }],
+    pos: [{ x: -0.5, z: 0.99, w: 0.44, h: 0.4, d: 0.28 }, { x: -0.43, z: 0.78, w: 0.32, h: 0.035, d: 0.14 }],
     scanner: [{ x: -0.21, z: 0.95, w: 0.09, h: 0.19, d: 0.12 }],
     terminal: [{ x: 0.23, z: 0.95, w: 0.09, h: 0.17, d: 0.1 }],
     bags: [{ x: 0.52, z: 0.99, w: 0.26, h: 0.03, d: 0.18 }],
-    radio: [{ x: 0.64, z: 0.8, w: 0.24, h: 0.14, d: 0.09 }],
-    printer: [{ x: 0.8, z: 1.0, w: 0.16, h: 0.13, d: 0.2 }],
+    // The radio is the clerk's, at their right hand; the receipt printer stands by the
+    // bags and the card terminal, where the receipt is handed over.
+    radio: [{ x: 0.85, z: 0.7, w: 0.24, h: 0.14, d: 0.09 }],
+    printer: [{ x: 0.74, z: 1.0, w: 0.16, h: 0.13, d: 0.2 }],
     // The cash drawer, flush with the counter's front under the register; open, it
     // slides out towards the clerk.
     drawer: [{ x: -0.45, z: 0.515, w: 0.4, h: 0.09, d: 0.02, y: counter.y - counter.thick - 0.1 }],
@@ -45,7 +47,7 @@
 
   // The clerk's own things, nearest the camera.
   const personal = Object.freeze({
-    phone: { x: 0.47, z: 0.63, w: 0.05, h: 0.02, d: 0.1, yaw: 0.35 },
+    phone: { x: 0.47, z: 0.63, w: 0.048, h: 0.022, d: 0.095, yaw: 0.35 },
     can: { x: 0.36, z: 0.66, w: 0.066, h: 0.115, d: 0.066 },
     signIn: { x: -0.5, z: 0.67, w: 0.21, h: 0.012, d: 0.13, yaw: -0.2 },
   });

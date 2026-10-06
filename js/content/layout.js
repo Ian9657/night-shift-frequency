@@ -35,7 +35,7 @@
       // Cash goes into the drawer: it opens, takes the note and shuts.
       drawer: { sprite: 'store-drawer', busy: 'store-drawer-open', drop: point(drawer.x, drawer.y + drawer.h, counter.near - space.drawerTravel * 0.4) },
       bags: { sprite: 'store-bags', stack: point(bags.x, counter.y + 0.03, bags.z), packing: point(bags.x - 0.04, counter.y, bags.z - 0.13) },
-      radio: { sprite: 'store-radio', echo: 'store-radio-echo', display: face(radio.x, radio.w, radio.z - radio.d / 2, counter.y, counter.y + radio.h, [26 / 48, 45 / 48], [5 / 28, 14 / 28]) },
+      radio: { sprite: 'store-radio', echo: 'store-radio-echo', dial: face(radio.x, radio.w, radio.z - radio.d / 2, counter.y, counter.y + radio.h, [26 / 48, 45 / 48], [5 / 28, 14 / 28]) },
       printer: { sprite: 'store-printer', slot: point(printer.x, counter.y + printer.h, printer.z + printer.d * 0.16) },
     }),
     // Drawn with the machines but not clicked: the security monitor, the clerk's phone

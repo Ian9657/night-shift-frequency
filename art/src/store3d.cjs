@@ -371,8 +371,9 @@ function sprites() {
   })]);
 
   // Register: a beige CRT with the green-screen sale, brand badge and power light;
-  // a keyboard with its key rows, a number pad and the total key.
-  result['store-pos'] = fixture(F.pos, [RAMP.cream, RAMP.dark], [both(panel('front', 80, 73, p => {
+  // a cash-register keypad in front of it, not a typing keyboard: department keys
+  // with coloured caps, a number pad, and the tall TOTAL and CLEAR keys.
+  result['store-pos'] = fixture(F.pos, [RAMP.cream, RAMP.steel], [both(panel('front', 80, 73, p => {
     p.rect(0, 0, 80, 73, 'cream3');
     p.hline(0, 79, 0, 'cream4').vline(0, 0, 72, 'cream4').hline(0, 79, 72, 'cream1').vline(79, 0, 72, 'cream1');
     p.rect(6, 5, 68, 52, 'cream1').rect(8, 7, 64, 48, 'phos0');
@@ -391,8 +392,19 @@ function sprites() {
     for (let x = 30; x < 62; x += 3) p.vline(x, 61, 66, 'cream2');                              // vents
   })), (f, u, t) => {
     if (f !== 'top') return null;
-    if (u > 0.82) return t > 0.2 && t < 0.92 && (u * 30) % 1 < 0.7 && (t * 4) % 1 < 0.7 ? (t > 0.5 ? 'cream4' : 'buoy2') : 'steel1';   // number pad, total key
-    if ((u * 16) % 1 < 0.72 && (t * 5) % 1 < 0.66) return t > 0.8 ? 'steel5' : 'cream4';
+    if (u < 0.03 || u > 0.97 || t < 0.1 || t > 0.9) return 'steel2';                          // the bezel
+    const lt = (t - 0.14) / 0.72;
+    if (lt < 0 || lt > 1) return null;
+    if (u > 0.05 && u < 0.47) {                                                               // department keys
+      const lu = (u - 0.05) / 0.42, col = Math.floor(lu * 5);
+      if ((lu * 5) % 1 > 0.74 || (lt * 3) % 1 > 0.64) return null;
+      return lt > 0.66 ? ['buoy2', 'green2', 'yellow2', 'red2', 'blue2'][col] : 'cream4';
+    }
+    if (u > 0.52 && u < 0.77) {                                                               // number pad
+      const lu = (u - 0.52) / 0.25;
+      return (lu * 3) % 1 < 0.7 && (lt * 4) % 1 < 0.62 ? 'cream4' : null;
+    }
+    if (u > 0.81 && u < 0.95) return lt > 0.62 ? (lt > 0.68 ? 'red2' : null) : 'buoy2';      // CLEAR, TOTAL
     return null;
   }]);
 
@@ -490,9 +502,8 @@ function sprites() {
       p.ellipse(12, 14, 10, 10, 'red0').ellipse(12, 14, 9, 9, 'steel1');
       for (let y = 6; y <= 22; y++) for (let x = 4; x <= 20; x++) if (Math.hypot(x - 12, y - 14) < 8 && (x + (y % 2)) % 2 === 0 && y % 2 === 0) p.px(x, y, echo ? 'steel4' : 'steel3');
       p.rect(25, 4, 21, 11, 'red0').rect(26, 5, 19, 9, echo ? 'yellow3' : 'cream3');
-      for (let x = 27; x < 45; x += 2) p.vline(x, 11, x % 10 === 7 ? 13 : 12, 'cream0');
-      text(p, 28, 6, '88', 'cream0'); text(p, 38, 6, '98', 'cream0');
-      p.vline(27, 5, 13, 'red2');                                                              // the needle, at 87.7
+      p.hline(26, 44, 9, 'cream1');                                                            // the scale: a rule and ticks, no numbers
+      for (let x = 27; x < 45; x += 2) p.vline(x, (x - 27) % 6 === 0 ? 6 : 8, 10, 'cream0');
       for (const kx of [28, 42]) p.ellipse(kx, 21, 3, 3, 'steel0').ellipse(kx, 21, 2, 2, 'steel2').px(kx - 1, 20, 'steel5').vline(kx, 19, 20, 'steel6');
       text(p, 32, 21, 'FM', 'red1');
       p.rect(45, 25, 2, 2, echo ? 'cyan4' : 'cyan0');
@@ -508,13 +519,37 @@ function sprites() {
   result['store-radio'] = radio(false);
   result['store-radio-echo'] = radio(true);
 
-  // The clerk's own flip phone, closed: silver, a hinge, the small outer display.
-  result['store-phone'] = fixture([space.personal.phone], [RAMP.steel], [(f, u, t) => {
-    if (f !== 'top') return null;
-    if (t > 0.9) return 'steel3';                                                               // hinge
-    if (t > 0.58 && t < 0.82 && u > 0.25 && u < 0.75) return t > 0.62 && t < 0.78 && u > 0.3 && u < 0.7 ? 'cyan2' : 'ink';
-    return null;
-  }]);
+  // The clerk's own flip phone, closed, lying on the counter: a silver clamshell with
+  // the hinge barrel at the far end, an aerial stub, the small outer display lit
+  // cyan, the seam between lid and base, and a strap with a red bead charm.
+  const { phone } = space.personal;
+  result['store-phone'] = (() => {
+    const c = Math.cos(phone.yaw), s = Math.sin(phone.yaw), v = sculpt.vec;
+    const axes = [[c, 0, -s], [0, 1, 0], [s, 0, c]], [hw, hh, hd] = [phone.w / 2, phone.h / 2, phone.d / 2];
+    const centre = [phone.x, counter.y + hh, phone.z];
+    const at = q => v.add(centre, v.add(v.add(v.mul(axes[0], q[0]), v.mul(axes[1], q[1])), v.mul(axes[2], q[2])));
+    const hinge = [at([-hw + 0.004, 0, hd - 0.006]), at([hw - 0.004, 0, hd - 0.006])];
+    const aerial = [at([hw - 0.008, 0.002, hd - 0.002]), at([hw - 0.008, 0.002, hd + 0.014])];
+    const bead = at([hw + 0.016, -hh + 0.006, -hd + 0.012]), loop = [at([hw - 0.004, -hh + 0.004, -hd + 0.006]), bead];
+    const field = P => [Math.min(
+      sculpt.box(P, centre, axes, [hw, hh, hd], 0.008),
+      sculpt.cone(P, hinge[0], hinge[1], hh + 0.002, hh + 0.002),
+      sculpt.cone(P, aerial[0], aerial[1], 0.004, 0.0035),
+      sculpt.cone(P, loop[0], loop[1], 0.0016, 0.0016),
+      v.len(v.sub(P, bead)) - 0.0065), 0];
+    const bounds = { x: phone.x + 0.008, z: phone.z, w: 0.13, h: phone.h + 0.01, d: 0.13 };
+    return sculpted(bounds, field, RAMP.steel, hit => {
+      if (v.len(v.sub(hit.P, bead)) < 0.008) return hit.n[1] > 0.5 ? 'red4' : 'red2';
+      const [x, y, z] = sculpt.local(hit.P, centre, axes);
+      if (Math.abs(x) > hw + 0.001 && z < -hd + 0.02) return 'ink';                          // the strap's cord
+      if (z > hd - 0.012) return z > hd + 0.006 ? 'steel1' : 'steel3';                        // hinge, aerial
+      if (y > hh - 0.003 && Math.abs(x) < 0.014 && z > hd - 0.05 && z < hd - 0.018) {        // the outer display
+        return Math.abs(x) > 0.011 || z < hd - 0.047 || z > hd - 0.021 ? 'ink' : z > hd - 0.03 ? 'cyan4' : 'cyan3';
+      }
+      if (Math.abs(y) < 0.0018 && y < hh - 0.004) return 'steel1';                             // lid and base
+      return null;
+    });
+  })();
   // The clerk's canned coffee, opened and half drunk: the tab bent up, a drip down
   // the side from the last sip.
   const { can } = space.personal, r = can.w / 2;

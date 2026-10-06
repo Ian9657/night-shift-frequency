@@ -6,10 +6,6 @@
   'use strict';
   const { sprites, layout, customers, space, time, radio } = root.NSF;
   const CUE = '#f5d873', SELECTED = '#f1f5e6', HEAT = '#eda04c';
-  const LED = {
-    8: ['###', '#.#', '###', '#.#', '###'], 7: ['###', '..#', '.#.', '.#.', '.#.'],
-    6: ['###', '#..', '###', '#.#', '###'], '.': ['.', '.', '.', '.', '#'],
-  };
   const AXIS = space.customer.centre - 0.5;                       // the customer canvas's mirror axis
 
   function sprite(ctx, name, x, y, options = {}) {
@@ -51,17 +47,11 @@
     ctx.fillRect(cx, cy, 1, 1);
   }
 
-  function radioDigits(ctx, station) {
-    const d = layout.fixtures.radio.display;
-    ctx.fillStyle = '#16120c';
-    ctx.fillRect(d.x + 1, d.y + 1, d.w - 2, d.h - 2);
-    ctx.fillStyle = station === '87.7' ? '#63d4d0' : '#ff8466';
-    let x = d.x + Math.floor((d.w - 15) / 2);
-    for (const ch of station) {
-      const glyph = LED[ch];
-      glyph.forEach((row, j) => [...row].forEach((c, i) => { if (c === '#') ctx.fillRect(x + i, d.y + Math.floor((d.h - 5) / 2) + j, 1, 1); }));
-      x += glyph[0].length + 1;
-    }
+  // The radio's needle at the low end of the dial: 87.7 sits one pixel right of 87.6.
+  function radioNeedle(ctx, station) {
+    const d = layout.fixtures.radio.dial;
+    ctx.fillStyle = '#c8403a';
+    ctx.fillRect(d.x + (station === '87.7' ? 4 : 3), d.y + 1, 1, d.h - 2);
   }
 
   const blinking = (period = 800, on = 520) => time.now % period < on;
@@ -132,7 +122,7 @@
       if (scene.cues.has(name) && blinking()) sprite(ctx, current, x, y, { outline: CUE });
       sprite(ctx, current, x, y, look);
     }
-    radioDigits(ctx, radio.view.station);
+    radioNeedle(ctx, radio.view.station);
     if (scene.fixtures.paper) {                                     // the receipt rising from the printer
       const slot = layout.fixtures.printer.slot;
       ctx.fillStyle = '#f3f6ea';
