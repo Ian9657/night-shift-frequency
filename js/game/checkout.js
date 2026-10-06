@@ -2,7 +2,7 @@
 // model the renderer draws. Cross-order history lives in the shift engine.
 (function (root) {
   'use strict';
-  const { time, audio, dialogue, radio, records, engine, story, customers, layout, sprites } = root.NSF;
+  const { time, audio, dialogue, radio, records, broadcast, engine, story, customers, layout, sprites } = root.NSF;
 
   const params = new URLSearchParams(root.location?.search || '');
   const shift = engine.createShift(params.get('seed') || String(Date.now()));
@@ -442,7 +442,7 @@
     for (const product of scene.products.values()) product.hidden = false;
     state.busy = false;
     dialogue.say(order().customerLines, { lock: state.eventIndex === 0 });
-    radio.play(story.radio.orders[state.eventIndex]);
+    broadcast.orderStarted(state.eventIndex);
   }
 
   function nextOrder() {
@@ -486,10 +486,9 @@
     if (state.phase !== 'report') return;
     state.phase = 'ending';
     dialogue.clear();
-    if (radio.view.station !== '87.6') radio.tune('87.6');
     const leaving = walk(0, layout.customer.walk, 1100).then(() => { scene.customer.visible = false; });
     await time.wait(600);
-    await radio.play([...story.radio.endings[shift.ending()], story.radio.signoff]);
+    await broadcast.shiftClosed(shift.ending());
     await leaving;
     state.phase = 'end';
   }
@@ -500,21 +499,8 @@
     audio.unlock();
     audio.startAmbience();
     dialogue.say(order().customerLines, { lock: true });
-    radio.play([...story.radio.intro, ...story.radio.orders[0]]);
+    broadcast.shiftStarted();
   }
-
-  // ------------------------------------------------------------ the other frequency
-  radio.setEchoProvider(() => {
-    const i = state.eventIndex;
-    if (state.phase !== 'shift' && state.phase !== 'report') return { key: 'radio.static' };
-    const first = shift.decisionFor(orders[4].id);
-    if (i < 4) return { key: i >= 2 ? 'radio.staticReg' : 'radio.static' };
-    if (!first) return { key: 'radio.echoRecord', vars: { time: orders[4].clock, label: '@item.spareKey' } };
-    if (i === 7 && !hasSavedRecord(orders[7])) return { key: 'radio.echoDoor' };
-    // It reads back the record you did not save.
-    const kept = first.decision === 'keep';
-    return { key: 'radio.echoOpposite', vars: { label: kept ? '@item.cola' : '@item.spareKey', origin: kept ? '@origin.MANUAL' : '@origin.REGISTER' } };
-  });
 
   // ------------------------------------------------------------ per-frame derived state
   function cueTargets() {
@@ -540,9 +526,6 @@
 
   function update() {
     placeProducts();
-    for (const product of scene.products.values()) {
-      if (state.bagged && !product.moving) product.hidden = true;
-    }
     const targets = cueTargets();
     const signature = targets.slice().sort().join('|');
     if (signature !== cueSignature) {
@@ -570,21 +553,44 @@
     return list;
   }
 
+  // An action that throws must never leave the counter locked: log it, drop
+  // in-flight motion and hand control back to the player.
+  async function guarded(action) {
+    try {
+      await action();
+    } catch (error) {
+      console.error('Night Shift Frequency: action failed', error);
+      state.busy = false;
+      state.modeOverride = null;
+      scene.extras = [];
+      scene.customer.pose = 'idle';
+      scene.customer.prop = null;
+      scene.fixtures = { ...fixtureDefault, drawer: 0, paper: scene.fixtures.paper };
+      for (const product of scene.products.values()) {
+        product.moving = false;
+        product.flicker = false;
+        if (!state.bagged) product.hidden = false;
+      }
+      placeProducts(true);
+    }
+  }
+
   function activate(name) {
-    if (name.startsWith('item:')) return selectItem(name.slice(5));
+    if (name.startsWith('item:')) return guarded(() => selectItem(name.slice(5)));
     const actions = {
       scanner: scan, terminal: () => pay('terminal'), tray: () => pay('cash'), microwave: heat, bags: bag,
       printer: printReport, pos: () => records.open(), radio: () => radio.tune(),
     };
-    return actions[name]?.();
+    return actions[name] ? guarded(actions[name]) : undefined;
   }
 
   resetProducts();
   const controller = {
-    shift, orders, state, scene, order, update, targets, activate, startShift, startEnding,
+    shift, orders, state, scene, order, update, targets, activate, startShift, startEnding: () => guarded(startEnding),
     submitDecision, hasSavedRecord, scannedItems,
     canOpenRecords: () => (state.phase === 'shift' || state.phase === 'report') && !state.busy,
   };
   records.attach(controller);
+  broadcast.attach(controller);
   root.NSF.game = controller;
 })(globalThis);

@@ -107,7 +107,7 @@ function scene(sprites) {
   surface.draw(sprites, 'room', 0, 0);
   surface.draw(sprites, 'tower-light-on', layout.towerLight.x - 3, layout.towerLight.y - 3);
   const c = layout.customer;
-  const { slots, arm } = drawCustomer(surface, sprites, 'wen', c.x, c.y, 'reach');
+  const { slots, arm } = drawCustomer(surface, sprites, 'nell', c.x, c.y, 'reach');
   surface.draw(sprites, 'counter', 0, layout.counterTop);
   for (const fixture of Object.values(layout.fixtures)) surface.draw(sprites, fixture.sprite, fixture.x, fixture.y);
   let x = layout.lane.x;
@@ -146,7 +146,7 @@ function contactSheet(sprites) {
     return [name, at];
   });
   const surface = new Surface(width, y + rowHeight + 2, palette.rgba('#324745'));
-  for (const [name, [px, py]] of places) surface.draw(sprites, name, px, py, { slots: customers.slotColors('wen') });
+  for (const [name, [px, py]] of places) surface.draw(sprites, name, px, py, { slots: customers.slotColors('nell') });
   return surface;
 }
 

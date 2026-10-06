@@ -1,7 +1,7 @@
 // Customer looks: paper-doll parts plus colour ramps for the remappable
 // palette slots. Skin and hair ramps are hand-picked; clothing ramps are
 // generated with the shared hue-shift rules. Regulars fill ordinary orders;
-// Wen and her counterpart are reserved for orders five and eight.
+// Nell and the Nell who stayed are reserved for orders five and eight.
 (function (root) {
   'use strict';
   const node = typeof module !== 'undefined' && module.exports;
@@ -30,20 +30,20 @@
   const under = { white: '#b9b9b0', black: '#2e2e2e' };
 
   const customers = Object.freeze({
-    kai: { body: 'hoodie', head: 'oval', hair: 'messy', extras: ['earphones'], skin: skin.medium, hair_: hair.black, cloth: cloth.grey, under: under.white, accent: '#c9a24a' },
-    chen: { body: 'vest', head: 'square', hair: 'buzz', extras: ['beard'], skin: skin.tan, hair_: hair.grey, cloth: cloth.navy, under: under.white, accent: '#e8792e' },
-    mei: { body: 'jacket', head: 'oval', hair: 'bob', extras: ['glasses'], skin: skin.light, hair_: hair.black, cloth: cloth.charcoal, under: under.white, accent: '#c9a24a' },
-    ruo: { body: 'hoodie', head: 'round', hair: 'bun', extras: ['mask'], skin: skin.pale, hair_: hair.brown, cloth: cloth.green, under: under.white, accent: '#c9a24a' },
-    zhou: { body: 'coat', head: 'square', hair: 'short', extras: ['scarf', 'glasses'], skin: skin.medium, hair_: hair.grey, cloth: cloth.trench, under: under.white, accent: '#7c3340' },
+    kit: { body: 'hoodie', head: 'oval', hair: 'messy', extras: ['earphones'], skin: skin.medium, hair_: hair.black, cloth: cloth.grey, under: under.white, accent: '#c9a24a' },
+    hal: { body: 'vest', head: 'square', hair: 'buzz', extras: ['beard'], skin: skin.tan, hair_: hair.grey, cloth: cloth.navy, under: under.white, accent: '#e8792e' },
+    dana: { body: 'jacket', head: 'oval', hair: 'bob', extras: ['glasses'], skin: skin.light, hair_: hair.black, cloth: cloth.charcoal, under: under.white, accent: '#c9a24a' },
+    tess: { body: 'hoodie', head: 'round', hair: 'bun', extras: ['mask'], skin: skin.pale, hair_: hair.brown, cloth: cloth.green, under: under.white, accent: '#c9a24a' },
+    walt: { body: 'coat', head: 'square', hair: 'short', extras: ['scarf', 'glasses'], skin: skin.medium, hair_: hair.grey, cloth: cloth.trench, under: under.white, accent: '#7c3340' },
     ana: { body: 'coat', head: 'oval', hair: 'bob', extras: [], skin: skin.deep, hair_: hair.auburn, cloth: cloth.navy, under: under.white, accent: '#b3c2bf' },
-    tao: { body: 'jacket', head: 'round', hair: 'cap', extras: [], skin: skin.tan, hair_: hair.black, cloth: cloth.olive, under: under.black, accent: '#cf4436' },
-    hui: { body: 'vest', head: 'round', hair: 'beanie', extras: [], skin: skin.light, hair_: hair.brown, cloth: cloth.charcoal, under: under.black, accent: '#e8b22e' },
+    dex: { body: 'jacket', head: 'round', hair: 'cap', extras: [], skin: skin.tan, hair_: hair.black, cloth: cloth.olive, under: under.black, accent: '#cf4436' },
+    bonnie: { body: 'vest', head: 'round', hair: 'beanie', extras: [], skin: skin.light, hair_: hair.brown, cloth: cloth.charcoal, under: under.black, accent: '#e8b22e' },
     sam: { body: 'jacket', head: 'oval', hair: 'short', extras: ['earphones'], skin: skin.pale, hair_: hair.bleached, cloth: cloth.burgundy, under: under.black, accent: '#c9a24a' },
-    li: { body: 'coat', head: 'round', hair: 'bun', extras: ['scarf'], skin: skin.light, hair_: hair.grey, cloth: cloth.burgundy, under: under.white, accent: '#8c7650' },
-    wen: { body: 'coat', head: 'oval', hair: 'long', extras: ['wet'], skin: skin.light, hair_: hair.black, cloth: cloth.rainYellow, under: under.white, accent: '#2b2f31', phone: true },
-    wenEcho: { body: 'coat', head: 'oval', hair: 'long', mirrorHair: true, extras: ['wet'], skin: skin.light, hair_: hair.black, cloth: cloth.rainTeal, under: under.white, accent: '#2b2f31' },
+    edie: { body: 'coat', head: 'round', hair: 'bun', extras: ['scarf'], skin: skin.light, hair_: hair.grey, cloth: cloth.burgundy, under: under.white, accent: '#8c7650' },
+    nell: { body: 'coat', head: 'oval', hair: 'long', extras: ['wet'], skin: skin.light, hair_: hair.black, cloth: cloth.rainYellow, under: under.white, accent: '#2b2f31', phone: true },
+    nellStayed: { body: 'coat', head: 'oval', hair: 'long', mirrorHair: true, extras: ['wet'], skin: skin.light, hair_: hair.black, cloth: cloth.rainTeal, under: under.white, accent: '#2b2f31' },
   });
-  const regulars = Object.freeze(['kai', 'chen', 'mei', 'ruo', 'zhou', 'ana', 'tao', 'hui', 'sam', 'li']);
+  const regulars = Object.freeze(['kit', 'hal', 'dana', 'tess', 'walt', 'ana', 'dex', 'bonnie', 'sam', 'edie']);
 
   const named = (prefix, values) => Object.fromEntries(values.map((v, i) => [prefix + i, v]));
   // Palette slot overrides for a customer.

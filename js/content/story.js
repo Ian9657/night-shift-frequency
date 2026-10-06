@@ -33,18 +33,18 @@
   // Orders five and eight. Both put a cola on the counter that the register reads as a spare key.
   const records = Object.freeze({
     4: {
-      customer: 'wen', decisionKind: 'identity',
-      lines: ['say.wen1', 'say.wen2'], exit: 'say.wenExit',
-      reactions: { rescan: [{ text: 'say.wenRescan', lock: true }], secondRescan: ['say.wenSecondRescan'], confirmBeforeRescan: ['say.wenConfirmEarly'] },
-      afterDecision: { keep: 'say.wenKeep', correct: 'say.wenCorrect' },
+      customer: 'nell', decisionKind: 'identity',
+      lines: ['say.nell1', 'say.nell2'], exit: 'say.nellExit',
+      reactions: { rescan: [{ text: 'say.nellRescan', lock: true }], secondRescan: ['say.nellSecondRescan'], confirmBeforeRescan: ['say.nellConfirmEarly'] },
+      afterDecision: { keep: 'say.nellKeep', correct: 'say.nellCorrect' },
     },
     7: {
-      customer: 'wenEcho', decisionKind: 'provenance',
-      lines: ['say.echo1', 'say.echo2'], exit: 'say.echoExit',
-      reactions: { firstScan: ['say.echoScan'], rescan: [{ text: 'say.wenRescan', lock: true }], secondRescan: ['say.wenSecondRescan'], confirmBeforeRescan: ['say.wenConfirmEarly'] },
+      customer: 'nellStayed', decisionKind: 'provenance',
+      lines: ['say.stayed1', 'say.stayed2'], exit: 'say.stayedExit',
+      reactions: { firstScan: ['say.stayedScan'], rescan: [{ text: 'say.nellRescan', lock: true }], secondRescan: ['say.nellSecondRescan'], confirmBeforeRescan: ['say.nellConfirmEarly'] },
       afterDecision: {
-        'keep-linked': 'say.echoKeepLinked', 'keep-independent': 'say.echoKeepIndependent',
-        'correct-linked': 'say.echoCorrectLinked', 'correct-independent': 'say.echoCorrectIndependent',
+        'keep-linked': 'say.stayedKeepLinked', 'keep-independent': 'say.stayedKeepIndependent',
+        'correct-linked': 'say.stayedCorrectLinked', 'correct-independent': 'say.stayedCorrectIndependent',
       },
     },
   });

@@ -3,7 +3,7 @@
 // and rendering paths are unchanged.
 const path = require('node:path');
 const assert = require('node:assert/strict');
-const { chromium, artifacts, URL_BASE, click, playOrder } = require('./browser-helpers.cjs');
+const { chromium, artifacts, URL_BASE, idle, click, playOrder } = require('./browser-helpers.cjs');
 
 (async () => {
   const browser = await chromium.launch({ headless: true, channel: 'chrome' });
@@ -47,13 +47,49 @@ const { chromium, artifacts, URL_BASE, click, playOrder } = require('./browser-h
     }
     // Narrow portrait viewport: the scene fits without page overflow; sound toggles.
     const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+    const errors = [];
+    page.on('pageerror', e => errors.push(e.message));
     await page.goto(URL_BASE + '?seed=browser-check');
-    await click(page, 'ui:sound');
-    assert.equal(await page.evaluate(() => NSF.audio.muted), true);
+    assert.equal(await page.evaluate(() => NSF.debug.seed), 'browser-check');
     await page.screenshot({ path: path.join(artifacts, 'mobile-title.png') });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+    await click(page, 'ui:start');
+    await page.evaluate(() => { NSF.debug.time.speed = 12; });
+
+    // Every synthesised sound runs against a real AudioContext without throwing.
+    const failures = await page.evaluate(() => {
+      const a = NSF.audio, failed = [];
+      const calls = [['scan'], ['payment', 'card'], ['payment', 'tap'], ['anomaly'], ['cashPaper'], ['cashDrawer'], ['microwaveStart'],
+        ['microwaveDone'], ['receipt'], ['bag'], ['dialogueTick', 'a'], ['radioTune'], ['radioVoice', 800, true], ['radioStation', '87.7']];
+      for (const [name, ...args] of calls) {
+        try { a[name](...args); } catch (error) { failed.push(name + ': ' + error.message); }
+      }
+      a.radioStation('87.6');
+      return failed;
+    });
+    assert.deepEqual(failures, []);
+
+    // An action that throws mid-animation hands control back instead of locking the counter.
+    const item = await page.evaluate(() => NSF.debug.game.order().items[0].id);
+    await idle(page);
+    await page.evaluate(() => {
+      const original = NSF.audio.scan;
+      NSF.audio.scan = () => { NSF.audio.scan = original; throw new Error('injected test failure'); };
+    });
+    await click(page, 'item:' + item);
+    await click(page, 'scanner');
+    await idle(page);
+    assert.equal(await page.evaluate(id => NSF.debug.game.state.scannedIds.includes(id), item), false);
+    await click(page, 'item:' + item);
+    await click(page, 'scanner');
+    await idle(page);
+    assert.equal(await page.evaluate(id => NSF.debug.game.state.scannedIds.includes(id), item), true);
+
+    await click(page, 'ui:sound');
+    assert.equal(await page.evaluate(() => NSF.audio.muted), true);
+    assert.deepEqual(errors, []);
     await page.close();
-    console.log('PASS: four record branches, report, ending, sound toggle, narrow viewport.');
+    console.log('PASS: four record branches, report, ending, audio smoke, failure recovery, seed, narrow viewport.');
   } finally {
     await browser.close();
   }

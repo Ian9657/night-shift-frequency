@@ -14,8 +14,8 @@ for (let seed = 0; seed < 500; seed++) {
   assert.equal(orders[0].speechStyle, 'quiet');
   assert.equal(orders[0].customerLines.length, 1);
   assert.equal(orders[3].paymentType, 'tap');
-  assert.equal(orders[4].customer, 'wen');
-  assert.equal(orders[7].customer, 'wenEcho');
+  assert.equal(orders[4].customer, 'nell');
+  assert.equal(orders[7].customer, 'nellStayed');
   const regulars = orders.filter(o => !o.mismatch).map(o => o.customer);
   assert.equal(new Set(regulars).size, 6);
   const lines = orders.flatMap(o => o.customerLines).filter(line => !['say.noBag', 'say.card', 'say.cash', 'say.tap'].includes(line));

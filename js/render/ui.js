@@ -309,6 +309,8 @@
       }
     }
     text.draw(ctx, t('end.note'), MID, 380, C.muted, { align: 'center' });
+    // The seed lets anyone replay this exact shift (index.html?seed=...).
+    text.draw(ctx, t('end.seed', { seed: shift.seed }), SW - 12, SH - 20, C.muted, { align: 'right' });
     button(ctx, MID - 80, 414, 160, t('end.again'), () => {
       const url = new URL(root.location.href);
       url.searchParams.delete('seed');
