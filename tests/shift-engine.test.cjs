@@ -13,12 +13,12 @@ for (let seed = 0; seed < 500; seed++) {
   assert.equal(groupItems(orders[6].items)[0].quantity, 2);
   assert.equal(orders[0].speechStyle, 'quiet');
   assert.equal(orders[0].customerLines.length, 1);
-  assert.equal(orders[3].paymentType, 'tap');
+  assert.equal(orders[3].paymentType, 'cash');
   assert.equal(orders[4].customer, 'nell');
   assert.equal(orders[7].customer, 'nellStayed');
   const regulars = orders.filter(o => !o.mismatch).map(o => o.customer);
   assert.equal(new Set(regulars).size, 6);
-  const lines = orders.flatMap(o => o.customerLines).filter(line => !['say.noBag', 'say.card', 'say.cash', 'say.tap'].includes(line));
+  const lines = orders.flatMap(o => o.customerLines).filter(line => !['say.noBag', 'say.card', 'say.cash'].includes(line));
   assert.equal(new Set(lines).size, lines.length);
   for (const order of orders) {
     assert.ok(order.items.length >= 1 && order.items.length <= 2);

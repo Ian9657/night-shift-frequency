@@ -5,6 +5,23 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — no phone payment; Tess and Ana dressed as the worldview says
+
+- Phone (TAP) payment is gone: unusual for 2005 in most places, and the same action as
+  a card. Ordinary orders alternate card and cash; order 4 now pays cash. The phone-tap
+  pose, its arm solve, its sound and its strings are removed (291 → 247 sprites).
+- Ana, the night nurse, now wears the scrubs; Tess, the student, the navy peacoat.
+  Their colours, accents and trousers moved with the outfits.
+
+### Verified (no phone payment)
+
+- All five checks pass. The people sheet was reviewed for Tess and Ana in every pose.
+
+### Not verified (no phone payment)
+
+- Desktop and phone screenshots of the shift were captured but not looked at; nothing in
+  the store view changed.
+
 ### Changed — Lowtide is in no particular country
 
 - `docs/worldview.md` now says so: the 2005 feel comes from things remembered almost
@@ -24,8 +41,7 @@ verified and what was not.
 
 ### Not verified (no particular country)
 
-- Phone screenshots were captured by the visual check but not looked at. The TAP
-  payment (contactless) is still in the game, though it is unusual for 2005 in most places.
+- Phone screenshots were captured by the visual check but not looked at.
 
 ### Changed — the counter's front and the cash drawer
 

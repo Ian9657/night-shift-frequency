@@ -8,7 +8,6 @@
 //   'hold1'    one hand holds the open flip phone low in front, thumb on the keys
 //   'reach'    a bank card (or, with 'bill', a banknote) held out toward the clerk
 //   'swipe'    a bank card standing in the card terminal's top slot, held by its edge
-//   'tapPhone' a closed flip phone held flat over the card terminal
 //   'take'     an open hand out over the counter, palm up, for change or a receipt
 // drop: [left, right] shoulder drop in metres; forward: shoulders forward; lean:
 // [toward the viewer's right, toward the counter] in radians; shift: sideways
@@ -25,12 +24,11 @@
     'card': { gaze: 'clerk', left: ['hang'], right: ['reach'], drop: [0.006, 0], lean: [0, 0.06] },
     'cash': { gaze: 'clerk', left: ['hang'], right: ['reach', 'bill'], drop: [0.006, 0], lean: [0, 0.06] },
     'card-reader': { gaze: 'downRight', left: ['rest', [-0.08, 1.05]], right: ['swipe'], drop: [0.004, 0], lean: [0, 0.03] },
-    'phone-tap': { gaze: 'downRight', left: ['rest', [-0.08, 1.05]], right: ['tapPhone'], drop: [0.004, 0], lean: [0, 0.03] },
     'receive': { gaze: 'clerk', left: ['rest', [-0.09, 1.06]], right: ['take'], lean: [0, 0.05], shift: 0.004 },
   });
   // What the game asks a customer to do, and the pose that shows it. Waiting at the
   // counter uses the customer's own first pose (customers.js person.poses).
-  const actions = Object.freeze({ card: 'card-reader', tap: 'phone-tap', cash: 'cash', receive: 'receive' });
+  const actions = Object.freeze({ card: 'card-reader', cash: 'cash', receive: 'receive' });
   const api = { poses, actions };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else (root.NSF = root.NSF || {}).poses = api;

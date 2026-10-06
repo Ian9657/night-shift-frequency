@@ -31,7 +31,7 @@ scan every item → take payment → heat if asked (after payment) → bag or ha
 
 - Select an item, then click the scanner. Identical items scan one by one and group as
   quantities on the POS and receipt.
-- Payment matches what the customer says: card or phone on the terminal, cash into the
+- Payment matches what the customer says: card on the terminal, cash into the
   drawer under the register. The wrong device gets a reaction, not a penalty. At
   other times the drawer just opens and shuts when clicked.
 - Heating happens after payment; the lasagne must be heated before bagging.
@@ -50,7 +50,7 @@ reaction in a record order).
 | 1 | 02:12 | Coffee and sandwich, card, bagged, quiet customer | Learn scan, pay, bag |
 | 2 | 02:18 | Cash, no bag; sometimes two of one drink | Cash and direct hand-over |
 | 3 | 02:24 | Lasagne and tea, heating requested after payment | Service order |
-| 4 | 02:30 | Coffee and bread, phone payment; fully normal | The system is usually right |
+| 4 | 02:30 | Coffee and bread, cash; fully normal | The system is usually right |
 | 5 | 02:41 | **Record order A**: one cola, cash | First accountable record |
 | 6 | 02:46 | One random item | Recover the rhythm |
 | 7 | 02:52 | Two of one drink | Memory gap |
@@ -60,8 +60,8 @@ reaction in a record order).
 Ordinary orders (2, 3, 4, 6, 7) are generated from the shift seed under hard
 constraints: one catalogue for products, prices and heatability; payment types that
 always have a completable path; no repeated small talk within a shift; the first order
-adds no service variation. Soft constraints avoid repeating the previous payment type,
-the last three orders' main products and back-to-back no-bag orders. The same seed and
+adds no service variation. Card and cash alternate between ordinary orders. Soft
+constraints avoid repeating the last three orders' main products and back-to-back no-bag orders. The same seed and
 the same decisions reproduce the same shift.
 
 ## Order 5: notice, check, decide

@@ -179,11 +179,6 @@
 
   function payment(type) {
     noise({ duration: 0.01, gain: 0.0048, frequency: 1900 });
-    if (type === 'tap') {
-      tone({ frequency: 1160, duration: 0.04, type: 'triangle', gain: 0.019 });
-      tone({ frequency: 1320, duration: 0.032, type: 'triangle', gain: 0.0085, delay: 0.055 });
-      return;
-    }
     // Card: a medium approval body, then one small latch-like confirmation.
     tone({ frequency: 690, endFrequency: 720, duration: 0.105, type: 'triangle', gain: 0.018 });
     tone({ frequency: 1040, duration: 0.026, type: 'triangle', gain: 0.014, delay: 0.12 });

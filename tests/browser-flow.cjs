@@ -59,7 +59,7 @@ const { chromium, artifacts, URL_BASE, idle, click, playOrder } = require('./bro
     // Every synthesised sound runs against a real AudioContext without throwing.
     const failures = await page.evaluate(() => {
       const a = NSF.audio, failed = [];
-      const calls = [['scan'], ['payment', 'card'], ['payment', 'tap'], ['anomaly'], ['cashPaper'], ['cashDrawer'], ['microwaveStart'],
+      const calls = [['scan'], ['payment', 'card'], ['anomaly'], ['cashPaper'], ['cashDrawer'], ['microwaveStart'],
         ['microwaveDone'], ['receipt'], ['bag'], ['dialogueTick', 'a'], ['radioTune'], ['radioVoice', 800, true], ['radioStation', '87.7']];
       for (const [name, ...args] of calls) {
         try { a[name](...args); } catch (error) { failed.push(name + ': ' + error.message); }

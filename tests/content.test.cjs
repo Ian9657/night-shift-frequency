@@ -44,7 +44,7 @@ for (const ch of '×↑↓0123456789') assert.ok(glyphs[ch], 'font lacks ' + ch)
 // No orphaned strings: each key is referenced literally, as '@key', by the story,
 // or through a dynamic prefix the runtime builds from data.
 const storyText = JSON.stringify(story);
-const dynamic = /^(pos|say)\.(cash|card|tap)$|^(origin|verify)\./;
+const dynamic = /^(pos|say)\.(cash|card)$|^(origin|verify)\./;
 for (const key of Object.keys(strings)) {
   const used = code.includes(`'${key}'`) || code.includes('@' + key) || storyText.includes(`"${key}"`) || dynamic.test(key);
   assert.ok(used, 'unused string ' + key);

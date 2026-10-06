@@ -17,7 +17,7 @@
 
   const F = layout.fixtures;
   const fixtureDefault = { scanner: F.scanner.sprite, terminal: F.terminal.sprite, microwave: F.microwave.sprite, drawer: F.drawer.sprite };
-  // The customer's `action` (poses.js actions: card, tap, cash, receive) or null
+  // The customer's `action` (poses.js actions: card, cash, receive) or null
   // while they wait at the counter in their own pose.
   const scene = {
     customer: { id: orders[0].customer, action: null, dx: 0, dy: 0, visible: true },
@@ -221,11 +221,11 @@
     if (isPaymentReady()) scheduleWait('waitAtPayment', 4200, isPaymentReady);
   }
 
-  // Card or phone at the terminal: the customer reaches over, the terminal approves.
+  // Card at the terminal: the customer reaches over, the terminal approves.
   async function terminalPayment(o) {
     const c = scene.customer;
     await time.wait(140);
-    c.action = o.paymentType === 'tap' ? 'tap' : 'card';
+    c.action = 'card';
     await time.wait(180);
     scene.fixtures.terminal = F.terminal.busy;
     audio.payment(o.paymentType);

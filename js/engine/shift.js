@@ -39,8 +39,8 @@
     for (let i = 0; i < 8; i++) {
       const record = story.records[i];
       const previous = result[i - 1];
-      const paymentType = i === 0 ? 'card' : i === 1 || record ? 'cash' : i === 3 ? 'tap'
-        : pick(['card', 'cash', 'tap'].filter(p => p !== previous.paymentType));
+      const paymentType = i === 0 ? 'card' : i === 1 || record ? 'cash'
+        : previous.paymentType === 'card' ? 'cash' : 'card';
       const bagPreference = i === 1 ? 'no' : i > 2 && !record && previous.bagPreference !== 'no' && rng() < .25 ? 'no' : 'yes';
       let items;
       if (record) items = [product('cola')];
@@ -77,7 +77,6 @@
         items, requiresHeat: i === 2, context: context?.name || 'record',
         customer: record ? record.customer : regulars[i],
         speechStyle: context?.style || 'brief',
-        paymentProp: paymentType === 'tap' ? 'phone' : 'card',
         propColor: pick(['#5f8f6a', '#7c3340', '#3a5a9a']),
         customerLines: record ? [...record.lines]
           : [...(context.style === 'quiet' ? [paymentLine] : context.lines), ...(bagPreference === 'no' ? ['say.noBag'] : [])],

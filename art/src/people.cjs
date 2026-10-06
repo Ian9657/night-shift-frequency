@@ -430,7 +430,6 @@ function fromCanvas(x, y, Z) {
 
 // Props in metres (half extents): each half of a 2005 flip phone, and a bank card.
 const FLIP = [0.0235, 0.0425, 0.0045], CARD = [0.043, 0.027, 0.0012], BILL = [0.075, 0.034, 0.0008];
-const CLOSED = [0.0235, 0.045, 0.0095];                              // a flip phone folded shut
 const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
 // An open flip phone hinged at `hinge`: the keypad half runs along `low`, the lid
 // along `lid`; `inner` is the keypad's face (the lid's screen faces back along it).
@@ -560,15 +559,6 @@ function armPose(R, side, [mode, at]) {
       const hand = frame([-side, -0.45, -0.25], [0, 0.35, 1]);
       const prop = { kind: 'card', c: card, axes: [[1, 0, 0], [0, 1, 0], [0, 0, 1]], above: top };
       return solve(null, [side * 0.6, -1, 0.4], { ...hand, curl: [1, 0.8], thumbTip: v3.add(pinch, [0, 0, -0.007]) }, prop, { at: pinch, reach: 0.08 * hs * R.handLength });
-    }
-    case 'tapPhone': {
-      // A closed flip phone held flat just over the terminal, the hand at its side.
-      const t = space.fixtures.terminal[0], top = space.counter.y + t.h;
-      const c = [t.x, top + 0.03, t.z];
-      const grip = v3.add(c, [side * (CLOSED[0] + 0.004), 0.004, 0.01]);
-      const hand = frame([-side, -0.4, -0.2], [0, 0.4, 1]);
-      const prop = { kind: 'phone', halves: [{ part: 'lid', c, axes: [[1, 0, 0], [0, 0, -1], [0, -1, 0]], half: CLOSED }] };
-      return solve(null, [side * 0.6, -1, 0.4], { ...hand, curl: [0.9, 0.7], thumbTip: v3.add(grip, [0, 0.008, -0.008]) }, prop, { at: grip, reach: 0.08 * hs * R.handLength });
     }
     case 'take': {
       // The hand out over the counter, palm up and loosely cupped, fingers toward
@@ -819,7 +809,7 @@ const GARMENTS = {
     },
   },
 
-  // Tess: hospital scrubs with short sleeves over a navy long-sleeved top, pen, ID badge.
+  // Ana: hospital scrubs with short sleeves over a navy long-sleeved top, pen, ID badge.
   scrubs: {
     pad: 0.008, sleeve: 'under',
     paint(hit, R, level, { x, y, z, front, arm }) {
@@ -855,7 +845,7 @@ const GARMENTS = {
     },
   },
 
-  // Ana: double-breasted peacoat, collar turned up, wide lapels, two rows of silver buttons.
+  // Tess: double-breasted peacoat, collar turned up, wide lapels, two rows of silver buttons.
   peacoat: {
     pad: 0.022, long: true, extra: standCollar(0.065, 0.032),
     paint(hit, R, level, { x, y, z, front }) {
@@ -1076,11 +1066,11 @@ function poseParts(R, pose, garment, { flat = false } = {}) {
     if (around.every(c => c && c === around[0]) && around[0] !== colors[i] && !Object.values(OUTLINE).includes(colors[i]) && colors[i] !== 'skin1') tidy[i] = around[0];
   }
   const back = canvas(), front = canvas(), counter = canvas(), over = canvas();
-  const outSides = new Set(arms.filter(A => ['reach', 'swipe', 'tapPhone', 'take'].includes(A.mode)).map(A => A.side));
+  const outSides = new Set(arms.filter(A => ['reach', 'swipe', 'take'].includes(A.mode)).map(A => A.side));
   hits.forEach((hit, i) => {
     if (!hit) return;
     const forward = HELD.has(hit.tag) || frontSides.has(sideOf(hit.tag));
-    const held = hit.tag === 'card' || hit.tag === 'bill' || outSides.has(sideOf(hit.tag)) || (hit.tag === 'phone' && arms.some(A => A.mode === 'tapPhone'));
+    const held = hit.tag === 'card' || hit.tag === 'bill' || outSides.has(sideOf(hit.tag));
     const layer = hit.P[2] < space.counter.far ? (held ? over : counter) : forward ? front : back;
     layer.px(i % W, Math.floor(i / W), tidy[i]);
   });

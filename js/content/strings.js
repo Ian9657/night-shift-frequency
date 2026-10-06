@@ -36,7 +36,6 @@
     'pos.reading': 'READING',
     'pos.cash': 'CASH',
     'pos.card': 'CARD',
-    'pos.tap': 'TAP',
     'pos.rescanPending': 'RE-SCAN PENDING',
     'pos.recordPending': 'TAP SCREEN: RECORD',
     'pos.recordSaved': 'RECORD SAVED',
@@ -90,7 +89,6 @@
     // Customer lines
     'say.cash': 'Cash.',
     'say.card': 'Card.',
-    'say.tap': "I'll tap.",
     'say.noBag': 'No bag.',
     'say.earlyPayment': 'These first.',
     'say.earlyBag': 'Not yet.',
