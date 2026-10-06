@@ -46,7 +46,11 @@
   // Static things on the counter (not clickable): drawn into the counter layer.
   const decor = Object.freeze({
     cctv: { x: -1.0, z: 1.08, w: 0.3, h: 0.24, d: 0.26, y: counter.y + 0.27 },
-    candyRack: { x: 0.45, z: 1.11, w: 0.3, h: 0.13, d: 0.05 },
+    // Impulse buys on the customer's edge: gum in a two-tier rack, a tray of lighters,
+    // a charity box.
+    candyRack: { x: 0.44, z: 1.1, w: 0.22, h: 0.02, d: 0.06 },
+    lighters: { x: 0.6, z: 1.1, w: 0.07, h: 0.025, d: 0.05 },
+    donation: { x: -0.08, z: 1.1, w: 0.07, h: 0.1, d: 0.06 },
   });
 
   // The clerk's own things, nearest the camera.

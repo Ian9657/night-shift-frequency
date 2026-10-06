@@ -259,14 +259,34 @@ function counterLayer() {
   s.quad([-room.halfW, counter.y - counter.thick, counter.near], [2 * room.halfW, 0, 0], [0, counter.thick, 0], [0, 0, -1], () => 'top2', TOP);
   const UNDER = s.object('under', { outline: false });
   s.quad([-room.halfW, 0, counter.near + 0.06], [2 * room.halfW, 0, 0], [0, counter.y - counter.thick, 0], [0, 0, -1], (u, v, P, sx, sy) => ((sx + sy) % 2 ? 'wall0' : 'ink'), UNDER);
-  const { candyRack } = space.decor;
-  s.box(candyRack, RAMP.steel, (f, u, t) => {
-    if (f === 'top') return ['red2', 'buoy2', 'green2', 'blue2', 'yellow2', 'pink1'][Math.floor(u * 12) % 6];
-    if (f === 'front') return t > 0.8 ? RAMP.steel : t > 0.55 ? RAMP[['red', 'yellow', 'green', 'blue', 'pink', 'buoy'][Math.floor(u * 10) % 6]] : (u * 10) % 1 < 0.15 ? 'steel5' : 'steel1';
-    return null;
-  }, { name: 'candy rack' });
+  const { candyRack, lighters, donation } = space.decor;
+  const PACKS = ['red', 'green', 'blue', 'yellow', 'pink', 'buoy', 'cyan', 'violet'];
+  // Gum: a steel tray with two tiers of packs, each with a white wrapper band.
+  s.box(candyRack, RAMP.steel, null, { name: 'candy rack' });
+  for (const row of [0, 1]) {
+    s.box({ x: candyRack.x, z: candyRack.z - 0.012 + row * 0.022, w: candyRack.w, h: 0.03 * row + 0.002, d: 0.02, y: counter.y + candyRack.h }, RAMP.steel, null, { name: 'candy rack' });
+    for (let i = 0; i < 7; i++) {
+      const ramp = RAMP[PACKS[(i * 3 + row * 5) % PACKS.length]];
+      s.box({ x: candyRack.x - candyRack.w / 2 + 0.017 + i * 0.031, z: candyRack.z - 0.012 + row * 0.022, w: 0.024, h: 0.06, d: 0.012, y: counter.y + candyRack.h + 0.03 * row + 0.002 },
+        ramp, (f, u, t) => (f === 'front' && t > 0.4 && t < 0.62 ? 'white' : null), { name: 'gum' });
+    }
+  }
+  // Disposable lighters standing in a tray.
+  s.box(lighters, RAMP.dark, null, { name: 'lighters' });
+  for (let i = 0; i < 8; i++) {
+    const row = Math.floor(i / 4), col = i % 4;
+    s.box({ x: lighters.x - 0.024 + col * 0.016, z: lighters.z + 0.012 - row * 0.022, w: 0.011, h: 0.06, d: 0.009, y: counter.y + 0.004 },
+      RAMP[['red', 'yellow', 'blue', 'green', 'pink', 'buoy', 'cyan', 'violet'][(i * 5) % 8]], (f, u, t) => (t > 0.86 ? 'steel5' : null), { name: 'lighter' });
+  }
+  // A clear charity box: coins in the bottom, the slot on top, a paper label.
+  s.box(donation, RAMP.cyan, (f, u, t) => {
+    if (f === 'top') return t > 0.4 && t < 0.6 && u > 0.25 && u < 0.75 ? 'ink' : 'cyan3';
+    if (t < 0.28) return hash(Math.floor(u * 14), Math.floor(t * 10) + (f === 'front' ? 0 : 7)) < 0.6 ? 'yellow2' : 'steel5';
+    if (f === 'front' && t > 0.5 && t < 0.78 && u > 0.15 && u < 0.85) return Math.hypot(u - 0.5, (t - 0.64) * 1.6) < 0.12 ? 'red2' : 'paper3';
+    return f === 'front' ? 'cyan2' : 'cyan1';
+  }, { name: 'donation box' });
   // Contact shadows of everything that stands on the counter (not the drawer below it).
-  const footprints = [...Object.values(space.fixtures).flat(), ...Object.values(space.personal), candyRack].filter(f => f.y === undefined);
+  const footprints = [...Object.values(space.fixtures).flat(), ...Object.values(space.personal), ...Object.values(space.decor)].filter(f => f.y === undefined);
   s.contactShadows(TOP, footprints);
   s.outline();
   return s.layer('main');

@@ -5,6 +5,20 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — impulse buys on the customer's edge
+
+- The flat strip of colours is a two-tier gum rack: packs built one by one, each with a
+  white wrapper band. Beside it, a tray of disposable lighters; at the far edge left of
+  the lane, a clear charity box with coins and a paper label. None is clickable.
+
+### Verified (impulse buys)
+
+- All five checks pass. The desktop screenshot was reviewed close up.
+
+### Not verified (impulse buys)
+
+- Goods waiting at the far lane and the customer's hands can hide the charity box.
+
 ### Added — months of night shifts on the counter
 
 - On the clerk's right: the staff rota on a clipboard (the same signature in every
