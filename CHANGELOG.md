@@ -5,6 +5,22 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — denser shelf packs and price strips
+
+- Reworked the left-wall shelf stock into smaller, denser package groups and
+  added narrow customer-facing price strips with sparse printed marks. Shelf
+  positions, palette, room layout and interactions are unchanged.
+
+### Verified (shelves)
+
+- Rebuilt the indexed sprite bundle; `shift-engine`, `content` and `art` pass.
+- Inspected the native-pixel store preview.
+
+### Not verified (shelves)
+
+- Browser-flow and visual screenshot checks remain unavailable because Playwright
+  is not installed in this environment.
+
 ### Changed — drinks fridge glass and stock
 
 - Reworked the drink fridge's visible stock into narrower, denser bottles with

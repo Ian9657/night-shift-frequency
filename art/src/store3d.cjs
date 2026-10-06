@@ -184,15 +184,19 @@ function sides() {
   SHELVES.forEach((shelf, row) => {
     s.box({ x: G.x, z: gz, w: 0.36, h: 0.025, d: gd, y: shelf.y }, RAMP.steel,
       (f, u) => (f === 'right' ? ((u * 40) % 1 < 0.22 ? 'buoy2' : 'white') : null), { name: 'shelf' });
+    // A narrow price strip on the customer-facing shelf edge. Tiny alternating
+    // marks suggest printed prices without introducing unreadable text.
+    s.box({ x: G.x + 0.028, z: gz, w: 0.014, h: 0.016, d: gd - 0.02, y: shelf.y + 0.028 }, RAMP.paper,
+      (f, u, t) => f === 'right' && ((Math.floor(u * 36) + row) % 7 < 2) ? 'blue2' : null, { name: 'price strip' });
     let z = G.z0 + 0.01, n = 0;
     while (z < G.z1 - shelf.w) {
       const r = hash(row * 31 + 7, n++);
       const ramp = RAMP[PACKS[Math.floor(r * PACKS.length)]];
-      const facings = 2 + Math.floor(r * 3);
-      const h = shelf.h * (0.85 + hash(n, row) * 0.2);
+      const facings = 3 + Math.floor(r * 3);
+      const h = shelf.h * (0.68 + hash(n, row) * 0.16);
       for (let k = 0; k < facings && z < G.z1 - shelf.w; k++) {
         for (let level = 0; level < (shelf.kind === 'cups' ? 2 : 1); level++) {
-          s.box({ x: G.x + 0.02, z: z + shelf.w / 2, w: 0.24, h, d: shelf.w * 0.9, y: shelf.y + 0.025 + level * h }, ramp, (f, u, t) => {
+          s.box({ x: G.x + 0.02, z: z + shelf.w / 2, w: 0.19, h, d: shelf.w * 0.9, y: shelf.y + 0.025 + level * h }, ramp, (f, u, t) => {
             if (f !== 'right') return f === 'top' ? ramp : null;
             if (shelf.kind === 'cups') return t > 0.85 ? RAMP.paper : t > 0.35 && t < 0.6 ? ramp : RAMP.paper;
             if (t > 0.9) return shelf.kind === 'bags' ? 'steel6' : null;
