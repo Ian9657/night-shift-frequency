@@ -1,0 +1,57 @@
+Night Shift Frequency is licensed in three parts.
+
+================================================================================
+1. Source code: MIT License
+================================================================================
+
+Applies to everything in this repository that is not listed in part 2 or part 3,
+including index.html, the code in js/ (other than the files listed in part 2),
+art/tools/ and tests/.
+
+MIT License
+
+Copyright (c) 2026 Ian9657
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+================================================================================
+2. Artwork, story and text: all rights reserved
+================================================================================
+
+Copyright (c) 2026 Ian9657. All rights reserved.
+
+The game's artwork, characters, setting, story and written text are not
+licensed for reuse. This covers:
+
+- art/src/, art/overrides/, art/palette.cjs, art/palette.gpl
+- assets/sprite-data.js (the built artwork)
+- js/content/strings.js, js/content/story.js, js/content/customers.js
+- docs/worldview.md, docs/game-design.md
+
+You may view these files and play the game. You may not copy, modify,
+redistribute or reuse them, in whole or in part, without written permission.
+
+================================================================================
+3. Font: SIL Open Font License 1.1
+================================================================================
+
+The pixel font is a subset of Fusion Pixel Font by TakWolf
+(https://github.com/TakWolf/fusion-pixel-font), modified only by removing
+glyphs. It remains under the SIL Open Font License 1.1; see art/font/OFL.txt.
+This covers art/font/ and the glyph data baked from it in assets/font-data.js.

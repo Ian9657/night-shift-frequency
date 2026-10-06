@@ -16,16 +16,22 @@
   and record origin separately from verification method.
 - Keep normal gameplay in the counter scene. Record evidence and choices belong
   on the POS; do not add an external HUD or reveal record choices before rescan.
-- Keep the root limited to `index.html`, README, project instructions/configuration
-  and the `art/`, `assets/`, `docs/`, `js/`, `tests/` directories. Build tools live in
-  `art/tools/`. Test
-  screenshots and art review sheets belong under `tests/artifacts` and are disposable.
+- Keep the root limited to `index.html`, `README.md`, `AGENTS.md`, `CONTRIBUTING.md`,
+  `CHANGELOG.md`, `LICENSE`, git configuration and the `art/`, `assets/`, `docs/`, `js/`,
+  `tests/` directories. Build tools live in `art/tools/`. Test screenshots and art review
+  sheets belong under `tests/artifacts` and are disposable.
 - Run the full verification list after major interaction or cleanup changes.
   Check desktop and phone screenshots when presentation changes. Report anything
   not verified.
-- Update README and `docs/build-notes.md` with the actual implementation; do not
-  describe planned or removed features as active. Story changes must stay
-  consistent with `docs/worldview.md`.
+- Each document has one job; keep it current and don't duplicate between them:
+  `README.md` (players), `CONTRIBUTING.md` (workflow), `docs/architecture.md` (how the
+  code is organised), `docs/game-design.md` (rules of the current game),
+  `docs/worldview.md` (world and story, including the target design), `CHANGELOG.md`
+  (what changed and how it was verified). Add a CHANGELOG entry for every substantial
+  change, including what was not verified. Never describe planned or removed features
+  as active outside `docs/worldview.md`'s clearly marked target sections.
+- `LICENSE` lists which files are code (MIT) and which are artwork, story and text (all
+  rights reserved). Classify new files there when they don't fit an existing entry.
 
 ## Pixels, art and text
 
