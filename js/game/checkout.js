@@ -15,12 +15,15 @@
     reportShown: false, busy: false, modeOverride: null, reactionCounts: {}, dialogueFlags: new Set(),
   };
 
-  const fixtureDefault = { scanner: 'scanner', terminal: 'terminal', microwave: 'microwave' };
+  const F = layout.fixtures;
+  const fixtureDefault = { scanner: F.scanner.sprite, terminal: F.terminal.sprite, microwave: F.microwave.sprite };
+  // The customer's `action` (poses.js actions: card, tap, cash, receive) or null
+  // while they wait at the counter in their own pose.
   const scene = {
-    customer: { id: orders[0].customer, pose: 'idle', dx: 0, dy: 0, visible: true, prop: null },
+    customer: { id: orders[0].customer, action: null, dx: 0, dy: 0, visible: true },
     products: new Map(),
     extras: [],
-    fixtures: { ...fixtureDefault, drawer: 0, paper: 0 },
+    fixtures: { ...fixtureDefault, paper: 0 },
     mood: 'normal',
     cues: new Set(),
   };
@@ -89,10 +92,14 @@
   }
   function removeExtra(extra) { scene.extras = scene.extras.filter(e => e !== extra); }
 
-  function handPoint(pose = 'reach') {
-    const arm = customers.frontArm(pose);
-    const [ax, ay] = sprites.anchor(arm, 'hand');
-    return { x: layout.customer.x + scene.customer.dx + ax, y: layout.customer.y + scene.customer.dy + ay };
+  // Where the customer's hand is while doing `action`: the held note for cash, the
+  // open palm when receiving.
+  function handPoint(action) {
+    const c = scene.customer;
+    const [layer] = customers.parts(c.id, customers.poseFor(c.id, action)).over;
+    const [ax, ay] = sprites.anchor(layer.sprite, 'at');
+    const [hx, hy] = sprites.anchor(layer.sprite, action === 'receive' ? 'palm' : 'hand');
+    return { x: layout.customer.x + c.dx + ax + hx, y: layout.customer.y + c.dy + ay + hy };
   }
 
   function centred(sprite, point) {
@@ -179,10 +186,10 @@
     state.busy = true;
     state.modeOverride = 'pos.reading';
     const product = scene.products.get(item.id);
-    const beam = centred(item.sprite, layout.fixtures.scanner.beam);
+    const beam = centred(item.sprite, F.scanner.beam);
     await move(product, beam.x, beam.y, 115);
     product.moving = true;
-    scene.fixtures.scanner = 'scanner-reading';
+    scene.fixtures.scanner = F.scanner.busy;
     audio.scan();
     if (o.mismatch) {
       // The neighbouring frequency bleeds through the scanner for a moment.
@@ -195,7 +202,7 @@
     if (!wasScanned) state.scannedIds.push(item.id);
     state.selectedId = null;
     await time.wait(45);
-    scene.fixtures.scanner = 'scanner';
+    scene.fixtures.scanner = F.scanner.sprite;
     const home = homes().get(item.id);
     await move(product, home.x, home.y, 135);
 
@@ -214,57 +221,45 @@
     if (isPaymentReady()) scheduleWait('waitAtPayment', 4200, isPaymentReady);
   }
 
+  // Card or phone at the terminal: the customer reaches over, the terminal approves.
   async function terminalPayment(o) {
     const c = scene.customer;
-    const prop = { sprite: o.paymentProp, slots: customers.propColors(o.propColor) };
-    for (const [pose, ms, withProp] of [['idle', 140, false], ['reach', 180, true], ['low', 300, true], ['reach', 180, true], ['idle', 120, false]]) {
-      c.pose = pose;
-      c.prop = withProp ? prop : null;
-      if (pose === 'low') {
-        scene.fixtures.terminal = 'terminal-approved';
-        audio.payment(o.paymentType);
-      }
-      await time.wait(ms);
-    }
-    scene.fixtures.terminal = 'terminal';
+    await time.wait(140);
+    c.action = o.paymentType === 'tap' ? 'tap' : 'card';
+    await time.wait(180);
+    scene.fixtures.terminal = F.terminal.busy;
+    audio.payment(o.paymentType);
+    await time.wait(480);
+    scene.fixtures.terminal = F.terminal.sprite;
+    c.action = null;
+    await time.wait(120);
   }
 
+  // Cash: the customer holds out a note, it passes to the change tray; the drawer
+  // (below the counter, out of view) is heard opening.
   async function cashPayment() {
     const c = scene.customer;
-    c.pose = 'reach';
-    c.prop = { sprite: 'bill' };
-    await time.wait(90);
+    c.action = 'cash';
+    await time.wait(160);
     audio.cashPaper();
-    const hand = handPoint();
-    c.prop = null;
-    const bill = addExtra('bill', hand.x - 7, hand.y - 3);
-    const drop = layout.fixtures.tray.drop;
-    const tx = drop.x - 7, ty = drop.y - 3;
-    const handoff = { x: Math.round(bill.x + (tx - bill.x) * 0.42), y: Math.round(bill.y + (ty - bill.y) * 0.18) };
-    time.after(300, () => { c.pose = 'idle'; });
+    const hand = handPoint('cash');
+    const start = centred('bill', hand), end = centred('bill', F.tray.drop);
+    c.action = null;
+    const bill = addExtra('bill', start.x, start.y);
+    const handoff = { x: Math.round(bill.x + (end.x - bill.x) * 0.42), y: Math.round(bill.y + (end.y - bill.y) * 0.18) };
     let contacted = false;
-    let drawer = Promise.resolve();
     const contact = () => {
       if (contacted) return;
       contacted = true;
       audio.cashDrawer();
-      drawer = openDrawer();
     };
     const timer = time.after(400, contact);
-    await move(bill, tx, ty, 540, [{ t: 0.12, x: bill.x, y: bill.y }, { t: 0.48, ...handoff }, { t: 0.58, ...handoff }, { t: 0.86, x: tx, y: ty }]);
+    await move(bill, end.x, end.y, 540, [{ t: 0.12, x: bill.x, y: bill.y }, { t: 0.48, ...handoff }, { t: 0.58, ...handoff }, { t: 0.86, ...end }]);
     time.cancel(timer);
     contact();
     await time.wait(95);
     removeExtra(bill);
-    c.pose = 'idle';
-    await drawer;
-  }
-
-  async function openDrawer() {
-    for (const step of [3, 6, 6, 3, 0]) {
-      scene.fixtures.drawer = step;
-      await time.wait(84);
-    }
+    await time.wait(300);
   }
 
   async function printReceipt() {
@@ -337,12 +332,12 @@
     await move(product, cavity.x, cavity.y, 145);
     product.moving = true;
     product.hidden = true;
-    scene.fixtures.microwave = 'microwave-heating';
+    scene.fixtures.microwave = F.microwave.busy;
     audio.microwaveStart();
     await time.wait(500);
     state.heatedIds.push(item.id);
     state.selectedId = null;
-    scene.fixtures.microwave = 'microwave';
+    scene.fixtures.microwave = F.microwave.sprite;
     audio.microwaveDone();
     product.hidden = false;
     const home = homes().get(item.id);
@@ -370,14 +365,16 @@
     state.busy = true;
     const opening = sayOnce('bagStarted');
     await time.wait(opening ? 120 : 0);
-    const stack = layout.fixtures.bags, pack = stack.packing;
-    const bagSprite = addExtra('bag-open', stack.x + 6, stack.y - 12);
+    // A bag comes off the stack and stands open at the packing place; the goods go in.
+    const { stack, packing } = F.bags, open = sprites.size('bag-open'), full = sprites.size('bag-full');
+    const standing = { x: packing.x - Math.floor(open.w / 2), y: packing.y - open.h };
+    const bagSprite = addExtra('bag-open', stack.x - Math.floor(open.w / 2), stack.y - open.h);
     audio.bag();
-    await move(bagSprite, pack.x, pack.y, 290, [{ t: 0.45, x: stack.x + 3, y: pack.y - 9 }]);
+    await move(bagSprite, standing.x, standing.y, 290, [{ t: 0.45, x: bagSprite.x, y: standing.y - 9 }]);
     await time.wait(80);
     for (const item of scannedItems()) {
       const product = scene.products.get(item.id);
-      const target = centred(item.sprite, { x: pack.x + 13, y: pack.y + 12 });
+      const target = centred(item.sprite, { x: packing.x, y: packing.y - Math.floor(open.h * 0.6) });
       await move(product, target.x, target.y, 250);
       product.moving = true;
       product.hidden = true;
@@ -386,8 +383,8 @@
     const line = sayReaction('bag');
     await time.wait(Math.max(360, dialogue.readTime(line)));
     bagSprite.sprite = 'bag-full';
-    bagSprite.x -= 1;
-    bagSprite.y -= 3;
+    bagSprite.x = packing.x - Math.floor(full.w / 2);
+    bagSprite.y = packing.y - full.h;
     audio.bag();
     await time.wait(90);
     state.bagged = true;
@@ -406,8 +403,8 @@
     }
     dialogue.say(o.exitLine ? [o.exitLine] : []);
     await time.wait(200);
-    scene.customer.pose = 'reach';
-    const hand = handPoint();
+    scene.customer.action = 'receive';
+    const hand = handPoint('receive');
     if (handoff === 'bag') {
       const target = centred('bag-full', hand);
       await move(bagSprite, target.x, target.y - 6, 250);
@@ -423,7 +420,7 @@
     }
     state.bagged = true;
     await time.wait(140);
-    scene.customer.pose = 'idle';
+    scene.customer.action = null;
     if (o.finalReport) {
       state.busy = false;
       return;
@@ -453,8 +450,8 @@
       modeOverride: null, reactionCounts: {}, dialogueFlags: new Set(),
     });
     scene.extras = [];
-    scene.fixtures = { ...fixtureDefault, drawer: 0, paper: 0 };
-    scene.customer = { id: order().customer, pose: 'idle', dx: layout.customer.walk, dy: 0, visible: true, prop: null };
+    scene.fixtures = { ...fixtureDefault, paper: 0 };
+    scene.customer = { id: order().customer, action: null, dx: layout.customer.walk, dy: 0, visible: true };
     cueSignature = '';
     resetProducts();
   }
@@ -539,9 +536,10 @@
   function targets() {
     const list = [];
     if (state.phase !== 'shift') return list;
-    for (const [name, fixture] of Object.entries(layout.fixtures)) {
-      const size = sprites.size(fixture.sprite);
-      list.push({ name, sprite: scene.fixtures[name] || fixture.sprite, x: fixture.x, y: fixture.y, w: size.w, h: size.h });
+    for (const [name, fixture] of Object.entries(F)) {
+      const current = scene.fixtures[name] || fixture.sprite, size = sprites.size(current);
+      const [x, y] = sprites.anchor(current, 'at');
+      list.push({ name, sprite: current, x, y, w: size.w, h: size.h });
     }
     if (!state.bagged) {
       for (const product of scene.products.values()) {
@@ -563,9 +561,8 @@
       state.busy = false;
       state.modeOverride = null;
       scene.extras = [];
-      scene.customer.pose = 'idle';
-      scene.customer.prop = null;
-      scene.fixtures = { ...fixtureDefault, drawer: 0, paper: scene.fixtures.paper };
+      scene.customer.action = null;
+      scene.fixtures = { ...fixtureDefault, paper: scene.fixtures.paper };
       for (const product of scene.products.values()) {
         product.moving = false;
         product.flicker = false;

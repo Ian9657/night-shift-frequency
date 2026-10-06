@@ -1,42 +1,43 @@
-// Draws the 480x270 world, scaled 2x onto the 960x540 canvas.
+// Draws the first-person store (480x270 world pixels, 2x on the 960x540 canvas)
+// back to front: the back wall and view, the side shelving, the customer behind the
+// counter, the counter, the customer's hands on it, the machines, the goods, hands
+// held out over the machines, things in motion, and the clerk's own things nearest.
 (function (root) {
   'use strict';
-  const { sprites, layout, customers, time, radio } = root.NSF;
+  const { sprites, layout, customers, space, time, radio } = root.NSF;
   const CUE = '#f5d873', SELECTED = '#f1f5e6', HEAT = '#eda04c';
   const LED = {
     8: ['###', '#.#', '###', '#.#', '###'], 7: ['###', '..#', '.#.', '.#.', '.#.'],
     6: ['###', '#..', '###', '#.#', '###'], '.': ['.', '.', '.', '.', '#'],
   };
+  const AXIS = space.customer.centre - 0.5;                       // the customer canvas's mirror axis
 
   function sprite(ctx, name, x, y, options = {}) {
     const image = sprites.get(name, options);
     const pad = options.outline ? 1 : 0;
-    if (options.flip) {
-      ctx.save();
-      ctx.translate(x + customers.FLIP_AXIS * 2 + 1, y);
-      ctx.scale(-1, 1);
-      ctx.drawImage(image, -pad, -pad);
-      ctx.restore();
-    } else {
-      ctx.drawImage(image, Math.round(x) - pad, Math.round(y) - pad);
-    }
+    ctx.drawImage(image, Math.round(x) - pad, Math.round(y) - pad);
+  }
+  // A sprite at its own 'at' anchor (fixtures and full-screen layers).
+  function placed(ctx, name, options) {
+    const [x, y] = sprites.anchor(name, 'at') || [0, 0];
+    sprite(ctx, name, x, y, options);
   }
 
   function rain(ctx) {
-    const w = layout.window, m = w.mullion;
-    const gx = w.x + 5, gy = w.y + 5, gw = w.w - 10, gh = layout.counterTop - gy;
-    ctx.fillStyle = 'rgba(109,143,179,0.5)';
-    for (let i = 0; i < 70; i++) {
+    const [gx, gy] = sprites.anchor('store-back', 'window'), [gw, gh] = sprites.anchor('store-back', 'windowSize');
+    const [mx, mw] = sprites.anchor('store-back', 'mullion');
+    ctx.fillStyle = 'rgba(109,143,179,0.45)';
+    for (let i = 0; i < 80; i++) {
       const x = gx + (i * 37 + Math.floor(i / 7) * 11) % gw;
       const y = gy + Math.floor((i * 53 + time.now * (0.09 + (i % 3) * 0.02)) % gh);
-      if (x >= m.x - 1 && x <= m.x + m.w) continue;
+      if (x >= mx - 1 && x <= mx + mw) continue;
       ctx.fillRect(x, y, 1, Math.min(3, gy + gh - y));
     }
   }
 
   function clockHands(ctx, clock) {
     const [h, m] = clock.split(':').map(Number);
-    const { x: cx, y: cy, hour, minute } = layout.clock;
+    const [cx, cy] = sprites.anchor('store-back', 'clock');
     const hand = (angle, length, color) => {
       const radians = angle * Math.PI / 180;
       const ex = Math.round(cx + Math.sin(radians) * length), ey = Math.round(cy - Math.cos(radians) * length);
@@ -44,87 +45,100 @@
       ctx.fillStyle = color;
       for (let s = 0; s <= steps; s++) ctx.fillRect(Math.round(cx + (ex - cx) * s / steps), Math.round(cy + (ey - cy) * s / steps), 1, 1);
     };
-    hand(m * 6, minute, '#3f4b54');
-    hand((h % 12) * 30 + m / 2, hour, '#0e1214');
+    hand(m * 6, 9, '#3f4b54');
+    hand((h % 12) * 30 + m / 2, 6, '#0e1214');
     ctx.fillStyle = '#c8403a';
     ctx.fillRect(cx, cy, 1, 1);
   }
 
   function radioDigits(ctx, station) {
     const d = layout.fixtures.radio.display;
+    ctx.fillStyle = '#16120c';
+    ctx.fillRect(d.x + 1, d.y + 1, d.w - 2, d.h - 2);
     ctx.fillStyle = station === '87.7' ? '#63d4d0' : '#ff8466';
-    let x = d.x + 3;
+    let x = d.x + Math.floor((d.w - 15) / 2);
     for (const ch of station) {
       const glyph = LED[ch];
-      glyph.forEach((row, j) => [...row].forEach((c, i) => { if (c === '#') ctx.fillRect(x + i, d.y + 1 + j, 1, 1); }));
+      glyph.forEach((row, j) => [...row].forEach((c, i) => { if (c === '#') ctx.fillRect(x + i, d.y + Math.floor((d.h - 5) / 2) + j, 1, 1); }));
       x += glyph[0].length + 1;
     }
   }
 
-  function blinking(period = 800, on = 520) { return time.now % period < on; }
+  const blinking = (period = 800, on = 520) => time.now % period < on;
 
-  // Soft contact shadow under something resting on the counter.
+  // Soft contact shadow under something standing on the counter.
   function shadow(ctx, x, w, foot) {
-    ctx.fillStyle = 'rgba(14,18,20,0.3)';
+    ctx.fillStyle = 'rgba(14,18,20,0.28)';
     ctx.fillRect(x + 1, foot - 1, w - 2, 2);
-    ctx.fillRect(x + 3, foot + 1, Math.max(1, w - 6), 1);
+  }
+
+  // The customer: every part at its place on the customer canvas; parts that follow
+  // the figure (head, hair, face) move with its height and lean, hair may mirror.
+  function customer(ctx, game, pass, mood) {
+    const c = game.scene.customer;
+    if (!c.visible) return;
+    const person = customers.customers[c.id].person;
+    const pose = customers.poseFor(c.id, c.action);
+    const list = customers.parts(c.id, pose);
+    const [hx, hy] = sprites.anchor(list.behind.find(p => p.sprite.startsWith('person-back-')).sprite, 'head') || [0, 0];
+    const ox = layout.customer.x + c.dx, oy = layout.customer.y + c.dy, rise = space.figureOffset(person.height);
+    const slots = customers.slotColors(c.id);
+    for (const part of list[pass]) {
+      const [ax, ay] = sprites.anchor(part.sprite, 'at');
+      const x = ox + (part.follows ? hx : 0), y = oy + (part.follows ? rise + hy : 0);
+      if (part.flip) {
+        ctx.save();
+        ctx.translate(x + 2 * AXIS + 1 - ax, y + ay);
+        ctx.scale(-1, 1);
+        ctx.drawImage(sprites.get(part.sprite, { slots, mood }), 0, 0);
+        ctx.restore();
+      } else sprite(ctx, part.sprite, x + ax, y + ay, { slots, mood });
+      // An occasional blink over the eyes.
+      if (part.sprite.startsWith('person-head-') && (time.now + c.id.length * 700) % 4200 < 130) {
+        ctx.fillStyle = slots.skin2;
+        for (const eye of ['eyeL', 'eyeR']) {
+          const [ex, ey] = sprites.anchor(part.sprite, eye);
+          ctx.fillRect(x + ax + ex, y + ay + ey - 1, 5, 3);
+        }
+      }
+    }
   }
 
   function draw(ctx, game, options = {}) {
     const { scene, state } = game;
     const mood = options.mood || scene.mood;
-    const look = () => ({ mood });
+    const look = { mood };
     ctx.save();
     ctx.setTransform(layout.screen.scale, 0, 0, layout.screen.scale, 0, 0);
-    sprite(ctx, 'room', 0, 0, look());
+    placed(ctx, 'store-back', look);
     rain(ctx);
-    if (time.now % 1600 < 420) sprite(ctx, 'tower-light-on', layout.towerLight.x - 3, layout.towerLight.y - 3, look());
+    if (time.now % 1600 < 420) {
+      const [tx, ty] = sprites.anchor('store-back', 'tower');
+      ctx.fillStyle = '#ff5a4a';
+      ctx.fillRect(tx - 1, ty - 1, 3, 3);
+    }
     clockHands(ctx, state.phase === 'end' ? '03:04' : game.order().clock);
+    placed(ctx, 'store-sides', look);
 
-    const c = scene.customer;
-    const cx = layout.customer.x + c.dx, cy = layout.customer.y + c.dy;
-    const slots = customers.slotColors(c.id);
-    if (c.visible) {
-      for (const layer of customers.layers(c.id, c.pose === 'idle' ? 'idle' : c.pose)) {
-        sprite(ctx, layer.sprite, cx, cy, { slots, mood, flip: layer.flip });
-      }
-      // Occasional blink.
-      if ((time.now + c.id.length * 700) % 4200 < 130) {
-        const head = 'customer-head-' + customers.customers[c.id].head;
-        ctx.fillStyle = slots.skin2;
-        for (const eye of ['eyeL', 'eyeR']) {
-          const [ex, ey] = sprites.anchor(head, eye);
-          ctx.fillRect(cx + ex, cy + ey + 1, 4, 1);
-        }
-      }
-    }
+    customer(ctx, game, 'behind', mood);
+    placed(ctx, 'store-counter', look);
+    customer(ctx, game, 'counter', mood);
 
-    sprite(ctx, 'counter', 0, layout.counterTop, look());
-    if (scene.fixtures.drawer) sprite(ctx, 'drawer-open', layout.drawer.x - 2, layout.drawer.y - 6 + scene.fixtures.drawer, look());
-    for (const fixture of Object.values(layout.fixtures)) {
-      const size = sprites.size(fixture.sprite);
-      shadow(ctx, fixture.x, size.w, fixture.y + size.h);
-    }
-    for (const product of scene.products.values()) {
-      if (product.hidden || product.moving) continue;
-      const size = sprites.size(product.sprite);
-      shadow(ctx, product.x, size.w, product.y + size.h);
-    }
+    for (const name of layout.decor) placed(ctx, name, look);       // machines and things that aren't clicked
     for (const [name, fixture] of Object.entries(layout.fixtures)) {
       let current = scene.fixtures[name] || fixture.sprite;
-      if (name === 'radio') current = radio.view.station === '87.7' ? 'radio-echo' : 'radio';
-      if (scene.cues.has(name) && blinking()) sprite(ctx, current, fixture.x, fixture.y, { outline: CUE });
-      sprite(ctx, current, fixture.x, fixture.y, look());
+      if (name === 'radio') current = radio.view.station === '87.7' ? fixture.echo : fixture.sprite;
+      const [x, y] = sprites.anchor(current, 'at');
+      if (scene.cues.has(name) && blinking()) sprite(ctx, current, x, y, { outline: CUE });
+      sprite(ctx, current, x, y, look);
     }
     radioDigits(ctx, radio.view.station);
-    if (scene.fixtures.paper) {
+    if (scene.fixtures.paper) {                                     // the receipt rising from the printer
       const slot = layout.fixtures.printer.slot;
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(slot.x, slot.y - scene.fixtures.paper, 12, scene.fixtures.paper);
-      ctx.clip();
-      sprite(ctx, 'receipt', slot.x, slot.y - scene.fixtures.paper, look());
-      ctx.restore();
+      ctx.fillStyle = '#f3f6ea';
+      ctx.fillRect(slot.x - 6, slot.y - scene.fixtures.paper * 2, 12, scene.fixtures.paper * 2);
+      ctx.fillStyle = '#c9c4b0';
+      for (let y = slot.y - scene.fixtures.paper * 2 + 2; y < slot.y; y += 3) ctx.fillRect(slot.x - 4, y, 7, 1);
     }
 
     for (const product of scene.products.values()) {
@@ -132,6 +146,7 @@
       const name = product.flicker ? 'spare-key' : product.sprite;
       const size = sprites.size(product.sprite), alt = sprites.size(name);
       const x = product.x + Math.floor((size.w - alt.w) / 2), y = product.y + size.h - alt.h;
+      if (!product.moving) shadow(ctx, product.x, size.w, product.y + size.h);
       const item = game.order().items.find(entry => entry.id === product.id);
       if (state.selectedId === product.id) sprite(ctx, name, x, y, { outline: SELECTED });
       else if (state.paid && item?.heat && !state.heatedIds.includes(item.id)) sprite(ctx, name, x, y, { outline: HEAT });
@@ -139,19 +154,9 @@
       sprite(ctx, name, x, y, { mood: product.flicker ? 'echo' : mood });
     }
 
-    const arm = customers.frontArm(c.pose);
-    if (c.visible && arm) {
-      sprite(ctx, arm, cx, cy, { slots, mood });
-      if (c.prop) {
-        const [hx, hy] = sprites.anchor(arm, 'hand');
-        const size = sprites.size(c.prop.sprite);
-        sprite(ctx, c.prop.sprite, cx + hx - Math.floor(size.w / 2), cy + hy - size.h + 2, { slots: c.prop.slots, mood });
-        // Fingers over the prop keep it held, not floating.
-        ctx.fillStyle = slots.skin1;
-        ctx.fillRect(cx + hx - 1, cy + hy, 3, 1);
-      }
-    }
-    for (const extra of scene.extras) sprite(ctx, extra.sprite, extra.x, extra.y, look());
+    customer(ctx, game, 'over', mood);
+    for (const extra of scene.extras) sprite(ctx, extra.sprite, extra.x, extra.y, look);
+    placed(ctx, 'store-front', look);
     ctx.restore();
   }
 

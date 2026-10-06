@@ -3,7 +3,7 @@
 // clickable region drawn here is registered for the input router.
 (function (root) {
   'use strict';
-  const { text, strings, dialogue, radio, records, layout, time, audio, engine } = root.NSF;
+  const { text, strings, dialogue, radio, records, layout, time, audio, engine, space, customers } = root.NSF;
   const t = strings.t;
   const C = {
     ink: '#101517', paper: '#ece8d0', paperShade: '#b4ae94', phosphor: '#aef08c', phosphorDim: '#55b066',
@@ -98,10 +98,11 @@
     const shownLines = text.wrap(visible, 240);
     const width = Math.max(...lines.map(text.width)) + 20;
     const height = lines.length * 14 + 12;
-    const k = layout.screen.scale;
-    const headRight = (layout.customer.x + game.scene.customer.dx + 66) * k;
+    const k = layout.screen.scale, c = game.scene.customer, L = layout.customer;
+    const rise = space.figureOffset(customers.customers[c.id].person.height);
+    const headRight = (L.x + c.dx + L.head.x + 18) * k;
     const x = Math.min(headRight + 8, SW - 6 - width);
-    const y = Math.max(24, (layout.customer.y + 22) * k - height);
+    const y = Math.max(24, (L.y + L.head.y + rise + 22) * k - height);
     box(ctx, x + 2, y + 2, width, height, 'rgba(7,9,15,0.5)', 'rgba(7,9,15,0.5)');
     box(ctx, x, y, width, height, C.paper, C.ink, 3);
     ctx.fillStyle = C.ink;

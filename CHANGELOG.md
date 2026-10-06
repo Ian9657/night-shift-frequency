@@ -5,7 +5,40 @@ verified and what was not.
 
 ## Unreleased
 
-### Changed (in progress — built by the art tools, not yet used by the game)
+### Changed — the game plays in the first-person store
+
+- The counter scene is now the rendered first-person store: room, counter, machines,
+  goods and customers all come from `js/content/space.js` and its one camera. Screen
+  positions derive from it in `js/content/layout.js`; sprites carry their place as
+  anchor `at`, so drawing and clicking use the same numbers.
+- Customers are the sculpted figures in three passes (behind the counter, over its
+  top, over the machines). Each waits in their own pose; card or phone payments are
+  shown at the terminal, cash as a note from the hand to the tray, and the receipt
+  and bag go into an open palm. Poses and the action mapping live in
+  `js/content/poses.js`; the old 2D customer, device, product and scene sources are
+  removed. Goods are sculpted in `art/src/goods.cjs`.
+- Clicks on goods and machines test opaque pixels, top-most first, so the radio no
+  longer covers the printer.
+- The build makes only the head, hair and accessory parts the cast uses (291
+  sprites; the bundle is about half its previous size). `art.test` checks the new
+  structure: every sprite referenced, machines in view, the hand and palm anchors the
+  game hands things to, and the two widest goods side by side in the lane.
+
+### Not verified (first-person store)
+
+- The cash drawer is now sound only; the card's colour per order is no longer drawn;
+  the goods are placeholders; the customers are the paused, unapproved figures below.
+- Tired sway and parallax are not implemented. Natural-speed pacing was not played
+  through by hand.
+
+### Verified (first-person store)
+
+- All five checks pass: `shift-engine`, `content`, `art`, `browser-flow` (four record
+  branches, report, ending, audio smoke, failure recovery, seed, narrow viewport) and
+  `visual`. Desktop, record view, phone landscape and phone portrait screenshots were
+  reviewed.
+
+### Changed (character checkpoint)
 
 - Customer proportions measured from the reference body: shoulders about 2.5 head
   widths, neck about 0.65, the trunk at 0.87 and the arms at 0.86 of anatomical
@@ -37,7 +70,8 @@ verified and what was not.
 
 ### Not verified
 
-- `art.test` still fails by design until the runtime uses the new sprites.
+- `art.test` failed by design at this checkpoint; it passes again with the store
+  integration above.
 - The acceptance sample is not approved; the other customers were not re-reviewed
   after the shoulder changes; faces keep the earlier style.
 

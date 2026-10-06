@@ -47,7 +47,7 @@
   });
 
   // Where goods sit: the customer puts them down at the far lane; scanned goods come nearer.
-  const lane = Object.freeze({ z: 1.0, scannedZ: 0.9, x0: -0.12, x1: 0.18, gap: 0.02 });
+  const lane = Object.freeze({ z: 1.0, scannedZ: 0.9, x0: -0.16, x1: 0.19, gap: 0.02 });
 
   // Top-left of the customer canvas on screen.
   function customerOrigin() {

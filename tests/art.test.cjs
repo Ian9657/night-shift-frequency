@@ -37,37 +37,38 @@ for (const name of names) {
 }
 
 // Every sprite is referenced: as a string literal in runtime code, a catalogue
-// sprite, or a part produced by the customer composer.
+// sprite, a fixture or decor sprite, or a part customers.parts names for a pose.
 const code = ['js', 'js/content', 'js/game', 'js/render', 'js/engine', 'js/core']
   .flatMap(dir => fs.readdirSync(path.join(ROOT, dir)).filter(f => f.endsWith('.js')).map(f => fs.readFileSync(path.join(ROOT, dir, f), 'utf8')))
   .join('\n');
 const used = new Set(story.catalog.map(p => p.sprite));
-for (const fixture of Object.values(layout.fixtures)) used.add(fixture.sprite);
+for (const fixture of Object.values(layout.fixtures)) for (const key of ['sprite', 'busy', 'echo']) if (fixture[key]) used.add(fixture[key]);
+for (const name of layout.decor) used.add(name);
 for (const id of Object.keys(customers.customers)) {
-  for (const pose of ['idle', 'reach', 'low']) {
-    customers.layers(id, pose).forEach(layer => used.add(layer.sprite));
-    if (customers.frontArm(pose)) used.add(customers.frontArm(pose));
-  }
+  for (const pose of customers.posesOf(id)) for (const part of Object.values(customers.parts(id, pose)).flat()) used.add(part.sprite);
 }
 for (const name of names) {
   assert.ok(used.has(name) || code.includes(`'${name}'`), `sprite ${name} is never used`);
 }
 for (const name of used) assert.ok(sprites[name], `referenced sprite ${name} is missing`);
 
-// Fixtures sit inside the world and on the counter; hand anchors reach the counter.
+// Machines sit inside the view, placed by their 'at' anchor; customer parts carry
+// their place on the customer canvas; the hands the game hands things to exist.
 for (const [key, fixture] of Object.entries(layout.fixtures)) {
-  const s = sprites[fixture.sprite];
-  assert.ok(fixture.x >= 0 && fixture.x + s.w <= layout.world.width, key + ' x');
-  assert.ok(fixture.y + s.h > layout.counterTop && fixture.y + s.h <= layout.world.height, key + ' rests on the counter');
+  const s = sprites[fixture.sprite], [x, y] = s.anchors.at;
+  assert.ok(x > -s.w && x < layout.world.width && y >= 0 && y + s.h <= layout.world.height, key + ' is in view');
 }
-const reach = sprites['customer-arm-reach'].anchors.hand;
-const low = sprites['customer-arm-low'].anchors.hand;
-assert.ok(layout.customer.y + reach[1] >= layout.counterTop, 'reaching hand comes over the counter');
-const contact = layout.fixtures.terminal.contact;
-assert.ok(Math.abs(layout.customer.x + low[0] - contact.x) <= 3 && Math.abs(layout.customer.y + low[1] - contact.y) <= 3, 'low hand meets the terminal');
-for (const id of Object.keys(customers.customers)) assert.equal(Object.keys(customers.slotColors(id)).length, palette.slots.length, id);
+for (const id of Object.keys(customers.customers)) {
+  for (const pose of customers.posesOf(id)) for (const part of Object.values(customers.parts(id, pose)).flat()) {
+    assert.ok(sprites[part.sprite].anchors.at, `${part.sprite} has its canvas place`);
+  }
+  const over = action => sprites[customers.parts(id, customers.poseFor(id, action)).over[0].sprite].anchors;
+  assert.ok(over('cash').hand, id + ' holds out the note');
+  assert.ok(over('receive').palm, id + ' has a palm to receive into');
+  assert.equal(Object.keys(customers.slotColors(id)).length, palette.slots.length, id);
+}
 
-// Two items always fit the lane.
+// The two widest goods fit the lane side by side.
 const widths = story.catalog.map(p => sprites[p.sprite].w).sort((a, b) => b - a);
 assert.ok(widths[0] + widths[1] + layout.lane.gap <= layout.lane.width, 'two widest products fit the lane');
 console.log(`PASS: ${names.length} sprites match sources, palette, references, layout and anchors.`);

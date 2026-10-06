@@ -42,7 +42,7 @@ async function finish(page, index) {
     await scanAll(page);
     await speed(page, 0.2);
     await click(page, 'terminal');
-    await page.waitForFunction(() => NSF.debug.game.scene.customer.pose === 'low' && NSF.debug.game.scene.customer.prop);
+    await page.waitForFunction(() => NSF.debug.game.scene.customer.action === 'card' && NSF.debug.game.scene.fixtures.terminal === 'store-terminal-approved');
     await shot(page, 'card-contact');
     await speed(page, 12);
     await idle(page);
@@ -63,7 +63,7 @@ async function finish(page, index) {
     await idle(page);
     await speed(page, 0.2);
     await click(page, 'microwave');
-    await page.waitForFunction(() => NSF.debug.game.scene.fixtures.microwave === 'microwave-heating');
+    await page.waitForFunction(() => NSF.debug.game.scene.fixtures.microwave === 'store-microwave-heating');
     await shot(page, 'heating');
     await speed(page, 12);
     await idle(page);

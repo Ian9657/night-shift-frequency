@@ -417,28 +417,8 @@ function solveArm(S, W, upper, fore, pole) {
 }
 
 // ------------------------------------------------------------------ poses
-// A pose gives each arm a use, where the eyes look, how the shoulders sit and how
-// the upper body leans or shifts; elbows, foreshortening, hands and what crosses
-// the counter follow from the rig. Arm uses:
-//   'rest'  the hand lies on the counter at [x, z], optionally turned onto its side
-//   'hang'  the arm hangs, the hand below the counter
-//   'ear'   an open flip phone held to the ear
-//   'hold'  both hands hold an open flip phone low in front, thumbs on the keys
-//   'hold1' one hand holds the open flip phone low in front, thumb on the keys
-//   'reach' a bank card held out toward the clerk
-//   'swipe' a bank card standing in the card terminal's top slot, held by its edge
-//   'take'  an open hand out over the counter, palm up, for change or a receipt
-const POSES = {
-  'stand': { gaze: 'clerk', left: ['hang'], right: ['hang'] },
-  'one-rest': { gaze: 'down', left: ['rest', [-0.07, 1.04]], right: ['hang'], lean: [0, 0.03], shift: -0.007 },
-  'both-rest': { gaze: 'downLeft', left: ['rest', [-0.15, 1.06]], right: ['rest', [0.16, 1.08]], drop: [0, 0.01], lean: [0.015, 0.05] },
-  'phone-call': { gaze: 'phoneSide', left: ['rest', [-0.07, 1.04]], right: ['ear'], drop: [0.012, 0.011], lean: [0.035, 0], shift: 0.007, headFollow: 0.5 },
-  'phone-check': { gaze: 'phone', left: ['hold'], right: ['hold'], drop: [0.01, 0.01], forward: 0.02, lean: [0, 0.05] },
-  'phone-one': { gaze: 'phone', left: ['hang'], right: ['hold1'], drop: [0.008, 0], lean: [0.01, 0.05], shift: 0.004 },
-  'card': { gaze: 'clerk', left: ['hang'], right: ['reach'], drop: [0.006, 0], lean: [0, 0.06] },
-  'card-reader': { gaze: 'downRight', left: ['rest', [-0.08, 1.05]], right: ['swipe'], drop: [0.004, 0], lean: [0, 0.03] },
-  'receive': { gaze: 'clerk', left: ['rest', [-0.09, 1.06]], right: ['take'], lean: [0, 0.05], shift: 0.004 },
-};
+// Pose definitions are content (js/content/poses.js); arm uses are explained there.
+const POSES = require('../../js/content/poses.js').poses;
 
 // The ear on the head sprite; a phone held there sits a little in front of it.
 const EAR = { x: CX + 12, y: TOP + 17 };
@@ -449,7 +429,8 @@ function fromCanvas(x, y, Z) {
 }
 
 // Props in metres (half extents): each half of a 2005 flip phone, and a bank card.
-const FLIP = [0.0235, 0.0425, 0.0045], CARD = [0.043, 0.027, 0.0012];
+const FLIP = [0.0235, 0.0425, 0.0045], CARD = [0.043, 0.027, 0.0012], BILL = [0.075, 0.034, 0.0008];
+const CLOSED = [0.0235, 0.045, 0.0095];                              // a flip phone folded shut
 const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
 // An open flip phone hinged at `hinge`: the keypad half runs along `low`, the lid
 // along `lid`; `inner` is the keypad's face (the lid's screen faces back along it).
@@ -554,7 +535,8 @@ function armPose(R, side, [mode, at]) {
       const hand = frame([-side * 0.3, -0.12, -1], [side, 0.25, 0]);
       const pinch = v3.add(W, v3.add(v3.mul(hand.f, 0.085 * hs * R.handLength), v3.mul(hand.r, 0.014 * hs)));
       const long = v3.norm([-side * 0.25, -0.25, -1]), face = v3.norm(v3.sub([0, 1, 0], v3.mul(long, v3.dot([0, 1, 0], long))));
-      const prop = { kind: 'card', c: v3.add(pinch, v3.mul(long, CARD[0] - 0.008)), axes: [long, cross(face, long), face] };
+      const note = at === 'bill', half = note ? BILL : CARD;
+      const prop = { kind: note ? 'bill' : 'card', c: v3.add(pinch, v3.mul(long, half[0] - 0.008)), axes: [long, cross(face, long), face], half };
       return solve(W, [side * 0.5, -1, 0.6], { ...hand, curl: [1.1, 0.9], thumbTip: v3.add(pinch, v3.mul(face, 0.006)) }, prop);
     }
     case 'hold1': {
@@ -578,6 +560,15 @@ function armPose(R, side, [mode, at]) {
       const hand = frame([-side, -0.45, -0.25], [0, 0.35, 1]);
       const prop = { kind: 'card', c: card, axes: [[1, 0, 0], [0, 1, 0], [0, 0, 1]], above: top };
       return solve(null, [side * 0.6, -1, 0.4], { ...hand, curl: [1, 0.8], thumbTip: v3.add(pinch, [0, 0, -0.007]) }, prop, { at: pinch, reach: 0.08 * hs * R.handLength });
+    }
+    case 'tapPhone': {
+      // A closed flip phone held flat just over the terminal, the hand at its side.
+      const t = space.fixtures.terminal[0], top = space.counter.y + t.h;
+      const c = [t.x, top + 0.03, t.z];
+      const grip = v3.add(c, [side * (CLOSED[0] + 0.004), 0.004, 0.01]);
+      const hand = frame([-side, -0.4, -0.2], [0, 0.4, 1]);
+      const prop = { kind: 'phone', halves: [{ part: 'lid', c, axes: [[1, 0, 0], [0, 0, -1], [0, -1, 0]], half: CLOSED }] };
+      return solve(null, [side * 0.6, -1, 0.4], { ...hand, curl: [0.9, 0.7], thumbTip: v3.add(grip, [0, 0.008, -0.008]) }, prop, { at: grip, reach: 0.08 * hs * R.handLength });
     }
     case 'take': {
       // The hand out over the counter, palm up and loosely cupped, fingers toward
@@ -712,8 +703,8 @@ function bodyField(R, arms, garment) {
     for (const [name, field] of extras) { const c = field(q); if (c < d) { d = c; tag = name; } }
     for (const prop of props) {
       const c = prop.kind === 'phone'
-        ? Math.min(...prop.halves.map(half => box(p, half.c, half.axes, FLIP, 0.003)))
-        : Math.max(box(p, prop.c, prop.axes, CARD, 0.0006), prop.above !== undefined ? prop.above - p[1] : -Infinity);
+        ? Math.min(...prop.halves.map(half => box(p, half.c, half.axes, half.half || FLIP, 0.003)))
+        : Math.max(box(p, prop.c, prop.axes, prop.half || CARD, 0.0006), prop.above !== undefined ? prop.above - p[1] : -Infinity);
       if (c < d) { d = c; tag = prop.kind; }
     }
     return [d, tag];
@@ -729,8 +720,10 @@ function bodyField(R, arms, garment) {
 const RAMPS = {
   cloth: ['cloth1', 'cloth2', 'cloth3', 'cloth4'], under: ['under1', 'under2', 'under3', 'under3'], skin: ['skin1', 'skin2', 'skin3', 'skin3'],
   accent: ['accent0', 'accent1', 'accent2', 'accent2'], phone: ['steel3', 'steel4', 'steel5', 'steel6'], card: ['blue1', 'blue2', 'blue3', 'blue3'],
+  bill: ['green1', 'green2', 'green3', 'green3'],
 };
-const OUTLINE = { cloth: 'cloth0', under: 'under0', skin: 'skin0', accent: 'accent0', phone: 'steel1', card: 'blue0' };
+const OUTLINE = { cloth: 'cloth0', under: 'under0', skin: 'skin0', accent: 'accent0', phone: 'steel1', card: 'blue0', bill: 'green0' };
+const HELD = new Set(['phone', 'card', 'bill']);                    // props held in a hand
 // Trousers, by name: [outline, shadow, mid, light, highlight].
 const TROUSERS = {
   navy: ['navy0', 'navy1', 'navy2', 'navy3', 'navy3'], black: ['ink', 'steel0', 'steel1', 'steel2', 'steel2'],
@@ -951,7 +944,7 @@ const sideOf = tag => (tag.startsWith('arm') || tag.startsWith('hand') ? Number(
 function materialOf(tag, garment) {
   if (tag === 'neck' || tag.startsWith('hand')) return 'skin';
   if (tag === 'legs') return 'legs';
-  if (tag === 'phone' || tag === 'card') return tag;
+  if (HELD.has(tag)) return tag;
   if (tag.startsWith('arm')) return garment.sleeve || 'cloth';
   if (tag === 'torso') return garment.body || 'cloth';
   return 'cloth';
@@ -988,16 +981,22 @@ function shadeHit(hit, R, garment, arms, flat) {
   if (prop && material === 'phone' && !flat) {
     const half = prop.halves.reduce((best, h) => {
       const q = sculpt.local(hit.P, h.c, h.axes);
-      const out = Math.max(Math.abs(q[0]) - FLIP[0], Math.abs(q[1]) - FLIP[1], Math.abs(q[2]) - FLIP[2]);
+      const e = h.half || FLIP, out = Math.max(Math.abs(q[0]) - e[0], Math.abs(q[1]) - e[1], Math.abs(q[2]) - e[2]);
       return !best || out < best.out ? { h, q, out } : best;
     }, null);
     const [u, v, w] = half.q;
-    if (half.h.part === 'lid' && w < -FLIP[2] + 0.002 && Math.abs(u) < 0.014 && v > 0.006 && v < 0.03) {     // the outer display
+    const e = half.h.half || FLIP;
+    if (half.h.part === 'lid' && w < -e[2] + 0.002 && Math.abs(u) < 0.014 && v > 0.006 && v < 0.03) {     // the outer display
       return { color: Math.abs(u) > 0.011 || v < 0.009 || v > 0.027 ? 'steel7' : v > 0.02 ? 'cyan4' : 'cyan3', material };
     }
     if (half.h.part === 'keypad' && w > FLIP[2] - 0.002 && Math.abs(u) < 0.016 && v > -0.03 && v < 0.02) {  // the keys
       return { color: (Math.round(u / 0.008) + Math.round(v / 0.009)) % 2 ? 'steel2' : 'steel5', material };
     }
+  }
+  if (prop && material === 'bill' && !flat) {
+    const [u, v] = sculpt.local(hit.P, prop.c, prop.axes);
+    if (Math.hypot(u / BILL[0], v / BILL[1]) < 0.4) return { color: 'paper3', material };
+    if (Math.abs(u) > BILL[0] - 0.008 || Math.abs(v) > BILL[1] - 0.006) return { color: 'green1', material };
   }
   if (prop && material === 'card' && !flat) {
     const [u, v] = sculpt.local(hit.P, prop.c, prop.axes);
@@ -1059,12 +1058,12 @@ function poseParts(R, pose, garment, { flat = false } = {}) {
       if (a.startsWith('hand') && b.startsWith('arm')) continue;
       if (b === 'legs' && a !== 'legs' && !a.startsWith('hand')) { mark = 'edge'; break; } // a hem over the trousers
       if (a === 'legs' && b === 'torso') continue;
-      if (a.startsWith('arm') && !b.startsWith('arm') && b !== 'phone' && b !== 'card') {
+      if (a.startsWith('arm') && !b.startsWith('arm') && !HELD.has(b)) {
         if (!nearShoulder(hit.P)) { mark = 'edge'; break; }
         continue;
       }
-      if (b.startsWith('arm') && !a.startsWith('arm') && a !== 'phone' && a !== 'card') continue;
-      if (other.P[2] > hit.P[2] + (a === 'phone' || a === 'card' || a.startsWith('hand') ? 0.003 : 0.012)) { mark = 'edge'; break; }
+      if (b.startsWith('arm') && !a.startsWith('arm') && !HELD.has(a)) continue;
+      if (other.P[2] > hit.P[2] + (HELD.has(a) || a.startsWith('hand') ? 0.003 : 0.012)) { mark = 'edge'; break; }
     }
     if (mark === 'edge') colors[i] = shaded[i].outline || OUTLINE[shaded[i].material];
   }
@@ -1077,11 +1076,11 @@ function poseParts(R, pose, garment, { flat = false } = {}) {
     if (around.every(c => c && c === around[0]) && around[0] !== colors[i] && !Object.values(OUTLINE).includes(colors[i]) && colors[i] !== 'skin1') tidy[i] = around[0];
   }
   const back = canvas(), front = canvas(), counter = canvas(), over = canvas();
-  const outSides = new Set(arms.filter(A => ['reach', 'swipe', 'take'].includes(A.mode)).map(A => A.side));
+  const outSides = new Set(arms.filter(A => ['reach', 'swipe', 'tapPhone', 'take'].includes(A.mode)).map(A => A.side));
   hits.forEach((hit, i) => {
     if (!hit) return;
-    const forward = hit.tag === 'phone' || hit.tag === 'card' || frontSides.has(sideOf(hit.tag));
-    const held = hit.tag === 'card' || outSides.has(sideOf(hit.tag));
+    const forward = HELD.has(hit.tag) || frontSides.has(sideOf(hit.tag));
+    const held = hit.tag === 'card' || hit.tag === 'bill' || outSides.has(sideOf(hit.tag)) || (hit.tag === 'phone' && arms.some(A => A.mode === 'tapPhone'));
     const layer = hit.P[2] < space.counter.far ? (held ? over : counter) : forward ? front : back;
     layer.px(i % W, Math.floor(i / W), tidy[i]);
   });
@@ -1095,6 +1094,7 @@ function poseParts(R, pose, garment, { flat = false } = {}) {
       if (nx >= 0 && ny >= 0 && nx < W && ny < H && !hits[ny * W + nx] && !counter.get(nx, ny)) counter.px(nx, ny, 'top2');
     }
   });
+  for (const A of arms.filter(A => A.mode === 'reach')) over.anchor('hand', ...toCanvas(A.prop ? A.prop.c : A.W));
   for (const A of arms.filter(A => A.mode === 'take')) over.anchor('palm', ...toCanvas(v3.add(A.W, v3.add(v3.mul(A.hand.f, 0.05 * R.hand * R.handLength), v3.mul(A.hand.n, -0.02)))));
   back.anchor('head', ...R.headOffset);
   return { back, front, counter, over, arms };
@@ -1169,31 +1169,46 @@ function wet() {
   return p;
 }
 
-// Parts every customer can share, plus the bodies and arms for each customer whose
-// outfit has been rebuilt on the rig (only Nell so far).
+// Customer-canvas parts are cropped to their pixels; anchor 'at' records where the
+// crop sits on the canvas and every other anchor moves with it, except 'head', which
+// is an offset (how far the lean moves the head), not a place.
+function crop(p) {
+  let x0 = W, y0 = H, x1 = -1, y1 = -1;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (p.data[y * W + x]) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+  if (x1 < 0) { x0 = y0 = x1 = y1 = 0; }
+  const out = new Pix(x1 - x0 + 1, y1 - y0 + 1);
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) out.data[(y - y0) * out.width + x - x0] = p.data[y * W + x];
+  for (const [name, [ax, ay]] of Object.entries(p.anchors)) out.anchor(name, name === 'head' ? ax : ax - x0, name === 'head' ? ay : ay - y0);
+  return out.anchor('at', x0, y0);
+}
+
+// The parts the cast uses: heads in each gaze their poses need, their hair, face
+// extras, and the bodies, arms and hands for every pose (customers.parts names them).
 module.exports = () => {
-  const sprites = {
-    'person-hair-back-long': hairLongBack(),
-    'person-hair-back-bob': hairBobBack(),
-    'person-glasses': glasses(false),
-    'person-glasses-bold': glasses(true),
-    'person-earphones': earphones(),
-    'person-mask': mask(),
-    'person-wrinkles': wrinkles(),
-    'person-beard': beard(),
-    'person-wet': wet(),
+  const makers = {
+    'person-hair-back-long': hairLongBack, 'person-hair-back-bob': hairBobBack,
+    'person-glasses': () => glasses(false), 'person-glasses-bold': () => glasses(true), 'person-earphones': earphones,
+    'person-mask': mask, 'person-wrinkles': wrinkles, 'person-beard': beard, 'person-wet': wet,
+    ...Object.fromEntries(Object.entries(HAIRS).map(([kind, draw]) => ['person-hair-' + kind, draw])),
   };
-  for (const kind of Object.keys(PROFILES)) for (const gaze of Object.keys(GAZES)) sprites[`person-head-${kind}-${gaze}`] = head(kind, gaze);
-  for (const [kind, draw] of Object.entries(HAIRS)) sprites['person-hair-' + kind] = draw();
-  for (const c of Object.values(customers.customers)) {
-    const { body, poses = [] } = c.person;
-    if (!GARMENTS[body]) continue;
+  const sprites = {};
+  for (const [id, c] of Object.entries(customers.customers)) {
+    const { body } = c.person;
     const frame = customers.personFrame(c.person);
-    for (const name of poses) {
+    for (const name of customers.posesOf(id)) {
+      for (const part of Object.values(customers.parts(id, name)).flat()) {
+        if (sprites[part.sprite]) continue;
+        const face = part.sprite.match(/^person-head-([a-z]+)-([a-zA-Z]+)$/);
+        if (face) sprites[part.sprite] = head(face[1], face[2]);
+        else if (makers[part.sprite]) sprites[part.sprite] = makers[part.sprite]();
+      }
+      const key = `${body}-${frame}-${name}`;
+      if (sprites['person-back-' + key]) continue;
       const parts = poseParts(rigFor(c.person, POSES[name]), POSES[name], GARMENTS[body]);
-      for (const layer of ['back', 'front', 'counter', 'over']) sprites[`person-${layer}-${body}-${frame}-${name}`] = parts[layer];
+      for (const layer of ['back', 'front', 'counter', 'over']) sprites[`person-${layer}-${key}`] = parts[layer];
     }
   }
+  for (const name of Object.keys(sprites)) sprites[name] = crop(sprites[name]);
   return sprites;
 };
 

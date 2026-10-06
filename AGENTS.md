@@ -38,7 +38,8 @@
 ## Pixels, art and text
 
 - The world is 480x270 pixels drawn at 2x on a 960x540 canvas. UI text uses the
-  960x540 grid. Positions live in `js/content/layout.js`; use integer coordinates.
+  960x540 grid. The store is modelled in metres in `js/content/space.js`;
+  screen positions derive from it in `js/content/layout.js`. Use integer pixel coordinates.
 - Shade with the shared tools: hue-shifted ramps (`js/content/colors.js`), `volume`,
   `light` with normals and `glow` in `art/tools/pixel.cjs`. Outline with each
   material's darkest tone rather than black.

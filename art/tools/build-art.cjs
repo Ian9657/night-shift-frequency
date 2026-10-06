@@ -5,8 +5,12 @@
 //   node art/tools/build-art.cjs              full build
 //   node art/tools/build-art.cjs --png        also export indexed PNGs to art/png/
 //                                             (open in Aseprite with art/palette.gpl)
-//   node art/tools/build-art.cjs --preview customers
+//   node art/tools/build-art.cjs --preview goods
 //                                             contact sheet of one source file only
+//   node art/tools/build-art.cjs --preview store3d
+//                                             the store, every customer pose, rig sheets
+//   node art/tools/build-art.cjs --preview sample
+//                                             the figure acceptance sample
 //
 // A PNG placed in art/overrides/<name>.png replaces the generated sprite; it must
 // use colours from the shared palette.
@@ -16,7 +20,6 @@ const path = require('node:path');
 const png = require('./png.cjs');
 const palette = require('../palette.cjs');
 const { Pix } = require('./pixel.cjs');
-const layout = require('../../js/content/layout.js');
 const customers = require('../../js/content/customers.js');
 const space = require('../../js/content/space.js');
 
@@ -25,6 +28,7 @@ const SRC = path.join(ROOT, 'art/src');
 const OVERRIDES = path.join(ROOT, 'art/overrides');
 const REVIEW = path.join(ROOT, 'tests/artifacts');
 const RGBA = palette.colors.map(([, hex]) => palette.rgba(hex));
+const AXIS = space.customer.centre - 0.5;                          // the customer canvas's mirror axis
 
 function loadSprites(only) {
   const sprites = {};
@@ -67,7 +71,9 @@ function writeGpl() {
   fs.writeFileSync(path.join(ROOT, 'art/palette.gpl'), lines.join('\n') + '\n');
 }
 
-// RGBA review surface that honours per-customer slot colours and mirroring.
+// RGBA review surface that honours per-customer slot colours, a sprite's crop
+// offset on the customer canvas (anchor 'at', with `placed`) and mirroring about
+// that canvas's axis (`flip`).
 class Surface {
   constructor(width, height, background = [8, 10, 12, 255]) {
     this.width = width; this.height = height;
@@ -78,10 +84,11 @@ class Surface {
     const pix = sprites[name];
     if (!pix) return;
     const colors = RGBA.map((c, i) => options.slots?.[palette.names[i]] ? palette.rgba(options.slots[palette.names[i]]) : c);
+    const [ax, ay] = options.placed ? pix.anchors.at || [0, 0] : [0, 0];
     for (let j = 0; j < pix.height; j++) for (let i = 0; i < pix.width; i++) {
       const value = pix.data[j * pix.width + i];
       if (!value) continue;
-      const tx = options.flip ? x + (options.axis ?? customers.FLIP_AXIS) * 2 - i : x + i, ty = y + j;
+      const tx = options.flip ? x + 2 * AXIS - (ax + i) : x + ax + i, ty = y + ay + j;
       if (tx < 0 || ty < 0 || tx >= this.width || ty >= this.height) continue;
       this.rgba.set(colors[value], (ty * this.width + tx) * 4);
     }
@@ -96,80 +103,36 @@ class Surface {
   }
 }
 
-function drawCustomer(surface, sprites, id, x, y, pose) {
-  const slots = customers.slotColors(id);
-  for (const layer of customers.layers(id, pose)) surface.draw(sprites, layer.sprite, x, y, { slots, flip: layer.flip });
-  const arm = customers.frontArm(pose);
-  return { slots, arm };
-}
-
-function scene(sprites) {
-  const surface = new Surface(layout.world.width, layout.world.height);
-  surface.draw(sprites, 'room', 0, 0);
-  surface.draw(sprites, 'tower-light-on', layout.towerLight.x - 3, layout.towerLight.y - 3);
-  const c = layout.customer;
-  const { slots, arm } = drawCustomer(surface, sprites, 'nell', c.x, c.y, 'reach');
-  surface.draw(sprites, 'counter', 0, layout.counterTop);
-  for (const fixture of Object.values(layout.fixtures)) surface.draw(sprites, fixture.sprite, fixture.x, fixture.y);
-  let x = layout.lane.x;
-  for (const name of ['cola', 'onigiri', 'bento']) {
-    if (!sprites[name]) continue;
-    surface.draw(sprites, name, x, layout.lane.incomingFoot - sprites[name].height);
-    x += sprites[name].width + layout.lane.gap;
-  }
-  if (arm) surface.draw(sprites, arm, c.x, c.y, { slots });
-  return surface;
-}
-
-// Parts for a customer at the first-person scale, back to front: [sprite, flip,
-// sleeve slots, follows height]. `behind` goes under the counter layer, `hands`
-// over it, `over` above the machines on the counter. The sculpted body is rendered per outfit, figure and pose (people.cjs)
-// in three depth layers; heads, hair and face extras are shifted to its height.
-function personParts(id, pose) {
-  const c = customers.customers[id], person = c.person;
-  const { POSES } = require(path.join(SRC, 'people.cjs'));
-  const flip = Boolean(c.mirrorHair), frame = customers.personFrame(person);
-  const back = { long: 'person-hair-back-long', bob: 'person-hair-back-bob' }[person.hair];
-  const extras = group => person.extras.filter(e => group.includes(e)).map(e => ['person-' + e, false, false, true]);
-  const behind = [
-    ...(back ? [[back, flip, false, true]] : []), [`person-back-${person.body}-${frame}-${pose}`],
-    [`person-head-${person.head}-${POSES[pose].gaze}`, false, false, true], ...extras(['wrinkles', 'beard', 'mask']),
-    ['person-hair-' + person.hair, flip, false, true], ...extras(['glasses', 'glasses-bold', 'earphones', 'wet']),
-    [`person-front-${person.body}-${frame}-${pose}`],
-  ];
-  return { behind, hands: [[`person-counter-${person.body}-${frame}-${pose}`]], over: [[`person-over-${person.body}-${frame}-${pose}`]] };
-}
-
-// The first-person store: layers back to front, sprites at their 'at' anchors.
-function store(sprites, id = 'nell', pose = process.env.POSE || 'phone-call') {
+// The first-person store, as the game draws it (js/render/world.js): layers back
+// to front, the customer's parts (customers.parts) on their canvas.
+function store(sprites, id = 'nell', pose = process.env.POSE || customers.poseFor(id)) {
   const surface = new Surface(480, 270);
   const put = name => sprites[name] && surface.draw(sprites, name, ...(sprites[name].anchors.at || [0, 0]));
+  const [ox, oy] = space.customerOrigin();
+  const slots = customers.slotColors(id);
+  const rise = space.figureOffset(customers.customers[id].person.height);
+  const parts = customers.parts(id, pose);
+  const [hx, hy] = sprites[parts.behind.find(p => p.sprite.startsWith('person-back-')).sprite].anchors.head;
+  const draw = part => {
+    if (!sprites[part.sprite]) throw new Error(`missing sprite ${part.sprite}`);
+    surface.draw(sprites, part.sprite, ox + (part.follows ? hx : 0), oy + (part.follows ? rise + hy : 0), { slots, flip: part.flip, placed: true });
+  };
   put('store-back');
   put('store-sides');
-  const [ox, oy] = space.customerOrigin();
-  const axis = space.customer.centre - 0.5;
-  const slots = customers.slotColors(id), sleeves = customers.sleeveColors(id);
-  const dy = space.figureOffset(customers.customers[id].person.height);
-  const { behind, hands, over } = personParts(id, pose);
-  const [hx, hy] = sprites[behind.find(([name]) => name.startsWith('person-back-'))[0]].anchors.head;
-  const draw = ([name, flip, sleeve, shifted]) => {
-    if (!sprites[name]) throw new Error(`missing sprite ${name}`);
-    surface.draw(sprites, name, ox + (shifted ? hx : 0), oy + (shifted ? dy + hy : 0), { slots: sleeve ? sleeves : slots, flip, axis });
-  };
-  behind.forEach(draw);
+  parts.behind.forEach(draw);
   put('store-counter');
-  hands.forEach(draw);
+  parts.counter.forEach(draw);
   for (const name of ['store-microwave', 'store-cctv', 'store-printer', 'store-pos', 'store-bags', 'store-scanner', 'store-terminal', 'store-tray', 'store-radio', 'store-phone']) put(name);
-  over.forEach(draw);
+  parts.over.forEach(draw);
   put('store-front');
   return surface;
 }
 
-// Customers rebuilt on the rig, in the store, cropped to the customer area, in
-// each of their poses.
+// Every customer in the store, cropped to the customer area: how they wait, then
+// each thing the game asks of them (paying by card, by phone, in cash, receiving).
 function peopleSheet(sprites) {
-  const shots = Object.entries(customers.customers).flatMap(([id, c]) => (c.person.poses || []).map(pose => [id, pose]));
-  const [cx, cy, cw, ch] = [176, 8, 128, 182], cols = 8;
+  const shots = Object.keys(customers.customers).flatMap(id => customers.posesOf(id).map(pose => [id, pose]));
+  const [cx, cy, cw, ch] = [152, 8, 176, 182], cols = 5;
   const sheet = new Surface(Math.min(cols, shots.length) * (cw + 4), Math.ceil(shots.length / cols) * (ch + 4), [255, 255, 255, 255]);
   shots.forEach(([id, pose], n) => {
     const scene = store(sprites, id, pose), dx = (n % cols) * (cw + 4), dy = Math.floor(n / cols) * (ch + 4);
@@ -203,7 +166,7 @@ function rigSheet(sprites, flat) {
     const put = name => surface.draw(local, name, ...(local[name].anchors.at || [0, 0]));
     put('store-back'); put('store-sides');
     for (const [name, shifted] of [['back', false], [`person-head-oval-${f.gaze}`, true], ['person-hair-short', true], ['front', false]]) {
-      surface.draw(local, name, ox + (shifted ? hx : 0), oy + (shifted ? f.dy + hy : 0), { slots });
+      surface.draw(local, name, ox + (shifted ? hx : 0), oy + (shifted ? f.dy + hy : 0), { slots, placed: shifted });
     }
     put('store-counter');
     surface.draw(local, 'counter', ox, oy, { slots });
@@ -239,7 +202,7 @@ function sampleSheet(sprites) {
     const put = name => surface.draw(local, name, ...(local[name].anchors.at || [0, 0]));
     if (mode === 'counter') { put('store-back'); put('store-sides'); }
     for (const [name, shifted] of [['back', false], [`person-head-oval-${f.gaze}`, true], ['person-hair-short', true], ['front', false]]) {
-      surface.draw(local, name, ox + (shifted ? hx : 0), oy + (shifted ? f.dy + hy : 0), { slots });
+      surface.draw(local, name, ox + (shifted ? hx : 0), oy + (shifted ? f.dy + hy : 0), { slots, placed: shifted });
     }
     if (mode === 'counter') put('store-counter');
     surface.draw(local, 'counter', ox, oy, { slots });
@@ -259,20 +222,6 @@ function sampleSheet(sprites) {
   const scale = 3, sheet = new Surface(panels.length * (cw + 4), ch, [255, 255, 255, 255]);
   panels.forEach((surface, n) => { for (let y = 0; y < ch; y++) surface.rgba.copy(sheet.rgba, (y * sheet.width + n * (cw + 4)) * 4, ((cy + y) * 480 + cx) * 4, ((cy + y) * 480 + cx + cw) * 4); });
   return sheet.png(scale);
-}
-
-function customerSheet(sprites) {
-  const ids = Object.keys(customers.customers);
-  const cell = 96;
-  const surface = new Surface(ids.length * cell, 240, palette.rgba('#324745'));
-  ids.forEach((id, i) => {
-    for (const [row, pose] of [[0, 'idle'], [1, 'reach']]) {
-      const x = i * cell - 12, y = row * 120 + 2;
-      const { slots, arm } = drawCustomer(surface, sprites, id, x, y, pose);
-      if (arm) surface.draw(sprites, arm, x, y, { slots });
-    }
-  });
-  return surface;
 }
 
 function contactSheet(sprites) {
@@ -306,13 +255,13 @@ function main() {
     if (preview === 'store3d') {
       Object.assign(sprites, loadSprites('people'));
       fs.writeFileSync(path.join(REVIEW, 'art-store.png'), store(sprites).png(3));
-      fs.writeFileSync(path.join(REVIEW, 'art-people.png'), peopleSheet(sprites).png(3));
+      fs.writeFileSync(path.join(REVIEW, 'art-people.png'), peopleSheet(sprites).png(2));
       fs.writeFileSync(path.join(REVIEW, 'art-rig.png'), rigSheet(sprites, false).png(2));
       fs.writeFileSync(path.join(REVIEW, 'art-rig-flat.png'), rigSheet(sprites, true).png(2));
       console.log('preview store3d composite written');
       return;
     }
-    fs.writeFileSync(path.join(REVIEW, `art-${preview}.png`), contactSheet(sprites).png(preview === 'scene' ? 2 : 4));
+    fs.writeFileSync(path.join(REVIEW, `art-${preview}.png`), contactSheet(sprites).png(4));
     console.log(`preview ${preview}: ${Object.keys(sprites).length} sprites`);
     return;
   }
@@ -331,8 +280,8 @@ function main() {
     fs.mkdirSync(out);
     for (const [name, pix] of Object.entries(sprites)) fs.writeFileSync(path.join(out, name + '.png'), png.encodeIndexed(pix.width, pix.height, pix.data, RGBA));
   }
-  fs.writeFileSync(path.join(REVIEW, 'art-scene.png'), scene(sprites).png(2));
-  fs.writeFileSync(path.join(REVIEW, 'art-customers.png'), customerSheet(sprites).png(3));
+  fs.writeFileSync(path.join(REVIEW, 'art-store.png'), store(sprites).png(3));
+  fs.writeFileSync(path.join(REVIEW, 'art-people.png'), peopleSheet(sprites).png(2));
   console.log(`built ${Object.keys(sprites).length} sprites`);
 }
 

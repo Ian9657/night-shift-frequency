@@ -20,7 +20,7 @@ How the code is organised and why. For what changed when, see
 
 | Layer | Files | Owns |
 | --- | --- | --- |
-| Content | `js/content/` | Layout coordinates, strings, colour ramps, customer looks, story and radio script. Data only, plus small pure helpers. |
+| Content | `js/content/` | The store in metres and its camera (`space.js`), screen positions derived from it (`layout.js`), customer poses, strings, colour ramps, customer looks, story and radio script. Data only, plus small pure helpers. |
 | Engine | `js/engine/shift.js` | The shift's domain: order generation from a seed, re-scan checks, record decisions, settlement, the report and the ending key. No DOM, audio or time. |
 | Core | `js/core/time.js` | The single game clock: `wait`, `after`, stepped `path` motion. Tests speed it up. |
 | Game | `js/game/` | Interaction: `checkout.js` (current-order state, scene model, player actions), `dialogue.js`, `radio.js` (the player), `broadcast.js` (what is on air), `records.js` (the POS record view), `audio.js` (synthesised sound). |
@@ -33,7 +33,7 @@ How the code is organised and why. For what changed when, see
 requestAnimationFrame
   → time.tick()       advance the game clock, fire due timers, step motion
   → game.update()     place products, derive next-action cues
-  → world.draw()      room, window, customer, counter, fixtures, goods, front arm
+  → world.draw()      store, rain and clock, customer behind the counter, counter, fixtures, goods, hands over the counter, store front
   → ui.draw()         POS text, speech bubble, radio caption, panels; registers click regions
 ```
 
@@ -42,7 +42,7 @@ requestAnimationFrame
 ```text
 pointerdown → redraw (so click regions match the current state)
   → ui.hitTest()      topmost UI region, if any
-  → otherwise world targets from game.targets(): products by opaque pixel, fixtures by box
+  → otherwise world targets from game.targets(): products, then fixtures, by opaque pixel in reverse draw order
   → game.activate(name) → the action, wrapped in guarded()
 ```
 
@@ -50,7 +50,7 @@ pointerdown → redraw (so click regions match the current state)
 and releases input, so a failure can never lock the counter.
 
 UI click regions are registered by the same code that draws them. World click regions
-come from `js/content/layout.js` and sprite sizes, the same data the world is drawn
+come from `js/content/layout.js` and the sprites' `at` anchors, the same data the world is drawn
 from; only the click priority (UI, then products, then fixtures) is defined separately.
 
 ## State ownership
@@ -76,8 +76,11 @@ Rule: one source of truth per fact. Derive, don't copy.
 - Sprites are palette indices. `sprites.get()` builds and caches a canvas per
   (sprite, slot colours, mood, outline). Customers remap the skin, hair, cloth, under
   and accent slots; moods (`echo`, `dim`) transform the whole palette.
-- Customers are paper-doll layers on a shared 120×120 canvas. Poses are separate
-  authored parts; props attach at the authored `hand` anchor. Code never generates limbs.
+- Customers are layers on a shared 176×210 canvas (`docs/character-assets.md`).
+  `customers.parts(id, pose)` names them in three passes: `behind` the counter, `counter`
+  over its top and `over` the machines on it. Head, hair and face parts follow the
+  figure's height. Game actions map to authored poses (`poses.js`); props are placed
+  at the pose's `hand` or `palm` anchor. Code never generates limbs.
 
 ## Art and font pipeline
 
@@ -95,22 +98,23 @@ js/content/strings.js + art/font/*.ttf
 `assets/` is build output that is committed so players need no build. Tests rebuild it
 and fail if the committed copy is stale.
 
-### First-person store (in progress, build time only)
+### First-person store
 
-The pseudo-3D store is rendered by the art build and is not yet drawn by the game.
 `js/content/space.js` holds the room in metres and the one camera (projection, rays,
-the customer canvas); it is meant to serve the runtime too, for click regions and
-product paths. Two renderers use it:
+the customer canvas). The art build renders from it and the runtime derives screen
+positions from it (`layout.js`), so what is drawn and what is clicked agree. Rendered
+sprites carry their top-left as anchor `at`. Two renderers use it:
 
 - `art/tools/raycast.cjs` ray-casts boxes and quads with a depth buffer and outlines
   (room, counter, devices; `art/src/store3d.cjs`). Device faces are drawn at their
   on-screen size and laid across box faces.
-- `art/tools/sculpt.cjs` ray-marches signed-distance fields (customers' bodies and
-  held props in `art/src/people.cjs`, the scanner gun). A figure is a skeleton in
-  metres; arms are solved by two-bone IK against the counter; each pose is rendered
-  into depth layers (`back`, `front`, `counter`, `over`) that interleave with the head
-  sprite, hair and counter devices. Hands are simple sculpted forms (palm, one finger
-  block, thumb) whose frame follows anatomy and the wrist's range.
+- `art/tools/sculpt.cjs` ray-marches signed-distance fields (goods in
+  `art/src/goods.cjs`; customers' bodies and held props in `art/src/people.cjs`, the
+  scanner gun). A figure is a skeleton in metres; arms are solved by two-bone IK
+  against the counter; each pose is rendered into depth layers (`back`, `front`,
+  `counter`, `over`) that interleave with the head sprite, hair and counter devices.
+  Hands are simple sculpted forms (palm, one finger block, thumb) whose frame follows
+  anatomy and the wrist's range. Only the parts the cast uses are built.
 
 `build-art.cjs --preview store3d` composes these into review sheets.
 

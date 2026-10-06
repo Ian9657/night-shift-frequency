@@ -28,21 +28,16 @@
     return { x: (event.clientX - rect.left) * W / rect.width, y: (event.clientY - rect.top) * H / rect.height };
   }
 
-  // World targets under a screen point, products tested against their pixels.
+  // World targets under a screen point, tested against their pixels with a pixel of
+  // slack: goods first, then machines from the nearest-drawn back, since machines
+  // overlap in the first-person view.
   function worldTarget(point) {
     if (game.state.phase !== 'shift' || records.view.open) return null;
     const x = Math.floor(point.x / K), y = Math.floor(point.y / K);
     const list = game.targets();
-    const products = list.filter(t => t.product).reverse();
-    for (const target of products) {
-      for (const [dx, dy] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]) {
-        if (sprites.opaqueAt(target.sprite, x - target.x + dx, y - target.y + dy)) return target;
-      }
-    }
-    for (const target of list.filter(t => !t.product)) {
-      if (x >= target.x && y >= target.y && x < target.x + target.w && y < target.y + target.h) return target;
-    }
-    return null;
+    const hit = target => [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]
+      .some(([dx, dy]) => sprites.opaqueAt(target.sprite, x - target.x + dx, y - target.y + dy));
+    return list.filter(t => t.product).reverse().find(hit) || list.filter(t => !t.product).reverse().find(hit) || null;
   }
 
   function targetAt(point) {
@@ -113,13 +108,11 @@
       const toClient = (x, y, w, h) => ({ x: rect.left + (x + w / 2) * sx, y: rect.top + (y + h / 2) * sy });
       const result = {};
       for (const t of game.targets()) {
+        // Aim at the pixel nearest the centre that really hits this target.
         let x = t.x + t.w / 2, y = t.y + t.h / 2;
-        if (t.product) {
-          // Aim at an opaque pixel near the centre.
-          outer: for (let r = 0; r < 6; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
-            const px = Math.floor(t.w / 2) + dx, py = Math.floor(t.h / 2) + dy;
-            if (sprites.opaqueAt(t.sprite, px, py)) { x = t.x + px + 0.5; y = t.y + py + 0.5; break outer; }
-          }
+        outer: for (let r = 0; r < Math.max(t.w, t.h); r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
+          const px = Math.floor(t.x + t.w / 2) + dx, py = Math.floor(t.y + t.h / 2) + dy;
+          if (worldTarget({ x: (px + 0.5) * K, y: (py + 0.5) * K })?.name === t.name) { x = px + 0.5; y = py + 0.5; break outer; }
         }
         result[t.name] = { x: rect.left + x * K * sx, y: rect.top + y * K * sy };
       }

@@ -1,30 +1,51 @@
-// World layout in 480x270 world pixels. Shared by the runtime and the art
-// build, so fixture positions live in exactly one place.
+// Where things are on screen, in 480x270 world pixels, derived from the store in
+// metres and its one camera (js/content/space.js). The runtime reads positions
+// from here; the art build renders from space.js directly, so what is drawn and
+// what is clicked agree. Fixture sprites carry their own top-left as anchor 'at'.
 (function (root) {
   'use strict';
+  const node = typeof module !== 'undefined' && module.exports;
+  const space = node ? require('./space.js') : root.NSF.space;
+  const { counter } = space;
+  const point = (X, Y, Z) => { const [x, y] = space.project(X, Y, Z); return { x: Math.round(x), y: Math.round(y) }; };
+  // A screen-parallel rectangle: a box's front face (centre x, width w, front at z)
+  // between heights y0 and y1, cut to the fraction [u0, u1] across and [v0, v1] down.
+  function face(x, w, z, y0, y1, [u0, u1], [v0, v1]) {
+    const a = space.project(x - w / 2 + w * u0, y1 - (y1 - y0) * v0, z);
+    const b = space.project(x - w / 2 + w * u1, y1 - (y1 - y0) * v1, z);
+    return { x: Math.round(a[0]), y: Math.round(a[1]), w: Math.round(b[0] - a[0]), h: Math.round(b[1] - a[1]) };
+  }
+
+  const F = space.fixtures;
+  const [pos] = F.pos, [radio] = F.radio, [tray] = F.tray, [bags] = F.bags, [printer] = F.printer;
+  const [scanner] = F.scanner, [microwave] = F.microwave;
+  const lane = space.lane;
+  const laneLeft = point(lane.x0, counter.y, lane.z), laneRight = point(lane.x1, counter.y, lane.z);
+  const origin = space.customerOrigin();
+
   const layout = Object.freeze({
     world: { width: 480, height: 270 },
     screen: { width: 960, height: 540, scale: 2 },
-    counterTop: 153,
-    window: { x: 156, y: 27, w: 156, h: 126, mullion: { x: 231, w: 6 } },
-    towerLight: { x: 282, y: 50 },
-    clock: { x: 327, y: 44, hour: 6, minute: 9 },
+    // Clickable machines, each a sprite with its default and busy states.
     fixtures: Object.freeze({
-      microwave: { sprite: 'microwave', x: 3, y: 130 },
-      pos: { sprite: 'pos', x: 80, y: 113, screen: { x: 88, y: 119, w: 72, h: 40 } },
-      scanner: { sprite: 'scanner', x: 170, y: 147, beam: { x: 183, y: 158 } },
-      terminal: { sprite: 'terminal', x: 282, y: 149, contact: { x: 296, y: 154 } },
-      tray: { sprite: 'tray', x: 312, y: 175, drop: { x: 330, y: 180 } },
-      radio: { sprite: 'radio', x: 346, y: 134, display: { x: 378, y: 149, w: 19, h: 7 } },
-      bags: { sprite: 'bags', x: 354, y: 176, packing: { x: 358, y: 151 } },
-      printer: { sprite: 'printer', x: 414, y: 147, slot: { x: 422, y: 149 } },
-      caddy: { sprite: 'caddy', x: 460, y: 155 },
+      microwave: { sprite: 'store-microwave', busy: 'store-microwave-heating' },
+      pos: { sprite: 'store-pos', screen: face(pos.x, pos.w, pos.z - pos.d / 2, counter.y, counter.y + pos.h, [8 / 80, 72 / 80], [7 / 73, 55 / 73]) },
+      scanner: { sprite: 'store-scanner', busy: 'store-scanner-reading', beam: point(scanner.x - 0.03, counter.y + 0.08, scanner.z - 0.1) },
+      terminal: { sprite: 'store-terminal', busy: 'store-terminal-approved' },
+      tray: { sprite: 'store-tray', drop: point(tray.x, counter.y + 0.012, tray.z) },
+      bags: { sprite: 'store-bags', stack: point(bags.x, counter.y + 0.03, bags.z), packing: point(bags.x - 0.04, counter.y, bags.z - 0.13) },
+      radio: { sprite: 'store-radio', echo: 'store-radio-echo', display: face(radio.x, radio.w, radio.z - radio.d / 2, counter.y, counter.y + radio.h, [34 / 64, 60 / 64], [6 / 37, 19 / 37]) },
+      printer: { sprite: 'store-printer', slot: point(printer.x, counter.y + printer.h, printer.z + printer.d * 0.16) },
     }),
-    lane: { x: 198, width: 80, incomingFoot: 171, scannedFoot: 187, gap: 4 },
-    customer: { x: 183, y: 50, w: 120, h: 120, walk: 225 },
-    microwaveCavity: { x: 30, y: 156 },
-    drawer: { x: 84, y: 199 },
+    // Drawn with the machines but not clicked: the security monitor, the clerk's phone.
+    decor: Object.freeze(['store-cctv', 'store-phone']),
+    // Goods wait at the far side of the lane and come forward once scanned.
+    lane: { x: laneLeft.x, width: laneRight.x - laneLeft.x, incomingFoot: laneLeft.y, scannedFoot: point(0, counter.y, lane.scannedZ).y, gap: 4 },
+    microwaveCavity: point(microwave.x - 0.05, counter.y + 0.13, microwave.z - microwave.d / 2 + 0.06),
+    // The customer canvas (art/src/people.cjs): its top-left, the head, and how far
+    // they walk in from the right.
+    customer: { x: origin[0], y: origin[1], head: { x: space.customer.centre, y: space.customer.headTop }, walk: 300 },
   });
-  if (typeof module !== 'undefined' && module.exports) module.exports = layout;
+  if (node) module.exports = layout;
   else (root.NSF = root.NSF || {}).layout = layout;
 })(globalThis);

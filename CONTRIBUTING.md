@@ -32,11 +32,13 @@ python3 -m pip install -r art/tools/requirements.txt
 ## Changing art
 
 Sprites are authored in `art/src/*.cjs` with palette colour names and the shading tools
-in `art/tools/pixel.cjs`. Positions on screen come from `js/content/layout.js`.
+in `art/tools/pixel.cjs`. The store and camera are in metres in `js/content/space.js`;
+`js/content/layout.js` derives screen positions from them. Customer poses are named in
+`js/content/poses.js` and drawn by `art/src/people.cjs`.
 
 ```sh
 node art/tools/build-art.cjs                      # rebuild assets/sprite-data.js and art/palette.gpl
-node art/tools/build-art.cjs --preview customers  # contact sheet of one source file
+node art/tools/build-art.cjs --preview goods      # contact sheet of one source file
 node art/tools/build-art.cjs --png                # export indexed PNGs to art/png/ (untracked)
 ```
 

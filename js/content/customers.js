@@ -1,11 +1,12 @@
-// Customer looks: paper-doll parts plus colour ramps for the remappable
-// palette slots. Skin and hair ramps are hand-picked; clothing ramps are
+// Customer looks: who wears what at the counter (`person`, drawn by
+// art/src/people.cjs), plus colour ramps for the remappable palette slots. Skin and hair ramps are hand-picked; clothing ramps are
 // generated with the shared hue-shift rules. Regulars fill ordinary orders;
 // Nell and the Nell who stayed are reserved for orders five and eight.
 (function (root) {
   'use strict';
   const node = typeof module !== 'undefined' && module.exports;
   const { ramp } = node ? require('./colors.js') : root.NSF.colors;
+  const poses = node ? require('./poses.js') : root.NSF.poses;
 
   // [outline, shadow, mid, light, highlight]
   const skin = {
@@ -30,36 +31,35 @@
   };
   const under = { white: '#b9b9b0', black: '#2e2e2e', flannel: '#7a3328', navy: '#2c3e63', lavender: '#9a8fb0' };
 
-  // `person` is the look at the first-person scale (art/src/people.cjs): height in
-  // metres places the figure, build sets its width, `arms` and `hands` are its own
-  // length and width factors, `legs` names the trousers, body is the outfit, poses
-  // are names from the pose library there. The older
-  // fields drive the current 2D sprites until the pseudo-3D store replaces them.
+  // `person`: height in metres places the figure, build sets its width, `arms` and
+  // `hands` are its own length and width factors, `legs` names the trousers, body is
+  // the outfit, head/hair/extras the face and hair parts; poses are names from
+  // js/content/poses.js, the first being how the customer waits at the counter.
   const customers = Object.freeze({
-    kit: { body: 'hoodie', head: 'oval', hair: 'messy', extras: ['earphones'], skin: skin.medium, hair_: hair.black, cloth: cloth.grey, under: under.white, accent: '#c9a24a',
-      person: { height: 1.77, build: 'slim', arms: [1.04, 0.9], hands: [1.06, 0.92], legs: 'black', head: 'oval', hair: 'messy', body: 'hoodie', extras: ['earphones'], poses: ['phone-one', 'one-rest']} },
-    hal: { body: 'vest', head: 'square', hair: 'buzz', extras: ['beard'], skin: skin.tan, hair_: hair.grey, cloth: cloth.olive, under: under.flannel, accent: '#e8792e',
-      person: { height: 1.74, build: 'heavy', arms: [0.98, 1.1], hands: [1, 1.15], legs: 'khaki', head: 'square', hair: 'buzz', body: 'vest', extras: ['beard'], poses: ['both-rest', 'receive']} },
-    dana: { body: 'jacket', head: 'oval', hair: 'bob', extras: ['glasses'], skin: skin.light, hair_: hair.black, cloth: cloth.charcoal, under: under.white, accent: '#c9a24a',
-      person: { height: 1.61, build: 'slim', arms: [1, 0.9], hands: [0.96, 0.9], legs: 'black', head: 'oval', hair: 'bob', body: 'blazer', extras: ['glasses-bold'], poses: ['card', 'phone-call']} },
-    tess: { body: 'hoodie', head: 'round', hair: 'bun', extras: ['mask'], skin: skin.pale, hair_: hair.brown, cloth: cloth.ceil, under: under.navy, accent: '#c9a24a',
-      person: { height: 1.58, build: 'average', arms: [0.97, 1], hands: [0.95, 0.95], legs: 'cloth', head: 'round', hair: 'bun', body: 'scrubs', extras: ['mask'], poses: ['one-rest', 'card-reader']} },
-    walt: { body: 'coat', head: 'square', hair: 'short', extras: ['scarf', 'glasses'], skin: skin.medium, hair_: hair.grey, cloth: cloth.camel, under: under.white, accent: '#7c3340',
-      person: { height: 1.71, build: 'average', arms: [1, 0.94], hands: [1.02, 1], legs: 'brown', head: 'square', hair: 'short', body: 'cardigan', extras: ['wrinkles', 'glasses'], poses: ['both-rest', 'card']} },
-    ana: { body: 'coat', head: 'oval', hair: 'bob', extras: [], skin: skin.deep, hair_: hair.auburn, cloth: cloth.navy, under: under.white, accent: '#b3c2bf',
-      person: { height: 1.66, build: 'average', arms: [1.02, 1], hands: [1, 0.96], legs: 'black', head: 'oval', hair: 'curly', body: 'peacoat', extras: [], poses: ['card-reader', 'one-rest']} },
-    dex: { body: 'jacket', head: 'round', hair: 'cap', extras: [], skin: skin.tan, hair_: hair.black, cloth: cloth.green, under: under.black, accent: '#a8322a',
-      person: { height: 1.81, build: 'broad', arms: [1.03, 1.08], hands: [1.08, 1.1], legs: 'khaki', head: 'round', hair: 'cap', body: 'windbreaker', extras: [], poses: ['phone-call', 'card']} },
-    bonnie: { body: 'vest', head: 'round', hair: 'beanie', extras: [], skin: skin.light, hair_: hair.brown, cloth: cloth.cream, under: under.black, accent: '#e8b22e',
-      person: { height: 1.64, build: 'broad', arms: [0.98, 1.06], hands: [0.98, 1.08], legs: 'navy', head: 'round', hair: 'beanie', body: 'sweater', extras: [], poses: ['receive', 'both-rest']} },
-    sam: { body: 'jacket', head: 'oval', hair: 'short', extras: ['earphones'], skin: skin.pale, hair_: hair.bleached, cloth: cloth.denim, under: under.black, accent: '#c9a24a',
-      person: { height: 1.86, build: 'slim', arms: [1.05, 0.88], hands: [1.1, 0.9], legs: 'black', head: 'narrow', hair: 'swept', body: 'denim', extras: [], poses: ['phone-check', 'card']} },
-    edie: { body: 'coat', head: 'round', hair: 'bun', extras: ['scarf'], skin: skin.light, hair_: hair.grey, cloth: cloth.burgundy, under: under.lavender, accent: '#8c7650',
-      person: { height: 1.55, build: 'heavy', arms: [0.96, 1.04], hands: [0.92, 1], legs: 'grey', head: 'round', hair: 'perm', body: 'shawl', extras: ['wrinkles'], poses: ['receive', 'both-rest']} },
-    nell: { body: 'coat', head: 'oval', hair: 'long', extras: ['wet'], skin: skin.light, hair_: hair.black, cloth: cloth.rainYellow, under: under.white, accent: '#2b2f31', phone: true,
-      person: { height: 1.68, build: 'average', arms: [1, 1], hands: [1, 1], legs: 'navy', head: 'oval', hair: 'long', body: 'raincoat', extras: ['wet'], poses: ['one-rest', 'phone-call'] } },
-    nellStayed: { body: 'coat', head: 'oval', hair: 'long', mirrorHair: true, extras: ['wet'], skin: skin.light, hair_: hair.black, cloth: cloth.rainTeal, under: under.white, accent: '#2b2f31',
-      person: { height: 1.68, build: 'average', arms: [1, 1], hands: [1, 1], legs: 'navy', head: 'oval', hair: 'long', body: 'raincoat', extras: ['wet'], poses: ['one-rest'] } },
+    kit: { skin: skin.medium, hair_: hair.black, cloth: cloth.grey, under: under.white, accent: '#c9a24a',
+      person: { height: 1.77, build: 'slim', arms: [1.04, 0.9], hands: [1.06, 0.92], legs: 'black', head: 'oval', hair: 'messy', body: 'hoodie', extras: ['earphones'], poses: ['phone-one']} },
+    hal: { skin: skin.tan, hair_: hair.grey, cloth: cloth.olive, under: under.flannel, accent: '#e8792e',
+      person: { height: 1.74, build: 'heavy', arms: [0.98, 1.1], hands: [1, 1.15], legs: 'khaki', head: 'square', hair: 'buzz', body: 'vest', extras: ['beard'], poses: ['both-rest']} },
+    dana: { skin: skin.light, hair_: hair.black, cloth: cloth.charcoal, under: under.white, accent: '#c9a24a',
+      person: { height: 1.61, build: 'slim', arms: [1, 0.9], hands: [0.96, 0.9], legs: 'black', head: 'oval', hair: 'bob', body: 'blazer', extras: ['glasses-bold'], poses: ['stand']} },
+    tess: { skin: skin.pale, hair_: hair.brown, cloth: cloth.ceil, under: under.navy, accent: '#c9a24a',
+      person: { height: 1.58, build: 'average', arms: [0.97, 1], hands: [0.95, 0.95], legs: 'cloth', head: 'round', hair: 'bun', body: 'scrubs', extras: ['mask'], poses: ['one-rest']} },
+    walt: { skin: skin.medium, hair_: hair.grey, cloth: cloth.camel, under: under.white, accent: '#7c3340',
+      person: { height: 1.71, build: 'average', arms: [1, 0.94], hands: [1.02, 1], legs: 'brown', head: 'square', hair: 'short', body: 'cardigan', extras: ['wrinkles', 'glasses'], poses: ['both-rest']} },
+    ana: { skin: skin.deep, hair_: hair.auburn, cloth: cloth.navy, under: under.white, accent: '#b3c2bf',
+      person: { height: 1.66, build: 'average', arms: [1.02, 1], hands: [1, 0.96], legs: 'black', head: 'oval', hair: 'curly', body: 'peacoat', extras: [], poses: ['one-rest']} },
+    dex: { skin: skin.tan, hair_: hair.black, cloth: cloth.green, under: under.black, accent: '#a8322a',
+      person: { height: 1.81, build: 'broad', arms: [1.03, 1.08], hands: [1.08, 1.1], legs: 'khaki', head: 'round', hair: 'cap', body: 'windbreaker', extras: [], poses: ['phone-call']} },
+    bonnie: { skin: skin.light, hair_: hair.brown, cloth: cloth.cream, under: under.black, accent: '#e8b22e',
+      person: { height: 1.64, build: 'broad', arms: [0.98, 1.06], hands: [0.98, 1.08], legs: 'navy', head: 'round', hair: 'beanie', body: 'sweater', extras: [], poses: ['one-rest']} },
+    sam: { skin: skin.pale, hair_: hair.bleached, cloth: cloth.denim, under: under.black, accent: '#c9a24a',
+      person: { height: 1.86, build: 'slim', arms: [1.05, 0.88], hands: [1.1, 0.9], legs: 'black', head: 'narrow', hair: 'swept', body: 'denim', extras: [], poses: ['phone-check']} },
+    edie: { skin: skin.light, hair_: hair.grey, cloth: cloth.burgundy, under: under.lavender, accent: '#8c7650',
+      person: { height: 1.55, build: 'heavy', arms: [0.96, 1.04], hands: [0.92, 1], legs: 'grey', head: 'round', hair: 'perm', body: 'shawl', extras: ['wrinkles'], poses: ['both-rest']} },
+    nell: { skin: skin.light, hair_: hair.black, cloth: cloth.rainYellow, under: under.white, accent: '#2b2f31',
+      person: { height: 1.68, build: 'average', arms: [1, 1], hands: [1, 1], legs: 'navy', head: 'oval', hair: 'long', body: 'raincoat', extras: ['wet'], poses: ['phone-call'] } },
+    nellStayed: { skin: skin.light, hair_: hair.black, cloth: cloth.rainTeal, under: under.white, accent: '#2b2f31',
+      person: { height: 1.68, build: 'average', arms: [1, 1], hands: [1, 1], legs: 'navy', head: 'oval', hair: 'long', mirrorHair: true, body: 'raincoat', extras: ['wet'], poses: ['one-rest'] } },
   });
   const regulars = Object.freeze(['kit', 'hal', 'dana', 'tess', 'walt', 'ana', 'dex', 'bonnie', 'sam', 'edie']);
 
@@ -70,47 +70,39 @@
     return { ...named('skin', c.skin), ...named('hair', c.hair_), ...named('cloth', ramp(c.cloth, 5, { at: 2 })),
       ...named('under', ramp(c.under, 4, { at: 2 })), ...named('accent', ramp(c.accent, 3, { at: 1 })) };
   }
-  // Outfits whose sleeves are the layer underneath (vest over a shirt, scrubs over a
-  // long-sleeved top, a blouse under a shawl).
-  const UNDER_SLEEVES = ['vest', 'scrubs', 'blouse'];
-  // Slot overrides for the arms: the outfit's cloth, or the under layer.
-  function sleeveColors(id) {
-    const c = customers[id];
-    if (!UNDER_SLEEVES.includes(c.person.body)) return slotColors(id);
-    return { ...slotColors(id), ...named('cloth', ramp(c.under, 5, { at: 2 })) };
-  }
   // Arms are authored per figure: build plus height in centimetres.
   const personFrame = person => `${person.build}-${Math.round(person.height * 100)}`;
 
-  // Slot overrides for a prop (card) of a single colour.
-  function propColors(hex) { return named('accent', ramp(hex, 3, { at: 1 })); }
-
-  // Back-to-front layers drawn behind the counter for a pose.
-  function layers(id, pose) {
-    const c = customers[id];
-    const hairBack = { long: 'customer-hair-back-long', bob: 'customer-hair-back-bob' }[c.hair];
-    const lower = c.extras.filter(e => ['scarf', 'beard', 'mask'].includes(e));
-    const upper = c.extras.filter(e => ['glasses', 'earphones', 'wet'].includes(e));
-    const list = [];
-    if (hairBack) list.push({ sprite: hairBack, flip: Boolean(c.mirrorHair) });
-    list.push({ sprite: 'customer-body-' + c.body });
-    if (pose === 'idle' && !c.phone) list.push({ sprite: 'customer-arm-idle' });
-    list.push({ sprite: 'customer-head-' + c.head });
-    for (const e of lower) list.push({ sprite: 'customer-' + e });
-    list.push({ sprite: 'customer-hair-' + c.hair, flip: Boolean(c.mirrorHair) });
-    for (const e of upper) list.push({ sprite: 'customer-' + e });
-    if (pose === 'idle' && c.phone) list.push({ sprite: 'customer-arm-phone' });
-    return list;
+  // The sprites that draw a customer in a pose, back to front, in three passes:
+  // `behind` before the counter, `counter` after it, `over` after the machines on it.
+  // A part with `follows` moves with the figure's height and lean (the head, hair and
+  // face); `flip` mirrors hair parts for the Nell who stayed.
+  function parts(id, pose) {
+    const person = customers[id].person;
+    const key = `${person.body}-${personFrame(person)}-${pose}`;
+    const flip = Boolean(person.mirrorHair);
+    const back = { long: 'person-hair-back-long', bob: 'person-hair-back-bob' }[person.hair];
+    const face = group => person.extras.filter(e => group.includes(e)).map(e => ({ sprite: 'person-' + e, follows: true }));
+    return {
+      behind: [
+        ...(back ? [{ sprite: back, follows: true, flip }] : []),
+        { sprite: 'person-back-' + key },
+        { sprite: `person-head-${person.head}-${poses.poses[pose].gaze}`, follows: true },
+        ...face(['wrinkles', 'beard', 'mask']),
+        { sprite: 'person-hair-' + person.hair, follows: true, flip },
+        ...face(['glasses', 'glasses-bold', 'earphones', 'wet']),
+        { sprite: 'person-front-' + key },
+      ],
+      counter: [{ sprite: 'person-counter-' + key }],
+      over: [{ sprite: 'person-over-' + key }],
+    };
   }
+  // The pose for something the game asks of the customer, or how they wait.
+  const poseFor = (id, action) => poses.actions[action] || customers[id].person.poses[0];
+  // Every pose a customer is drawn in.
+  const posesOf = id => [...new Set([...customers[id].person.poses, ...Object.values(poses.actions)])];
 
-  // Arm drawn in front of the counter while handing things over.
-  function frontArm(pose) {
-    return { reach: 'customer-arm-reach', low: 'customer-arm-low' }[pose] || null;
-  }
-
-  // Mirrored parts reflect around the head centre (between columns 53 and 54).
-  const FLIP_AXIS = 53.5;
-  const api = { customers, regulars, slotColors, sleeveColors, personFrame, propColors, layers, frontArm, FLIP_AXIS };
+  const api = { customers, regulars, slotColors, personFrame, parts, poseFor, posesOf };
   if (node) module.exports = api;
   else (root.NSF = root.NSF || {}).customers = api;
 })(globalThis);
