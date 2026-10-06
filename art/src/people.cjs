@@ -780,17 +780,18 @@ const GARMENTS = {
     },
   },
 
-  // Hal: quilted down vest over a red flannel shirt; the shirt shows at the arms and collar.
-  vest: {
-    pad: 0.022, sleeve: 'under',
+  // Hal: hi-vis work jacket in fluorescent orange over a flannel shirt: two silver
+  // reflective bands round the body and each sleeve, a zip, the flannel at the collar.
+  hivis: {
+    pad: 0.02, extra: standCollar(0.035, 0.025),
     paint(hit, R, level, { x, y, z, front, arm }) {
-      if (arm !== undefined) return plaid(hit.P);
+      const band = { color: level > 1 ? 'steel6' : 'steel4' };
+      if (arm !== undefined) return (arm > 0.12 && arm < 0.145) || (arm > 0.175 && arm < 0.2) ? band : null;
+      if (hit.tag === 'collar') return front && Math.abs(x) < 0.02 ? plaid(hit.P) : null;
       if (hit.tag !== 'torso') return null;
-      if (Math.abs(x) > R.b.shoulder - 0.05 && y > R.chest - 0.03) return plaid(hit.P);         // the armholes
-      if (front && Math.abs(x) < vHalf(y, R.notch + 0.03, 0.06, 0.04)) return plaid(hit.P);    // shirt at the neck
-      if (front && Math.abs(x) < 0.0025 && y < R.notch - 0.03) return { color: 'cloth0' };      // zip
-      const k = ((R.notch - y) / 0.05) % 1;
-      if (y < R.notch - 0.02) return k < 0.1 ? darker(level) : k < 0.2 ? lighter(level) : null;
+      if (front && Math.abs(x) < vHalf(y, R.notch + 0.03, 0.06, 0.03)) return plaid(hit.P);
+      if (Math.abs(y - R.waist - 0.03) < 0.013 || Math.abs(y - R.waist - 0.11) < 0.013) return band;
+      if (front && Math.abs(x) < 0.0025 && y < R.notch - 0.03) return { color: 'cloth0' };
       return null;
     },
   },
@@ -827,20 +828,33 @@ const GARMENTS = {
     },
   },
 
-  // Walt: cardigan with ribbed front bands over a shirt and a striped tie, wooden buttons, pockets.
-  cardigan: {
-    pad: 0.014,
+  // Walt: a worn trench coat, double-breasted with wide lapels and a belt, and a
+  // striped wool scarf wound once round the neck, one fringed end down the front.
+  trench: {
+    pad: 0.02, long: true,
+    extra: R => [['scarf', p => {
+      const q = v3.sub(p, [0, R.notch + 0.012, BODY_Z + 0.01]);
+      return Math.hypot(Math.hypot(q[0], q[2] * 1.15) - (R.b.neck + 0.03), q[1] * 1.2) - 0.024;
+    }]],
     paint(hit, R, level, { x, y, z, front }) {
+      const stripe = k => (Math.floor(k / 0.028) % 3 === 2 ? { color: 'accent2' } : { material: 'accent' });
+      if (hit.tag === 'scarf') return stripe(x + 1);
       if (hit.tag !== 'torso' || !front) return null;
-      const v = vHalf(y, R.notch + 0.03, 0.2, 0.06), ax = Math.abs(x);
-      if (ax < v) {
-        const tie = 0.006 + (R.notch - y) * 0.06;
-        if (y < R.notch + 0.005 && ax < tie) return { color: Math.floor((x + y) * 160) % 3 ? 'accent1' : 'accent0' };
-        return y > R.notch - 0.01 && ax > v - 0.02 ? { color: 'under3' } : { material: 'under' };
+      const ax = Math.abs(x);
+      if (x > -0.065 && x < -0.022 && y > R.notch - 0.2 && y < R.notch) {
+        if (y < R.notch - 0.185) return Math.floor(x * 400) % 2 ? { color: 'accent0' } : null;
+        return stripe(R.notch - y);
       }
-      if (ax < (v < 0 ? 0.012 : v + 0.012)) return Math.floor(y * 200) % 2 ? lighter(level) : null;   // ribbed band
-      for (let k = 1; k < 5; k++) if (dot(x, y, 0.004, R.notch - 0.2 - k * 0.05, 0.007)) return { color: 'wood2' };
-      if (Math.abs(y - R.waist - 0.03) < 0.003 && ax > 0.05 && ax < 0.11) return { color: 'cloth1' };
+      const v = vHalf(y, R.notch + 0.04, 0.14, 0.035);
+      if (ax < v) return { material: 'under' };
+      if (v >= 0 && ax < v + 0.06) return Math.abs(ax - v - 0.06) < 0.004 ? { color: 'cloth0' } : lighter(level);
+      if (Math.abs(y - R.waist) < 0.016) {
+        if (x > 0.005 && x < 0.035) return { color: Math.abs(y - R.waist) < 0.008 && x > 0.012 && x < 0.028 ? 'steel5' : 'steel3' };
+        return y < R.waist - 0.011 ? { color: 'cloth0' } : darker(level);
+      }
+      for (const cy of [R.notch - 0.17, R.notch - 0.24]) for (const cx of [-0.06, 0.06]) {
+        if (dot(x, y, cx, cy, 0.008)) return { color: 'cloth0' };
+      }
       return null;
     },
   },

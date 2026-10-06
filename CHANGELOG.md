@@ -5,6 +5,25 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — Walt, Hal and Sam dressed as the worldview says
+
+- Walt (taxi driver) wears a worn trench coat, double-breasted with wide lapels, a
+  belt and buckle, and a striped burgundy scarf with one fringed end down the front;
+  the cardigan and tie are gone.
+- Hal (dock worker) wears a fluorescent orange hi-vis jacket with two silver bands
+  round the body and sleeves, flannel at the collar; the quilted vest is gone. Orange,
+  not yellow, so he doesn't echo Nell's raincoat or Bonnie's beanie.
+- Sam wears Kit's wired earphones.
+
+### Verified (Walt, Hal, Sam)
+
+- All five checks pass. The people sheet was reviewed for all three in every pose.
+
+### Not verified (Walt, Hal, Sam)
+
+- The sleeve bands on Hal show only at the arms' edges in resting poses. Walt's scarf
+  stripes are faint at this size. Shift screenshots were captured but not looked at.
+
 ### Changed — no phone payment; Tess and Ana dressed as the worldview says
 
 - Phone (TAP) payment is gone: unusual for 2005 in most places, and the same action as

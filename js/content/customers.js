@@ -25,9 +25,9 @@
     bleached: ['#5a4a2e', '#9c8452', '#c9b07a', '#ead7a6'],
   };
   const cloth = {
-    navy: '#2c3e63', olive: '#4a5638', charcoal: '#3a3f42', burgundy: '#6a2633', camel: '#9c8456',
+    navy: '#2c3e63', charcoal: '#3a3f42', burgundy: '#6a2633', camel: '#9c8456',
     grey: '#5c6268', green: '#2c5e52', ceil: '#6f8fb0', denim: '#46628a', cream: '#c8bc9a',
-    rainYellow: '#d6a429', rainTeal: '#2a7470',
+    rainYellow: '#d6a429', rainTeal: '#2a7470', hiVis: '#e8681e',
   };
   const under = { white: '#b9b9b0', black: '#2e2e2e', flannel: '#7a3328', navy: '#2c3e63', lavender: '#9a8fb0' };
 
@@ -38,14 +38,14 @@
   const customers = Object.freeze({
     kit: { skin: skin.medium, hair_: hair.black, cloth: cloth.grey, under: under.white, accent: '#c9a24a',
       person: { height: 1.77, build: 'slim', arms: [1.04, 0.9], hands: [1.06, 0.92], legs: 'black', head: 'oval', hair: 'messy', body: 'hoodie', extras: ['earphones'], poses: ['phone-one']} },
-    hal: { skin: skin.tan, hair_: hair.grey, cloth: cloth.olive, under: under.flannel, accent: '#e8792e',
-      person: { height: 1.74, build: 'heavy', arms: [0.98, 1.1], hands: [1, 1.15], legs: 'khaki', head: 'square', hair: 'buzz', body: 'vest', extras: ['beard'], poses: ['both-rest']} },
+    hal: { skin: skin.tan, hair_: hair.grey, cloth: cloth.hiVis, under: under.flannel, accent: '#e8792e',
+      person: { height: 1.74, build: 'heavy', arms: [0.98, 1.1], hands: [1, 1.15], legs: 'khaki', head: 'square', hair: 'buzz', body: 'hivis', extras: ['beard'], poses: ['both-rest']} },
     dana: { skin: skin.light, hair_: hair.black, cloth: cloth.charcoal, under: under.white, accent: '#c9a24a',
       person: { height: 1.61, build: 'slim', arms: [1, 0.9], hands: [0.96, 0.9], legs: 'black', head: 'oval', hair: 'bob', body: 'blazer', extras: ['glasses-bold'], poses: ['stand']} },
     tess: { skin: skin.pale, hair_: hair.brown, cloth: cloth.navy, under: under.white, accent: '#b3c2bf',
       person: { height: 1.58, build: 'average', arms: [0.97, 1], hands: [0.95, 0.95], legs: 'black', head: 'round', hair: 'bun', body: 'peacoat', extras: [], poses: ['one-rest']} },
     walt: { skin: skin.medium, hair_: hair.grey, cloth: cloth.camel, under: under.white, accent: '#7c3340',
-      person: { height: 1.71, build: 'average', arms: [1, 0.94], hands: [1.02, 1], legs: 'brown', head: 'square', hair: 'short', body: 'cardigan', extras: ['wrinkles', 'glasses'], poses: ['both-rest']} },
+      person: { height: 1.71, build: 'average', arms: [1, 0.94], hands: [1.02, 1], legs: 'brown', head: 'square', hair: 'short', body: 'trench', extras: ['wrinkles', 'glasses'], poses: ['both-rest']} },
     ana: { skin: skin.deep, hair_: hair.auburn, cloth: cloth.ceil, under: under.navy, accent: '#c9a24a',
       person: { height: 1.66, build: 'average', arms: [1.02, 1], hands: [1, 0.96], legs: 'cloth', head: 'oval', hair: 'curly', body: 'scrubs', extras: [], poses: ['one-rest']} },
     dex: { skin: skin.tan, hair_: hair.black, cloth: cloth.green, under: under.black, accent: '#a8322a',
@@ -53,7 +53,7 @@
     bonnie: { skin: skin.light, hair_: hair.brown, cloth: cloth.cream, under: under.black, accent: '#e8b22e',
       person: { height: 1.64, build: 'broad', arms: [0.98, 1.06], hands: [0.98, 1.08], legs: 'navy', head: 'round', hair: 'beanie', body: 'sweater', extras: [], poses: ['one-rest']} },
     sam: { skin: skin.pale, hair_: hair.bleached, cloth: cloth.denim, under: under.black, accent: '#c9a24a',
-      person: { height: 1.86, build: 'slim', arms: [1.05, 0.88], hands: [1.1, 0.9], legs: 'black', head: 'narrow', hair: 'swept', body: 'denim', extras: [], poses: ['phone-check']} },
+      person: { height: 1.86, build: 'slim', arms: [1.05, 0.88], hands: [1.1, 0.9], legs: 'black', head: 'narrow', hair: 'swept', body: 'denim', extras: ['earphones'], poses: ['phone-check']} },
     edie: { skin: skin.light, hair_: hair.grey, cloth: cloth.burgundy, under: under.lavender, accent: '#8c7650',
       person: { height: 1.55, build: 'heavy', arms: [0.96, 1.04], hands: [0.92, 1], legs: 'grey', head: 'round', hair: 'perm', body: 'shawl', extras: ['wrinkles'], poses: ['both-rest']} },
     nell: { skin: skin.light, hair_: hair.black, cloth: cloth.rainYellow, under: under.white, accent: '#2b2f31',
