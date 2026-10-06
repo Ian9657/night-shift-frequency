@@ -5,6 +5,23 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — cold fluorescent lighting and counter wear
+
+- Strengthened the cold fluorescent ceiling light, added broken tube reflections
+  in the shop window, and added restrained reflected light bands plus
+  deterministic wear marks to the counter top. The room, customer, fixture
+  layout and interaction rules are unchanged.
+
+### Verified (lighting)
+
+- Rebuilt the indexed sprite bundle; `shift-engine`, `content` and `art` pass.
+- Inspected the store preview at native pixel scale.
+
+### Not verified (lighting)
+
+- `browser-flow` and `visual` could not run because Playwright is not installed
+  in this environment; desktop and phone browser screenshots remain unverified.
+
 ### Changed — impulse buys on the customer's edge
 
 - The flat strip of colours is a two-tier gum rack: packs built one by one, each with a

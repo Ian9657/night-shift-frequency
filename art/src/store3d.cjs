@@ -75,8 +75,17 @@ function outside(p, x0, y0, x1, y1) {
   p.glow(lx + 10, ly + 2, 18, 42, ['haze0', 'haze1', 'haze2', 'lamp0'], (x, y) => y >= ly + 2 && y < y1 && Math.abs(x - lx - 10) <= (y - ly + 3) * 0.45);
   p.glow(lx + 10, ly + 2, 5, 3, ['lamp0', 'lamp1']);
   for (let y = H + 34; y < y1; y += 2) if ((y * 7) % 5) p.hline(lx + 9, lx + 11, y, y < H + 56 ? 'lamp1' : 'lamp0');
-  // Glass: the store's tubes reflected along the top, short diagonal sheen
+  // Glass: cold tube reflections sit inside the pane, with the outside still
+  // visible between them. They are deliberately broken rather than a smooth
+  // gradient, so the window keeps its pixel-art night texture.
   p.dither(x0 + 4, y0 + 1, 50, 1, 'night5', 'checker').dither(x1 - 56, y0 + 1, 50, 1, 'night5', 'checker');
+  const tubeY = [y0 + 13, y0 + 15, y0 + 42, y0 + 44];
+  for (const [i, ry] of tubeY.entries()) {
+    const start = i < 2 ? x0 + 10 : x1 - 50;
+    const width = i % 2 ? 34 : 42;
+    p.hline(start, Math.min(x1 - 3, start + width), ry, i % 2 ? 'night4' : 'night5');
+    p.dither(start + 3, ry + 1, Math.max(4, width - 8), 1, 'night3', 'checker');
+  }
   for (const [sx, sy] of [[x0 + 54, y0 + 30], [x0 + 60, y0 + 30], [x1 - 50, y0 + 60], [x1 - 45, y0 + 60]]) {
     for (let i = 0; i < 10; i++) p.px(sx + i, sy + i * 2, 'night3');
   }
@@ -254,6 +263,13 @@ function counterLayer() {
     const n = hash(Math.floor(P[0] * 220 + 900), Math.floor(P[2] * 220));
     if (n < 0.03) return 'top3';
     if (P[0] > -0.75 && P[0] < -0.15 && P[2] > 0.7 && P[2] < 0.9 && n > 0.75 && n < 0.8) return 'top3'; // wear by the register
+    // Reflections from the fluorescent tubes: two short, cool bands broken by
+    // the grain and kept below the far lip so they read as reflected light.
+    const band = (P[2] > 0.72 && P[2] < 0.78) || (P[2] > 0.93 && P[2] < 0.97);
+    if (band && Math.abs(P[0]) < 1.42 && (Math.floor(P[0] * 46) + sy) % 9 < 5) return 'top5';
+    // A few fixed scuffs near the clerk's working area.  They are sparse and
+    // deterministic, so rebuilds do not make the counter shimmer.
+    if (P[2] > 0.58 && P[2] < 0.9 && P[0] > -0.35 && P[0] < 0.42 && ((sx * 7 + sy * 3) % 47 === 0)) return 'top3';
     return P[2] > 1.02 ? 'top3' : 'top4';
   }, TOP);
   s.quad([-room.halfW, counter.y - counter.thick, counter.near], [2 * room.halfW, 0, 0], [0, counter.thick, 0], [0, 0, -1], () => 'top2', TOP);

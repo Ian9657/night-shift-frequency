@@ -15,14 +15,17 @@ const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
 const norm = a => mul(a, 1 / Math.hypot(...a));
 
-// Light: the ceiling tubes over a bright interior.
+// Light: the ceiling tubes over a bright, cold interior.  The tubes are long
+// fixtures running into the room, so their influence falls off mostly across
+// the ceiling rather than becoming a single point light.
 const TUBES = [-0.75, 0.75];
 const KEY = norm([0, 0.85, -0.5]);
 function lightAt(P, n) {
-  let I = 0.42 + 0.38 * Math.max(0, dot(n, KEY));
+  let I = 0.46 + 0.36 * Math.max(0, dot(n, KEY));
   for (const tx of TUBES) {
-    const d = Math.hypot(P[0] - tx, P[1] - room.ceiling);
-    I += 0.32 * Math.exp(-d * d / 1.6);
+    const across = P[0] - tx;
+    const below = room.ceiling - P[1];
+    I += 0.34 * Math.exp(-(across * across * 1.8 + below * below) / 1.7);
   }
   return Math.min(1, I);
 }
