@@ -17,7 +17,7 @@
   }
 
   const F = space.fixtures;
-  const [pos] = F.pos, [radio] = F.radio, [tray] = F.tray, [bags] = F.bags, [printer] = F.printer;
+  const [pos] = F.pos, [radio] = F.radio, [drawer] = F.drawer, [bags] = F.bags, [printer] = F.printer;
   const [scanner] = F.scanner, [microwave] = F.microwave;
   const lane = space.lane;
   const laneLeft = point(lane.x0, counter.y, lane.z), laneRight = point(lane.x1, counter.y, lane.z);
@@ -32,13 +32,15 @@
       pos: { sprite: 'store-pos', screen: face(pos.x, pos.w, pos.z - pos.d / 2, counter.y, counter.y + pos.h, [8 / 80, 72 / 80], [7 / 73, 55 / 73]) },
       scanner: { sprite: 'store-scanner', busy: 'store-scanner-reading', beam: point(scanner.x - 0.03, counter.y + 0.08, scanner.z - 0.1) },
       terminal: { sprite: 'store-terminal', busy: 'store-terminal-approved' },
-      tray: { sprite: 'store-tray', drop: point(tray.x, counter.y + 0.012, tray.z) },
+      // Cash goes into the drawer: it opens, takes the note and shuts.
+      drawer: { sprite: 'store-drawer', busy: 'store-drawer-open', drop: point(drawer.x, drawer.y + drawer.h, counter.near - space.drawerTravel * 0.4) },
       bags: { sprite: 'store-bags', stack: point(bags.x, counter.y + 0.03, bags.z), packing: point(bags.x - 0.04, counter.y, bags.z - 0.13) },
-      radio: { sprite: 'store-radio', echo: 'store-radio-echo', display: face(radio.x, radio.w, radio.z - radio.d / 2, counter.y, counter.y + radio.h, [34 / 64, 60 / 64], [6 / 37, 19 / 37]) },
+      radio: { sprite: 'store-radio', echo: 'store-radio-echo', display: face(radio.x, radio.w, radio.z - radio.d / 2, counter.y, counter.y + radio.h, [26 / 48, 45 / 48], [5 / 28, 14 / 28]) },
       printer: { sprite: 'store-printer', slot: point(printer.x, counter.y + printer.h, printer.z + printer.d * 0.16) },
     }),
-    // Drawn with the machines but not clicked: the security monitor, the clerk's phone.
-    decor: Object.freeze(['store-cctv', 'store-phone']),
+    // Drawn with the machines but not clicked: the security monitor, the clerk's phone
+    // and half-finished can of coffee.
+    decor: Object.freeze(['store-cctv', 'store-phone', 'store-can']),
     // Goods wait at the far side of the lane and come forward once scanned.
     lane: { x: laneLeft.x, width: laneRight.x - laneLeft.x, incomingFoot: laneLeft.y, scannedFoot: point(0, counter.y, lane.scannedZ).y, gap: 4 },
     microwaveCavity: point(microwave.x - 0.05, counter.y + 0.13, microwave.z - microwave.d / 2 + 0.06),

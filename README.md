@@ -14,7 +14,7 @@ A 480×270 pixel-art browser game. Download it, open it, play. No install, no bu
 Open `index.html` in a browser and click **START SHIFT**.
 
 - Click an item, then the scanner. When everything is scanned, take payment the way the
-  customer asks: card or phone on the card terminal, cash on the coin tray.
+  customer asks: card or phone on the card terminal, cash into the drawer under the register.
 - Bentos are heated after payment: click the microwave. Click the bags to bag an order.
 - Click the register screen to see the transaction record. When the register and the
   item disagree, scan the item again at the counter before the record choices appear.

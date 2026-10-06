@@ -259,15 +259,14 @@ function counterLayer() {
   s.quad([-room.halfW, counter.y - counter.thick, counter.near], [2 * room.halfW, 0, 0], [0, counter.thick, 0], [0, 0, -1], () => 'top2', TOP);
   const UNDER = s.object('under', { outline: false });
   s.quad([-room.halfW, 0, counter.near + 0.06], [2 * room.halfW, 0, 0], [0, counter.y - counter.thick, 0], [0, 0, -1], (u, v, P, sx, sy) => ((sx + sy) % 2 ? 'wall0' : 'ink'), UNDER);
-  const { candyRack, changeMat } = space.decor;
-  s.box(changeMat, RAMP.green, null, { name: 'change mat', outline: false });
+  const { candyRack } = space.decor;
   s.box(candyRack, RAMP.steel, (f, u, t) => {
     if (f === 'top') return ['red2', 'buoy2', 'green2', 'blue2', 'yellow2', 'pink1'][Math.floor(u * 12) % 6];
     if (f === 'front') return t > 0.8 ? RAMP.steel : t > 0.55 ? RAMP[['red', 'yellow', 'green', 'blue', 'pink', 'buoy'][Math.floor(u * 10) % 6]] : (u * 10) % 1 < 0.15 ? 'steel5' : 'steel1';
     return null;
   }, { name: 'candy rack' });
-  // Contact shadows of everything that stands on the counter.
-  const footprints = [...Object.values(space.fixtures).flat(), ...Object.values(space.personal), candyRack];
+  // Contact shadows of everything that stands on the counter (not the drawer below it).
+  const footprints = [...Object.values(space.fixtures).flat(), ...Object.values(space.personal), candyRack].filter(f => f.y === undefined);
   s.contactShadows(TOP, footprints);
   s.outline();
   return s.layer('main');
@@ -276,7 +275,7 @@ function counterLayer() {
 // ------------------------------------------------------------------ the clerk's things (nearest)
 function front() {
   const s = new Stage();
-  const { coffee, signIn, can } = space.personal;
+  const { signIn } = space.personal;
   s.box(signIn, RAMP.paper, (f, u, t) => {
     if (f !== 'top') return null;
     if (t > 0.88) return 'steel6';
@@ -285,8 +284,6 @@ function front() {
     if ((t * 9) % 1 > 0.35 && (t * 9) % 1 < 0.65 && u > 0.1 && u < 0.45) return 'blue2';  // the same signature, every row
     return null;
   }, { name: 'sign-in' });
-  s.box(can, RAMP.green, (f, u) => (u > 0.4 && u < 0.6 ? 'yellow2' : null), { name: 'energy can' });
-  s.box(coffee, RAMP.paper, (f, u, t) => (f === 'top' ? 'steel1' : t > 0.3 && t < 0.62 ? 'wood2' : t > 0.9 ? 'steel2' : null), { name: 'coffee' });
   s.outline();
   return s.layer('main');
 }
@@ -341,36 +338,36 @@ function sprites() {
 
   // Microwave: meshed door window, handle, control panel with a clock and keys.
   // Heating, the window glows warm over the turntable and the clock counts down.
-  const micro = heating => fixture(F.microwave, [RAMP.steel], [both(panel('front', 106, 62, p => {
-    p.rect(2, 4, 66, 54, 'steel4').frame(2, 4, 66, 54, 'steel2');
-    for (let y = 9; y < 52; y++) for (let x = 7; x < 63; x++) {
+  const micro = heating => fixture(F.microwave, [RAMP.steel], [both(panel('front', 82, 48, p => {
+    p.rect(2, 3, 52, 42, 'steel4').frame(2, 3, 52, 42, 'steel2');
+    for (let y = 7; y < 41; y++) for (let x = 6; x < 50; x++) {
       if (heating) {
-        const d = Math.hypot((x - 35) / 28, (y - 30) / 21);
+        const d = Math.hypot((x - 27) / 21, (y - 23) / 16);
         p.px(x, y, d < 0.45 ? 'yellow3' : d < 0.75 ? 'yellow2' : 'orange2');
       } else p.px(x, y, (x + y) % 2 ? 'steel0' : 'steel1');
     }
-    if (heating) p.ellipse(35, 46, 18, 3, 'orange3').ellipse(35, 42, 7, 4, 'wood2').hline(29, 41, 39, 'wood3');   // the plate and a bowl
-    p.frame(6, 8, 58, 45, 'steel2').hline(7, 62, 9, heating ? 'yellow3' : 'steel2');
-    p.rect(70, 8, 3, 46, 'steel6').vline(72, 8, 53, 'steel3');                                // handle
-    p.rect(76, 6, 27, 11, 'ink').frame(76, 6, 27, 11, 'steel2');
-    text(p, 79, 9, heating ? '0:42' : '3:47', heating ? 'phos4' : 'phos3');
-    for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) p.rect(77 + c * 9, 21 + r * 7, 7, 5, 'steel5').hline(77 + c * 9, 83 + c * 9, 25 + r * 7, 'steel2');
-    p.rect(77, 50, 12, 6, 'green2').rect(91, 50, 11, 6, 'red2').hline(77, 101, 55, 'steel1');
+    if (heating) p.ellipse(27, 36, 14, 2, 'orange3').ellipse(27, 33, 6, 3, 'wood2').hline(22, 32, 30, 'wood3');   // the plate and a bowl
+    p.frame(5, 6, 46, 36, 'steel2').hline(6, 49, 7, heating ? 'yellow3' : 'steel2');
+    p.rect(55, 6, 2, 36, 'steel6').vline(56, 6, 41, 'steel3');                                // handle
+    p.rect(60, 4, 20, 9, 'ink').frame(60, 4, 20, 9, 'steel2');
+    text(p, 62, 6, heating ? '0:42' : '3:47', heating ? 'phos4' : 'phos3');
+    for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) p.rect(61 + c * 6, 16 + r * 5, 5, 3, 'steel5').hline(61 + c * 6, 65 + c * 6, 18 + r * 5, 'steel2');
+    p.rect(61, 38, 8, 5, 'green2').rect(71, 38, 8, 5, 'red2').hline(61, 78, 42, 'steel1');
   }))]);
   result['store-microwave'] = micro(false);
   result['store-microwave-heating'] = micro(true);
 
   // Security monitor on the microwave: a grey top-down view of the aisles, the
   // camera's name, a recording light, scan lines.
-  result['store-cctv'] = fixture([space.decor.cctv], [RAMP.dark], [panel('front', 63, 51, p => {
-    p.rect(3, 3, 57, 40, 'steel2').frame(3, 3, 57, 40, 'ink');
-    for (let y = 5; y < 42; y++) for (let x = 5; x < 58; x++) p.px(x, y, (y % 2) ? 'steel1' : 'steel2');
-    for (const x of [10, 24, 38]) p.rect(x, 9, 8, 22, 'steel3').vline(x, 9, 30, 'steel4');      // aisles
-    p.rect(8, 34, 46, 5, 'steel4').hline(8, 53, 34, 'steel5');                                 // the counter
-    p.rect(30, 30, 3, 3, 'steel6');                                                             // someone at it
-    text(p, 6, 5, 'CAM1', 'steel6');
-    p.rect(53, 6, 2, 2, 'red3');
-    p.rect(8, 45, 4, 3, 'steel4').rect(52, 45, 4, 3, 'steel4');
+  result['store-cctv'] = fixture([space.decor.cctv], [RAMP.dark], [panel('front', 50, 40, p => {
+    p.rect(2, 2, 46, 32, 'steel2').frame(2, 2, 46, 32, 'ink');
+    for (let y = 4; y < 33; y++) for (let x = 4; x < 47; x++) p.px(x, y, (y % 2) ? 'steel1' : 'steel2');
+    for (const x of [9, 20, 31]) p.rect(x, 11, 6, 13, 'steel3').vline(x, 11, 23, 'steel4');      // aisles
+    p.rect(6, 27, 37, 4, 'steel4').hline(6, 42, 27, 'steel5');                                 // the counter
+    p.rect(24, 24, 2, 2, 'steel6');                                                             // someone at it
+    text(p, 4, 4, 'CAM1', 'steel6');
+    p.rect(43, 4, 2, 2, 'red3');
+    p.rect(6, 36, 3, 2, 'steel4').rect(41, 36, 3, 2, 'steel4');
   })]);
 
   // Register: a beige CRT with the green-screen sale, brand badge and power light;
@@ -424,21 +421,43 @@ function sprites() {
   result['store-scanner-reading'] = scanner(true);
 
   // Card terminal: backlit LCD, keypad with the coloured row, the card slot on top.
-  const terminal = approved => fixture(F.terminal, [RAMP.dark], [both(panel('front', 20, 38, p => {
-    p.rect(2, 3, 16, 10, 'steel1').rect(3, 4, 14, 8, approved ? 'phos3' : 'phos2');
-    text(p, approved ? 7 : 3, 6, approved ? 'OK' : 'CARD', 'phos0');
-    for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) p.rect(3 + c * 5, 16 + r * 4, 4, 3, 'steel5').hline(3 + c * 5, 6 + c * 5, 18 + r * 4, 'steel3');
-    p.rect(3, 32, 4, 3, 'red2').rect(8, 32, 4, 3, 'yellow2').rect(13, 32, 4, 3, 'green2');
+  const terminal = approved => fixture(F.terminal, [RAMP.dark], [both(panel('front', 16, 30, p => {
+    p.rect(1, 2, 14, 9, 'steel1').rect(2, 3, 12, 7, approved ? 'phos3' : 'phos2');
+    if (approved) text(p, 4, 4, 'OK', 'phos0');
+    else p.rect(5, 4, 6, 4, 'phos0').hline(5, 10, 5, 'phos3');                                 // insert card
+    for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) p.rect(2 + c * 4, 13 + r * 3, 3, 2, 'steel5');
+    p.rect(2, 26, 3, 2, 'red2').rect(6, 26, 3, 2, 'yellow2').rect(10, 26, 3, 2, 'green2');
   })), (f, u, t) => (f === 'top' && t > 0.45 && t < 0.55 && u > 0.15 && u < 0.85 ? 'ink' : null)]);
   result['store-terminal'] = terminal(false);
   result['store-terminal-approved'] = terminal(true);
 
-  // Change tray with a few coins; a stack of carrier bags with the brand buoy.
-  result['store-tray'] = fixture(F.tray, [RAMP.steel], [(f, u, t) => {
-    if (f !== 'top' || u < 0.1 || u > 0.9 || t < 0.18 || t > 0.82) return null;
-    for (const [cu, ct, c] of [[0.3, 0.45, 'yellow2'], [0.42, 0.6, 'steel6'], [0.62, 0.4, 'yellow3']]) if (Math.hypot((u - cu) * 2.2, t - ct) < 0.1) return c;
-    return u < 0.14 || t < 0.24 ? 'steel1' : 'steel2';
+  // The cash drawer under the register: shut, a steel front with a finger pull and
+  // a key lock; open, it slides out towards the clerk and shows its till: notes in
+  // four clips at the back, coins in front.
+  const [till] = F.drawer;
+  result['store-drawer'] = fixture(F.drawer, [RAMP.steel], [(f, u, t) => {
+    if (f !== 'front') return null;
+    if (t > 0.72 && u > 0.3 && u < 0.7) return t > 0.86 ? 'steel1' : 'ink';                  // finger pull
+    if (Math.hypot((u - 0.88) * 4, t - 0.55) < 0.12) return 'yellow2';                         // key lock
+    return t < 0.1 ? 'steel3' : null;
   }]);
+  result['store-drawer-open'] = (() => {
+    const s = new Stage(), d = space.drawerTravel;
+    s.box({ ...till, z: counter.near - d / 2, d }, RAMP.steel, (f, u, t) => {
+      if (f !== 'top') return null;
+      if (u < 0.04 || u > 0.96 || t > 0.94 || t < 0.06) return 'steel4';                        // the till's rim
+      const cell = Math.floor(u * 4);
+      if (t > 0.5) {                                                                           // notes, clipped at the back
+        if ((u * 4) % 1 < 0.08) return 'steel2';
+        return t > 0.84 ? 'steel5' : ['green2', 'blue2', 'violet1', 'orange2'][cell] ?? 'paper2';
+      }
+      if ((u * 6) % 1 < 0.08 || Math.abs(t - 0.48) < 0.03) return 'steel2';                     // coin cups
+      return hash(Math.floor(u * 60), Math.floor(t * 30)) < 0.45 ? (cell % 2 ? 'yellow2' : 'steel5') : 'steel1';
+    });
+    s.outline();
+    return s.sprite();
+  })();
+  // A stack of carrier bags with the brand buoy.
   result['store-bags'] = fixture(F.bags, [RAMP.paper], [(f, u, t) => {
     if (f === 'front') return (t * 4) % 1 < 0.3 ? 'paper1' : null;                            // the stack's edges
     if (f !== 'top') return null;
@@ -467,17 +486,17 @@ function sprites() {
   const radio = echo => {
     const [body] = F.radio, top = counter.y + body.h;
     const s = new Stage();
-    s.box(body, RAMP.red, panel('front', 64, 37, p => {
-      p.ellipse(16, 19, 13, 13, 'red0').ellipse(16, 19, 12, 12, 'steel1');
-      for (let y = 8; y <= 30; y++) for (let x = 5; x <= 27; x++) if (Math.hypot(x - 16, y - 19) < 11 && (x + (y % 2)) % 2 === 0 && y % 2 === 0) p.px(x, y, echo ? 'steel4' : 'steel3');
-      p.rect(33, 5, 28, 15, 'red0').rect(34, 6, 26, 13, echo ? 'yellow3' : 'cream3');
-      for (let x = 35; x < 60; x += 2) p.vline(x, 15, x % 10 === 5 ? 17 : 16, 'cream0');
-      text(p, 39, 8, '88', 'cream0'); text(p, 53, 8, '98', 'cream0');
-      p.vline(36, 7, 17, 'red2');                                                              // the needle, at 87.7
-      for (const kx of [39, 53]) p.ellipse(kx, 28, 4, 4, 'steel0').ellipse(kx, 28, 3, 3, 'steel2').px(kx - 1, 26, 'steel5').vline(kx, 25, 27, 'steel6');
-      text(p, 44, 31, 'FM', 'red1');
-      p.rect(59, 25, 2, 2, echo ? 'cyan4' : 'cyan0');
-      if (echo) p.px(58, 25, 'cyan2').px(61, 26, 'cyan2').px(59, 24, 'cyan2').px(60, 27, 'cyan2');
+    s.box(body, RAMP.red, panel('front', 48, 28, p => {
+      p.ellipse(12, 14, 10, 10, 'red0').ellipse(12, 14, 9, 9, 'steel1');
+      for (let y = 6; y <= 22; y++) for (let x = 4; x <= 20; x++) if (Math.hypot(x - 12, y - 14) < 8 && (x + (y % 2)) % 2 === 0 && y % 2 === 0) p.px(x, y, echo ? 'steel4' : 'steel3');
+      p.rect(25, 4, 21, 11, 'red0').rect(26, 5, 19, 9, echo ? 'yellow3' : 'cream3');
+      for (let x = 27; x < 45; x += 2) p.vline(x, 11, x % 10 === 7 ? 13 : 12, 'cream0');
+      text(p, 28, 6, '88', 'cream0'); text(p, 38, 6, '98', 'cream0');
+      p.vline(27, 5, 13, 'red2');                                                              // the needle, at 87.7
+      for (const kx of [28, 42]) p.ellipse(kx, 21, 3, 3, 'steel0').ellipse(kx, 21, 2, 2, 'steel2').px(kx - 1, 20, 'steel5').vline(kx, 19, 20, 'steel6');
+      text(p, 32, 21, 'FM', 'red1');
+      p.rect(45, 25, 2, 2, echo ? 'cyan4' : 'cyan0');
+      if (echo) p.px(44, 25, 'cyan2').px(47, 26, 'cyan2').px(45, 24, 'cyan2').px(46, 27, 'cyan2');
     }));
     s.box({ x: body.x - 0.09, z: body.z + 0.02, w: 0.012, h: 0.05, d: 0.012, y: top }, RAMP.steel);
     s.box({ x: body.x + 0.09, z: body.z + 0.02, w: 0.012, h: 0.05, d: 0.012, y: top }, RAMP.steel);
@@ -496,6 +515,21 @@ function sprites() {
     if (t > 0.58 && t < 0.82 && u > 0.25 && u < 0.75) return t > 0.62 && t < 0.78 && u > 0.3 && u < 0.7 ? 'cyan2' : 'ink';
     return null;
   }]);
+  // The clerk's canned coffee, opened and half drunk: the tab bent up, a drip down
+  // the side from the last sip.
+  const { can } = space.personal, r = can.w / 2;
+  result['store-can'] = sculpted(can, P => [sculpt.cylinder(P, [can.x, can.z], r, counter.y, counter.y + can.h), 0], RAMP.wood, hit => {
+    const [x, y, z] = hit.P, h = y - counter.y, dx = x - can.x, dz = z - can.z;
+    if (h > can.h - 0.002) {                                                                  // the lid
+      if (Math.hypot(dx, dz + 0.014) < 0.007) return 'ink';                                    // the mouth
+      if (Math.hypot(dx, dz - 0.004) < 0.006) return 'steel5';                                 // the tab
+      return Math.hypot(dx, dz) > r - 0.004 ? 'steel3' : 'steel4';
+    }
+    if (h > can.h - 0.012 || h < 0.008) return hit.n[0] < -0.3 ? 'steel3' : 'steel5';          // the rims
+    if (Math.abs(dx + 0.012) < 0.003 && h > can.h - 0.05 && dz < 0) return 'wood1';             // a drip
+    if (h > 0.042 && h < 0.07) return hit.n[0] < -0.4 ? 'cream2' : 'cream4';                   // the label band
+    return null;
+  });
   return result;
 }
 

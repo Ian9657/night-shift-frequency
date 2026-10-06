@@ -31,8 +31,9 @@ scan every item → take payment → heat if asked (after payment) → bag or ha
 
 - Select an item, then click the scanner. Identical items scan one by one and group as
   quantities on the POS and receipt.
-- Payment matches what the customer says: card or phone on the terminal, cash on the
-  coin tray. The wrong device gets a reaction, not a penalty.
+- Payment matches what the customer says: card or phone on the terminal, cash into the
+  drawer under the register. The wrong device gets a reaction, not a penalty. At
+  other times the drawer just opens and shuts when clicked.
 - Heating happens after payment; the bento must be heated before bagging.
 - No-bag orders are handed over directly.
 - Early or wrong actions get a short reaction ("These first.", "Not yet.", "Hot first.").

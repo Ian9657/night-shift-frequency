@@ -5,6 +5,35 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — the counter's front and the cash drawer
+
+- The clerk stands 0.25 m further back (`camera.z` in `js/content/space.js`), so the
+  counter keeps its size but takes less of the view and its near edge and front show
+  above the radio caption. The horizon sits lower; the room shows up to the ceiling.
+  Everything is about a fifth smaller on screen: the machines' faces are redrawn at
+  their new sizes, and the register is a larger CRT so the sale text still fits.
+- The change tray is gone (the store is not in Japan). The cash drawer sits in the
+  counter's front under the register: a cash customer's note goes into it as it
+  opens and shuts; at other times a click opens or shuts it. Clicking it for a card
+  customer gets the usual wrong-device reaction.
+- The clerk's coffee is now an opened, half-drunk can, standing beside their phone
+  at the right-hand front of the counter; the green box that read as money is gone.
+- On phones the canvas is fitted again once the page has loaded: before, it was
+  sized for a viewport the browser had not settled yet and lost its bottom edge.
+  The phone test now checks the whole view fits.
+
+### Verified (counter front)
+
+- All five checks pass. The store sheet and the desktop (cash into the drawer,
+  heating) and phone-landscape screenshots were reviewed.
+
+### Not verified (counter front)
+
+- The open drawer shows only the back of its till above the caption bar; the
+  look-down view into the drawer is not made. Customers are about a fifth smaller,
+  so `docs/character-assets.md`'s pixel numbers are out of date until the figures
+  are redrawn. The shelves behind and beside the customer are not refined yet.
+
 ### Changed — the game plays in the first-person store
 
 - The counter scene is now the rendered first-person store: room, counter, machines,

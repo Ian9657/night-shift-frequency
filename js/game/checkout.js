@@ -16,7 +16,7 @@
   };
 
   const F = layout.fixtures;
-  const fixtureDefault = { scanner: F.scanner.sprite, terminal: F.terminal.sprite, microwave: F.microwave.sprite };
+  const fixtureDefault = { scanner: F.scanner.sprite, terminal: F.terminal.sprite, microwave: F.microwave.sprite, drawer: F.drawer.sprite };
   // The customer's `action` (poses.js actions: card, tap, cash, receive) or null
   // while they wait at the counter in their own pose.
   const scene = {
@@ -235,15 +235,14 @@
     await time.wait(120);
   }
 
-  // Cash: the customer holds out a note, it passes to the change tray; the drawer
-  // (below the counter, out of view) is heard opening.
+  // Cash: the customer holds out a note; the drawer opens, takes it and shuts.
   async function cashPayment() {
     const c = scene.customer;
     c.action = 'cash';
     await time.wait(160);
     audio.cashPaper();
     const hand = handPoint('cash');
-    const start = centred('bill', hand), end = centred('bill', F.tray.drop);
+    const start = centred('bill', hand), end = centred('bill', F.drawer.drop);
     c.action = null;
     const bill = addExtra('bill', start.x, start.y);
     const handoff = { x: Math.round(bill.x + (end.x - bill.x) * 0.42), y: Math.round(bill.y + (end.y - bill.y) * 0.18) };
@@ -251,6 +250,7 @@
     const contact = () => {
       if (contacted) return;
       contacted = true;
+      scene.fixtures.drawer = F.drawer.busy;
       audio.cashDrawer();
     };
     const timer = time.after(400, contact);
@@ -259,7 +259,18 @@
     contact();
     await time.wait(95);
     removeExtra(bill);
-    await time.wait(300);
+    await time.wait(220);
+    scene.fixtures.drawer = F.drawer.sprite;
+    await time.wait(80);
+  }
+
+  // Once the sale is ready the drawer is where cash goes (a card customer says so);
+  // otherwise it just opens and shuts.
+  function drawer() {
+    if (!state.busy && !state.paid && isPaymentReady()) return pay('cash');
+    if (state.busy) return;
+    scene.fixtures.drawer = scene.fixtures.drawer === F.drawer.busy ? F.drawer.sprite : F.drawer.busy;
+    audio.cashDrawer();
   }
 
   async function printReceipt() {
@@ -510,7 +521,7 @@
     // A record conflict removes guidance; the POS screen itself asks for attention.
     if (awaitingRecord) return targets;
     if (selected && !state.paid && !isScanned(selected)) targets.push('scanner');
-    if (ready) targets.push(o.paymentType === 'cash' ? 'tray' : 'terminal');
+    if (ready) targets.push(o.paymentType === 'cash' ? 'drawer' : 'terminal');
     if (state.paid && selected && selected.heat && !state.heatedIds.includes(selected.id)) targets.push('microwave');
     if (state.paid && needsBag(o) && !pendingHeat(o).length && !state.bagged) targets.push('bags');
     if (o.finalReport && state.bagged && !state.reportShown) targets.push('printer');
@@ -575,7 +586,7 @@
   function activate(name) {
     if (name.startsWith('item:')) return guarded(() => selectItem(name.slice(5)));
     const actions = {
-      scanner: scan, terminal: () => pay('terminal'), tray: () => pay('cash'), microwave: heat, bags: bag,
+      scanner: scan, terminal: () => pay('terminal'), drawer, microwave: heat, bags: bag,
       printer: printReport, pos: () => records.open(), radio: () => radio.tune(),
     };
     return actions[name] ? guarded(actions[name]) : undefined;

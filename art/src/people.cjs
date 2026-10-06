@@ -424,8 +424,8 @@ const POSES = require('../../js/content/poses.js').poses;
 const EAR = { x: CX + 12, y: TOP + 17 };
 // The point at depth Z that projects onto canvas pixel (x, y).
 function fromCanvas(x, y, Z) {
-  const { vx, vy, k, eyeY } = space.camera;
-  return [(x + OX + 0.5 - vx) * Z / k, eyeY - (y + OY + 0.5 - vy) * Z / k, Z];
+  const { vx, vy, k, eyeY, z } = space.camera;
+  return [(x + OX + 0.5 - vx) * (Z - z) / k, eyeY - (y + OY + 0.5 - vy) * (Z - z) / k, Z];
 }
 
 // Props in metres (half extents): each half of a 2005 flip phone, and a bank card.

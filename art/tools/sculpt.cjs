@@ -74,14 +74,14 @@ function smin(a, b, k) {
 // normal is sampled `normalEps` apart, so lighting follows the broad form rather
 // than every small blend.
 function render(field, width, height, origin, { zNear = 0.55, zFar = 1.9, normalEps = 0.005 } = {}) {
-  const EYE = [0, space.camera.eyeY, 0];
+  const EYE = space.eye;
   const hits = new Array(width * height).fill(null);
   const d0 = p => field(p)[0];
   for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
     const dir = space.ray(x + origin[0], y + origin[1]);           // z component is 1, so t is depth
     const step = len(dir);
-    let t = zNear;
-    for (let i = 0; i < 120 && t < zFar; i++) {
+    let t = zNear - EYE[2];
+    for (let i = 0; i < 120 && t < zFar - EYE[2]; i++) {
       const P = add(EYE, mul(dir, t));
       const d = d0(P);
       if (d < 0.0005) {

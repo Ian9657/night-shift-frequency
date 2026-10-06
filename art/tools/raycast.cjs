@@ -7,7 +7,7 @@ const { Pix, colorIndex } = require('./pixel.cjs');
 const space = require('../../js/content/space.js');
 
 const { camera, room } = space;
-const EYE = [0, camera.eyeY, 0];
+const EYE = space.eye;
 const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 const add = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
 const mul = (a, k) => [a[0] * k, a[1] * k, a[2] * k];

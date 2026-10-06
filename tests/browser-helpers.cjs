@@ -57,7 +57,7 @@ async function playOrder(page, choices, shots) {
     assert.equal(saved.decision, choice);
     await idle(page);
   }
-  await click(page, order.payment === 'cash' ? 'tray' : 'terminal');
+  await click(page, order.payment === 'cash' ? 'drawer' : 'terminal');
   await idle(page);
   if (order.heat.length) {
     await click(page, 'microwave');

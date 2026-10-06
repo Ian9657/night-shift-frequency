@@ -20,7 +20,10 @@
     canvas.style.width = Math.floor(W * scale) + 'px';
     canvas.style.height = Math.floor(H * scale) + 'px';
   }
+  // Mobile browsers settle the viewport after the scripts run, without a resize.
   root.addEventListener('resize', resize);
+  root.addEventListener('load', resize);
+  if (root.visualViewport) root.visualViewport.addEventListener('resize', resize);
   resize();
 
   function toScreen(event) {

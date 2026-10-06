@@ -51,15 +51,17 @@ async function finish(page, index) {
     // Order 2: the bill leaves the customer's hand.
     await scanAll(page);
     await speed(page, 0.2);
-    await click(page, 'tray');
+    await click(page, 'drawer');
     await page.waitForFunction(() => NSF.debug.game.scene.extras.some(e => e.sprite === 'bill'));
     await shot(page, 'cash-bill');
+    await page.waitForFunction(() => NSF.debug.game.scene.fixtures.drawer === 'store-drawer-open');
+    await shot(page, 'cash-drawer');
     await speed(page, 12);
     await page.waitForFunction(() => NSF.debug.game.state.eventIndex === 2, null, { timeout: 15000 });
 
     // Order 3: heating after payment.
     await scanAll(page);
-    await click(page, (await order(page)).payment === 'cash' ? 'tray' : 'terminal');
+    await click(page, (await order(page)).payment === 'cash' ? 'drawer' : 'terminal');
     await idle(page);
     await speed(page, 0.2);
     await click(page, 'microwave');
@@ -97,6 +99,7 @@ async function finish(page, index) {
     await phone.waitForTimeout(1500);
     await shot(phone, 'phone-landscape');
     assert.equal(await phone.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+    assert.equal(await phone.evaluate(() => document.querySelector('canvas').getBoundingClientRect().bottom <= innerHeight), true, 'the whole view fits the phone');
     await phone.close();
     assert.deepEqual(errors, []);
     console.log('PASS: key poses, heating, scanner bleed, echo radio, record view and landscape phone captured.');
