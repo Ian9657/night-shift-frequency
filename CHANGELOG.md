@@ -5,6 +5,23 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — drinks fridge glass and stock
+
+- Reworked the drink fridge's visible stock into narrower, denser bottles with
+  caps, shoulders and label bands. Added cold interior light strips, a glass-door
+  reflection pattern and clearer door seams while keeping its position, palette,
+  click bounds and room layout unchanged.
+
+### Verified (drinks fridge)
+
+- Rebuilt the indexed sprite bundle; `shift-engine`, `content` and `art` pass.
+- Inspected the native-pixel store preview.
+
+### Not verified (drinks fridge)
+
+- `browser-flow` and `visual` could not run because Playwright is not installed;
+  desktop and phone browser screenshots remain unverified.
+
 ### Changed — cold fluorescent lighting and counter wear
 
 - Strengthened the cold fluorescent ceiling light, added broken tube reflections

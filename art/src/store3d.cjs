@@ -228,16 +228,19 @@ function sides() {
     while (z < F.z1 - 0.07) {
       const r = hash(500 + Math.round(y * 100), n++);
       const ramp = RAMP[['cyan', 'green', 'orange', 'red', 'blue', 'buoy'][Math.floor(r * 6)]];
-      const facings = 2 + Math.floor(r * 3), bh = 0.22 + r * 0.06;
+      // Narrow bottles with a short shoulder read as drinks behind glass rather
+      // than the old tall binder-like blocks.  The extra facing keeps the cooler
+      // visually stocked without making any single pack too dominant.
+      const facings = 3 + Math.floor(r * 2), bh = 0.18 + r * 0.04;
       for (let k = 0; k < facings && z < F.z1 - 0.07; k++) {
-        s.box({ x: room.halfW - 0.68, z: z + 0.035, w: 0.065, h: bh, d: 0.065, y: y + 0.012 }, ramp, (f, u, t) => {
+        s.box({ x: room.halfW - 0.68, z: z + 0.028, w: 0.055, h: bh, d: 0.055, y: y + 0.012 }, ramp, (f, u, t) => {
           if (f !== 'left') return null;
-          if (t > 0.86) return u > 0.3 && u < 0.7 ? (r > 0.5 ? 'white' : 'red2') : 'wall6';
-          if (t > 0.74) return u > 0.2 && u < 0.8 ? ramp : 'wall6';
+          if (t > 0.9) return u > 0.3 && u < 0.7 ? (r > 0.5 ? 'white' : 'red2') : 'wall6'; // cap
+          if (t > 0.72) return u > 0.18 && u < 0.82 ? ramp : 'wall6';                    // shoulder
           if (t > 0.38 && t < 0.6) return RAMP.paper;
           return null;
         }, { name: 'bottle' });
-        z += 0.075;
+        z += 0.065;
       }
       z += 0.01;
     }
@@ -246,8 +249,14 @@ function sides() {
   const GLASS = s.object('glass', { outline: false });
   s.quad([room.halfW - 0.62, 0.08, F.z0], [0, 0, fd], [0, 1.92, 0], [-1, 0, 0], (u, v, P, sx, sy) => {
     const doorPos = (P[2] - 1.05) % 0.3;
+    // Cool interior strips are visible through the otherwise transparent
+    // doors. They stop at the shelf edges, which makes the glass read as a
+    // lit cooler rather than a flat cyan wall.
+    if (P[1] > 0.24 && P[1] < 1.9 && (P[1] * 18) % 1 < 0.035) return 'tube';
     if (doorPos > 0.24 && doorPos < 0.27 && P[1] > 0.9 && P[1] < 1.4) return 'steel7';
-    return (sx * 2 + sy * 3) % 41 === 0 ? 'white' : null;
+    if (Math.abs(P[2] - 1.49) < 0.012 && P[1] > 0.15 && P[1] < 1.92) return 'steel5';
+    if ((sx * 2 + sy * 3) % 41 === 0) return 'white';
+    return null;
   }, GLASS);
   s.outline();
   return s.layer('main');
