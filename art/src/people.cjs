@@ -1124,18 +1124,6 @@ function earphones() {
   return p;
 }
 
-// Paper mask from the bridge of the nose to the chin.
-function mask() {
-  const p = canvas();
-  for (let y = TOP + 19; y <= TOP + 31; y++) {
-    const hw = Math.round(curve(PROFILES.round, (y - TOP) / (HEAD_H - 1))) - (y > TOP + 28 ? 1 : 0);
-    p.hline(CX - hw, CX + hw - 1, y, 'paper2');
-  }
-  p.light('paper2', ['paper1', 'paper2', 'paper3'], normals.sphere(CX - 3, TOP + 22, 13, 10), { outline: 'paper0' });
-  for (const y of [TOP + 23, TOP + 27]) p.hline(CX - 8, CX + 7, y, 'paper1');
-  return p;
-}
-
 // Lines of age: crow's feet, bags under the eyes, smile lines.
 function wrinkles() {
   const p = canvas();
@@ -1188,7 +1176,7 @@ module.exports = () => {
   const makers = {
     'person-hair-back-long': hairLongBack, 'person-hair-back-bob': hairBobBack,
     'person-glasses': () => glasses(false), 'person-glasses-bold': () => glasses(true), 'person-earphones': earphones,
-    'person-mask': mask, 'person-wrinkles': wrinkles, 'person-beard': beard, 'person-wet': wet,
+    'person-wrinkles': wrinkles, 'person-beard': beard, 'person-wet': wet,
     ...Object.fromEntries(Object.entries(HAIRS).map(([kind, draw]) => ['person-hair-' + kind, draw])),
   };
   const sprites = {};

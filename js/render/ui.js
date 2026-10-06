@@ -14,7 +14,7 @@
   const SW = layout.screen.width, SH = layout.screen.height, MID = SW / 2;
   let targets = [];
 
-  const money = value => '¥' + value;
+  const money = value => (value / 100).toFixed(2);
   const label = key => t(key);
   const shortId = id => id.replace('sale-', '#');
 

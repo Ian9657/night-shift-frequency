@@ -3,10 +3,11 @@
 // string keys from strings.js.
 (function (root) {
   'use strict';
+  // Prices are in cents, shown with two decimals and no currency sign: Lowtide is in no
+  // particular country.
   const catalog = Object.freeze([
     { id: 'coffee', sprite: 'coffee', label: 'item.coffee', price: 148 },
-    { id: 'onigiri', sprite: 'onigiri', label: 'item.onigiri', price: 132 },
-    { id: 'bento', sprite: 'bento', label: 'item.bento', price: 498, heat: true },
+    { id: 'lasagne', sprite: 'lasagne', label: 'item.lasagne', price: 498, heat: true },
     { id: 'tea', sprite: 'tea', label: 'item.tea', price: 128 },
     { id: 'water', sprite: 'water', label: 'item.water', price: 120 },
     { id: 'sandwich', sprite: 'sandwich', label: 'item.sandwich', price: 298 },

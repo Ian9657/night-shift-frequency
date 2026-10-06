@@ -18,15 +18,14 @@
     'end.note': 'Record it differently and the radio reads another letter.',
 
     // Items as the register names them
-    'item.coffee': 'BOSS COFFEE',
-    'item.onigiri': 'TUNA ONIGIRI',
-    'item.bento': 'KARAAGE BENTO',
+    'item.coffee': 'ICED COFFEE',
+    'item.lasagne': 'BEEF LASAGNE',
     'item.tea': 'GREEN TEA',
     'item.water': 'WATER 500ML',
     'item.sandwich': 'EGG SANDWICH',
     'item.juice': 'ORANGE JUICE',
     'item.cola': 'COLA 500ML',
-    'item.bread': 'MILK BREAD',
+    'item.bread': 'SWEET ROLL',
     'item.spareKey': 'SPARE KEY',
 
     // POS screen

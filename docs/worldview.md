@@ -67,6 +67,11 @@ clerk.
 
 ## Places
 
+**Lowtide is in no particular country.** The 2005 feel comes from things remembered
+almost everywhere (fluorescent tubes, CRTs, flip phones, call-in radio), not from one
+country's goods, currency or customs. Prices are plain numbers with two decimals and no
+currency sign; products, packaging and clothing avoid regional signatures and real brands.
+
 - **Harbor Mart**, by the pier. The player only ever stands behind the counter and sees
   the outside through the glass storefront: a street lamp, wet road, the seawall
   railing, black water, lit windows on the far shore and a decommissioned relay tower
@@ -119,7 +124,7 @@ Names are plain English small-town names; the code uses the same names as ids
 | **Walt** | Night taxi driver, trench coat, scarf, glasses. | Yes |
 | **Ana** | Night nurse on a double shift. | Yes |
 | **Hal** | Older dock worker, hi-vis jacket, beard. | Yes |
-| **Tess** | Student who can't sleep, bun, mask. | Yes |
+| **Tess** | Student who can't sleep, bun. | Yes |
 | **Dana** | Office worker off a late shift, bob, glasses. | No |
 | **Kit** | Young guy in a hoodie with earphones, listens to *Night Ferry*. | No |
 | **Dex** | Delivery rider in a red cap. | No |

@@ -22,7 +22,7 @@ strings = json.loads(subprocess.check_output(
 chars = set(chr(c) for c in range(32, 127))
 for text in strings.values():
     chars.update(re.sub(r'\{\w+\}', '', text))
-chars.update('¥0123456789:.#·…—×↑↓')  # symbols drawn directly by js/render/ui.js
+chars.update('0123456789:.#·…—×↑↓')  # symbols drawn directly by js/render/ui.js
 
 font = ImageFont.truetype(FONT, 12)
 

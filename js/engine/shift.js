@@ -44,9 +44,9 @@
       const bagPreference = i === 1 ? 'no' : i > 2 && !record && previous.bagPreference !== 'no' && rng() < .25 ? 'no' : 'yes';
       let items;
       if (record) items = [product('cola')];
-      else if (i === 0) items = [product('coffee'), product('onigiri')];
+      else if (i === 0) items = [product('coffee'), product('sandwich')];
       else if (i === 3) items = [product('coffee'), product('bread')];
-      else if (i === 2) items = [product('bento'), product('tea')];
+      else if (i === 2) items = [product('lasagne'), product('tea')];
       else {
         const pool = story.catalog.filter(p => !p.heat);
         items = [];

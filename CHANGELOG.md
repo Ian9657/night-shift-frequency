@@ -5,6 +5,28 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — Lowtide is in no particular country
+
+- `docs/worldview.md` now says so: the 2005 feel comes from things remembered almost
+  everywhere, not from one country's goods, currency or clothing.
+- Prices show as plain numbers with two decimals (4.46), no `¥`; the catalogue keeps
+  integer cents. The `¥` glyph is gone from the font.
+- The tuna onigiri is gone; the first customer buys coffee and the egg sandwich. The
+  karaage bento is a beef lasagne ready meal (foil tray, film, card sleeve) with the
+  same price and heating rule. BOSS COFFEE (a real brand) is ICED COFFEE; MILK BREAD
+  is SWEET ROLL.
+- Tess no longer wears a paper mask, which read as post-2020; the mask part is removed.
+
+### Verified (no particular country)
+
+- All five checks pass. Desktop screenshots of the first sale (coffee and sandwich,
+  4.46) and the lasagne heating, the goods sheet and Tess's unmasked face were reviewed.
+
+### Not verified (no particular country)
+
+- Phone screenshots were captured by the visual check but not looked at. The TAP
+  payment (contactless) is still in the game, though it is unusual for 2005 in most places.
+
 ### Changed — the counter's front and the cash drawer
 
 - The clerk stands 0.25 m further back (`camera.z` in `js/content/space.js`), so the

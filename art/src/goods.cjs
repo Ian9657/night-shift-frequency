@@ -17,8 +17,8 @@ const R = {
   steel: ['steel1', 'steel3', 'steel4', 'steel5', 'steel7'], paper: ['paper0', 'paper1', 'paper2', 'paper3', 'white'],
   cream: ['cream0', 'cream1', 'cream3', 'cream4', 'cream5'], wood: ['wood0', 'wood1', 'wood2', 'wood3', 'wood4'],
   red: r5('red'), green: r5('green'), blue: r5('blue'), orange: r5('orange'), cyan: r5('cyan'), buoy: r5('buoy'), navy: r5('navy'),
-  yellow: ['yellow0', 'yellow0', 'yellow1', 'yellow2', 'yellow3'], nori: ['ink', 'steel0', 'steel1', 'steel2', 'steel3'],
-  rice: ['paper1', 'paper2', 'paper3', 'white', 'white'], pink: ['pink0', 'pink0', 'pink1', 'pink2', 'pink3'],
+  yellow: ['yellow0', 'yellow0', 'yellow1', 'yellow2', 'yellow3'],
+  pink: ['pink0', 'pink0', 'pink1', 'pink2', 'pink3'],
 };
 
 // Render `field(p) -> distance` around the lane point (cx, cz); `paint(P, n)` gives the
@@ -87,17 +87,6 @@ const goods = {
     if (h > 0.04 && h < 0.1 && P[2] < Z) return Math.hypot(P[0], h - 0.07) < 0.018 ? R.yellow : R.orange;
     return R.orange;
   }, { reach: 0.06 }),
-  // Rice ball: a rounded triangle standing up, the seaweed band at the bottom, a red wrapper stripe.
-  onigiri: () => render(p => {
-    const q = local(p, [0, Y + 0.004, Z]), s = [v.norm([0.94, 0.34, 0]), v.norm([-0.94, 0.34, 0])];
-    const tri = Math.max(v.dot(q, s[0]) - 0.035, v.dot(q, s[1]) - 0.035, -q[1], q[1] - 0.085);
-    return Math.max(tri, Math.abs(q[2]) - 0.018) - 0.006;
-  }, P => {
-    const h = P[1] - Y;
-    if (h < 0.03) return R.nori;
-    if (Math.abs(P[0]) < 0.004) return R.red;
-    return R.rice;
-  }, { reach: 0.07 }),
   // Sandwich wedge in its pack, the cut face showing the layers.
   sandwich: () => render(p => {
     const q = local(p, [0, Y + 0.004, Z]);
@@ -108,15 +97,12 @@ const goods = {
     if (P[2] < Z - 0.028) return h < 0.018 ? R.cream : h < 0.026 ? R.green : h < 0.034 ? R.yellow : h < 0.042 ? R.pink : R.cream;
     return R.paper;
   }, { reach: 0.08 }),
-  // Bento: a black tray with a clear lid over rice, salmon, greens and egg.
-  bento: () => render(p => box(p, [0, Y + 0.024, Z], AXES, [0.072, 0.022, 0.055], 0.006), P => {
+  // Lasagne ready meal: a foil tray under clear film, browned cheese with the sauce
+  // showing through at the edges, a printed card sleeve round the middle.
+  lasagne: () => render(p => box(p, [0, Y + 0.024, Z], AXES, [0.072, 0.022, 0.055], 0.006), P => {
     const h = P[1] - Y, x = P[0], z = P[2] - Z;
-    if (h < 0.016) return R.nori;
-    if (h > 0.04) {
-      if (x < -0.01) return R.rice;
-      if (z < 0) return x < 0.03 ? R.orange : R.green;
-      return R.yellow;
-    }
+    if (Math.abs(x) < 0.026) return h > 0.034 && Math.abs(x) < 0.02 && Math.abs(z) < 0.03 ? R.paper : R.red;
+    if (h > 0.04) return Math.abs(z) > 0.042 || Math.abs(x) > 0.062 ? R.red : R.yellow;
     return R.steel;
   }, { reach: 0.09 }),
   // A bun in a clear bag, the bag's twist at one end.

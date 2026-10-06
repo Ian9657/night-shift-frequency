@@ -34,7 +34,7 @@ scan every item → take payment → heat if asked (after payment) → bag or ha
 - Payment matches what the customer says: card or phone on the terminal, cash into the
   drawer under the register. The wrong device gets a reaction, not a penalty. At
   other times the drawer just opens and shuts when clicked.
-- Heating happens after payment; the bento must be heated before bagging.
+- Heating happens after payment; the lasagne must be heated before bagging.
 - No-bag orders are handed over directly.
 - Early or wrong actions get a short reaction ("These first.", "Not yet.", "Hot first.").
 
@@ -47,9 +47,9 @@ reaction in a record order).
 
 | Order | Time | Content | Role |
 | --- | --- | --- | --- |
-| 1 | 02:12 | Coffee and onigiri, card, bagged, quiet customer | Learn scan, pay, bag |
+| 1 | 02:12 | Coffee and sandwich, card, bagged, quiet customer | Learn scan, pay, bag |
 | 2 | 02:18 | Cash, no bag; sometimes two of one drink | Cash and direct hand-over |
-| 3 | 02:24 | Bento and tea, heating requested after payment | Service order |
+| 3 | 02:24 | Lasagne and tea, heating requested after payment | Service order |
 | 4 | 02:30 | Coffee and bread, phone payment; fully normal | The system is usually right |
 | 5 | 02:41 | **Record order A**: one cola, cash | First accountable record |
 | 6 | 02:46 | One random item | Recover the rhythm |

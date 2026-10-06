@@ -10,7 +10,7 @@ const { generate } = require('../js/engine/shift.js');
 const ROOT = path.resolve(__dirname, '..');
 for (const [key, value] of Object.entries(strings)) {
   assert.ok(typeof value === 'string' && value.trim(), `${key} is empty`);
-  assert.ok(/^[\x20-\x7e·…—“”‘’×↑↓¥]*$/.test(value), `${key} contains characters outside the English set`);
+  assert.ok(/^[\x20-\x7e·…—“”‘’×↑↓]*$/.test(value), `${key} contains characters outside the English set`);
 }
 
 // Keys referenced in runtime code and generated orders all exist.
@@ -39,7 +39,7 @@ const glyphs = globalThis.NSF.fontData.glyphs;
 for (const [key, value] of Object.entries(strings)) {
   for (const ch of value.replace(/\{\w+\}/g, '')) assert.ok(glyphs[ch], `font lacks "${ch}" (${key}); run python3 art/tools/build-font.py`);
 }
-for (const ch of '¥×↑↓0123456789') assert.ok(glyphs[ch], 'font lacks ' + ch);
+for (const ch of '×↑↓0123456789') assert.ok(glyphs[ch], 'font lacks ' + ch);
 
 // No orphaned strings: each key is referenced literally, as '@key', by the story,
 // or through a dynamic prefix the runtime builds from data.
