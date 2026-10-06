@@ -34,7 +34,8 @@
       terminal: { sprite: 'store-terminal', busy: 'store-terminal-approved' },
       // Cash goes into the drawer: it opens, takes the note and shuts.
       drawer: { sprite: 'store-drawer', busy: 'store-drawer-open', drop: point(drawer.x, drawer.y + drawer.h, counter.near - space.drawerTravel * 0.4) },
-      bags: { sprite: 'store-bags', stack: point(bags.x, counter.y + 0.03, bags.z), packing: point(bags.x - 0.04, counter.y, bags.z - 0.13) },
+      // A bag is pulled off the hanging bundle and opened at the packing place on the counter.
+      bags: { sprite: 'store-bags', stack: point(bags.x, bags.y + bags.h, bags.z - bags.d / 2), packing: point(0.48, counter.y, 0.86) },
       radio: { sprite: 'store-radio', echo: 'store-radio-echo', dial: face(radio.x, radio.w, radio.z - radio.d / 2, counter.y, counter.y + radio.h, [26 / 48, 45 / 48], [5 / 28, 14 / 28]) },
       // The clerk's flip phone: opens close up as the settings menu (js/game/phone.js).
       phone: { sprite: 'store-phone' },

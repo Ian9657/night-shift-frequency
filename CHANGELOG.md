@@ -5,6 +5,23 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — carrier bags hang under the counter
+
+- The stack of bags on the counter top is gone. White carrier bags now hang in a
+  bundle on the clerk's side of the counter, their handles hooked over the near lip;
+  clicking them pulls one off and opens it at the packing place on the counter.
+
+### Verified (bags)
+
+- All five checks pass (the browser flow bags every bagged order). The desktop
+  screenshot was reviewed close up.
+
+### Not verified (bags)
+
+- Most of the bundle sits behind the radio caption bar; only the handles, the bundle's
+  tops and the logo's upper edge show. The new bag rises from below the lip straight
+  onto the counter, not out of the bundle frame by frame.
+
 ### Added — the flip phone as the settings menu
 
 - Clicking the clerk's flip phone flips it open close up (closed, half, open frames

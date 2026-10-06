@@ -469,14 +469,21 @@ function sprites() {
     s.outline();
     return s.sprite();
   })();
-  // A stack of carrier bags with the brand buoy.
-  result['store-bags'] = fixture(F.bags, [RAMP.paper], [(f, u, t) => {
-    if (f === 'front') return (t * 4) % 1 < 0.3 ? 'paper1' : null;                            // the stack's edges
-    if (f !== 'top') return null;
-    if (Math.hypot(u - 0.5, (t - 0.45) * 0.8) < 0.13) return Math.hypot(u - 0.5, (t - 0.45) * 0.8) < 0.07 ? 'navy2' : 'buoy2';
-    if (t > 0.78 && Math.abs(Math.hypot(u - 0.5, t - 0.95) - 0.14) < 0.03) return 'paper1';     // handle cut-out
-    return null;
-  }]);
+  // White carrier bags hanging in a bundle on the clerk's side of the counter: their
+  // handles looped over two steel hooks on the lip, the bundle's layered tops below
+  // it, creases, and the brand buoy lower down.
+  result['store-bags'] = fixture(F.bags, [RAMP.paper], [panel('front', 72, 50, p => {
+    p.rect(0, 0, 72, 10, 'top2');                                                               // the counter's front behind the handles
+    for (const hx of [17, 54]) {
+      p.ellipse(hx, 8, 10, 8, 'paper1').ellipse(hx, 8, 9, 7, 'white').ellipse(hx, 9, 6, 5, 'paper1').ellipse(hx, 9, 5, 4, 'top2');   // a handle loop, the lip through it
+      p.hline(hx - 7, hx + 7, 2, 'paper2');                                                      // more handles behind
+      p.rect(hx - 1, 0, 3, 3, 'steel3').px(hx, 0, 'steel6');                                    // the hook
+    }
+    p.rect(2, 10, 68, 40, 'paper3');
+    for (let k = 0; k < 5; k++) p.hline(3 + (k % 2) * 2, 68 - k, 10 + k * 2, k % 2 ? 'paper2' : 'white');   // layered tops
+    for (let x = 6; x < 68; x += 6) p.vline(x + (x % 4), 21, 49, 'paper2');                      // creases
+    p.ellipse(36, 36, 6, 6, 'buoy2').ellipse(36, 36, 3, 3, 'navy2');
+  })]);
 
   // Receipt printer with paper curling out of the slot and a power light.
   result['store-printer'] = (() => {

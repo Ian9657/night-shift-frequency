@@ -376,7 +376,8 @@
     state.busy = true;
     const opening = sayOnce('bagStarted');
     await time.wait(opening ? 120 : 0);
-    // A bag comes off the stack and stands open at the packing place; the goods go in.
+    // A bag is pulled off the bundle under the counter and stands open at the packing
+    // place; the goods go in.
     const { stack, packing } = F.bags, open = sprites.size('bag-open'), full = sprites.size('bag-full');
     const standing = { x: packing.x - Math.floor(open.w / 2), y: packing.y - open.h };
     const bagSprite = addExtra('bag-open', stack.x - Math.floor(open.w / 2), stack.y - open.h);
