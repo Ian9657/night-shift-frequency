@@ -5,6 +5,21 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — recessed carrier bag bundle · 2026-10-07
+
+- Moved the carrier bag bundle behind the clerk-side counter fascia, reduced its
+  footprint, and left only a small handle and bag-mouth detail visible below the
+  edge. The click target, packing destination and bag interaction remain intact.
+
+### Verified (carrier bag presentation)
+
+- Rebuilt 252 sprites; all five checks pass with bundled Playwright and Chrome.
+- Reviewed the native-pixel store preview and browser visual screenshots.
+
+### Not verified (carrier bag presentation)
+
+- No physical-device view was available; the 844×390 landscape browser check passed.
+
 ### Changed — narrow-screen text readability · 2026-10-07
 
 - Added a narrow-viewport text pass for the POS, customer speech bubble and
