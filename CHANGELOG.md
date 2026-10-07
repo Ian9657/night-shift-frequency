@@ -5,6 +5,28 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — caption at the top, machines in depth order, a finished cash drawer
+
+- The radio caption sits at the top left, over the shelves, so the counter, the bags and
+  the open drawer stay in view.
+- The register is a fixture again, drawn between the microwave and the scanner, but
+  inert (not a click target): the monitor now hides the microwave's right side instead
+  of being drawn under it. The microwave moves 4 cm left, leaving a gap.
+- The cash drawer hangs in a dark steel housing; its front gains corner screws, a
+  maker's plate, a finger recess and shading toward the floor. Open, the notes are
+  stacks with layered edges, a border, portrait and value under real spring clips, and
+  the cups hold round copper, silver and gold coins.
+
+### Verified (caption, depth, drawer)
+
+- All five checks pass. Desktop card-sale, heating and cash-drawer screenshots and the
+  phone-landscape screenshot were reviewed.
+
+### Not verified (caption, depth, drawer)
+
+- A long caption at the top can reach across the window; the speech bubble was not seen
+  to collide with it in the screenshots.
+
 ### Changed — a used keypad
 
 - Grime speckles the keypad between its keys, and a row of old price-gun labels is stuck

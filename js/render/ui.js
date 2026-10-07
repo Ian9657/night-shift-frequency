@@ -77,7 +77,7 @@
   // The green screen: a status bar (register, shift clock), the sale's lines with a
   // blinking cursor after the last, then scanlines, curved-glass corners and a glare.
   function pos(ctx, game) {
-    const s = layout.pos.screen, k = layout.screen.scale;
+    const s = layout.fixtures.pos.screen, k = layout.screen.scale;
     const x = s.x * k, y = s.y * k, w = s.w * k, h = s.h * k;
     ctx.fillStyle = '#0a1210';
     ctx.fillRect(x, y, w, h);
@@ -148,8 +148,9 @@
     const chipWidth = text.width(chip) + 12;
     const lines = text.wrap(value, 860 - chipWidth);
     const height = lines.length * 14 + 10;
-    const y = SH - 6 - height;
-    // Only as wide as the line, so the counter's front (the bags) shows beside it.
+    // At the top left, over the shelves, so the counter, the bags and the open drawer
+    // stay in view; only as wide as the line.
+    const y = 6;
     const width = 16 + chipWidth + Math.max(...lines.map(line => text.width(line))) + 10 - 8;
     ctx.fillStyle = 'rgba(7,9,15,0.8)';
     ctx.fillRect(8, y, width, height);

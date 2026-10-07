@@ -29,7 +29,7 @@
   const onKeypad = (s, t) => ({ x: keypad.x - keypad.w / 2 + s * keypad.w, z: keypad.z - keypad.d / 2 + t * keypad.d, y: counter.y + keypad.front + t * (keypad.h - keypad.front) });
   // A fixture may be made of several boxes; the first is its click target.
   const fixtures = Object.freeze({
-    microwave: [{ x: -1.02, z: 1.04, w: 0.46, h: 0.27, d: 0.34 }],
+    microwave: [{ x: -1.06, z: 1.04, w: 0.46, h: 0.27, d: 0.34 }],
     // The register and its keypad; only the record key on the keypad is clicked.
     pos: [{ x: -0.5, z: 0.99, w: 0.44, h: 0.4, d: 0.28 }, keypad],
     // The record key heads the function column, third row up (w across, d along the slope).

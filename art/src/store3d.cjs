@@ -676,40 +676,65 @@ function sprites() {
   result['store-terminal'] = terminal(false);
   result['store-terminal-approved'] = terminal(true);
 
-  // The cash drawer under the register: shut, its steel front; open, it slides out
-  // towards the clerk and shows its till, a black plastic insert: notes under four
-  // spring clips at the back, five coin cups in front.
+  // The cash drawer under the register, in a dark steel housing hung under the counter.
+  // Shut, its front: folded steel edges, a bevelled check slot, a round key lock with
+  // its keyway, a CASH label tape, a maker's plate, corner screws, the finger recess
+  // under its lower edge and knee scuffs. Open, it slides out towards the clerk and
+  // shows its till, a black plastic insert: stacks of notes under four spring clips at
+  // the back, five cups of copper, silver and gold coins in front.
   const [till] = F.drawer;
-  // The drawer's front: folded steel edges, a bevelled check slot, a round key lock
-  // with its keyway, a CASH label tape and scuffs from the clerk's knees.
+  // The housing frames the drawer's sides and foot; its top sits in the counter's shadow.
+  const housing = s => s.box({ x: till.x, z: till.z + 0.02, w: till.w + 0.034, h: till.h, d: 0.03, y: till.y - 0.012 }, RAMP.dark,
+    (f, u, t) => (f === 'top' ? 'ink' : null), { name: 'drawer housing' });
   const drawerFront = panel('front', 104, 23, p => {
-    p.hline(0, 103, 0, 'steel6').hline(0, 103, 1, 'steel5').hline(0, 103, 22, 'steel1').hline(0, 103, 21, 'steel2');
+    for (let y = 2; y < 20; y++) if (y > 12) for (let x = 1; x < 103; x++) if ((x + y) % 2 === 0 && y > 12 + (x % 3)) p.px(x, y, 'steel3');   // darker toward the floor
+    p.hline(0, 103, 0, 'steel6').hline(0, 103, 1, 'steel5').hline(0, 103, 22, 'ink').hline(4, 99, 21, 'steel1').hline(0, 103, 20, 'steel2');   // folded edges, the finger recess
     p.vline(0, 0, 22, 'steel5').vline(103, 0, 22, 'steel2');
+    for (const [x, y] of [[3, 3], [100, 3], [3, 18], [100, 18]]) p.px(x, y, 'steel1').px(x - 1, y - 1, 'steel6');   // screws
     p.rect(30, 5, 44, 5, 'steel2').hline(30, 73, 5, 'steel1').rect(32, 7, 40, 2, 'ink').hline(30, 73, 10, 'steel6');   // check slot
     p.rect(8, 6, 15, 7, 'white').hline(8, 22, 12, 'paper2');                                    // label tape
     text(p, 9, 7, 'CASH', 'ink');
+    p.rect(42, 13, 20, 4, 'steel2').hline(43, 60, 14, 'steel4').hline(43, 56, 15, 'steel3');       // maker's plate
     p.ellipse(91, 11, 4, 4, 'steel6').ellipse(91, 11, 3, 3, 'steel3').vline(91, 9, 13, 'ink').px(90, 9, 'steel7');   // key lock
-    for (const [x, y, len] of [[14, 17, 6], [40, 18, 9], [44, 19, 4], [63, 17, 7], [79, 18, 5]]) p.hline(x, x + len, y, 'steel3');   // knee scuffs
+    for (const [x, y, len] of [[14, 17, 6], [36, 18, 3], [66, 18, 7], [80, 17, 5]]) p.hline(x, x + len, y, 'steel4');   // knee scuffs
   });
-  result['store-drawer'] = fixture(F.drawer, [RAMP.steel], [drawerFront]);
+  result['store-drawer'] = (() => {
+    const s = new Stage();
+    housing(s);
+    s.box(till, RAMP.steel, drawerFront);
+    s.outline();
+    return s.sprite();
+  })();
+  const NOTES = ['green', 'blue', 'orange', 'red'], COINS = [['wood2', 'wood3'], ['steel5', 'steel7'], ['yellow2', 'yellow3'], ['steel5', 'steel7'], ['wood2', 'wood3']];
   result['store-drawer-open'] = (() => {
     const s = new Stage(), d = space.drawerTravel;
+    housing(s);
     s.box({ ...till, z: counter.near - d / 2, d }, RAMP.steel, (f, u, t) => {
       if (f === 'front') return drawerFront(f, u, t);
       if (f !== 'top') return null;
       if (u < 0.04 || u > 0.96 || t > 0.94 || t < 0.06) return 'steel4';                        // the till's rim
       if (t > 0.5) {                                                                           // notes under their clips
-        const cell = Math.floor((u - 0.04) / 0.23), cu = ((u - 0.04) / 0.23) % 1;
+        const cell = Math.floor((u - 0.04) / 0.23), cu = ((u - 0.04) / 0.23) % 1, nt = (t - 0.5) / 0.44;
         if (cu < 0.06 || cell > 3) return 'ink';
-        if (t > 0.82) return cu > 0.35 && cu < 0.65 ? 'steel6' : 'ink';                          // the spring clip
-        const note = ['green', 'blue', 'violet', 'orange'][cell], edge = (t * 18) % 1 < 0.22;
-        return edge ? note + '1' : cu > 0.6 && cu < 0.8 && t > 0.6 && t < 0.72 ? 'paper2' : note + '2';
+        const note = NOTES[cell];
+        if (nt > 0.86) return cu > 0.4 && cu < 0.6 ? 'steel4' : 'ink';                           // the clip's hinge
+        if (nt > 0.66 && nt < 0.76 && cu > 0.1 && cu < 0.96) return nt < 0.71 ? 'steel6' : 'steel2';   // the spring clip
+        if (cu < 0.1 || cu > 0.96) return 'ink';
+        if (nt < 0.14) return (nt * 40) % 2 < 1 ? 'paper2' : note + '1';                         // the stack's edges
+        if (cu < 0.16 || cu > 0.9 || nt > 0.62) return note + '3';                               // the top note's border
+        if (Math.hypot((cu - 0.55) / 0.16, (nt - 0.38) / 0.18) < 1) return note + '1';             // the portrait
+        if (cu < 0.32 && nt > 0.42) return 'white';                                              // the value
+        return note + '2';
       }
       if (Math.abs(t - 0.48) < 0.03) return 'ink';
-      const cu = ((u - 0.04) / 0.184) % 1, cell = Math.floor((u - 0.04) / 0.184);
-      if (cu < 0.08) return 'ink';                                                             // coin cups
-      const coin = hash(Math.floor(u * 70), Math.floor(t * 26));
-      return coin < 0.55 ? (cell % 2 ? (coin < 0.2 ? 'yellow3' : 'yellow2') : coin < 0.2 ? 'steel7' : 'steel5') : 'steel0';
+      const cell = Math.floor((u - 0.04) / 0.184), cu = ((u - 0.04) / 0.184) % 1, ct = (t - 0.06) / 0.39;
+      if (cu < 0.08 || cell > 4) return 'ink';                                                 // coin cups
+      for (const [cx, cy] of [[0.32, 0.25], [0.72, 0.3], [0.5, 0.55], [0.3, 0.8], [0.74, 0.78]]) {
+        const r = Math.hypot((cu - cx) * 0.074, (ct - cy) * 0.066);
+        if (r < 0.011) return r < 0.006 && (cu - cx) < 0 ? COINS[cell][1] : COINS[cell][0];
+        if (r < 0.0125) return 'steel1';
+      }
+      return 'steel0';
     });
     s.outline();
     return s.sprite();

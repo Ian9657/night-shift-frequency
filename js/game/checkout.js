@@ -556,6 +556,7 @@
     const list = [];
     if (state.phase !== 'shift') return list;
     for (const [name, fixture] of Object.entries(F)) {
+      if (fixture.inert) continue;
       const current = scene.fixtures[name] || fixture.sprite, size = sprites.size(current);
       const [x, y] = sprites.anchor(current, 'at');
       list.push({ name, sprite: current, x, y, w: size.w, h: size.h });
