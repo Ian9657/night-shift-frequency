@@ -65,22 +65,24 @@
     donation: { x: 0.84, z: 1.0, w: 0.11, h: 0.15, d: 0.09 },
   });
 
-  // The clerk's own things, nearest the camera.
+  // The clerk's own things, nearest the camera, kept to the two ends so the middle of
+  // the counter is free for the sale. On the right, the clerk's corner: the radio, an
+  // old magazine beside it with the flip phone lying on it, the half-finished coffee and
+  // a loose receipt. On the left, the paperwork: the sign-in sheet leaning on the
+  // printer with its pen, the rota on a clipboard, the receipt spike and a receipt.
+  const magazine = Object.freeze({ x: 0.71, z: 0.62, w: 0.16, h: 0.006, d: 0.21, yaw: -0.18 });
   const personal = Object.freeze({
-    phone: { x: 0.57, z: 0.63, w: 0.048, h: 0.022, d: 0.095, yaw: 0.35 },
-    can: { x: 0.46, z: 0.66, w: 0.066, h: 0.115, d: 0.066 },
+    magazine,
+    phone: { x: 0.72, z: 0.6, w: 0.048, h: 0.022, d: 0.095, yaw: 0.35, y: counter.y + magazine.h },
+    can: { x: 0.57, z: 0.66, w: 0.066, h: 0.115, d: 0.066 },
+    receipt2: { x: 0.6, z: 0.555, w: 0.05, h: 0.002, d: 0.1, yaw: -0.4 },
     // The sign-in sheet on its board, foot on the counter, leaning back on the printer's
     // front and turned a little, so one corner rests on it (h is the board's length, d
     // its thickness). Its pen lies by its foot, tied to the clip.
     signIn: { x: -0.665, z: 0.55, w: 0.1, h: 0.14, d: 0.008, yaw: 0.2 },
     pen: { x: -0.5, z: 0.545, w: 0.1, h: 0.009, d: 0.009, yaw: 0.45 },
-    // Months of night shifts, on the clerk's right: the rota on a clipboard, loose
-    // receipts and an old magazine; the receipt spike stands at the front left, clear of
-    // the customer's hands.
-    rota: { x: 0.27, z: 0.62, w: 0.19, h: 0.01, d: 0.13, yaw: 0.1 },
-    receipt1: { x: 0.39, z: 0.77, w: 0.05, h: 0.002, d: 0.11, yaw: 0.6 },
-    receipt2: { x: 0.63, z: 0.56, w: 0.05, h: 0.002, d: 0.1, yaw: -0.4 },
-    magazine: { x: 0.73, z: 0.65, w: 0.16, h: 0.006, d: 0.21, yaw: -0.18 },
+    rota: { x: -0.95, z: 0.74, w: 0.19, h: 0.01, d: 0.13, yaw: 0.15 },
+    receipt1: { x: -0.77, z: 0.6, w: 0.05, h: 0.002, d: 0.11, yaw: 0.6 },
     spike: { x: -0.85, z: 0.62, w: 0.055, h: 0.12, d: 0.055 },
   });
 

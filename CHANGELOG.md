@@ -5,6 +5,25 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — the clerk's things gather at the two ends of the counter
+
+- The middle of the counter is left to the sale. On the right, the clerk's corner: the
+  magazine beside the radio with the flip phone lying on it, the half-finished coffee
+  and a loose receipt. On the left, the paperwork: the rota on its clipboard moves
+  beside the receipt spike, with a receipt by the sign-in sheet.
+- Flat paperwork (rota, receipts, magazine) is drawn in the counter layer, under the
+  machines, so the phone shows on the magazine and the spike over the rota.
+
+### Verified (clerk's corners)
+
+- All five checks pass; the phone still opens settings. The desktop card-sale
+  screenshot was reviewed.
+
+### Not verified (clerk's corners)
+
+- The left corner is busy (rota, spike, receipt, sign-in board). Phone screenshots were
+  not looked at.
+
 ### Changed — checkout from a basket; customers keep their pose
 
 - The customer sets a red shopping basket down right of the scanner and waits in their

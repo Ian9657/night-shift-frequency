@@ -343,6 +343,35 @@ function counterLayer() {
     if (u < 0.08 || u > 0.92 || t < 0.1 || t > 0.9) return 'steel4';
     return (Math.floor(u * 12) + Math.floor(t * 8)) % 3 === 0 ? 'steel2' : 'steel1';
   }, { name: 'change tray' });
+  // Flat paperwork lies in the counter layer, under the machines and the clerk's
+  // phone. The staff rota on a clipboard: seven nights across, the same signature in every
+  // night's box.
+  const { rota, receipt1, receipt2, magazine } = space.personal;
+  s.box(rota, RAMP.wood, (f, u, t) => {
+    if (f !== 'top') return null;
+    if (t > 0.86) return u > 0.35 && u < 0.65 ? 'steel6' : null;                             // the clip
+    if (u < 0.06 || u > 0.94 || t < 0.06) return null;                                        // the board's edge
+    if (t > 0.7) return (u * 7) % 1 < 0.1 ? 'paper1' : 'paper2';                               // the days
+    if ((u * 7) % 1 < 0.1 || (t * 5) % 1 < 0.12) return 'paper1';
+    return t > 0.42 && t < 0.62 && (u * 7) % 1 > 0.25 && (u * 7) % 1 < 0.8 ? 'blue2' : 'paper3';
+  }, { name: 'rota' });
+  // Loose receipts, a few printed lines on each.
+  for (const slip of [receipt1, receipt2]) {
+    s.box(slip, RAMP.paper, (f, u, t) => (f === 'top' && (t * 8) % 1 < 0.25 && u > 0.15 && u < (t > 0.8 ? 0.5 : 0.85) ? 'paper1' : f === 'top' ? 'white' : null), { name: 'receipt' });
+  }
+  // An old magazine: red masthead with its title, a cover star (dark hair, face,
+  // shoulders in a blue top) on a yellow ground, cover lines down the left, a barcode.
+  s.box(magazine, RAMP.paper, (f, u, t) => {
+    if (f !== 'top') return null;
+    if (t > 0.8) return t > 0.84 && t < 0.95 && u > 0.08 && u < 0.8 && (u * 10) % 1 < 0.75 ? 'white' : 'red2';
+    const hx = (u - 0.6) / 0.22, hy = (t - 0.5) / 0.2;
+    if (t < 0.32 && Math.abs(u - 0.6) < 0.3 - (0.32 - t) * 0.3) return 'blue2';                 // shoulders
+    if (Math.hypot(hx, hy) < 0.85) return 'skin3';                                           // face
+    if (Math.hypot(hx, (t - 0.56) / 0.24) < 1.2 && t > 0.44) return 'ink';                    // hair
+    if (t < 0.14 && u < 0.3) return (u * 40) % 1 < 0.5 ? 'ink' : 'white';                     // barcode
+    if (u < 0.32 && (t * 11) % 1 < 0.4) return t > 0.6 ? 'white' : 'red2';                     // cover lines
+    return 'yellow2';
+  }, { name: 'magazine' });
   // Contact shadows of everything that stands on the counter (not the drawer below it).
   const footprints = [...Object.values(space.fixtures).flat(), ...Object.values(space.personal), ...Object.values(space.decor)].filter(f => f.y === undefined);
   s.contactShadows(TOP, footprints);
@@ -397,34 +426,6 @@ function front() {
     const [x, y] = space.project(...P).map(Math.round);
     if (x >= 0 && y >= 0 && x < s.w && y < s.h) s.plot(y * s.w + x, P[2] - 0.01, i % 6 < 3 ? 'steel6' : 'steel3', string);   // a bead chain
   }
-  // The staff rota on a clipboard: seven nights across, the same signature in every
-  // night's box.
-  const { rota, receipt1, receipt2, magazine } = space.personal;
-  s.box(rota, RAMP.wood, (f, u, t) => {
-    if (f !== 'top') return null;
-    if (t > 0.86) return u > 0.35 && u < 0.65 ? 'steel6' : null;                             // the clip
-    if (u < 0.06 || u > 0.94 || t < 0.06) return null;                                        // the board's edge
-    if (t > 0.7) return (u * 7) % 1 < 0.1 ? 'paper1' : 'paper2';                               // the days
-    if ((u * 7) % 1 < 0.1 || (t * 5) % 1 < 0.12) return 'paper1';
-    return t > 0.42 && t < 0.62 && (u * 7) % 1 > 0.25 && (u * 7) % 1 < 0.8 ? 'blue2' : 'paper3';
-  }, { name: 'rota' });
-  // Loose receipts, a few printed lines on each.
-  for (const slip of [receipt1, receipt2]) {
-    s.box(slip, RAMP.paper, (f, u, t) => (f === 'top' && (t * 8) % 1 < 0.25 && u > 0.15 && u < (t > 0.8 ? 0.5 : 0.85) ? 'paper1' : f === 'top' ? 'white' : null), { name: 'receipt' });
-  }
-  // An old magazine: red masthead with its title, a cover star (dark hair, face,
-  // shoulders in a blue top) on a yellow ground, cover lines down the left, a barcode.
-  s.box(magazine, RAMP.paper, (f, u, t) => {
-    if (f !== 'top') return null;
-    if (t > 0.8) return t > 0.84 && t < 0.95 && u > 0.08 && u < 0.8 && (u * 10) % 1 < 0.75 ? 'white' : 'red2';
-    const hx = (u - 0.6) / 0.22, hy = (t - 0.5) / 0.2;
-    if (t < 0.32 && Math.abs(u - 0.6) < 0.3 - (0.32 - t) * 0.3) return 'blue2';                 // shoulders
-    if (Math.hypot(hx, hy) < 0.85) return 'skin3';                                           // face
-    if (Math.hypot(hx, (t - 0.56) / 0.24) < 1.2 && t > 0.44) return 'ink';                    // hair
-    if (t < 0.14 && u < 0.3) return (u * 40) % 1 < 0.5 ? 'ink' : 'white';                     // barcode
-    if (u < 0.32 && (t * 11) % 1 < 0.4) return t > 0.6 ? 'white' : 'red2';                     // cover lines
-    return 'yellow2';
-  }, { name: 'magazine' });
   s.outline();
   return s.layer('main');
 }
@@ -864,14 +865,14 @@ function sprites() {
   result['store-radio'] = radio(false);
   result['store-radio-echo'] = radio(true);
 
-  // The clerk's own flip phone, closed, lying on the counter: a silver clamshell with
+  // The clerk's own flip phone, closed, lying on the magazine: a silver clamshell with
   // the hinge barrel at the far end, an aerial stub, the small outer display lit
   // cyan, the seam between lid and base, and a strap with a red bead charm.
   const { phone } = space.personal;
   result['store-phone'] = (() => {
     const c = Math.cos(phone.yaw), s = Math.sin(phone.yaw), v = sculpt.vec;
     const axes = [[c, 0, -s], [0, 1, 0], [s, 0, c]], [hw, hh, hd] = [phone.w / 2, phone.h / 2, phone.d / 2];
-    const centre = [phone.x, counter.y + hh, phone.z];
+    const centre = [phone.x, (phone.y ?? counter.y) + hh, phone.z];
     const at = q => v.add(centre, v.add(v.add(v.mul(axes[0], q[0]), v.mul(axes[1], q[1])), v.mul(axes[2], q[2])));
     const hinge = [at([-hw + 0.004, 0, hd - 0.006]), at([hw - 0.004, 0, hd - 0.006])];
     const aerial = [at([hw - 0.008, 0.002, hd - 0.002]), at([hw - 0.008, 0.002, hd + 0.014])];
