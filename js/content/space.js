@@ -33,10 +33,10 @@
     // Carrier bags hang in a bundle on the clerk's side of the counter, their handles
     // hooked over its near lip.
     bags: [{ x: 0.48, z: 0.495, w: 0.26, h: 0.18, d: 0.01, y: counter.y - 0.18 }],
-    // The radio is the clerk's, at their right hand; the receipt printer stands by the
-    // bags and the card terminal, where the receipt is handed over.
+    // The radio is the clerk's, at their right hand; the small receipt printer sits at
+    // their left, in front of the register's keyboard.
     radio: [{ x: 0.85, z: 0.7, w: 0.24, h: 0.14, d: 0.09 }],
-    printer: [{ x: 0.74, z: 1.0, w: 0.16, h: 0.13, d: 0.2 }],
+    printer: [{ x: -0.6, z: 0.64, w: 0.13, h: 0.075, d: 0.13 }],
     // The cash drawer, flush with the counter's front under the register; open, it
     // slides out towards the clerk.
     drawer: [{ x: -0.45, z: 0.515, w: 0.4, h: 0.09, d: 0.02, y: counter.y - counter.thick - 0.1 }],
@@ -46,18 +46,20 @@
   // Static things on the counter (not clickable): drawn into the counter layer.
   const decor = Object.freeze({
     cctv: { x: -1.0, z: 1.08, w: 0.3, h: 0.24, d: 0.26, y: counter.y + 0.27 },
-    // Impulse buys on the customer's edge: gum in a two-tier rack, a tray of lighters,
-    // a charity box.
+    // On the customer's edge: gum in a two-tier rack, a tray of lighters, and the
+    // charity box by the card terminal.
     candyRack: { x: 0.44, z: 1.1, w: 0.22, h: 0.02, d: 0.06 },
     lighters: { x: 0.6, z: 1.1, w: 0.07, h: 0.025, d: 0.05 },
-    donation: { x: -0.08, z: 1.1, w: 0.07, h: 0.1, d: 0.06 },
+    donation: { x: 0.74, z: 1.0, w: 0.11, h: 0.15, d: 0.09 },
   });
 
   // The clerk's own things, nearest the camera.
   const personal = Object.freeze({
     phone: { x: 0.47, z: 0.63, w: 0.048, h: 0.022, d: 0.095, yaw: 0.35 },
     can: { x: 0.36, z: 0.66, w: 0.066, h: 0.115, d: 0.066 },
-    signIn: { x: -0.5, z: 0.67, w: 0.21, h: 0.012, d: 0.13, yaw: -0.2 },
+    // The sign-in sheet on its board, foot on the counter, leaning back on the printer's
+    // front (h is the board's length, d its thickness).
+    signIn: { x: -0.63, z: 0.55, w: 0.1, h: 0.14, d: 0.008 },
     // Months of night shifts, on the clerk's right: the rota on a clipboard, loose
     // receipts and an old magazine; the receipt spike stands at the front left, clear of
     // the customer's hands.

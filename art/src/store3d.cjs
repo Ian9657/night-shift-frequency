@@ -4,7 +4,7 @@
 // placed by their 'at' anchor.
 'use strict';
 const { Pix } = require('../tools/pixel.cjs');
-const { Stage } = require('../tools/raycast.cjs');
+const { Stage, shade, lightAt } = require('../tools/raycast.cjs');
 const { sign, width: signWidth } = require('../tools/signs.cjs');
 const space = require('../../js/content/space.js');
 const palette = require('../palette.cjs');
@@ -347,15 +347,18 @@ function counterLayer() {
 // ------------------------------------------------------------------ the clerk's things (nearest)
 function front() {
   const s = new Stage();
-  const { signIn } = space.personal;
-  s.box(signIn, RAMP.paper, (f, u, t) => {
-    if (f !== 'top') return null;
-    if (t > 0.88) return 'steel6';
-    if (u < 0.05 || u > 0.95) return 'wood2';
+  // The sign-in sheet on a board, leaning back on the printer's front: the same
+  // signature on every row, the clip at the top.
+  const { signIn } = space.personal, [printer] = space.fixtures.printer;
+  const lean = Math.atan2(printer.z - printer.d / 2 - signIn.z, printer.h);
+  const up = [0, signIn.h * Math.cos(lean), signIn.h * Math.sin(lean)], n = [0, Math.sin(lean), -Math.cos(lean)];
+  s.quad([signIn.x - signIn.w / 2, counter.y, signIn.z], [signIn.w, 0, 0], up, n, (u, t, P, sx, sy) => {
+    if (t > 0.86) return u > 0.3 && u < 0.7 ? (t > 0.95 ? 'steel4' : 'steel6') : 'wood2';
+    if (u < 0.07 || u > 0.93 || t < 0.04) return 'wood2';
     if ((t * 9) % 1 < 0.12) return 'paper1';
-    if ((t * 9) % 1 > 0.35 && (t * 9) % 1 < 0.65 && u > 0.1 && u < 0.45) return 'blue2';  // the same signature, every row
-    return null;
-  }, { name: 'sign-in' });
+    if ((t * 9) % 1 > 0.35 && (t * 9) % 1 < 0.65 && u > 0.14 && u < 0.5) return 'blue2';
+    return shade(RAMP.paper, lightAt(P, n), sx, sy);
+  }, s.object('sign-in', { ramp: RAMP.wood }));
   // The staff rota on a clipboard: seven nights across, the same signature in every
   // night's box.
   const { rota, receipt1, receipt2, magazine } = space.personal;

@@ -5,6 +5,23 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — printer, sign-in sheet and charity box swap places
+
+- The receipt printer is smaller and sits at the clerk's left, in front of the
+  register's keyboard. The shift report still prints from its top slot.
+- The sign-in sheet stands on its board, its foot on the counter, leaning back on the
+  printer's front. Its angle comes from the printer's size and position.
+- The charity box takes the printer's old place by the card terminal and is larger.
+
+### Verified (printer, sign-in, charity box)
+
+- All five checks pass. Desktop card-sale, shift-report and phone-landscape
+  screenshots were reviewed.
+
+### Not verified (printer, sign-in, charity box)
+
+- The board covers most of the printer's front, so only the power light shows there.
+
 ### Changed — bags in view, a readable magazine
 
 - The radio caption bar is only as wide as its text instead of the full screen, and the
