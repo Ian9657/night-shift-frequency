@@ -5,7 +5,7 @@
 // string keys resolved at draw time.
 (function (root) {
   'use strict';
-  const { time, audio, strings, story, night } = root.NSF;
+  const { time, audio, strings, story, night, overlay } = root.NSF;
   const BAND = story.radio.band;
   const label = freq => (freq % 10 ? (freq / 100).toFixed(2) : (freq / 100).toFixed(1));
 
@@ -74,6 +74,18 @@
     return done;
   }
 
+  // Start a fresh order segment. Anything ordinary left from the previous customer
+  // is no longer relevant, so discard it and the currently playing line/song before
+  // putting the new segment on air.
+  function beginOrder(lines) {
+    time.cancel(lineTimer);
+    lineTimer = null;
+    queue = [];
+    if (view.key || view.song) show(null);
+    queue.push(...lines.map(line => (typeof line === 'string' ? { key: line, vars: {} } : line)));
+    if (view.kind === 'ferry' && !view.offAir) advance();
+  }
+
   function kindOf(freq) {
     if (freq === BAND.ferry) return 'ferry';
     if (freq === BAND.echo) return 'echo';
@@ -94,7 +106,10 @@
     audio.radioStation(view.offAir && view.kind === 'ferry' ? 'static' : view.kind, night.progress());
     show(null);
     time.cancel(lineTimer);
-    lineTimer = time.after(450, advance);
+    // The dial is a paused overlay, so a game-clock timer would never fire while
+    // it is open. Start the tuned station immediately; its normal line timer then
+    // resumes when the panel closes.
+    advance();
   }
 
   // Tune straight to a station by its label ('87.6'), as the ending does.
@@ -117,15 +132,20 @@
   }
 
   root.NSF.radio = {
-    view, band: BAND, label, play, tune, setFrequency, skip, signOff,
+    view, band: BAND, label, play, beginOrder, tune, setFrequency, skip, signOff,
     step(direction) { setFrequency(view.freq + direction * BAND.step); },
-    openDial() { view.dialOpen = !view.dialOpen; audio.phoneKey(); },
-    closeDial() { view.dialOpen = false; },
+    openDial() {
+      if (view.dialOpen) return closeDial();
+      if (!overlay.open('radio')) return;
+      view.dialOpen = true;
+      audio.phoneKey();
+    },
+    closeDial() { view.dialOpen = false; overlay.close('radio'); },
     // Arrow keys tune while the dial is open; Escape puts it away.
     key(name) {
       if (!view.dialOpen) return false;
       if (name === 'ArrowLeft' || name === 'ArrowRight') setFrequency(view.freq + (name === 'ArrowLeft' ? -1 : 1) * BAND.step);
-      else if (name === 'Escape') view.dialOpen = false;
+      else if (name === 'Escape') closeDial();
       else return false;
       return true;
     },

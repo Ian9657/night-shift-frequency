@@ -40,7 +40,7 @@
     },
     shiftStarted() { radio.play([...story.radio.intro, ...story.tonight.segments[0]]); },
     // A text the clerk sent is read before the segment.
-    orderStarted(index) { radio.play([...messages.takeOnAir(index, signin.name), ...story.tonight.segments[index]]); },
+    orderStarted(index) { radio.beginOrder([...messages.takeOnAir(index, signin.name), ...story.tonight.segments[index]]); },
     // The closing letter and sign-off on 87.6: `done` resolves once they have been
     // heard; `duration` is how long they take on air.
     shiftClosed(ending) {

@@ -3,7 +3,7 @@
 // clicking the box shows them close up and pauses the shift, like the phone.
 (function (root) {
   'use strict';
-  const { story, time, audio } = root.NSF;
+  const { story, time, audio, overlay } = root.NSF;
   const view = { open: false };
   let game = null, lastCount = 0;
 
@@ -29,14 +29,14 @@
 
   function open() {
     if (view.open) return;
+    if (!overlay.open('found')) return;
     view.open = true;
-    time.paused = true;
     audio.boxDrop();
   }
   function close() {
     if (!view.open) return;
     view.open = false;
-    time.paused = false;
+    overlay.close('found');
   }
 
   root.NSF.found = {

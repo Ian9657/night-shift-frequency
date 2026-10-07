@@ -4,7 +4,7 @@
 // mode, a per-browser convenience kept in localStorage.
 (function (root) {
   'use strict';
-  const { time, audio, messages, signin } = root.NSF;
+  const { time, audio, messages, signin, overlay } = root.NSF;
   const FRAME_MS = 70;                                      // closed → half → open
   const SETTINGS = ['master', 'radio', 'sounds', 'silent'];
   const HOME = ['inbox', 'compose', 'call', 'settings'];
@@ -44,15 +44,15 @@
 
   function open() {
     if (view.open) return;
+    if (!overlay.open('phone')) return;
     Object.assign(view, { open: true, closing: false, since: time.uiNow, screen: 'home', row: messages.unread() ? 0 : view.row % HOME.length, reading: null });
-    time.paused = true;
     audio.radioDucked = true;
     audio.phoneFlip(true);
   }
   function close() {
     if (!view.open || view.closing) return;
     Object.assign(view, { closing: true, since: time.uiNow });
-    time.paused = false;
+    overlay.close('phone');
     audio.radioDucked = false;
     audio.phoneFlip(false);
   }

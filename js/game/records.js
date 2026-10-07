@@ -3,6 +3,7 @@
 (function (root) {
   'use strict';
   const view = { open: false, draft: null, focus: 0 };
+  const { overlay } = root.NSF;
   let game = null;
 
   // Everything the panel shows, derived from the engine on each call.
@@ -36,11 +37,12 @@
 
   function open() {
     if (!game.canOpenRecords()) return;
+    if (!overlay.open('records')) return;
     view.open = true;
     view.draft = null;
     view.focus = 0;
   }
-  function close() { view.open = false; }
+  function close() { view.open = false; overlay.close('records'); }
   function choose(choice) { view.draft = choice; }
   function activate(control) {
     if (!control) return;

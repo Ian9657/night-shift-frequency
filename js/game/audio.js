@@ -14,6 +14,7 @@
   let radioBed = null;
   let tickStep = 0;
   let muted = false;
+  let paused = false;
   let bus = null;
   const levels = { master: 5, radio: 5, sounds: 5 };
   let radioDuck = 1;
@@ -34,7 +35,7 @@
       bus = { master, sounds, radio };
       applyLevels();
     }
-    if (context.state === 'suspended') context.resume().catch(() => {});
+    if (context.state === 'suspended' && !paused) context.resume().catch(() => {});
     return context;
   }
 
@@ -497,7 +498,9 @@
     setLevel(name, value) { levels[name] = Math.max(0, Math.min(5, Math.round(value))); applyLevels(); },
     // While the phone is open the radio drops back, as when the clerk looks away from it.
     set radioDucked(value) { radioDuck = value ? 0.3 : 1; applyLevels(); },
-    set muted(value) { muted = Boolean(value); if (muted && context) context.suspend(); else if (context) context.resume(); },
+    set muted(value) { muted = Boolean(value); if (muted && context) context.suspend(); else if (context && !paused) context.resume(); },
     get muted() { return muted; },
+    set paused(value) { paused = Boolean(value); if (context && !muted) (paused ? context.suspend() : context.resume()).catch(() => {}); },
+    get paused() { return paused; },
   };
 })(globalThis);
