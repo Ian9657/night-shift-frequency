@@ -5,6 +5,26 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — monitor and cash drawer get real build detail
+
+- The register's monitor is a deep bezel with the CRT housing stepping in toward the
+  back and vent slots down its side; the chin has brightness and contrast knobs and a
+  power button beside its light (the light was hidden under the sticky note).
+- The cash drawer's front has folded steel edges, a bevelled check slot, a round key
+  lock with its keyway, a CASH label tape and knee scuffs. Open, the till is a black
+  insert with notes under four spring clips and five coin cups of mixed coins; the open
+  drawer shares the same front.
+
+### Verified (monitor, drawer)
+
+- All five checks pass. Desktop card-sale and cash-drawer screenshots were reviewed.
+
+### Not verified (monitor, drawer)
+
+- From the clerk's eye the monitor's stepped housing shows mainly at its right side;
+  the swivel base would sit behind the keypad and was not drawn. The radio caption
+  covers the front of the open till. Phone screenshots were not looked at.
+
 ### Changed — printer and microwave get real build detail
 
 - The receipt printer is a two-tone thermal printer: a charcoal base with a brand line,

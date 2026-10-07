@@ -558,7 +558,11 @@ function sprites() {
   const [rec] = F.recordKey, recU = (rec.x - x0) / keypad.w, fnU = [recU, recU + 0.095];
   result['store-pos'] = (() => {
     const s = new Stage();
-    s.box(monitor, RAMP.cream, panel('front', 80, 73, p => {
+    // The monitor: a deep bezel, then the CRT's housing stepping in toward the back,
+    // with vent slots down its side; knobs and a power button on the chin.
+    const front = monitor.z - monitor.d / 2;
+    const vents = (f, u, t) => (f === 'right' && t > 0.5 && t < 0.92 && u > 0.15 && u < 0.85 && (t * 22) % 1 < 0.35 ? 'cream1' : null);
+    s.box({ ...monitor, z: front + 0.06, d: 0.12 }, RAMP.cream, both(panel('front', 80, 73, p => {
       p.rect(0, 0, 80, 73, 'cream3');
       p.hline(0, 79, 0, 'cream4').vline(0, 0, 72, 'cream4').hline(0, 79, 72, 'cream1').vline(79, 0, 72, 'cream1');
       p.rect(6, 5, 68, 52, 'cream1').rect(8, 7, 64, 48, 'phos0');
@@ -566,11 +570,13 @@ function sprites() {
       p.rect(8, 59, 16, 5, 'buoy2').hline(8, 23, 59, 'buoy3');                                // brand badge
       p.rect(27, 58, 19, 7, 'white').hline(27, 45, 64, 'paper2').px(45, 58, 'paper2');          // label tape
       text(p, 29, 59, 'REG2', 'ink');
-      p.rect(70, 60, 2, 2, 'phos4');                                                            // power light
-      for (let x = 49; x < 62; x += 3) p.vline(x, 59, 64, 'cream2');                            // vents
+      for (const kx of [50, 55]) p.ellipse(kx, 61, 2, 2, 'cream1').px(kx, 60, 'cream5').px(kx - 1, 61, 'cream4');   // brightness, contrast
+      p.rect(59, 59, 4, 4, 'cream1').rect(60, 60, 2, 2, 'cream4').px(64, 60, 'phos4');          // power button and light
       p.rect(65, 56, 12, 10, 'yellow2').hline(65, 76, 56, 'yellow3').px(76, 65, 'yellow1');        // a sticky note
       p.hline(67, 74, 59, 'blue1').hline(67, 72, 61, 'blue1').hline(68, 73, 63, 'blue1');
-    }));
+    }), vents));
+    s.box({ x: monitor.x, z: front + 0.17, w: monitor.w * 0.82, h: monitor.h * 0.86, d: 0.1, y: counter.y + monitor.h * 0.04 }, RAMP.cream, vents);
+    s.box({ x: monitor.x, z: front + 0.25, w: monitor.w * 0.58, h: monitor.h * 0.66, d: 0.06, y: counter.y + monitor.h * 0.1 }, RAMP.cream);
     // The keypad's body: the sloping top, the low front lip, the wedge-shaped ends.
     const body = s.object('keypad', { ramp: RAMP.cream });
     const lock = (u, t) => Math.hypot((u - 0.09) * keypad.w, (t - 0.86) * slopeLength);
@@ -667,28 +673,40 @@ function sprites() {
   result['store-terminal'] = terminal(false);
   result['store-terminal-approved'] = terminal(true);
 
-  // The cash drawer under the register: shut, a steel front with a finger pull and
-  // a key lock; open, it slides out towards the clerk and shows its till: notes in
-  // four clips at the back, coins in front.
+  // The cash drawer under the register: shut, its steel front; open, it slides out
+  // towards the clerk and shows its till, a black plastic insert: notes under four
+  // spring clips at the back, five coin cups in front.
   const [till] = F.drawer;
-  result['store-drawer'] = fixture(F.drawer, [RAMP.steel], [(f, u, t) => {
-    if (f !== 'front') return null;
-    if (t > 0.72 && u > 0.3 && u < 0.7) return t > 0.86 ? 'steel1' : 'ink';                  // finger pull
-    if (Math.hypot((u - 0.88) * 4, t - 0.55) < 0.12) return 'yellow2';                         // key lock
-    return t < 0.1 ? 'steel3' : null;
-  }]);
+  // The drawer's front: folded steel edges, a bevelled check slot, a round key lock
+  // with its keyway, a CASH label tape and scuffs from the clerk's knees.
+  const drawerFront = panel('front', 104, 23, p => {
+    p.hline(0, 103, 0, 'steel6').hline(0, 103, 1, 'steel5').hline(0, 103, 22, 'steel1').hline(0, 103, 21, 'steel2');
+    p.vline(0, 0, 22, 'steel5').vline(103, 0, 22, 'steel2');
+    p.rect(30, 5, 44, 5, 'steel2').hline(30, 73, 5, 'steel1').rect(32, 7, 40, 2, 'ink').hline(30, 73, 10, 'steel6');   // check slot
+    p.rect(8, 6, 15, 7, 'white').hline(8, 22, 12, 'paper2');                                    // label tape
+    text(p, 9, 7, 'CASH', 'ink');
+    p.ellipse(91, 11, 4, 4, 'steel6').ellipse(91, 11, 3, 3, 'steel3').vline(91, 9, 13, 'ink').px(90, 9, 'steel7');   // key lock
+    for (const [x, y, len] of [[14, 17, 6], [40, 18, 9], [44, 19, 4], [63, 17, 7], [79, 18, 5]]) p.hline(x, x + len, y, 'steel3');   // knee scuffs
+  });
+  result['store-drawer'] = fixture(F.drawer, [RAMP.steel], [drawerFront]);
   result['store-drawer-open'] = (() => {
     const s = new Stage(), d = space.drawerTravel;
     s.box({ ...till, z: counter.near - d / 2, d }, RAMP.steel, (f, u, t) => {
+      if (f === 'front') return drawerFront(f, u, t);
       if (f !== 'top') return null;
       if (u < 0.04 || u > 0.96 || t > 0.94 || t < 0.06) return 'steel4';                        // the till's rim
-      const cell = Math.floor(u * 4);
-      if (t > 0.5) {                                                                           // notes, clipped at the back
-        if ((u * 4) % 1 < 0.08) return 'steel2';
-        return t > 0.84 ? 'steel5' : ['green2', 'blue2', 'violet1', 'orange2'][cell] ?? 'paper2';
+      if (t > 0.5) {                                                                           // notes under their clips
+        const cell = Math.floor((u - 0.04) / 0.23), cu = ((u - 0.04) / 0.23) % 1;
+        if (cu < 0.06 || cell > 3) return 'ink';
+        if (t > 0.82) return cu > 0.35 && cu < 0.65 ? 'steel6' : 'ink';                          // the spring clip
+        const note = ['green', 'blue', 'violet', 'orange'][cell], edge = (t * 18) % 1 < 0.22;
+        return edge ? note + '1' : cu > 0.6 && cu < 0.8 && t > 0.6 && t < 0.72 ? 'paper2' : note + '2';
       }
-      if ((u * 6) % 1 < 0.08 || Math.abs(t - 0.48) < 0.03) return 'steel2';                     // coin cups
-      return hash(Math.floor(u * 60), Math.floor(t * 30)) < 0.45 ? (cell % 2 ? 'yellow2' : 'steel5') : 'steel1';
+      if (Math.abs(t - 0.48) < 0.03) return 'ink';
+      const cu = ((u - 0.04) / 0.184) % 1, cell = Math.floor((u - 0.04) / 0.184);
+      if (cu < 0.08) return 'ink';                                                             // coin cups
+      const coin = hash(Math.floor(u * 70), Math.floor(t * 26));
+      return coin < 0.55 ? (cell % 2 ? (coin < 0.2 ? 'yellow3' : 'yellow2') : coin < 0.2 ? 'steel7' : 'steel5') : 'steel0';
     });
     s.outline();
     return s.sprite();
