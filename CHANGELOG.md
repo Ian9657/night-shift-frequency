@@ -5,6 +5,24 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — the drinks fridge is a lit glass-door cabinet
+
+- The bottles and shelves used to stand outside the fridge's solid body, on the room
+  side of its glass, so they read as binders on an open shelf. The fridge is now a
+  cabinet: an end panel with an ICE COLD cola poster, a canopy with the brand band, a
+  kick plate, and behind tinted glass doors (frames, rails, long handles, a diagonal
+  sheen) a glowing interior with light strips behind the frames and bottles on four
+  shelves. The light strips and frames come from one list of door positions.
+
+### Verified (fridge)
+
+- All five checks pass. The desktop screenshot was reviewed close up.
+
+### Not verified (fridge)
+
+- The screen edge cuts the poster's right side; ICE COLD and the bottle stay visible.
+  Phone-landscape screenshot not looked at.
+
 ### Changed — the shop is bright under its tubes
 
 - The wall ramp in `art/palette.cjs` is near-white and slightly blue-green when lit

@@ -214,58 +214,76 @@ function sides() {
       z += 0.008;
     }
   });
-  // Drink fridge on the right wall, its end panel carrying a 2005 drink poster
-  const F = { x: room.halfW - 0.32, z0: 1.04, z1: 1.95 };
-  const fz = (F.z0 + F.z1) / 2, fd = F.z1 - F.z0;
-  s.box({ x: F.x, z: fz, w: 0.64, h: 2.2, d: fd, y: 0 }, RAMP.steel, (f, u, t) => {
-    if (f === 'front') {
-      if (t > 0.9) return t > 0.95 ? 'navy1' : 'buoy2';
-      if (u > 0.12 && u < 0.88 && t > 0.3 && t < 0.82) {
-        if (u > 0.42 && u < 0.58 && t > 0.38 && t < 0.72) return t > 0.66 ? 'white' : 'cyan2';
-        if (t > 0.74) return 'white';
-        return t < 0.36 ? 'buoy2' : 'cyan0';
-      }
-      return null;
-    }
-    if (f === 'left') return t > 0.9 ? (t > 0.95 ? 'navy1' : 'buoy2') : t > 0.88 ? 'tube' : 'wall6';
+  // The drinks fridge along the right wall: a cabinet whose glass doors face the room.
+  // Its end panel toward the window carries a drinks poster; a canopy with the brand
+  // band runs along the top, a kick plate along the bottom. Behind the glass, a lit
+  // interior: the back wall glows, light strips run down behind the door frames, and
+  // bottles stand on four shelves near the glass.
+  const F = { x0: room.halfW - 0.66, x1: room.halfW, z0: 1.04, z1: 1.95 };
+  const fx = (F.x0 + F.x1) / 2, fw = F.x1 - F.x0, fz = (F.z0 + F.z1) / 2, fd = F.z1 - F.z0;
+  const DOORS = [1.05, 1.35, 1.65, 1.95];
+  s.box({ x: fx, z: F.z0 + 0.015, w: fw, h: 2.2, d: 0.03, y: 0 }, RAMP.steel, (f, u, t) => {
+    if (f === 'left') return t > 0.9 ? (t > 0.95 ? 'navy1' : 'buoy2') : null;
     return null;
-  }, { name: 'fridge' });
-  for (const y of [0.18, 0.6, 1.02, 1.44]) {
-    s.box({ x: room.halfW - 0.63, z: fz, w: 0.05, h: 0.012, d: fd - 0.02, y }, RAMP.steel,
+  }, { name: 'fridge end' });
+  s.box({ x: fx, z: F.z0 - 0.002, w: fw - 0.06, h: 1.1, d: 0.004, y: 0.95 }, RAMP.paper, panel('front', 92, 168, p => {
+    // ICE COLD over a big bottle of cola, bubbles rising, on a deep blue ground.
+    p.rect(0, 0, 92, 168, 'white').rect(3, 3, 86, 162, 'navy1');
+    for (let y = 3; y < 165; y++) if (y % 3 === 0) p.dither(3, y, 86, 1, y < 80 ? 'navy2' : 'blue1', 'sparse');
+    // ICE over COLD, doubled, in the part of the poster the screen edge leaves visible.
+    p.rect(3, 3, 86, 28, 'buoy2').hline(3, 88, 30, 'buoy0');
+    const word = new Pix(30, 14);
+    sign(word, 2, 0, 'ICE', 'white'); sign(word, 0, 7, 'COLD', 'white');
+    for (let y = 0; y < 14; y++) for (let x = 0; x < 30; x++) if (word.get(x, y)) p.rect(10 + x * 2, 4 + y * 2, 2, 2, 'white');
+    // The bottle: cap, neck, shoulders, body with a white wave label, highlight.
+    p.rect(42, 36, 8, 5, 'red3').rect(43, 41, 6, 14, 'wood1');
+    p.ellipse(46, 66, 13, 12, 'wood1').rect(33, 66, 27, 84, 'wood1').ellipse(46, 150, 13, 4, 'wood1');
+    p.rect(33, 92, 27, 22, 'red2');
+    for (let x = 33; x < 60; x++) p.px(x, 102 + Math.round(Math.sin(x / 3) * 2), 'white').px(x, 103 + Math.round(Math.sin(x / 3) * 2), 'white');
+    p.vline(37, 60, 146, 'wood3').vline(38, 70, 140, 'wood2');
+    for (const [bx, by] of [[22, 60], [26, 82], [20, 110], [68, 70], [72, 98], [66, 128], [24, 138]]) p.ellipse(bx, by, 2, 2, 'cyan3').px(bx - 1, by - 1, 'white');
+  }), { name: 'poster' });
+  s.box({ x: fx, z: fz, w: fw, h: 0.25, d: fd, y: 1.95 }, RAMP.steel, (f, u, t) => {
+    if (f !== 'left') return null;
+    return t > 0.55 ? (t > 0.8 ? 'navy1' : 'buoy2') : t > 0.18 ? 'white' : 'steel3';
+  }, { name: 'fridge canopy' });
+  s.box({ x: fx, z: fz, w: fw, h: 0.2, d: fd, y: 0 }, RAMP.dark, (f, u, t) => (f === 'left' && t > 0.3 && t < 0.7 && (u * 60) % 1 < 0.5 ? 'ink' : null), { name: 'kick plate' });
+  // The lit interior: back wall, light strips behind the frames, shelves, bottles.
+  s.quad([F.x1 - 0.06, 0.2, F.z1], [0, 0, -fd], [0, 1.75, 0], [-1, 0, 0], (u, v, P, sx, sy) => {
+    if (DOORS.some(dz => Math.abs(P[2] - dz) < 0.03)) return 'tube';
+    return (sx + sy) % 2 ? 'wall6' : 'white';
+  }, WALL);
+  for (const y of [0.2, 0.6, 1.0, 1.4]) {
+    s.box({ x: F.x0 + 0.28, z: fz, w: 0.44, h: 0.015, d: fd - 0.02, y }, RAMP.steel,
       (f, u) => (f === 'left' ? ((u * 30) % 1 < 0.2 ? 'buoy2' : 'white') : null), { name: 'fridge shelf' });
-    let z = F.z0 + 0.02, n = 0;
-    while (z < F.z1 - 0.07) {
+    let z = F.z0 + 0.04, n = 0;
+    while (z < F.z1 - 0.06) {
       const r = hash(500 + Math.round(y * 100), n++);
       const ramp = RAMP[['cyan', 'green', 'orange', 'red', 'blue', 'buoy'][Math.floor(r * 6)]];
-      // Narrow bottles with a short shoulder read as drinks behind glass rather
-      // than the old tall binder-like blocks.  The extra facing keeps the cooler
-      // visually stocked without making any single pack too dominant.
-      const facings = 3 + Math.floor(r * 2), bh = 0.18 + r * 0.04;
-      for (let k = 0; k < facings && z < F.z1 - 0.07; k++) {
-        s.box({ x: room.halfW - 0.68, z: z + 0.028, w: 0.055, h: bh, d: 0.055, y: y + 0.012 }, ramp, (f, u, t) => {
-          if (f !== 'left') return null;
-          if (t > 0.9) return u > 0.3 && u < 0.7 ? (r > 0.5 ? 'white' : 'red2') : 'wall6'; // cap
-          if (t > 0.72) return u > 0.18 && u < 0.82 ? ramp : 'wall6';                    // shoulder
-          if (t > 0.38 && t < 0.6) return RAMP.paper;
-          return null;
-        }, { name: 'bottle' });
-        z += 0.065;
+      const facings = 3 + Math.floor(r * 2), bh = 0.2 + r * 0.04;
+      for (let k = 0; k < facings && z < F.z1 - 0.06; k++) {
+        if (DOORS.every(dz => Math.abs(z + 0.028 - dz) > 0.04)) {                              // none hidden behind a frame
+          s.box({ x: F.x0 + 0.1, z: z + 0.028, w: 0.055, h: bh, d: 0.055, y: y + 0.015 }, ramp, (f, u, t) => {
+            if (f !== 'left' && f !== 'top') return null;
+            if (t > 0.9 || f === 'top') return u > 0.3 && u < 0.7 ? (r > 0.5 ? 'white' : 'red2') : 'white';   // cap, the light behind it
+            if (t > 0.72) return u > 0.2 && u < 0.8 ? ramp : 'white';                                     // shoulder
+            if (t > 0.36 && t < 0.58) return RAMP.paper;                                                  // label
+            return null;
+          }, { name: 'bottle' });
+        }
+        z += 0.062;
       }
-      z += 0.01;
+      z += 0.012;
     }
   }
-  for (const z of [1.05, 1.35, 1.65, 1.95]) s.box({ x: room.halfW - 0.62, z, w: 0.03, h: 2.0, d: 0.02, y: 0.08 }, RAMP.steel, null, { name: 'door frame' });
+  // Door frames and rails at the glass, a long handle on each door.
+  for (const z of DOORS) s.box({ x: F.x0 + 0.015, z, w: 0.03, h: 1.75, d: 0.025, y: 0.2 }, RAMP.steel, null, { name: 'door frame' });
+  for (const y of [0.2, 1.93]) s.box({ x: F.x0 + 0.015, z: fz, w: 0.03, h: 0.025, d: fd, y }, RAMP.steel, null, { name: 'door rail' });
+  for (const z of DOORS.slice(0, 3)) s.box({ x: F.x0 - 0.02, z: z + 0.25, w: 0.02, h: 0.5, d: 0.02, y: 0.85 }, RAMP.steel, null, { name: 'handle' });
   const GLASS = s.object('glass', { outline: false });
-  s.quad([room.halfW - 0.62, 0.08, F.z0], [0, 0, fd], [0, 1.92, 0], [-1, 0, 0], (u, v, P, sx, sy) => {
-    const doorPos = (P[2] - 1.05) % 0.3;
-    // Cool interior strips are visible through the otherwise transparent
-    // doors. They stop at the shelf edges, which makes the glass read as a
-    // lit cooler rather than a flat cyan wall.
-    if (P[1] > 0.24 && P[1] < 1.9 && (P[1] * 18) % 1 < 0.035) return 'tube';
-    if (doorPos > 0.24 && doorPos < 0.27 && P[1] > 0.9 && P[1] < 1.4) return 'steel7';
-    if (Math.abs(P[2] - 1.49) < 0.012 && P[1] > 0.15 && P[1] < 1.92) return 'steel5';
-    if ((sx * 2 + sy * 3) % 41 === 0) return 'white';
-    return null;
+  s.quad([F.x0, 0.2, F.z0], [0, 0, fd], [0, 1.75, 0], [-1, 0, 0], (u, v, P, sx, sy) => {
+    if ((sx * 2 + sy) % 23 === 0 || (sx * 2 + sy + 1) % 23 === 0) return (sx + sy) % 3 ? 'white' : null;   // diagonal sheen
+    return (sx + sy * 3) % 7 === 0 ? 'cyan4' : null;                                                        // cold tint
   }, GLASS);
   s.outline();
   return s.layer('main');
