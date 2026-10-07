@@ -5,6 +5,22 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — bags in view, a readable magazine
+
+- The radio caption bar is only as wide as its text instead of the full screen, and the
+  bag bundle hangs further right, under the packing place: the whole bundle and its
+  logo show beside a typical caption, and a new bag rises straight up into place.
+- The magazine's cover is a cover star (dark hair, face, blue top) on a yellow ground
+  under a red masthead, with cover lines and a barcode.
+
+### Verified (bags, magazine)
+
+- All five checks pass. Desktop heating and card-sale screenshots were reviewed.
+
+### Not verified (bags, magazine)
+
+- Two-line captions still reach across the bags.
+
 ### Changed — the drinks fridge is a lit glass-door cabinet
 
 - The bottles and shelves used to stand outside the fridge's solid body, on the room

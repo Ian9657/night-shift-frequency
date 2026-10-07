@@ -130,8 +130,10 @@
     const lines = text.wrap(value, 860 - chipWidth);
     const height = lines.length * 14 + 10;
     const y = SH - 6 - height;
+    // Only as wide as the line, so the counter's front (the bags) shows beside it.
+    const width = 16 + chipWidth + Math.max(...lines.map(line => text.width(line))) + 10 - 8;
     ctx.fillStyle = 'rgba(7,9,15,0.8)';
-    ctx.fillRect(8, y, SW - 16, height);
+    ctx.fillRect(8, y, width, height);
     ctx.fillStyle = echo ? C.cyan : C.amber;
     ctx.fillRect(8, y, 2, height);
     text.draw(ctx, chip, 16, y + 5, echo ? C.cyan : C.amber);

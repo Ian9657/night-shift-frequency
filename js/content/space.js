@@ -32,7 +32,7 @@
       { x: 0.23, z: 0.95, w: 0.12, h: 0.02, d: 0.12 }],
     // Carrier bags hang in a bundle on the clerk's side of the counter, their handles
     // hooked over its near lip.
-    bags: [{ x: 0.12, z: 0.495, w: 0.26, h: 0.18, d: 0.01, y: counter.y - 0.18 }],
+    bags: [{ x: 0.48, z: 0.495, w: 0.26, h: 0.18, d: 0.01, y: counter.y - 0.18 }],
     // The radio is the clerk's, at their right hand; the receipt printer stands by the
     // bags and the card terminal, where the receipt is handed over.
     radio: [{ x: 0.85, z: 0.7, w: 0.24, h: 0.14, d: 0.09 }],

@@ -371,18 +371,18 @@ function front() {
   for (const slip of [receipt1, receipt2]) {
     s.box(slip, RAMP.paper, (f, u, t) => (f === 'top' && (t * 8) % 1 < 0.25 && u > 0.15 && u < (t > 0.8 ? 0.5 : 0.85) ? 'paper1' : f === 'top' ? 'white' : null), { name: 'receipt' });
   }
-  // An old magazine: red masthead, a cover photo, cover lines, the barcode.
+  // An old magazine: red masthead with its title, a cover star (dark hair, face,
+  // shoulders in a blue top) on a yellow ground, cover lines down the left, a barcode.
   s.box(magazine, RAMP.paper, (f, u, t) => {
     if (f !== 'top') return null;
-    if (t > 0.82) return u > 0.1 && u < 0.85 && t > 0.86 && t < 0.95 && (u * 9) % 1 < 0.7 ? 'white' : 'red2';
-    if (u > 0.12 && u < 0.88 && t > 0.2 && t < 0.78) {
-      if (Math.hypot((u - 0.55) * 1.4, t - 0.52) < 0.16) return 'skin3';                       // a face
-      if (Math.hypot((u - 0.55) * 1.2, t - 0.62) < 0.22) return 'wood1';                       // hair
-      return 'cyan2';
-    }
-    if (t < 0.17 && u > 0.7 && u < 0.92) return (u * 40) % 1 < 0.5 ? 'ink' : 'white';         // barcode
-    if (t < 0.17 || u < 0.12) return (t * 12) % 1 < 0.35 && u < 0.6 ? 'yellow2' : 'paper3';   // cover lines
-    return 'paper3';
+    if (t > 0.8) return t > 0.84 && t < 0.95 && u > 0.08 && u < 0.8 && (u * 10) % 1 < 0.75 ? 'white' : 'red2';
+    const hx = (u - 0.6) / 0.22, hy = (t - 0.5) / 0.2;
+    if (t < 0.32 && Math.abs(u - 0.6) < 0.3 - (0.32 - t) * 0.3) return 'blue2';                 // shoulders
+    if (Math.hypot(hx, hy) < 0.85) return 'skin3';                                           // face
+    if (Math.hypot(hx, (t - 0.56) / 0.24) < 1.2 && t > 0.44) return 'ink';                    // hair
+    if (t < 0.14 && u < 0.3) return (u * 40) % 1 < 0.5 ? 'ink' : 'white';                     // barcode
+    if (u < 0.32 && (t * 11) % 1 < 0.4) return t > 0.6 ? 'white' : 'red2';                     // cover lines
+    return 'yellow2';
   }, { name: 'magazine' });
   s.outline();
   return s.layer('main');
