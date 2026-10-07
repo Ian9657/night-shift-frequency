@@ -111,6 +111,15 @@
     'pos.closed': 'SHIFT CLOSED',
     'pos.sales': 'SALES {amount}',
     'pos.printReport': 'PRINT SHIFT REPORT',
+    'ui.phase.scan': 'SCAN ITEM',
+    'ui.phase.record': 'CHECK RECORD',
+    'ui.phase.heat': 'HEAT ITEM',
+    'ui.phase.bag': 'PACK ORDER',
+    'ui.phase.complete': 'ORDER COMPLETE',
+    'ui.phase.busy': 'PLEASE WAIT',
+    'ui.feedback.queued': 'QUEUED',
+    'ui.feedback.busy': 'PLEASE WAIT',
+    'ui.feedback.empty': 'NOTHING THERE',
 
     // Record panel on the POS
     'rec.title': 'REG#02 / TRANSACTION RECORD',

@@ -23,6 +23,8 @@
   const money = value => (value / 100).toFixed(2);
   const label = key => t(key);
   const shortId = id => id.replace('sale-', '#');
+  const PHASE_LABELS = { scan: 'ui.phase.scan', record: 'ui.phase.record', heat: 'ui.phase.heat', bag: 'ui.phase.bag', complete: 'ui.phase.complete', busy: 'ui.phase.busy' };
+  const FEEDBACK_LABELS = { queued: 'ui.feedback.queued', busy: 'ui.feedback.busy', empty: 'ui.feedback.empty' };
 
   // `action` gets the screen-grid point clicked; `drag`, if given, also follows the
   // pointer while it is held down.
@@ -116,6 +118,30 @@
     }
     ctx.fillStyle = 'rgba(241,245,230,0.07)';
     for (let i = 0; i < 26; i += 2) ctx.fillRect(x + 6 + i * 2, y + 30 - i, 14, 2);
+    const phase = game.interactionPhase?.();
+    if (phase && phase !== 'title') {
+      const hint = t(PHASE_LABELS[phase]);
+      text.draw(ctx, hint, x + w - 5, y + h - 13, phase === 'busy' ? C.amber : C.phosphorDim, { align: 'right', scale: ts });
+    }
+  }
+
+  function interactionOverlay(ctx, game) {
+    const name = game.state.hoverTarget;
+    if (name && game.state.phase === 'shift' && !phone.view.open && !found.view.open && !records.view.open && !radio.view.dialOpen) {
+      const target = game.targets().find(item => item.name === name);
+      if (target) {
+        const k = layout.screen.scale;
+        ctx.strokeStyle = 'rgba(245,216,115,0.8)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(target.x * k - 2, target.y * k - 2, target.w * k + 4, target.h * k + 4);
+      }
+    }
+    const feedback = game.state.feedback;
+    if (feedback) {
+      const value = t(FEEDBACK_LABELS[feedback.kind]);
+      box(ctx, MID - 64, SH - 38, 128, 18, 'rgba(7,9,15,0.82)', C.amber);
+      text.draw(ctx, value, MID, SH - 34, C.amber, { align: 'center' });
+    }
   }
 
   // ------------------------------------------------------------ speech bubble
@@ -269,7 +295,7 @@
       const rightWidth = right ? text.width(right) + 6 : 0;
       text.draw(ctx, caption, x0 + 5, ry, ink, { clipWidth: w - 10 - rightWidth });
       if (right) text.draw(ctx, right, x1 - 5, ry, ink, { align: 'right' });
-      if (name) hit(x0, ry - 2, w, 19, () => (selected ? phone.choose(i) : phone.select(i)), name);
+      if (name) hit(x0, ry - 3, w, 22, () => (selected ? phone.choose(i) : phone.select(i)), name);
       return { ry, ink, selected };
     };
     const wrapped = (value, y, color = LCD.ink) => text.wrap(value, w - 10).forEach((line, i) => text.draw(ctx, line, x0 + 5, y + i * 14, color));
@@ -315,16 +341,16 @@
         text.draw(ctx, t(PHONE_ROWS[id]), x0 + 5, ry, ink);
         if (id === 'silent') {
           text.draw(ctx, t(audio.muted ? 'phone.on' : 'phone.off'), x1 - 5, ry, ink, { align: 'right' });
-          hit(x0, ry - 2, w, 19, () => { phone.select(i); phone.toggleSilent(); }, 'phone-silent');
+          hit(x0, ry - 3, w, 22, () => { phone.select(i); phone.toggleSilent(); }, 'phone-silent');
           return;
         }
-        hit(x0, ry - 2, w - 44, 19, () => phone.select(i), 'phone-row-' + id);
+        hit(x0, ry - 3, w - 44, 22, () => phone.select(i), 'phone-row-' + id);
         const level = audio.level(id);
         for (let b = 0; b < 5; b++) {
           const bx = x1 - 42 + b * 8, bh = 4 + b * 2;
           ctx.fillStyle = b < level ? ink : (selected ? '#5a7397' : LCD.dim);
           ctx.fillRect(bx, ry + 14 - bh, 6, bh);
-          hit(bx - 1, ry - 2, 8, 19, () => { phone.select(i); phone.setLevel(id, level === b + 1 ? b : b + 1); }, `phone-${id}-${b + 1}`);
+          hit(bx - 1, ry - 3, 10, 22, () => { phone.select(i); phone.setLevel(id, level === b + 1 ? b : b + 1); }, `phone-${id}-${b + 1}`);
         }
       });
     }
@@ -605,6 +631,7 @@
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     pos(ctx, game);
+    interactionOverlay(ctx, game);
     bubble(ctx, game);
     caption(ctx, game);
     dial(ctx, game);

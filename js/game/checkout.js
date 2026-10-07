@@ -12,7 +12,7 @@
   const state = {
     phase: 'title', // title -> signin -> shift -> report -> ending -> clockout -> end
     eventIndex: 0, selectedId: null, takenIds: [], scannedIds: [], paid: false, bagged: false, heatedIds: [],
-    reportShown: false, busy: false, queuedAction: null, modeOverride: null, reactionCounts: {}, dialogueFlags: new Set(),
+    reportShown: false, busy: false, queuedActions: [], feedback: null, hoverTarget: null, modeOverride: null, reactionCounts: {}, dialogueFlags: new Set(),
   };
 
   const F = layout.fixtures;
@@ -144,6 +144,10 @@
   }
   const sayOnce = key => sayReactionSequence([key])[0] || null;
   function reactToBlocked(key) { if (!state.busy) sayOnce(key); }
+  function notify(kind) {
+    state.feedback = { kind, until: time.uiNow + 650 };
+    audio.uiClick();
+  }
 
   let waitTimer = null;
   function scheduleWait(key, ms, condition) {
@@ -474,7 +478,7 @@
     time.cancel(waitTimer);
     state.eventIndex = Math.min(state.eventIndex + 1, orders.length - 1);
     Object.assign(state, {
-      selectedId: null, takenIds: [], scannedIds: [], paid: false, bagged: false, heatedIds: [], busy: true, queuedAction: null,
+      selectedId: null, takenIds: [], scannedIds: [], paid: false, bagged: false, heatedIds: [], busy: true, queuedActions: [], feedback: null,
       modeOverride: null, reactionCounts: {}, dialogueFlags: new Set(),
     });
     scene.extras = [];
@@ -573,9 +577,10 @@
   }
 
   function update() {
-    if (state.queuedAction && !state.busy && state.queuedAction.eventIndex === state.eventIndex) {
-      const queued = state.queuedAction;
-      state.queuedAction = null;
+    if (state.feedback && time.uiNow >= state.feedback.until) state.feedback = null;
+    const queued = state.queuedActions[0];
+    if (queued && !state.busy && queued.eventIndex === state.eventIndex) {
+      state.queuedActions.shift();
       activate(queued.name);
     }
     placeProducts();
@@ -632,10 +637,14 @@
   function activate(name) {
     const buffered = new Set(['scanner', 'terminal', 'drawer', 'microwave', 'bags', 'basket', 'printer']);
     if (state.busy && buffered.has(name)) {
-      state.queuedAction = { name, eventIndex: state.eventIndex };
-      audio.uiClick();
+      if (!state.queuedActions.some(action => action.name === name && action.eventIndex === state.eventIndex)) {
+        if (state.queuedActions.length < 3) state.queuedActions.push({ name, eventIndex: state.eventIndex });
+      }
+      notify('queued');
       return;
     }
+    const overlays = new Set(['radio', 'phone', 'lostFound', 'recordKey']);
+    if (state.busy && !name.startsWith('item:') && !overlays.has(name)) { notify('busy'); return; }
     if (name.startsWith('item:')) return guarded(() => selectItem(name.slice(5)));
     const actions = {
       scanner: scan, terminal: () => pay('terminal'), drawer, microwave: heat, bags: bag, basket: takeOut,
@@ -647,7 +656,18 @@
   resetProducts();
   const controller = {
     shift, orders, state, scene, order, update, targets, activate, startShift, startEnding: () => guarded(startEnding),
-    submitDecision, hasSavedRecord, recordPending, scannedItems,
+    submitDecision, hasSavedRecord, recordPending, scannedItems, notify,
+    setHover(name) { state.hoverTarget = name || null; },
+    interactionPhase() {
+      const o = order();
+      if (!started()) return 'title';
+      if (state.busy) return 'busy';
+      if (o.mismatch && scannedItems(o).length === o.items.length && !hasSavedRecord()) return 'record';
+      if (!state.paid && scannedItems(o).length < o.items.length) return 'scan';
+      if (state.paid && pendingHeat(o).length) return 'heat';
+      if (state.paid && !state.bagged && needsBag(o)) return 'bag';
+      return 'complete';
+    },
     canOpenRecords: () => (state.phase === 'shift' || state.phase === 'report') && !state.busy,
   };
   records.attach(controller);

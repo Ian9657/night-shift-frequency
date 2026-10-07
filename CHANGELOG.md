@@ -5,6 +5,26 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — interaction feedback and input resilience
+
+- Added a derived POS phase hint for scanning, record checks, heating, packing and
+  completion, plus visible hover outlines for counter targets.
+- Counter actions now keep a small de-duplicated queue (up to three actions), show a
+  short acknowledgement for queued or rejected clicks, and clear the queue when the
+  customer changes.
+- Added a lightweight empty-click/blocked-click response, larger phone touch rows,
+  and right-click closing for modal panels while preserving keyboard Escape behavior.
+
+### Verified (interaction)
+
+- All five verification commands pass, including four complete browser paths and the
+  visual suite at desktop and narrow landscape sizes.
+
+### Not verified (interaction)
+
+- Touch feedback was verified through pointer events and enlarged hit regions in
+  Chrome; it was not tested on a physical phone.
+
 ### Changed — buffered counter flow and unified overlays
 
 - Tapping the next counter action during a machine animation now queues one action

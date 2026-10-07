@@ -56,16 +56,26 @@
     event.preventDefault();
     render(); // hit regions must reflect the current state, not the last frame
     const point = toScreen(event);
-    const found = targetAt(point);
-    if (found?.ui) {
-      found.ui.action(point);
-      if (found.ui.drag) { dragging = found.ui; canvas.setPointerCapture?.(event.pointerId); }
-    } else if (found?.world) game.activate(found.world.name);
+    const hit = targetAt(point);
+    if (hit?.ui) {
+      hit.ui.action(point);
+      if (hit.ui.drag) { dragging = hit.ui; canvas.setPointerCapture?.(event.pointerId); }
+    } else if (hit?.world) game.activate(hit.world.name);
+    else if (game.state.phase === 'shift' && !phone.view.open && !found.view.open && !records.view.open) game.notify('empty');
   });
   canvas.addEventListener('pointermove', event => {
     const point = toScreen(event);
     if (dragging) { dragging.drag(point); return; }
-    canvas.style.cursor = targetAt(point) ? 'pointer' : 'default';
+    const hit = targetAt(point);
+    game.setHover(hit?.world?.name || hit?.ui?.name || null);
+    canvas.style.cursor = hit ? 'pointer' : 'default';
+  });
+  canvas.addEventListener('contextmenu', event => {
+    event.preventDefault();
+    if (phone.view.open) phone.close();
+    else if (found.view.open) found.close();
+    else if (records.view.open) records.close();
+    else if (radio.view.dialOpen) radio.closeDial();
   });
   const release = () => { dragging = null; };
   canvas.addEventListener('pointerup', release);
