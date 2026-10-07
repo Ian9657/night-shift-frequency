@@ -120,7 +120,18 @@
   // first if the clerk has been listening to their frequency.
   const stayed = Object.freeze({ walt: 'say.heardWalt', ana: 'say.heardAna', hal: 'say.heardHal' });
 
-  const api = { catalog, drinks, clocks, night, contexts, records, radio, messages, stayed };
+  // Lost and found: the left rain boot June mentions turns up in the box with order 4;
+  // each person who stayed leaves something on the counter; the right boot is there by
+  // order 8, and nobody brought it in.
+  const found = Object.freeze([
+    { id: 'boot', at: 3, icon: 'boot', tag: 'found.boot' },
+    { id: 'taxi', after: 'walt', icon: 'receipt', tag: 'found.taxi' },
+    { id: 'band', after: 'ana', icon: 'band', tag: 'found.band' },
+    { id: 'ticket', after: 'hal', icon: 'ticket', tag: 'found.ticket' },
+    { id: 'bootRight', at: 7, icon: 'bootRight', tag: 'found.bootRight' },
+  ]);
+
+  const api = { catalog, drinks, clocks, night, contexts, records, radio, messages, stayed, found };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else (root.NSF = root.NSF || {}).story = api;
 })(globalThis);

@@ -5,6 +5,26 @@ verified and what was not.
 
 ## Unreleased
 
+### Added — lost and found
+
+- An open cardboard box in a cubby in the cabinet, between the cash drawer and the bags
+  (`store-lost-found`). Through the night it collects the left yellow rain boot (order
+  4), a taxi receipt from Walt, a ward wristband from Ana, a punched ferry ticket from Hal
+  (whichever two came in), and by order 8 the right boot, which nobody brought in. Their
+  tops peek over the rim; clicking the box shows each with its tag and pauses the shift.
+- The earlier ordinary orders no longer include any of the people who stayed, who now
+  come only after three.
+
+### Verified (lost and found)
+
+- All five checks pass; the browser flow opens the box at the end of each path and finds
+  both boots and two people's things. The close-up was reviewed on desktop.
+
+### Not verified (lost and found)
+
+- The items peeking over the rim were not looked at close up; phone screenshots were
+  not looked at.
+
 ### Added — the other window across the bay
 
 - The far shore's lit windows are drawn at runtime (taken out of `store-back`) and go

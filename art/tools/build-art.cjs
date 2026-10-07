@@ -122,7 +122,7 @@ function store(sprites, id = 'nell', pose = process.env.POSE || customers.poseFo
   parts.behind.forEach(draw);
   put('store-counter');
   parts.counter.forEach(draw);
-  for (const name of ['store-microwave', 'store-printer', 'store-pos', 'store-pos-key', 'store-spike', 'store-bags', 'store-scanner', 'store-terminal', 'store-drawer', 'store-radio', 'store-phone', 'store-mug']) put(name);
+  for (const name of ['store-microwave', 'store-printer', 'store-pos', 'store-pos-key', 'store-spike', 'store-bags', 'store-scanner', 'store-terminal', 'store-drawer', 'store-lost-found', 'store-radio', 'store-phone', 'store-mug']) put(name);
   put('store-front');
   return surface;
 }

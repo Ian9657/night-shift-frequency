@@ -898,6 +898,21 @@ function sprites() {
   });
   result['store-bags'] = fixture(F.bags, [RAMP.wood], [(f, u, t) => bagFace(f, u, t) || 'wood1']);
 
+  // Lost and found: in a cubby like the bags', an open cardboard box with its flaps
+  // folded out, LOST FOUND in marker on its side and a strip of parcel tape. The runtime
+  // puts what has been left in the night over its rim.
+  result['store-lost-found'] = fixture(F.lostFound, [RAMP.wood], [((face) => (f, u, t) => face(f, u, t) || 'wood1')(panel('front', 58, 32, p => {
+    for (let y = 0; y < 32; y++) for (let x = 0; x < 58; x++) p.px(x, y, (x + y) % 2 ? 'wood0' : 'ink');   // the cubby's back
+    p.hline(0, 57, 0, 'ink').vline(0, 0, 31, 'wood2').vline(57, 0, 31, 'wood0');
+    p.poly([[5, 9], [10, 5], [27, 5], [27, 9]], 'wood4').poly([[30, 9], [30, 5], [48, 5], [53, 9]], 'wood3');   // the flaps
+    p.rect(5, 9, 48, 23, 'wood3').hline(5, 52, 9, 'wood4').vline(52, 9, 31, 'wood2').vline(5, 10, 31, 'wood4');
+    p.hline(6, 51, 10, 'wood1');                                                                // the rim's inside edge
+    p.rect(25, 9, 6, 23, 'paper1').vline(30, 9, 31, 'paper0');                                 // parcel tape
+    sign(p, 9, 14, 'LOST', 'ink');
+    sign(p, 7, 21, 'FOUND', 'ink');
+    p.hline(34, 48, 26, 'wood2').hline(36, 44, 28, 'wood2');                                   // scuffs
+  }))]);
+
   // Receipt printer, a two-tone thermal printer: a charcoal base with a FEED button,
   // power and paper lights and a brand line; a lighter clamshell lid set in from the
   // base's edges, with its seam, the tear bar and the exit slot across its top; the

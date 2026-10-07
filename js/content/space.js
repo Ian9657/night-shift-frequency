@@ -49,6 +49,9 @@
     basket: [{ x: 0.12, z: 1.02, w: 0.26, h: 0.15, d: 0.2 }],
     // `exit`: where the paper leaves the lid, as a fraction of the depth from the front.
     printer: [{ x: -0.57, z: 0.64, w: 0.13, h: 0.075, d: 0.13, exit: 0.25 }],
+    // Lost and found: an open cardboard box in a cubby in the cabinet, between the cash
+    // drawer and the bags; what people leave behind in the night ends up in it.
+    lostFound: [{ x: 0.04, z: 0.505, w: 0.22, h: 0.12, d: 0.02, y: counter.y - counter.thick - 0.125 }],
     // The cash drawer, flush with the counter's front under the register; open, it
     // slides out towards the clerk.
     drawer: [{ x: -0.45, z: 0.515, w: 0.4, h: 0.09, d: 0.02, y: counter.y - counter.thick - 0.1 }],

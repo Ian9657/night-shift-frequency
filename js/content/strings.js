@@ -29,6 +29,16 @@
     'sheet.hintOut': 'Five o\'clock. The radio has stopped.',
     'sheet.defaultName': 'ROBIN',
 
+    // Lost and found
+    'found.title': 'LOST + FOUND',
+    'found.empty': 'Nothing yet. Someone always leaves something.',
+    'found.close': 'Click to put it back',
+    'found.boot': 'Yellow rain boot, left foot. Turned up on the step at 02:27.',
+    'found.taxi': 'Taxi receipt, car six. Pickup: the pier. Fare: 0.00.',
+    'found.band': 'Hospital wristband, ward three. The name has worn off.',
+    'found.ticket': 'Ferry ticket, the 03:40 sailing. Punched.',
+    'found.bootRight': 'Yellow rain boot, right foot. Nobody brought it in.',
+
     // Items as the register names them
     'item.coffee': 'ICED COFFEE',
     'item.lasagne': 'BEEF LASAGNE',

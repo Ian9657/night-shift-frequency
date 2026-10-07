@@ -156,6 +156,11 @@ Listening changes what people say, never a record (`js/game/company.js`):
 - Orders 6 and 7, after three, are two of Walt, Ana and Hal. If the clerk listened to
   their frequency earlier, they say so first ("You had it on 87.85? ...Thought so.").
 - After a song has been heard, the next ordinary customer comes in humming it.
+- Lost and found (`js/game/found.js`): a cardboard box in the cabinet under the counter.
+  The left rain boot June mentions turns up in it with order 4; Walt leaves a taxi
+  receipt (fare 0.00), Ana a ward wristband, Hal a punched ticket for the 03:40 sailing;
+  by order 8 the right boot is there too, and nobody brought it in. Their tops show over
+  the rim; clicking the box shows them with their tags and pauses the shift.
 
 ## The phone
 

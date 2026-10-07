@@ -18,7 +18,7 @@
 
   const F = space.fixtures;
   const [pos] = F.pos, [radio] = F.radio, [drawer] = F.drawer, [bags] = F.bags, [printer] = F.printer;
-  const [scanner] = F.scanner, [microwave] = F.microwave, [basket] = F.basket, { tray } = space.decor;
+  const [scanner] = F.scanner, [microwave] = F.microwave, [basket] = F.basket, [lostFound] = F.lostFound, { tray } = space.decor;
   const lane = space.lane;
   const laneLeft = point(lane.x0, counter.y, lane.z), laneRight = point(lane.x1, counter.y, lane.z);
   const origin = space.customerOrigin();
@@ -47,6 +47,8 @@
       radio: { sprite: 'store-radio', echo: 'store-radio-echo', dial: face(radio.x, radio.w, radio.z - radio.d / 2, counter.y, counter.y + radio.h, [26 / 48, 45 / 48], [5 / 28, 14 / 28]) },
       // The clerk's flip phone: opens close up as the settings menu (js/game/phone.js).
       phone: { sprite: 'store-phone' },
+      // The lost-and-found box: what is in it peeks over its rim at `rim` (left end) across `width`.
+      lostFound: { sprite: 'store-lost-found', rim: point(lostFound.x - lostFound.w * 0.36, lostFound.y + lostFound.h * 0.72, lostFound.z - lostFound.d / 2), width: Math.round(space.scaleAt(lostFound.z) * lostFound.w * 0.72) },
       printer: { sprite: 'store-printer', slot: point(printer.x + 0.01, counter.y + printer.h, printer.z - printer.d / 2 + printer.d * printer.exit) },
     }),
     // Drawn with the machines but not clicked: the clerk's mug of coffee and the

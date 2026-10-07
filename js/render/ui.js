@@ -4,7 +4,7 @@
 // clickable region drawn here is registered for the input router.
 (function (root) {
   'use strict';
-  const { text, strings, dialogue, radio, records, layout, time, audio, engine, space, customers, sprites, phone, night, signin, story, drift, messages } = root.NSF;
+  const { text, strings, dialogue, radio, records, layout, time, audio, engine, space, customers, sprites, phone, night, signin, story, drift, messages, found, world } = root.NSF;
   const t = strings.t;
   const C = {
     ink: '#101517', paper: '#ece8d0', paperShade: '#b4ae94', phosphor: '#aef08c', phosphorDim: '#55b066',
@@ -486,6 +486,30 @@
     }, { name: 'again' });
   }
 
+  // ------------------------------------------------------------ lost and found, close up
+  // Looking down into the box: each thing in it with the tag it was given.
+  function foundView(ctx) {
+    if (!found.view.open) return;
+    ctx.fillStyle = 'rgba(7,9,15,0.6)';
+    ctx.fillRect(0, 0, SW, SH);
+    hit(0, 0, SW, SH, () => found.close(), 'found-away');
+    const w = 520, h = 330, x = MID - w / 2, y = 90;
+    box(ctx, x, y, w, h, '#7d5a3c', '#3c2a1c', 4);
+    ctx.fillStyle = '#3c2a1c';
+    ctx.fillRect(x + 12, y + 40, w - 24, h - 52);
+    text.draw(ctx, t('found.title'), MID, y + 12, '#0e1214', { align: 'center' });
+    const list = found.items();
+    if (!list.length) text.draw(ctx, t('found.empty'), MID, y + 150, C.paper, { align: 'center' });
+    list.forEach((item, i) => {
+      const ry = y + 52 + i * 52;
+      world.icon(ctx, item.icon, x + 28, ry, 5);
+      ctx.fillStyle = C.paper;
+      ctx.fillRect(x + 88, ry + 6, w - 116, 28);
+      text.draw(ctx, t(item.tag), x + 96, ry + 13, C.ink, { clipWidth: w - 132 });
+    });
+    text.draw(ctx, t('found.close'), MID, y + h + 12, C.muted, { align: 'center' });
+  }
+
   // ------------------------------------------------------------ the sign-in sheet
   // A clipboard on the left: Harbor Mart's night staff sheet, the same signature on
   // every night before this one and none of them signed out. At 01:00 the clerk writes
@@ -576,6 +600,7 @@
     ending(ctx, game);
     title(ctx, game);
     sheet(ctx, game);
+    foundView(ctx);
     phoneView(ctx, game);
     ctx.restore();
   }

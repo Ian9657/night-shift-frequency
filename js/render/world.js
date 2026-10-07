@@ -4,7 +4,7 @@
 // held out over the machines, things in motion, and the clerk's own things nearest.
 (function (root) {
   'use strict';
-  const { sprites, layout, customers, space, time, radio, night, outside, drift, messages } = root.NSF;
+  const { sprites, layout, customers, space, time, radio, night, outside, drift, messages, found } = root.NSF;
   const CUE = '#f5d873', SELECTED = '#f1f5e6', HEAT = '#eda04c';
   // 3x5 digits for the microwave's clock display.
   const LED = {
@@ -13,7 +13,26 @@
     6: ['###', '#..', '###', '#.#', '###'], 7: ['###', '..#', '.#.', '.#.', '.#.'], 8: ['###', '#.#', '###', '#.#', '###'],
     9: ['###', '#.#', '###', '..#', '###'], ':': ['.', '#', '.', '#', '.'],
   };
-  const AXIS = space.customer.centre - 0.5;                       // the customer canvas's mirror axis
+  const AXIS = space.customer.centre - 0.5;
+  // Lost-and-found items as 8x8 pictures (story.found names them): peeking over the
+  // box's rim here, close up in ui.js.
+  const ICON_COLORS = { Y: '#efcf5a', y: '#b8902f', d: '#6b4b16', W: '#f3f6ea', g: '#8f8a7a', B: '#3e64b4', P: '#ebe7d6', R: '#c8403a' };
+  const BOOT = ['..YYYY..', '..YYYY..', '..YYYY..', '..YYYy..', '.YYYYy..', 'YYYYYy..', 'YYYYYYy.', 'dddddd..'];
+  const ICONS = {
+    boot: BOOT,
+    bootRight: BOOT.map(row => [...row].reverse().join('')),
+    receipt: ['.WWWWW..', '.WgggW..', '.WWWWW..', '.WgggW..', '.WWWWW..', '.WggWW..', '.WWWWW..', '.W.W.W..'],
+    band: ['..WWWW..', '.W....W.', 'W......W', 'W..BBB.W', 'W..BBB.W', '.W....W.', '..WWWW..', '........'],
+    ticket: ['........', 'PPPPPPPP', 'PRRRRRRP', 'PPPP.PPP', 'PgggPPPP', 'PPPPPPPP', '........', '........'],
+  };
+  // An item's picture at (x, y), `scale` pixels per dot, its first `rows` rows.
+  function icon(ctx, name, x, y, scale = 1, rows = 8) {
+    ICONS[name].slice(0, rows).forEach((row, j) => [...row].forEach((c, i) => {
+      if (c === '.') return;
+      ctx.fillStyle = ICON_COLORS[c];
+      ctx.fillRect(x + i * scale, y + j * scale, scale, scale);
+    }));
+  }                       // the customer canvas's mirror axis
 
   function sprite(ctx, name, x, y, options = {}) {
     const image = sprites.get(name, options);
@@ -249,6 +268,8 @@
       }
     }
     radioNeedle(ctx, radio.view.freq);
+    const box = layout.fixtures.lostFound, inBox = found.items();          // what peeks over the box's rim
+    inBox.forEach((item, i) => icon(ctx, item.icon, box.rim.x + Math.round(i * (box.width - 8) / Math.max(1, inBox.length - 1)), box.rim.y - 5, 1, 5));
     if (!scene.fixtures.microwave || scene.fixtures.microwave === layout.fixtures.microwave.sprite) microwaveClock(ctx, clock);
     if (scene.fixtures.paper) {                                     // the receipt rising from the printer
       const slot = layout.fixtures.printer.slot;
@@ -276,5 +297,5 @@
     ctx.restore();
   }
 
-  root.NSF.world = { draw };
+  root.NSF.world = { draw, icon };
 })(globalThis);

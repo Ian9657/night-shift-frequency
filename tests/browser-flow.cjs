@@ -58,6 +58,14 @@ const { chromium, artifacts, URL_BASE, idle, click, playOrder, signIn, signOut }
         if (i === 6) await page.screenshot({ path: path.join(artifacts, `${name}-counter.png`) });
         if (order.final) break;
       }
+      // Lost and found: both boots, and something from each of the two who stayed.
+      await click(page, 'lostFound');
+      const box = await page.evaluate(() => ({ paused: NSF.debug.time.paused, items: NSF.found.items().map(i => i.id) }));
+      assert.equal(box.paused, true);
+      assert.equal(box.items.length, 4);
+      assert.ok(box.items.includes('boot') && box.items.includes('bootRight'));
+      if (name === 'keep-linked') await page.screenshot({ path: path.join(artifacts, 'lost-found.png') });
+      await click(page, 'ui:found-away');
       await click(page, 'printer');
       await page.waitForFunction(() => NSF.debug.game.state.phase === 'report');
       await page.screenshot({ path: path.join(artifacts, `${name}-report.png`) });
@@ -98,7 +106,7 @@ const { chromium, artifacts, URL_BASE, idle, click, playOrder, signIn, signOut }
       const a = NSF.audio, failed = [];
       const calls = [['scan'], ['payment', 'card'], ['anomaly'], ['cashPaper'], ['cashDrawer'], ['microwaveStart'],
         ['microwaveDone'], ['receipt'], ['bag'], ['dialogueTick', 'a'], ['radioTune'], ['radioVoice', 800, true], ['radioStation', 'echo'],
-        ['pen'], ['stamp'], ['carPass', true], ['clockSkip'], ['tubeFlicker'], ['phoneBuzz'], ['phoneSent'], ['doorChime'], ['gulls'], ['playSong', NSF.story.radio.songs.slowTide], ['stopSong']];
+        ['pen'], ['stamp'], ['carPass', true], ['clockSkip'], ['tubeFlicker'], ['phoneBuzz'], ['phoneSent'], ['doorChime'], ['gulls'], ['playSong', NSF.story.radio.songs.slowTide], ['stopSong'], ['boxDrop']];
       for (const [name, ...args] of calls) {
         try { a[name](...args); } catch (error) { failed.push(name + ': ' + error.message); }
       }

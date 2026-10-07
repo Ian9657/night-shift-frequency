@@ -445,6 +445,12 @@
     });
   }
 
+  // Something set down in the cardboard box under the counter.
+  function boxDrop() {
+    noise({ duration: 0.06, gain: 0.006, filterType: 'lowpass', frequency: 600 });
+    tone({ frequency: 120, endFrequency: 80, duration: 0.06, type: 'triangle', gain: 0.006, lowpass: 500 });
+  }
+
   // The sign-in sheet: a pen stroke per letter, the pen pressed down to sign.
   function pen() {
     noise({ duration: between(0.05, 0.08), gain: 0.0034, frequency: between(2600, 3400) });
@@ -457,7 +463,7 @@
   root.NSF.audio = {
     unlock: audio, startAmbience, scan, payment, anomaly, cashPaper, cashDrawer, microwaveStart, microwaveDone,
     stopMicrowave, receipt, bag, dialogueTick, resetTicks() { tickStep = 0; },
-    radioStation, radioTune, radioVoice, phoneKey, phoneFlip, pen, stamp, carPass, clockSkip, tubeFlicker, phoneBuzz, phoneSent, doorChime, gulls, playSong, stopSong,
+    radioStation, radioTune, radioVoice, phoneKey, phoneFlip, pen, stamp, carPass, clockSkip, tubeFlicker, phoneBuzz, phoneSent, doorChime, gulls, playSong, stopSong, boxDrop,
     // Levels 0–5 for 'master', 'radio' and 'sounds'.
     level(name) { return levels[name]; },
     setLevel(name, value) { levels[name] = Math.max(0, Math.min(5, Math.round(value))); applyLevels(); },
