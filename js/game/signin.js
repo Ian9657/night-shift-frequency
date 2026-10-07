@@ -47,7 +47,6 @@
 
   root.NSF.signin = {
     view, open, type, erase, sign, key, letters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', max: MAX,
-    close() { view.open = false; },
     get name() { return view.name || strings.t('sheet.defaultName'); },
   };
 })(globalThis);

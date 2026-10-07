@@ -75,6 +75,5 @@
       scheduleFlicker();
     },
     update, wallClock, posCount, exitLine,
-    get plan() { return plan; },
   };
 })(globalThis);
