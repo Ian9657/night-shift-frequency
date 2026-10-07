@@ -28,7 +28,8 @@
     screen: { width: 960, height: 540, scale: 2 },
     // Clickable machines, each a sprite with its default and busy states.
     fixtures: Object.freeze({
-      microwave: { sprite: 'store-microwave', busy: 'store-microwave-heating' },
+      // Idle, the microwave's display shows the shift clock (drawn by the runtime).
+      microwave: { sprite: 'store-microwave', busy: 'store-microwave-heating', display: face(microwave.x, microwave.w, microwave.z - microwave.d / 2, counter.y, counter.y + microwave.h, [60 / 82, 80 / 82], [4 / 48, 13 / 48]) },
       pos: { sprite: 'store-pos', screen: face(pos.x, pos.w, pos.z - pos.d / 2, counter.y, counter.y + pos.h, [8 / 80, 72 / 80], [7 / 73, 55 / 73]) },
       scanner: { sprite: 'store-scanner', busy: 'store-scanner-reading', beam: point(scanner.x - 0.03, counter.y + 0.08, scanner.z - 0.1) },
       terminal: { sprite: 'store-terminal', busy: 'store-terminal-approved' },

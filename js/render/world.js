@@ -6,6 +6,13 @@
   'use strict';
   const { sprites, layout, customers, space, time, radio } = root.NSF;
   const CUE = '#f5d873', SELECTED = '#f1f5e6', HEAT = '#eda04c';
+  // 3x5 digits for the microwave's clock display.
+  const LED = {
+    0: ['###', '#.#', '#.#', '#.#', '###'], 1: ['.#.', '##.', '.#.', '.#.', '###'], 2: ['###', '..#', '###', '#..', '###'],
+    3: ['###', '..#', '.##', '..#', '###'], 4: ['#.#', '#.#', '###', '..#', '..#'], 5: ['###', '#..', '###', '..#', '###'],
+    6: ['###', '#..', '###', '#.#', '###'], 7: ['###', '..#', '.#.', '.#.', '.#.'], 8: ['###', '#.#', '###', '#.#', '###'],
+    9: ['###', '#.#', '###', '..#', '###'], ':': ['.', '#', '.', '#', '.'],
+  };
   const AXIS = space.customer.centre - 0.5;                       // the customer canvas's mirror axis
 
   function sprite(ctx, name, x, y, options = {}) {
@@ -52,6 +59,19 @@
     const d = layout.fixtures.radio.dial;
     ctx.fillStyle = '#c8403a';
     ctx.fillRect(d.x + (station === '87.7' ? 4 : 3), d.y + 1, 1, d.h - 2);
+  }
+
+  // The microwave's idle display: the same time as the wall clock, without the leading zero.
+  function microwaveClock(ctx, clock) {
+    const d = layout.fixtures.microwave.display, digits = clock.replace(/^0/, '');
+    const width = [...digits].reduce((w, ch) => w + LED[ch][0].length + 1, -1);
+    let x = d.x + Math.floor((d.w - width) / 2);
+    const y = d.y + Math.floor((d.h - 5) / 2);
+    ctx.fillStyle = '#5cbf63';
+    for (const ch of digits) {
+      LED[ch].forEach((row, j) => [...row].forEach((c, i) => { if (c === '#') ctx.fillRect(x + i, y + j, 1, 1); }));
+      x += LED[ch][0].length + 1;
+    }
   }
 
   const blinking = (period = 800, on = 520) => time.now % period < on;
@@ -107,7 +127,8 @@
       ctx.fillStyle = '#ff5a4a';
       ctx.fillRect(tx - 1, ty - 1, 3, 3);
     }
-    clockHands(ctx, state.phase === 'end' ? '03:04' : game.order().clock);
+    const clock = state.phase === 'end' ? '03:04' : game.order().clock;
+    clockHands(ctx, clock);
     placed(ctx, 'store-sides', look);
 
     customer(ctx, game, 'behind', mood);
@@ -123,6 +144,7 @@
       sprite(ctx, current, x, y, look);
     }
     radioNeedle(ctx, radio.view.station);
+    if (!scene.fixtures.microwave || scene.fixtures.microwave === layout.fixtures.microwave.sprite) microwaveClock(ctx, clock);
     if (scene.fixtures.paper) {                                     // the receipt rising from the printer
       const slot = layout.fixtures.printer.slot;
       ctx.fillStyle = '#f3f6ea';

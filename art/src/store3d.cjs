@@ -115,12 +115,12 @@ function back() {
   const [gx0, gy0] = at(-1.0, 2.45), [gx1, gy1] = at(1.0, 0.75);
   const glass = { x: gx0, y: Math.max(0, gy0), w: gx1 - gx0, h: gy1 - Math.max(0, gy0) };
   const { tower } = outside(p, glass.x, glass.y, gx1, gy1);
-  // Double-sided OPEN 24H sign: the inward face reads from the counter.
+  // OPEN 24H neon hung in the right pane, facing the street: seen reversed from inside.
   const nx = Math.round(glass.x + glass.w * 0.62), ny = glass.y + 6;
   p.vline(nx + 4, 0, ny - 3, 'steel3').vline(nx + 26, 0, ny - 3, 'steel3');
   p.rect(nx - 3, ny - 3, 36, 11, 'void').frame(nx - 3, ny - 3, 36, 11, 'steel1');
   const neon = new Pix(480, 270);
-  sign(neon, nx, ny, 'OPEN 24H', 'pink3');
+  sign(neon, nx, ny, 'OPEN 24H', 'pink3', true);
   neon.outline('pink0');
   p.blit(neon, 0, 0);
   // Aluminium frame and the door mullion
@@ -140,11 +140,13 @@ function back() {
   }
   const [kx, ky] = at(-1.32, 1.83);
   calendar(p, kx, ky);
-  const [tx0, ty0] = at(-1.3, 1.25);
-  p.rect(tx0 + 1, ty0 + 1, 22, 30, 'wall2').rect(tx0, ty0, 22, 30, 'paper2').hline(tx0, tx0 + 21, ty0 + 29, 'paper0');
-  p.rect(tx0 + 1, ty0 + 1, 20, 6, 'navy1').hline(tx0 + 2, tx0 + 11, ty0 + 3, 'white').rect(tx0 + 15, ty0 + 2, 4, 3, 'buoy2');
-  for (let i = 0; i < 18; i++) p.px(tx0 + 2 + i, ty0 + 13 + Math.round(Math.sin(i / 2.8) * 3), 'blue2');
-  for (let j = 20; j < 28; j += 3) p.hline(tx0 + 2, tx0 + 19, ty0 + j, 'paper1');
+  // The tide table, a small card pinned under the calendar where the register doesn't
+  // hide it: a navy header with the harbour buoy, the day's tide curve, two rows of times.
+  const tx0 = kx, ty0 = ky + 29;
+  p.rect(tx0 + 1, ty0 + 1, 24, 11, 'wall2').rect(tx0, ty0, 24, 11, 'paper2').hline(tx0, tx0 + 23, ty0 + 10, 'paper0');
+  p.rect(tx0, ty0, 24, 3, 'navy1').hline(tx0 + 2, tx0 + 12, ty0 + 1, 'white').rect(tx0 + 18, ty0 + 1, 3, 2, 'buoy2');
+  for (let i = 0; i < 20; i++) p.px(tx0 + 2 + i, ty0 + 6 + Math.round(Math.sin(i / 2.6) * 1.6), 'blue2');
+  for (const j of [8, 9]) for (let i = 0; i < 4; i++) p.hline(tx0 + 2 + i * 5, tx0 + 4 + i * 5, ty0 + j, 'paper0');
   return p.anchor('window', glass.x, glass.y).anchor('windowSize', glass.w, glass.h).anchor('mullion', mx - 3, 6)
     .anchor('tower', tower[0], tower[1]).anchor('clock', cx, cy);
 }
@@ -427,7 +429,7 @@ function sprites() {
     p.frame(5, 6, 46, 36, 'steel2').hline(6, 49, 7, heating ? 'yellow3' : 'steel2');
     p.rect(55, 6, 2, 36, 'steel6').vline(56, 6, 41, 'steel3');                                // handle
     p.rect(60, 4, 20, 9, 'ink').frame(60, 4, 20, 9, 'steel2');
-    text(p, 62, 6, heating ? '0:42' : '3:47', heating ? 'phos4' : 'phos3');
+    if (heating) text(p, 62, 6, '0:42', 'phos4');                                             // idle, the runtime shows the time
     for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) p.rect(61 + c * 6, 16 + r * 5, 5, 3, 'steel5').hline(61 + c * 6, 65 + c * 6, 18 + r * 5, 'steel2');
     p.rect(61, 38, 8, 5, 'green2').rect(71, 38, 8, 5, 'red2').hline(61, 78, 42, 'steel1');
   }))]);

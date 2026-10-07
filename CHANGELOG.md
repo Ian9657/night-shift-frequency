@@ -5,7 +5,27 @@ verified and what was not.
 
 ## Unreleased
 
-### Changed — readable neon and unobscured calendar · 2026-10-07
+### Changed — reversed sign, visible tide table, one clock
+
+- The OPEN 24H neon faces the street again and reads reversed from the counter, as
+  `docs/worldview.md` describes; it keeps the brighter pink and the word gap.
+- The tide table, which the register hid completely, is a small card pinned under
+  the calendar: navy header, the tide curve, two rows of times.
+- The receipt spike moved to the counter's front left, in front of the microwave:
+  on screen it sat where the customer's resting hand lands.
+- The microwave's display shows the shift clock (the same time as the wall clock and
+  the phone) instead of a fixed 3:47; heating still counts down.
+
+### Verified (sign, tide table, spike, clock)
+
+- All five checks pass. The desktop screenshot was reviewed: reversed sign, tide card,
+  spike clear of the customer, microwave and wall clock both at 2:12.
+
+### Not verified (sign, tide table, spike, clock)
+
+- The tide card is small (24×11 px) and only suggests times.
+
+### Changed — readable neon and unobscured calendar
 
 - The double-sided window sign reads OPEN 24H from the counter, with brighter
   pink lettering and a space between the words.
@@ -24,7 +44,6 @@ verified and what was not.
 ### Not verified (sign and calendar)
 
 - Physical phone display readability and portrait-phone layout were not reviewed.
-
 
 ### Changed — denser shelf packs and price strips
 
