@@ -30,7 +30,25 @@ const { chromium, artifacts, URL_BASE, idle, click, playOrder, signIn, signOut }
         await click(page, 'ui:phone-away');
         await page.waitForFunction(() => !NSF.phone.view.open);
       }
+      const listening = name === 'keep-independent';
       for (let i = 0; i < 8; i++) {
+        if (listening && i === 3) {
+          // Listen to all three frequencies between the stations, then back to Night Ferry.
+          await click(page, 'radio');
+          for (const freq of [8785, 8795, 8805]) {
+            await page.evaluate(f => NSF.debug.radio.setFrequency(f), freq);
+            await page.waitForFunction(() => NSF.debug.radio.view.kind === 'signal' && NSF.debug.radio.view.key && NSF.debug.radio.view.key !== 'radio.static', null, { timeout: 15000 });
+          }
+          await page.evaluate(() => NSF.debug.radio.tune('87.6'));
+          await click(page, 'ui:dial-close');
+          assert.deepEqual(await page.evaluate(() => ['walt', 'ana', 'hal'].map(NSF.company.heard)), [true, true, true]);
+        }
+        if (listening && i === 5) {
+          // The person who stayed knows the clerk was listening.
+          await page.waitForFunction(() => NSF.debug.dialogue.fullText(), null, { timeout: 15000 });
+          const said = await page.evaluate(() => ({ line: NSF.debug.dialogue.fullText(), who: NSF.debug.game.order().customer }));
+          assert.equal(said.line, await page.evaluate(w => NSF.strings.t(NSF.story.stayed[w]), said.who));
+        }
         const order = await playOrder(page, [first, last], name).catch(async error => {
           await page.screenshot({ path: path.join(artifacts, `${name}-failure.png`) });
           console.error(await page.evaluate(() => JSON.stringify({ state: NSF.debug.game.state, extras: NSF.debug.game.scene.extras,
@@ -80,7 +98,7 @@ const { chromium, artifacts, URL_BASE, idle, click, playOrder, signIn, signOut }
       const a = NSF.audio, failed = [];
       const calls = [['scan'], ['payment', 'card'], ['anomaly'], ['cashPaper'], ['cashDrawer'], ['microwaveStart'],
         ['microwaveDone'], ['receipt'], ['bag'], ['dialogueTick', 'a'], ['radioTune'], ['radioVoice', 800, true], ['radioStation', 'echo'],
-        ['pen'], ['stamp'], ['carPass', true], ['clockSkip'], ['tubeFlicker'], ['phoneBuzz'], ['phoneSent'], ['doorChime'], ['gulls']];
+        ['pen'], ['stamp'], ['carPass', true], ['clockSkip'], ['tubeFlicker'], ['phoneBuzz'], ['phoneSent'], ['doorChime'], ['gulls'], ['playSong', NSF.story.radio.songs.slowTide], ['stopSong']];
       for (const [name, ...args] of calls) {
         try { a[name](...args); } catch (error) { failed.push(name + ': ' + error.message); }
       }

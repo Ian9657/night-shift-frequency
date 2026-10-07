@@ -19,14 +19,22 @@
   const copy = value => JSON.parse(JSON.stringify(value));
   const product = id => copy(story.catalog.find(p => p.id === id));
 
+  // Customers by order index. Orders six and seven, after three, are two of the people
+  // who stayed (story.stayed), whose frequencies the radio can find earlier in the
+  // night; the other ordinary orders are drawn from everyone else.
   function lineup(seed) {
     const rng = random(seed + ':customers');
-    const pool = [...customerData.regulars];
-    for (let i = pool.length - 1; i > 0; i--) {
-      const j = Math.floor(rng() * (i + 1));
-      [pool[i], pool[j]] = [pool[j], pool[i]];
-    }
-    return pool;
+    const shuffle = list => {
+      const pool = [...list];
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+      return pool;
+    };
+    const stayed = shuffle(Object.keys(story.stayed)).slice(0, 2);
+    const others = shuffle(customerData.regulars.filter(id => !stayed.includes(id)));
+    return [...others.slice(0, 5), stayed[0], stayed[1]];
   }
 
   function generate(seed) {

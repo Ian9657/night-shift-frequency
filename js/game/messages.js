@@ -33,11 +33,12 @@
     return true;
   }
 
-  // June reads a sent text once, at the next segment; returns the line, or null.
+  // June reads a sent text once, at the next segment (a request is followed by its
+  // song); returns the lines for the radio, empty if there is nothing to read.
   function takeOnAir(index, name) {
-    if (!sent || sent.readOnAir !== null) return null;
+    if (!sent || sent.readOnAir !== null) return [];
     sent.readOnAir = index;
-    return { key: sent.preset.onAir, vars: { name } };
+    return [{ key: sent.preset.onAir, vars: { name } }, ...(sent.preset.song ? [{ song: sent.preset.song }] : [])];
   }
 
   root.NSF.messages = {

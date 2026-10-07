@@ -62,8 +62,8 @@ were never signed out.
 | 3 | 02:09 | Lasagne and tea, heating requested after payment | Service order |
 | 4 | 02:27 | Coffee and bread, cash; fully normal | The system is usually right |
 | 5 | 02:41 | **Record order A**: one cola, cash | First accountable record |
-| 6 | 03:23 | One random item | Recover the rhythm |
-| 7 | 03:58 | Two of one drink | Memory gap |
+| 6 | 03:23 | One random item; someone who stayed | Recover the rhythm |
+| 7 | 03:58 | Two of one drink; someone who stayed | Memory gap |
 | 8 | 04:31 | **Record order B**: one cola, cash; links to #005 | History becomes evidence |
 | — | 04:44 | Print the shift report; the radio reads the ending | One of four endings |
 | — | 05:00 | Night Ferry signs off; the clerk signs out on the sheet | The same act on every path |
@@ -142,6 +142,17 @@ The four combinations lead to four letters read by *Night Ferry* after the shift
   a taxi dispatch calling Walt's car (87.85, from order 2), a ward calling Ana
   (87.95, from order 4) and a crossing report for the suspended ferry (88.05, from
   order 6). Their lines repeat in turn. Everything else is static.
+- Night Ferry plays songs: one after order 2's request for the night clerk, one after
+  the rain eases in order 7, and one after a text asking for a song. A song tuned away
+  from starts again on tuning back.
+
+## Company
+
+Listening changes what people say, never a record (`js/game/company.js`):
+
+- Orders 6 and 7, after three, are two of Walt, Ana and Hal. If the clerk listened to
+  their frequency earlier, they say so first ("You had it on 87.85? ...Thought so.").
+- After a song has been heard, the next ordinary customer comes in humming it.
 
 ## The phone
 

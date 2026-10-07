@@ -11,26 +11,34 @@
 
   // `kind`: 'ferry' (87.6), 'echo' (87.7), 'signal' (someone's frequency) or 'static'.
   const view = {
-    freq: BAND.ferry, station: label(BAND.ferry), kind: 'ferry',
+    freq: BAND.ferry, station: label(BAND.ferry), kind: 'ferry', song: null,
     key: null, vars: {}, startedAt: 0, duration: 0, echo: false, offAir: false, dialOpen: false,
   };
   let queue = [];
   let lineTimer = null;
   let echoProvider = () => null;
   let signalProvider = () => null;
+  let listener = () => {};
   let finished = [];
+  const songLength = id => { const song = story.radio.songs[id]; return song.chords.length * 4 * 60000 / song.tempo; };
 
   function lineDuration(key, vars) {
     return Math.max(2600, strings.t(key, vars).length * 52 + 1200);
   }
 
-  function show(key, vars = {}) {
+  // What is heard now: a line, a song (`song` its id) or nothing. Everything heard is
+  // reported to the listener (js/game/company.js).
+  function show(key, vars = {}, song = null) {
+    if (view.song && !song) audio.stopSong();
     view.key = key;
     view.vars = vars;
+    view.song = song;
     view.echo = view.kind === 'echo';
     view.startedAt = time.now;
-    view.duration = key ? lineDuration(key, vars) : 0;
-    if (key && key !== 'radio.static') audio.radioVoice(Math.min(view.duration - 600, 5200), view.kind !== 'ferry');
+    view.duration = song ? songLength(song) : key ? lineDuration(key, vars) : 0;
+    if (song) audio.playSong(story.radio.songs[song]);
+    else if (key && key !== 'radio.static') audio.radioVoice(Math.min(view.duration - 600, 5200), view.kind !== 'ferry');
+    if (key) listener(view);
   }
 
   // Off Night Ferry, a provider says what is on this frequency now; static repeats.
@@ -52,12 +60,13 @@
       callbacks.forEach(fn => fn());
       return;
     }
-    show(next.key, next.vars);
+    if (next.song) show('radio.song', { title: '@' + story.radio.songs[next.song].title }, next.song);
+    else show(next.key, next.vars);
     lineTimer = time.after(view.duration, advance);
   }
 
-  // Queue Night Ferry lines (string keys, or { key, vars }); resolves when they have
-  // all been heard on 87.6.
+  // Queue Night Ferry lines (string keys, { key, vars } or { song }); resolves when
+  // they have all been heard on 87.6.
   function play(lines) {
     queue.push(...lines.map(line => (typeof line === 'string' ? { key: line, vars: {} } : line)));
     const done = new Promise(resolve => finished.push(resolve));
@@ -75,8 +84,9 @@
   function setFrequency(freq) {
     const next = Math.max(BAND.low, Math.min(BAND.high, Math.round(freq / BAND.step) * BAND.step));
     if (next === view.freq) return;
-    // The current Night Ferry line is replayed when the player tunes back.
-    if (view.kind === 'ferry' && view.key && !view.offAir) queue.unshift({ key: view.key, vars: view.vars });
+    // The current Night Ferry line (or song, from the top) is replayed when the player
+    // tunes back.
+    if (view.kind === 'ferry' && view.key && !view.offAir) queue.unshift(view.song ? { song: view.song } : { key: view.key, vars: view.vars });
     view.freq = next;
     view.station = label(next);
     view.kind = kindOf(next);
@@ -121,13 +131,18 @@
     },
     setEchoProvider(fn) { echoProvider = fn; },
     setSignalProvider(fn) { signalProvider = fn; },
+    setListener(fn) { listener = fn; },
     // How long a run of Night Ferry lines takes on air.
-    duration: lines => lines.reduce((sum, line) => sum + (typeof line === 'string' ? lineDuration(line) : lineDuration(line.key, line.vars)), 0),
+    duration: lines => lines.reduce((sum, line) => sum + (typeof line === 'string' ? lineDuration(line)
+      : line.song ? songLength(line.song) : lineDuration(line.key, line.vars)), 0),
     caption() {
       if (!view.key) return '';
       return strings.t(view.key, view.vars);
     },
-    // Fraction of the caption revealed, for a slow typewriter.
-    progress() { return view.key ? Math.min(1, (time.now - view.startedAt) / Math.max(1, view.duration * 0.55)) : 0; },
+    // Fraction of the caption revealed, for a slow typewriter; a song's title shows at once.
+    progress() {
+      if (!view.key) return 0;
+      return view.song ? 1 : Math.min(1, (time.now - view.startedAt) / Math.max(1, view.duration * 0.55));
+    },
   };
 })(globalThis);

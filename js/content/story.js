@@ -55,8 +55,8 @@
   // FM 87.6 segments, played once per order while the radio is on that station.
   const radio = Object.freeze({
     intro: ['radio.intro1', 'radio.intro2'],
-    orders: [['radio.o1'], ['radio.o2'], ['radio.o3a', 'radio.o3b'], ['radio.o4'],
-      ['radio.o5a', 'radio.o5b', 'radio.o5c'], ['radio.o6a', 'radio.o6b'], ['radio.o7'], ['radio.o8a', 'radio.o8b']],
+    orders: [['radio.o1'], ['radio.o2', { song: 'slowTide' }], ['radio.o3a', 'radio.o3b'], ['radio.o4'],
+      ['radio.o5a', 'radio.o5b', 'radio.o5c'], ['radio.o6a', 'radio.o6b'], ['radio.o7', { song: 'harbourLights' }], ['radio.o8a', 'radio.o8b']],
     endings: {
       'keep-linked': ['radio.endKeepLinked1', 'radio.endKeepLinked2'],
       'keep-independent': ['radio.endKeepIndependent1', 'radio.endKeepIndependent2'],
@@ -69,10 +69,33 @@
     // (an index) on, each cycling through its lines.
     band: { low: 8750, high: 8810, step: 5, ferry: 8760, echo: 8770 },
     signals: [
-      { freq: 8785, from: 1, lines: ['radio.taxi1', 'radio.taxi2', 'radio.taxi3'] },
-      { freq: 8795, from: 3, lines: ['radio.ward1', 'radio.ward2', 'radio.ward3'] },
-      { freq: 8805, from: 5, lines: ['radio.ferry1', 'radio.ferry2', 'radio.ferry3'] },
+      { freq: 8785, from: 1, person: 'walt', lines: ['radio.taxi1', 'radio.taxi2', 'radio.taxi3'] },
+      { freq: 8795, from: 2, person: 'ana', lines: ['radio.ward1', 'radio.ward2', 'radio.ward3'] },
+      { freq: 8805, from: 3, person: 'hal', lines: ['radio.ferry1', 'radio.ferry2', 'radio.ferry3'] },
     ],
+    // Songs Night Ferry plays (js/game/audio.js synthesises them): a tempo, a chord per
+    // bar (MIDI notes) and a melody of [note or null, beats]. One follows order 2's
+    // request for the night clerk, one a text request, one the rain easing.
+    songs: {
+      slowTide: {
+        title: 'song.slowTide', tempo: 76,
+        chords: [[60, 64, 67], [57, 60, 64], [53, 57, 60], [55, 59, 62], [60, 64, 67], [57, 60, 64], [53, 57, 60], [55, 59, 62]],
+        melody: [[64, 1], [67, 1], [69, 1], [67, 1], [64, 2], [60, 1], [62, 1], [65, 1], [69, 1], [72, 1.5], [69, 0.5], [67, 3], [null, 1],
+          [64, 1], [67, 1], [69, 1], [72, 1], [69, 2], [67, 1], [64, 1], [65, 1], [64, 1], [62, 1], [60, 1], [62, 2], [60, 2]],
+      },
+      lastFerry: {
+        title: 'song.lastFerry', tempo: 68,
+        chords: [[57, 60, 64], [53, 57, 60], [48, 52, 55], [52, 56, 59], [57, 60, 64], [53, 57, 60], [48, 52, 55], [52, 56, 59]],
+        melody: [[69, 2], [72, 1], [71, 1], [69, 2], [65, 2], [67, 1], [64, 1], [67, 1], [72, 1], [71, 3], [68, 1],
+          [69, 1], [72, 1], [76, 1], [74, 1], [72, 2], [69, 2], [67, 1], [69, 1], [71, 1], [72, 1], [71, 2], [68, 1], [64, 1]],
+      },
+      harbourLights: {
+        title: 'song.harbourLights', tempo: 84,
+        chords: [[53, 57, 60], [50, 53, 57], [46, 50, 53], [48, 52, 55], [53, 57, 60], [50, 53, 57], [46, 50, 53], [48, 52, 55]],
+        melody: [[69, 1], [72, 1], [77, 1], [76, 1], [74, 2], [72, 2], [74, 1], [77, 1], [74, 1], [70, 1], [72, 3], [null, 1],
+          [69, 1], [72, 1], [77, 1], [79, 1], [81, 2], [77, 2], [79, 1], [77, 1], [74, 1], [70, 1], [72, 2], [65, 2]],
+      },
+    },
   });
 
   // Texts on the clerk's flip phone. Incoming ones arrive when the order with index
@@ -86,14 +109,18 @@
       { id: 'home', at: 7, from: 'self', text: 'text.home' },
     ],
     presets: [
-      { id: 'request', text: 'text.request', label: 'text.requestLabel', onAir: 'radio.textRequest' },
+      { id: 'request', text: 'text.request', label: 'text.requestLabel', onAir: 'radio.textRequest', song: 'lastFerry' },
       { id: 'anyone', text: 'text.anyone', label: 'text.anyoneLabel', onAir: 'radio.textAnyone' },
       { id: 'rain', text: 'text.rain', label: 'text.rainLabel', onAir: 'radio.textRain' },
     ],
     reply: { id: 'heard', from: 'unknown', text: 'text.heard' },
   });
 
-  const api = { catalog, drinks, clocks, night, contexts, records, radio, messages };
+  // The people who stayed who may come to the counter after three, and what they say
+  // first if the clerk has been listening to their frequency.
+  const stayed = Object.freeze({ walt: 'say.heardWalt', ana: 'say.heardAna', hal: 'say.heardHal' });
+
+  const api = { catalog, drinks, clocks, night, contexts, records, radio, messages, stayed };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else (root.NSF = root.NSF || {}).story = api;
 })(globalThis);

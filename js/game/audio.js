@@ -215,6 +215,66 @@
     }
   }
 
+  // A song on Night Ferry, through the radio's small speaker: a soft square lead, a
+  // triangle pad per bar, a sine bass on beats one and three and a brushed hat, all
+  // wavering a little as if off old tape.
+  let song = null;
+  const hz = note => 440 * 2 ** ((note - 69) / 12);
+  function stopSong() {
+    if (!song || !context) return;
+    const now = context.currentTime;
+    song.out.gain.cancelScheduledValues(now);
+    song.out.gain.setValueAtTime(song.out.gain.value, now);
+    song.out.gain.linearRampToValueAtTime(0.0001, now + 0.15);
+    song.nodes.forEach(node => { try { node.stop(now + 0.2); } catch (_) { /* already stopped */ } });
+    song = null;
+  }
+  function playSong({ tempo, chords, melody }) {
+    const ctx = audio();
+    if (!ctx) return;
+    stopSong();
+    const beat = 60 / tempo, start = ctx.currentTime + 0.1, nodes = [];
+    const out = ctx.createGain(), speaker = ctx.createBiquadFilter(), wow = ctx.createOscillator(), depth = ctx.createGain();
+    out.gain.value = 1;
+    speaker.type = 'lowpass'; speaker.frequency.value = 2300;
+    out.connect(speaker); speaker.connect(bus.radio);
+    wow.frequency.value = 0.55; depth.gain.value = 9;
+    wow.connect(depth); wow.start(start); nodes.push(wow);
+    const note = (frequency, at, length, type, gain, attack = 0.02) => {
+      const osc = ctx.createOscillator(), volume = ctx.createGain();
+      osc.type = type; osc.frequency.value = frequency;
+      depth.connect(osc.detune);
+      volume.gain.setValueAtTime(0.0001, at);
+      volume.gain.exponentialRampToValueAtTime(gain, at + attack);
+      volume.gain.exponentialRampToValueAtTime(gain * 0.5, at + length * 0.6);
+      volume.gain.exponentialRampToValueAtTime(0.0001, at + length);
+      osc.connect(volume); volume.connect(out);
+      osc.start(at); osc.stop(at + length + 0.02);
+      nodes.push(osc);
+    };
+    chords.forEach((chord, bar) => {
+      const at = start + bar * 4 * beat;
+      chord.forEach(n => note(hz(n), at, 4 * beat, 'triangle', 0.007, 0.3));
+      for (const b of [0, 2]) note(hz(chord[0] - 12), at + b * beat, beat * 1.6, 'sine', 0.022, 0.01);
+      for (let h = 0; h < 8; h++) {
+        const source = ctx.createBufferSource(), filter = ctx.createBiquadFilter(), volume = ctx.createGain(), t = at + h * beat / 2;
+        source.buffer = noiseBuffer(ctx, 0.04);
+        filter.type = 'highpass'; filter.frequency.value = 6000;
+        volume.gain.setValueAtTime(h % 2 ? 0.0016 : 0.0026, t);
+        volume.gain.exponentialRampToValueAtTime(0.0001, t + 0.04);
+        source.connect(filter); filter.connect(volume); volume.connect(out);
+        source.start(t); source.stop(t + 0.05);
+        nodes.push(source);
+      }
+    });
+    let t = start;
+    for (const [n, beats] of melody) {
+      if (n !== null) note(hz(n), t, beats * beat * 0.92, 'square', 0.009);
+      t += beats * beat;
+    }
+    song = { out, nodes };
+  }
+
   // ------------------------------------------------------------- machines
   function scan() {
     const base = between(955, 1005);
@@ -397,7 +457,7 @@
   root.NSF.audio = {
     unlock: audio, startAmbience, scan, payment, anomaly, cashPaper, cashDrawer, microwaveStart, microwaveDone,
     stopMicrowave, receipt, bag, dialogueTick, resetTicks() { tickStep = 0; },
-    radioStation, radioTune, radioVoice, phoneKey, phoneFlip, pen, stamp, carPass, clockSkip, tubeFlicker, phoneBuzz, phoneSent, doorChime, gulls,
+    radioStation, radioTune, radioVoice, phoneKey, phoneFlip, pen, stamp, carPass, clockSkip, tubeFlicker, phoneBuzz, phoneSent, doorChime, gulls, playSong, stopSong,
     // Levels 0–5 for 'master', 'radio' and 'sounds'.
     level(name) { return levels[name]; },
     setLevel(name, value) { levels[name] = Math.max(0, Math.min(5, Math.round(value))); applyLevels(); },

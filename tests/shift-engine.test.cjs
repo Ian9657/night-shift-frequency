@@ -18,6 +18,8 @@ for (let seed = 0; seed < 500; seed++) {
   assert.equal(orders[7].customer, 'nellStayed');
   const regulars = orders.filter(o => !o.mismatch).map(o => o.customer);
   assert.equal(new Set(regulars).size, 6);
+  // After three, two of the people who stayed come to the counter.
+  for (const i of [5, 6]) assert.ok(['walt', 'ana', 'hal'].includes(orders[i].customer));
   const lines = orders.flatMap(o => o.customerLines).filter(line => !['say.noBag', 'say.card', 'say.cash'].includes(line));
   assert.equal(new Set(lines).size, lines.length);
   for (const order of orders) {

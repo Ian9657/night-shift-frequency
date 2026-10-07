@@ -23,7 +23,7 @@ How the code is organised and why. For what changed when, see
 | Content | `js/content/` | The store in metres and its camera (`space.js`), screen positions derived from it (`layout.js`), customer poses, strings, colour ramps, customer looks, story and radio script. Data only, plus small pure helpers. |
 | Engine | `js/engine/shift.js` | The shift's domain: order generation from a seed, re-scan checks, record decisions, settlement, the report and the ending key. No DOM, audio or time. |
 | Core | `js/core/time.js` | The single game clock: `wait`, `after`, stepped `path` motion. Tests speed it up. `paused` stops it while the phone is open; `uiNow` keeps running for what animates over it. |
-| Game | `js/game/` | Interaction: `checkout.js` (current-order state, scene model, player actions), `dialogue.js`, `radio.js` (the player), `broadcast.js` (what is on air), `records.js` (the POS record view), `phone.js` (the flip phone: menu, texts and settings), `messages.js` (texts received and sent), `audio.js` (synthesised sound), `night.js` (the clock of the night, dawn and the colours outside), `signin.js` (the sign-in sheet and the clerk's name), `outside.js` (cars, the ferry, rain and the tower's light, as functions of the game clock), `drift.js` (what the readings show as the night wears on, planned from the seed). |
+| Game | `js/game/` | Interaction: `checkout.js` (current-order state, scene model, player actions), `dialogue.js`, `radio.js` (the player), `broadcast.js` (what is on air), `records.js` (the POS record view), `phone.js` (the flip phone: menu, texts and settings), `messages.js` (texts received and sent), `audio.js` (synthesised sound), `night.js` (the clock of the night, dawn and the colours outside), `signin.js` (the sign-in sheet and the clerk's name), `outside.js` (cars, the ferry, rain and the tower's light, as functions of the game clock), `drift.js` (what the readings show as the night wears on, planned from the seed), `company.js` (what the clerk has heard on the radio and who notices). |
 | Render | `js/render/` | `sprites.js` (indexed sprites → cached canvases, slot recolouring, moods, outlines), `text.js` (bitmap font), `world.js` (480×270 world), `ui.js` (960×540 overlays and their click regions). |
 | Boot | `js/main.js` | Canvas sizing, the frame loop, input routing, test hooks (`NSF.debug`). |
 
@@ -127,8 +127,8 @@ sprites carry their top-left as anchor `at`. Two renderers use it:
 ## Audio
 
 All sound is synthesised with Web Audio: room tone, the fridge's compressor, machines,
-the door chime, cars outside, the phone, dialogue ticks, the radio bed and voice, and
-gulls at dawn. There are no audio files. Everything plays through a `sounds` or a
+the door chime, cars outside, the phone, dialogue ticks, the radio bed and voice, Night
+Ferry's songs (sequenced from the notes in `story.js`), and gulls at dawn. There are no audio files. Everything plays through a `sounds` or a
 `radio` bus into `master`; the phone's settings set their levels. Ambient drift uses real timers on
 purpose; it is texture, not game state. Everything else waits on `NSF.time`.
 

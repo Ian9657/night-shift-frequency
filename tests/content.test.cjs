@@ -25,10 +25,15 @@ for (let seed = 0; seed < 200; seed++) {
     keys.forEach(key => assert.ok(strings[key], `seed ${seed}: missing ${key}`));
   }
 }
-const storyKeys = [...story.radio.intro, ...story.radio.orders.flat(), ...Object.values(story.radio.endings).flat(), story.radio.signoff,
+const storyKeys = [...story.radio.intro, ...story.radio.orders.flat().filter(line => typeof line === 'string'), ...Object.values(story.radio.endings).flat(), story.radio.signoff,
+  ...Object.values(story.radio.songs).map(song => song.title), ...Object.values(story.stayed),
   ...Object.values(story.records).flatMap(r => [...r.lines, r.exit, ...Object.values(r.afterDecision)])];
 storyKeys.forEach(key => assert.ok(strings[key], 'missing story key ' + key));
 assert.equal(story.radio.orders.length, 8);
+// Every song the schedule or a text asks for exists.
+for (const id of [...story.radio.orders.flat(), ...story.messages.presets].map(line => line.song).filter(Boolean)) assert.ok(story.radio.songs[id], 'missing song ' + id);
+// Each person who stayed has a frequency.
+for (const person of Object.keys(story.stayed)) assert.ok(story.radio.signals.some(s => s.person === person), 'no frequency for ' + person);
 assert.deepEqual(Object.keys(story.radio.endings).sort(), ['correct-independent', 'correct-linked', 'keep-independent', 'keep-linked']);
 
 // The baked bitmap font contains every character the game can show.

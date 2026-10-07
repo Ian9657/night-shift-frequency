@@ -174,6 +174,10 @@
     'say.stayedCorrectLinked': "It's just a cola.",
     'say.stayedCorrectIndependent': "It wasn't a key a minute ago.",
     'say.stayedExit': '...Thanks.',
+    'say.heardWalt': "You had it on 87.85? ...Thought so. Nobody listens to dispatch.",
+    'say.heardAna': "You were on the ward channel. Bed nine's fine now. Just so someone knows.",
+    'say.heardHal': "You heard the crossing report too. On time, it said. Nothing's sailing.",
+    'say.hum': "(humming) ...Sorry. That song from the radio. It's stuck.",
 
     // Radio: FM 87.6 Night Ferry, host June
     'radio.intro1': "This is FM 87.6, Night Ferry. I'm June.",
@@ -219,6 +223,10 @@
     'radio.ferry2': 'The 03:40 sailing is running on time.',
     'radio.ferry3': '...All sailings tonight remain suspended.',
     'radio.dial': 'FM {freq}',
+    'radio.song': '(music) {title}',
+    'song.slowTide': '"Slow Tide", Mari Lund',
+    'song.lastFerry': '"Last Ferry Home", The Pier Lights',
+    'song.harbourLights': '"Harbour Lights", June\'s pick',
     'radio.dialHint': 'Drag the needle, or use the arrow keys',
   };
 

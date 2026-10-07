@@ -40,14 +40,13 @@
     },
     shiftStarted() { radio.play([...story.radio.intro, ...story.radio.orders[0]]); },
     // A text the clerk sent is read before the segment.
-    orderStarted(index) { radio.play([messages.takeOnAir(index, signin.name), ...story.radio.orders[index]].filter(Boolean)); },
+    orderStarted(index) { radio.play([...messages.takeOnAir(index, signin.name), ...story.radio.orders[index]]); },
     // The closing letter and sign-off on 87.6: `done` resolves once they have been
     // heard; `duration` is how long they take on air.
     shiftClosed(ending) {
       if (radio.view.kind !== 'ferry') radio.tune('87.6');
-      const text = messages.takeOnAir(game.state.eventIndex, signin.name);
-      const keys = [...story.radio.endings[ending], story.radio.signoff];
-      return { done: radio.play([text, ...keys].filter(Boolean)), duration: radio.duration(keys) + (text ? radio.duration([text]) : 0) };
+      const lines = [...messages.takeOnAir(game.state.eventIndex, signin.name), ...story.radio.endings[ending], story.radio.signoff];
+      return { done: radio.play(lines), duration: radio.duration(lines) };
     },
     offAir() { radio.signOff(); },
   };

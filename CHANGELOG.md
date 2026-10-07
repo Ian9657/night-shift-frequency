@@ -5,6 +5,28 @@ verified and what was not.
 
 ## Unreleased
 
+### Added — company: songs on Night Ferry, and people who know you listened
+
+- Night Ferry plays three short synthesised songs (`playSong` in `audio.js`, notes in
+  `story.radio.songs`): after order 2's request for the night clerk, after the rain eases,
+  and after the clerk texts in a request. The title shows at once; tuning away stops a
+  song and it starts again on tuning back.
+- Orders 6 and 7 are now two of Walt, Ana and Hal (`lineup` in `shift.js`); their
+  frequencies come in from orders 2–4. `js/game/company.js` remembers what the clerk
+  heard: someone listened to says so as they reach the counter, and after a song the
+  next ordinary customer comes in humming it.
+
+### Verified (company)
+
+- All five checks pass; one browser path listens to all three frequencies and checks
+  the order 6 customer's first line; the engine test checks orders 6 and 7 are people
+  who stayed across 500 seeds; the song caption screenshot was reviewed.
+
+### Not verified (company)
+
+- The songs were not listened to: their tune, level and the tape wobble are untested
+  by ear.
+
 ### Changed — the counter's front is a cabinet, not a dark band
 
 - Under the counter the clerk's side was a dithered dark plane with the cash drawer and

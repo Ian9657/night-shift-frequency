@@ -1,0 +1,31 @@
+// Company in the night: what the clerk has heard on the radio, and how the people at
+// the counter notice it. Someone whose frequency the clerk listened to says so when
+// they come in; after a song on Night Ferry, the next customer is humming it.
+// Listening changes what people say, never a record.
+(function (root) {
+  'use strict';
+  const { story, radio } = root.NSF;
+  const heard = new Set();                 // people ('walt') and songs ('song:slowTide') heard
+  let hummed = false;
+
+  radio.setListener(view => {
+    if (view.song) heard.add('song:' + view.song);
+    if (view.kind === 'signal' && view.key !== 'radio.static') {
+      const signal = story.radio.signals.find(s => s.freq === view.freq);
+      if (signal) heard.add(signal.person);
+    }
+  });
+
+  // Lines a customer says before their own as they reach the counter.
+  function greeting(order) {
+    if (order.mismatch) return [];
+    if (story.stayed[order.customer] && heard.has(order.customer)) return [story.stayed[order.customer]];
+    if (!hummed && [...heard].some(h => h.startsWith('song:'))) {
+      hummed = true;
+      return ['say.hum'];
+    }
+    return [];
+  }
+
+  root.NSF.company = { greeting, heard: id => heard.has(id) };
+})(globalThis);

@@ -224,11 +224,11 @@ not lie" rule.
 Not implemented yet:
 
 - Tuning across the whole band. The dial covers 87.5–88.1 with three people's
-  frequencies (Walt, Ana, the ferry report); listening to them doesn't yet change how a
-  sale can be recorded.
+  frequencies (Walt, Ana, Hal's crossing report). Listening to them changes what they say
+  when they come in after three, not how a sale can be recorded.
 - Texting freely and to 87.7. The phone sends Night Ferry one preset text a night and
-  receives three texts (two from no number, one from the clerk's own); song requests
-  get no song, since the station has no music yet.
+  receives three texts (two from no number, one from the clerk's own). Night Ferry's
+  music is three short synthesised songs.
 - Most of the drift. The build has the wall clock skipping ten minutes, a POS count
   that flickers, one borrowed line, tube flickers that grow with the night and the
   sign-in sheet at dawn; the rota, receipts, magazine and sticky note don't change, and

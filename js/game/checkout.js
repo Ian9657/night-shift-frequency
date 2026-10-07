@@ -2,7 +2,7 @@
 // model the renderer draws. Cross-order history lives in the shift engine.
 (function (root) {
   'use strict';
-  const { time, audio, dialogue, radio, records, broadcast, engine, story, customers, layout, sprites, phone, night, signin, drift, messages } = root.NSF;
+  const { time, audio, dialogue, radio, records, broadcast, engine, story, customers, layout, sprites, phone, night, signin, drift, messages, company } = root.NSF;
 
   const params = new URLSearchParams(root.location?.search || '');
   const shift = engine.createShift(params.get('seed') || String(Date.now()));
@@ -457,7 +457,7 @@
     await time.wait(90);
     scene.fixtures.basket = F.basket.sprite;
     state.busy = false;
-    dialogue.say(order().customerLines, { lock: state.eventIndex === 0 });
+    dialogue.say([...company.greeting(order()), ...order().customerLines], { lock: state.eventIndex === 0 });
     broadcast.orderStarted(state.eventIndex);
   }
 

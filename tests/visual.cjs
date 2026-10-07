@@ -52,7 +52,10 @@ async function finish(page, index) {
     await idle(page);
     await finish(page, 0);
 
-    // Order 2: the customer's note on the change tray goes into the drawer.
+    // Order 2: Night Ferry plays a song for the night clerk.
+    await page.waitForFunction(() => NSF.debug.radio.view.song, null, { timeout: 30000 });
+    await shot(page, 'radio-song');
+    // The customer's note on the change tray goes into the drawer.
     await scanAll(page);
     await speed(page, 0.2);
     await click(page, 'drawer');
