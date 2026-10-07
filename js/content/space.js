@@ -58,8 +58,10 @@
     phone: { x: 0.47, z: 0.63, w: 0.048, h: 0.022, d: 0.095, yaw: 0.35 },
     can: { x: 0.36, z: 0.66, w: 0.066, h: 0.115, d: 0.066 },
     // The sign-in sheet on its board, foot on the counter, leaning back on the printer's
-    // front (h is the board's length, d its thickness).
-    signIn: { x: -0.63, z: 0.55, w: 0.1, h: 0.14, d: 0.008 },
+    // front and turned a little, so one corner rests on it (h is the board's length, d
+    // its thickness). Its pen lies by its foot, tied to the clip.
+    signIn: { x: -0.63, z: 0.55, w: 0.1, h: 0.14, d: 0.008, yaw: 0.2 },
+    pen: { x: -0.5, z: 0.545, w: 0.1, h: 0.009, d: 0.009, yaw: 0.45 },
     // Months of night shifts, on the clerk's right: the rota on a clipboard, loose
     // receipts and an old magazine; the receipt spike stands at the front left, clear of
     // the customer's hands.

@@ -347,18 +347,50 @@ function counterLayer() {
 // ------------------------------------------------------------------ the clerk's things (nearest)
 function front() {
   const s = new Stage();
-  // The sign-in sheet on a board, leaning back on the printer's front: the same
-  // signature on every row, the clip at the top.
-  const { signIn } = space.personal, [printer] = space.fixtures.printer;
+  // The sign-in sheet on a hardboard clipboard, leaning back on the printer's front and
+  // turned so one corner rests on it. Name, in and out columns under a header; the
+  // same signature on every row but the last, which tonight's clerk hasn't signed.
+  const { signIn, pen } = space.personal, [printer] = space.fixtures.printer;
+  const add = (...vs) => vs.reduce((a, b) => a.map((x, i) => x + b[i])), mul = (v, k) => v.map(x => x * k);
   const lean = Math.atan2(printer.z - printer.d / 2 - signIn.z, printer.h);
-  const up = [0, signIn.h * Math.cos(lean), signIn.h * Math.sin(lean)], n = [0, Math.sin(lean), -Math.cos(lean)];
-  s.quad([signIn.x - signIn.w / 2, counter.y, signIn.z], [signIn.w, 0, 0], up, n, (u, t, P, sx, sy) => {
-    if (t > 0.86) return u > 0.3 && u < 0.7 ? (t > 0.95 ? 'steel4' : 'steel6') : 'wood2';
-    if (u < 0.07 || u > 0.93 || t < 0.04) return 'wood2';
-    if ((t * 9) % 1 < 0.12) return 'paper1';
-    if ((t * 9) % 1 > 0.35 && (t * 9) % 1 < 0.65 && u > 0.14 && u < 0.5) return 'blue2';
-    return shade(RAMP.paper, lightAt(P, n), sx, sy);
-  }, s.object('sign-in', { ramp: RAMP.wood }));
+  const c = Math.cos(signIn.yaw), sn = Math.sin(signIn.yaw);
+  const across = [c, 0, -sn], back = [sn, 0, c];
+  const up = add([0, Math.cos(lean), 0], mul(back, Math.sin(lean))), n = add([0, Math.sin(lean), 0], mul(back, -Math.cos(lean)));
+  const U = mul(across, signIn.w), V = mul(up, signIn.h), T = mul(n, -signIn.d);
+  const O = add([signIn.x, counter.y, signIn.z], mul(U, -0.5));
+  const lit = (ramp, normal) => (P, sx, sy) => shade(ramp, lightAt(P, normal), sx, sy);
+  const board = s.object('sign-in', { ramp: RAMP.wood }), paperLit = lit(RAMP.paper, n);
+  // The board's edges, then its face: a hardboard margin round the sheet.
+  s.quad(add(O, U), T, V, across, (u, t, P, sx, sy) => lit(RAMP.wood, across)(P, sx, sy), board);
+  s.quad(O, T, V, mul(across, -1), (u, t, P, sx, sy) => lit(RAMP.wood, mul(across, -1))(P, sx, sy), board);
+  s.quad(add(O, V), U, T, up, (u, t, P, sx, sy) => lit(RAMP.wood, up)(P, sx, sy), board);
+  const ROWS = 6;
+  s.quad(O, U, V, n, (u, t, P, sx, sy) => {
+    if (u < 0.07 || u > 0.93 || t < 0.04 || t > 0.8) return t > 0.9 && Math.hypot((u - 0.5) * 2, (t - 0.95) * 3) < 0.12 ? 'ink' : lit(RAMP.wood, n)(P, sx, sy);
+    if (t > 0.7) return t < 0.72 ? 'paper1' : 'paper2';                                            // the header
+    const row = Math.floor((t - 0.04) / (0.66 / ROWS)), r = ((t - 0.04) / (0.66 / ROWS)) % 1;
+    if (r < 0.16 || Math.abs(u - 0.62) < 0.03) return 'paper1';                                       // ruled lines
+    if (row > 0 && r > 0.4 && r < 0.75 && u > 0.14 && u < 0.52 && Math.abs(u - 0.3) > 0.03) return 'blue2'; // the signature
+    return paperLit(P, sx, sy);
+  }, board);
+  // The clip: a steel plate over the top edge with its rolled spring, standing proud of the board.
+  const clip = s.object('clip', { ramp: RAMP.steel });
+  const clipO = add(O, mul(U, 0.3), mul(V, 0.78), mul(n, 0.004));
+  s.quad(clipO, mul(U, 0.4), mul(V, 0.26), n, (u, t, P, sx, sy) => (t > 0.66 && t < 0.82 ? 'steel6' : t > 0.82 ? 'steel5' : lit(RAMP.steel, n)(P, sx, sy)), clip);
+  // Its shadow on the printer's front beside the raised corner.
+  const front = printer.z - printer.d / 2, edge = add(O, U);
+  s.quad([edge[0], counter.y, front], [0.012, 0, 0], [0, printer.h, 0], [0, 0, -1], (u, t) => (u < 0.5 + t * 0.5 ? 'ink' : null), s.object('shadow'));
+  // The pen on its chain: a biro by the board's foot, the bead chain looping down from the clip.
+  s.box(pen, RAMP.blue, (f, u, t) => (u > 0.85 ? 'steel5' : u < 0.12 ? 'blue0' : null), { name: 'pen' });
+  const tie = add(clipO, mul(U, 0.4)), end = [pen.x - Math.cos(pen.yaw) * pen.w / 2, counter.y + pen.h, pen.z + Math.sin(pen.yaw) * pen.w / 2];
+  const sag = add(mul(add(tie, end), 0.5), [0, -0.05, -0.02]);
+  const string = s.object('string', { outline: false });
+  for (let i = 0; i <= 80; i++) {
+    const k = i / 80, P = add(mul(tie, (1 - k) ** 2), mul(sag, 2 * k * (1 - k)), mul(end, k * k));
+    P[1] = Math.max(P[1], counter.y + 0.002);
+    const [x, y] = space.project(...P).map(Math.round);
+    if (x >= 0 && y >= 0 && x < s.w && y < s.h) s.plot(y * s.w + x, P[2] - 0.01, i % 6 < 3 ? 'steel6' : 'steel3', string);   // a bead chain
+  }
   // The staff rota on a clipboard: seven nights across, the same signature in every
   // night's box.
   const { rota, receipt1, receipt2, magazine } = space.personal;

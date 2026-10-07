@@ -5,6 +5,24 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — the sign-in clipboard leans with some life
+
+- The board is turned a little so one corner rests on the printer, with visible
+  hardboard edges, a raised steel clip with a hanging hole, and a shadow on the
+  printer's front beside the raised corner.
+- The sheet has a header, a name column and a time column. Every row carries the same
+  signature except the bottom one, which is still blank tonight.
+- A blue biro lies by the board's foot, tied to the clip by a bead chain.
+
+### Verified (clipboard)
+
+- All five checks pass. The desktop card-sale screenshot was reviewed close up.
+
+### Not verified (clipboard)
+
+- At native size the signatures read as short blue strokes, not handwriting. Phone
+  screenshots were not looked at.
+
 ### Changed — printer, sign-in sheet and charity box swap places
 
 - The receipt printer is smaller and sits at the clerk's left, in front of the
