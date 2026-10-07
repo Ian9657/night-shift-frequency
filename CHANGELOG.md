@@ -5,6 +5,25 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — the shop is bright under its tubes
+
+- The wall ramp in `art/palette.cjs` is near-white and slightly blue-green when lit
+  (it was a dim green-grey, which kept the whole room murky whatever the light did);
+  its dark end stays dark for shadows and outlines. The tube colour is brighter.
+- The ceiling is white tiles with a glow round each tube; side walls and the back wall
+  are a step lighter.
+- The tube reflections in the window have a bright core and read against the night.
+
+### Verified (bright shop)
+
+- All five checks pass. Desktop card-sale and 87.7 echo screenshots were reviewed:
+  bright interior, dark street, visible reflections.
+
+### Not verified (bright shop)
+
+- Phone-landscape screenshot was captured but not looked at. The drinks fridge's end
+  panel is unchanged and now stands out more (next step).
+
 ### Added — playable on the web
 
 - GitHub Pages serves the repository's `main` branch at

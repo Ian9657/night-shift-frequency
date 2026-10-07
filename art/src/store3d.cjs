@@ -83,8 +83,9 @@ function outside(p, x0, y0, x1, y1) {
   for (const [i, ry] of tubeY.entries()) {
     const start = i < 2 ? x0 + 10 : x1 - 50;
     const width = i % 2 ? 34 : 42;
-    p.hline(start, Math.min(x1 - 3, start + width), ry, i % 2 ? 'night4' : 'night5');
-    p.dither(start + 3, ry + 1, Math.max(4, width - 8), 1, 'night3', 'checker');
+    p.hline(start, Math.min(x1 - 3, start + width), ry, i % 2 ? 'night5' : 'rain');
+    if (i % 2 === 0) p.dither(start + 4, ry, width - 8, 1, 'tube', 'sparse');                     // the tube's bright core
+    p.dither(start + 3, ry + 1, Math.max(4, width - 8), 1, 'night4', 'checker');
   }
   for (const [sx, sy] of [[x0 + 54, y0 + 30], [x0 + 60, y0 + 30], [x1 - 50, y0 + 60], [x1 - 45, y0 + 60]]) {
     for (let i = 0; i < 10; i++) p.px(sx + i, sy + i * 2, 'night3');
@@ -111,7 +112,7 @@ function back() {
   const p = new Pix(480, 270);
   const [wx0, wy0] = at(-room.halfW, room.ceiling), [wx1, wy1] = at(room.halfW, 0);
   const top = Math.max(0, wy0);
-  p.bands(wx0, top, wx1 - wx0, wy1 - top, ['wall5', 'wall4', 'wall4', 'wall3', 'wall3']);
+  p.bands(wx0, top, wx1 - wx0, wy1 - top, ['wall6', 'wall5', 'wall5', 'wall5', 'wall4']);
   const [gx0, gy0] = at(-1.0, 2.45), [gx1, gy1] = at(1.0, 0.75);
   const glass = { x: gx0, y: Math.max(0, gy0), w: gx1 - gx0, h: gy1 - Math.max(0, gy0) };
   const { tower } = outside(p, glass.x, glass.y, gx1, gy1);
@@ -155,18 +156,20 @@ function back() {
 function sides() {
   const s = new Stage();
   const WALL = s.object('walls', { layer: 'main', outline: false });
-  // Ceiling with two tube fittings
+  // A white tiled ceiling with two tube fittings, each with a dithered glow round it.
   s.quad([-room.halfW, room.ceiling, room.back], [2 * room.halfW, 0, 0], [0, 0, -room.back + 0.1], [0, -1, 0], (u, v, P, sx, sy) => {
     for (const tx of [-0.75, 0.75]) {
       const d = Math.abs(P[0] - tx);
-      if (d < 0.05) return 'white';
-      if (d < 0.08) return 'tube';
-      if (d < 0.12) return 'steel5';
+      if (d < 0.05) return 'tube';
+      if (d < 0.08) return 'white';
+      if (d < 0.11) return 'steel6';
+      if (d < 0.24 && (sx + sy) % 2 === 0) return 'wall6';
     }
-    return P[2] % 0.6 < 0.015 ? 'wall2' : 'wall3';
+    if (P[2] % 0.6 < 0.015 || (P[0] + 2) % 0.6 < 0.012) return 'wall4';                          // tile grid
+    return 'wall5';
   }, WALL);
   for (const sx of [-room.halfW, room.halfW]) {
-    s.quad([sx, 0, 0.1], [0, 0, room.back - 0.1], [0, room.ceiling, 0], [sx < 0 ? 1 : -1, 0, 0], () => 'wall4', WALL);
+    s.quad([sx, 0, 0.1], [0, 0, room.back - 0.1], [0, room.ceiling, 0], [sx < 0 ? 1 : -1, 0, 0], () => 'wall5', WALL);
   }
   // Snack gondola on the left wall
   const G = { x: -room.halfW + 0.2, z0: 1.0, z1: 1.95 };

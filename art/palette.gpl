@@ -23,14 +23,14 @@ Columns: 8
  31  43  64	haze0
  46  52  70	haze1
  67  63  66	haze2
- 20  29  31	wall0
- 28  40  42	wall1
- 38  54  55	wall2
- 50  71  69	wall3
- 66  91  86	wall4
- 90 119 112	wall5
-127 154 143	wall6
-223 243 230	tube
+ 20  28  31	wall0
+ 37  51  58	wall1
+ 62  80  88	wall2
+100 121 127	wall3
+147 167 170	wall4
+192 208 207	wall5
+226 236 232	wall6
+244 252 248	tube
 243 246 234	white
  20  25  30	steel0
  30  37  43	steel1

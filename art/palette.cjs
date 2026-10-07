@@ -16,9 +16,10 @@ const colors = [
   ['rain', '#6d8fb3'],
   ...named('lamp', ['#5a4a32', '#93774a', '#e0b363', '#fbe7a6']),
   ...named('haze', ['#1f2b40', '#2e3446', '#433f42']),
-  // Fluorescent interior walls (green-grey)
-  ...named('wall', ['#141d1f', '#1c282a', '#263637', '#324745', '#425b56', '#5a7770', '#7f9a8f']),
-  ['tube', '#dff3e6'], ['white', '#f3f6ea'],
+  // Interior walls and ceiling under cold fluorescent tubes: near-white and slightly
+  // blue-green when lit, the dark end kept for shadow and outlines.
+  ...named('wall', ['#141c1f', '#25333a', '#3e5058', '#64797f', '#93a7aa', '#c0d0cf', '#e2ece8']),
+  ['tube', '#f4fcf8'], ['white', '#f3f6ea'],
   // Machine metal and plastic
   ...named('steel', ['#14191e', '#1e252b', '#2c353d', '#3f4b54', '#5a6871', '#7f8f96', '#adbcbd', '#d4ddd8']),
   // Beige 90s plastic
