@@ -68,30 +68,36 @@
     lighters: { x: 1.32, z: 0.99, w: 0.07, h: 0.025, d: 0.05, y: 1.092 },
   });
 
-  // The clerk's own things, nearest the camera, kept to the two ends so the middle of
-  // the counter is free for the sale. On the right, the clerk's corner: the radio, an
-  // old magazine beside it with the flip phone lying on it, the half-finished coffee and
-  // a loose receipt. On the left, the paperwork: the sign-in sheet leaning on the
-  // printer with its pen, the rota on a clipboard, the receipt spike and a receipt.
-  const magazine = Object.freeze({ x: 0.71, z: 0.62, w: 0.16, h: 0.006, d: 0.21, yaw: -0.18 });
+  // The checkout mat: a ribbed rubber mat across the middle of the counter, from the
+  // scanner past the basket; the sale happens on it, the clerk's things stay off it.
+  const mat = Object.freeze({ x: 0.04, z: 0.89, w: 0.42, h: 0.004, d: 0.46 });
+
+  // The clerk's own things, nearest the camera, kept to the two ends of the counter on
+  // surfaces of their own. On the right, an old wooden tray beside the radio: a chipped
+  // mug of coffee, and the magazine with the flip phone lying on it. On the left, a dark
+  // desk pad under the paperwork: the rota, the receipt spike and a receipt; the
+  // sign-in sheet leans on the printer beside it.
+  const tray = Object.freeze({ x: 0.66, z: 0.62, w: 0.34, h: 0.014, d: 0.24, yaw: -0.05 });
+  const pad = Object.freeze({ x: -0.9, z: 0.68, w: 0.3, h: 0.004, d: 0.24, yaw: 0.1 });
+  const onTray = counter.y + tray.h, onPad = counter.y + pad.h;
+  const magazine = Object.freeze({ x: 0.72, z: 0.62, w: 0.16, h: 0.006, d: 0.21, yaw: -0.18, y: onTray });
   const personal = Object.freeze({
-    magazine,
-    phone: { x: 0.72, z: 0.6, w: 0.048, h: 0.022, d: 0.095, yaw: 0.35, y: counter.y + magazine.h },
-    can: { x: 0.57, z: 0.66, w: 0.066, h: 0.115, d: 0.066 },
-    receipt2: { x: 0.6, z: 0.555, w: 0.05, h: 0.002, d: 0.1, yaw: -0.4 },
+    tray, pad, magazine,
+    phone: { x: 0.73, z: 0.6, w: 0.048, h: 0.022, d: 0.095, yaw: 0.35, y: onTray + magazine.h },
+    mug: { x: 0.56, z: 0.64, w: 0.08, h: 0.09, d: 0.08, y: onTray },
     // The sign-in sheet on its board, foot on the counter, leaning back on the printer's
     // front and turned a little, so one corner rests on it (h is the board's length, d
     // its thickness). Its pen lies by its foot, tied to the clip.
     signIn: { x: -0.665, z: 0.55, w: 0.1, h: 0.14, d: 0.008, yaw: 0.2 },
     pen: { x: -0.5, z: 0.545, w: 0.1, h: 0.009, d: 0.009, yaw: 0.45 },
-    rota: { x: -0.95, z: 0.74, w: 0.19, h: 0.01, d: 0.13, yaw: 0.15 },
-    receipt1: { x: -0.77, z: 0.6, w: 0.05, h: 0.002, d: 0.11, yaw: 0.6 },
-    spike: { x: -0.85, z: 0.62, w: 0.055, h: 0.12, d: 0.055 },
+    rota: { x: -0.95, z: 0.74, w: 0.19, h: 0.01, d: 0.13, yaw: 0.15, y: onPad },
+    receipt1: { x: -0.79, z: 0.62, w: 0.05, h: 0.002, d: 0.11, yaw: 0.6, y: onPad },
+    spike: { x: -0.87, z: 0.63, w: 0.055, h: 0.12, d: 0.055, y: onPad },
   });
 
   // Where goods sit: taken out of the basket they wait in front of it; scanned, they
   // come nearer the clerk.
-  const lane = Object.freeze({ z: 0.86, scannedZ: 0.74, x0: -0.16, x1: 0.19, gap: 0.02 });
+  const lane = Object.freeze({ z: 0.86, scannedZ: 0.74, x0: -0.12, x1: 0.22, gap: 0.02 });
 
   // Top-left of the customer canvas on screen.
   function customerOrigin() {
@@ -123,7 +129,7 @@
     return z >= counter.near && z <= counter.far ? { x: d[0] * t, z } : null;
   }
 
-  const api = { camera, eye, screen, room, counter, customer, fixtures, drawerTravel, decor, personal, lane, project, scaleAt, ray, counterPoint, customerOrigin, figureOffset };
+  const api = { camera, eye, screen, room, counter, customer, fixtures, drawerTravel, decor, mat, personal, lane, project, scaleAt, ray, counterPoint, customerOrigin, figureOffset };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else (root.NSF = root.NSF || {}).space = api;
 })(globalThis);

@@ -372,10 +372,30 @@ function counterLayer() {
     if (u < 0.08 || u > 0.92 || t < 0.1 || t > 0.9) return 'steel4';
     return (Math.floor(u * 12) + Math.floor(t * 8)) % 3 === 0 ? 'steel2' : 'steel1';
   }, { name: 'change tray' });
+  // The checkout mat: dark ribbed rubber with a raised rim and a printed border.
+  s.box(space.mat, RAMP.dark, panel('top', 75, 30, p => {
+    p.rect(0, 0, 75, 30, 'steel1');
+    for (let y = 2; y < 28; y += 2) p.hline(2, 72, y, 'ink');                                   // the ribs
+    p.frame(0, 0, 75, 30, 'steel3').frame(1, 1, 73, 28, 'ink');
+    p.hline(3, 71, 25, 'steel4').hline(3, 71, 27, 'steel3');                                    // the printed border
+  }), { name: 'checkout mat' });
+  // The clerk's surfaces: an old wooden tray with a rim and two coffee rings, and a dark
+  // desk pad with a worn corner.
+  const { tray: woodTray, pad } = space.personal;
+  s.box(woodTray, RAMP.wood, (f, u, t) => {
+    if (f !== 'top') return null;
+    if (u < 0.04 || u > 0.96 || t < 0.06 || t > 0.94) return 'wood3';                           // the rim
+    for (const [cu, ct] of [[0.12, 0.3], [0.2, 0.62]]) {
+      const r = Math.hypot((u - cu) * woodTray.w, (t - ct) * woodTray.d);
+      if (r > 0.032 && r < 0.037) return 'wood0';                                              // coffee rings
+    }
+    return (Math.floor(u * 40) + Math.floor(t * 3)) % 7 === 0 ? 'wood1' : null;                 // the grain
+  }, { name: 'tray' });
+  s.box(pad, RAMP.dark, (f, u, t) => (f === 'top' ? (u > 0.9 && t < 0.15 ? 'steel3' : u < 0.03 || u > 0.97 || t < 0.04 || t > 0.96 ? 'steel2' : null) : null), { name: 'desk pad' });
   // Flat paperwork lies in the counter layer, under the machines and the clerk's
   // phone. The staff rota on a clipboard: seven nights across, the same signature in every
   // night's box.
-  const { rota, receipt1, receipt2, magazine } = space.personal;
+  const { rota, receipt1, magazine } = space.personal;
   s.box(rota, RAMP.wood, (f, u, t) => {
     if (f !== 'top') return null;
     if (t > 0.86) return u > 0.35 && u < 0.65 ? 'steel6' : null;                             // the clip
@@ -384,8 +404,8 @@ function counterLayer() {
     if ((u * 7) % 1 < 0.1 || (t * 5) % 1 < 0.12) return 'paper1';
     return t > 0.42 && t < 0.62 && (u * 7) % 1 > 0.25 && (u * 7) % 1 < 0.8 ? 'blue2' : 'paper3';
   }, { name: 'rota' });
-  // Loose receipts, a few printed lines on each.
-  for (const slip of [receipt1, receipt2]) {
+  // A loose receipt, a few printed lines on it.
+  for (const slip of [receipt1]) {
     s.box(slip, RAMP.paper, (f, u, t) => (f === 'top' && (t * 8) % 1 < 0.25 && u > 0.15 && u < (t > 0.8 ? 0.5 : 0.85) ? 'paper1' : f === 'top' ? 'white' : null), { name: 'receipt' });
   }
   // An old magazine: red masthead with its title, a cover star (dark hair, face,
@@ -981,23 +1001,30 @@ function sprites() {
   })();
   // The clerk's canned coffee, opened and half drunk: the tab bent up, a drip down
   // the side from the last sip.
-  const { can } = space.personal, r = can.w / 2;
-  result['store-can'] = sculpted(can, P => [sculpt.cylinder(P, [can.x, can.z], r, counter.y, counter.y + can.h), 0], RAMP.wood, hit => {
-    const [x, y, z] = hit.P, h = y - counter.y, dx = x - can.x, dz = z - can.z;
-    if (h > can.h - 0.002) {                                                                  // the lid
-      if (Math.hypot(dx, dz + 0.014) < 0.007) return 'ink';                                    // the mouth
-      if (Math.hypot(dx, dz - 0.004) < 0.006) return 'steel5';                                 // the tab
-      return Math.hypot(dx, dz) > r - 0.004 ? 'steel3' : 'steel4';
+  // The clerk's mug: white, chipped at the rim, a faded blue print, half full of cold
+  // coffee with brown rings down its inside; the handle turned toward the clerk's left.
+  const { mug } = space.personal, mr = mug.w / 2 - 0.004, mugBase = mug.y ?? counter.y, mugTop = mugBase + mug.h;
+  const handle = [mug.x - mr - 0.012, mugBase + 0.047, mug.z];
+  result['store-mug'] = sculpted(mug, P => {
+    const shell = Math.max(sculpt.cylinder(P, [mug.x, mug.z], mr, mugBase, mugTop), -sculpt.cylinder(P, [mug.x, mug.z], mr - 0.005, mugBase + 0.006, mugTop + 0.05));
+    const coffee = sculpt.cylinder(P, [mug.x, mug.z], mr - 0.005, mugBase, mugTop - 0.03);
+    const q = [P[0] - handle[0], P[1] - handle[1], P[2] - handle[2]];
+    const loop = Math.max(Math.hypot(Math.hypot(q[0], q[1]) - 0.02, q[2]) - 0.005, q[0] - 0.006);
+    return [Math.min(shell, coffee, loop), 0];
+  }, RAMP.paper, hit => {
+    const [x, y, z] = hit.P, h = y - mugBase, dx = x - mug.x, dz = z - mug.z, rad = Math.hypot(dx, dz);
+    if (rad < mr - 0.0045) {
+      if (h < mug.h - 0.029) return 'wood1';                                                   // the coffee
+      return Math.round((h - (mug.h - 0.03)) / 0.006) % 2 ? 'paper2' : 'wood3';                 // rings left by the coffee
     }
-    if (h > can.h - 0.012 || h < 0.008) return hit.n[0] < -0.3 ? 'steel3' : 'steel5';          // the rims
-    if (Math.abs(dx + 0.012) < 0.003 && h > can.h - 0.05 && dz < 0) return 'wood1';             // a drip
-    if (h > 0.042 && h < 0.07) return hit.n[0] < -0.4 ? 'cream2' : 'cream4';                   // the label band
+    if (h > mug.h - 0.003 && Math.hypot(dx + 0.02, dz + 0.025) < 0.012) return 'steel2';       // the chip
+    if (dz < -0.01 && Math.abs(dx) < 0.014 && h > 0.035 && h < 0.06) return 'blue2';           // the print
     return null;
   });
   // A receipt spike: a steel rod on a round base with the night's receipts on it.
   const { spike } = space.personal;
   result['store-spike'] = (() => {
-    const v = sculpt.vec, base = counter.y;
+    const v = sculpt.vec, base = spike.y ?? counter.y;
     const slips = [[0.018, 0.4, 0.15], [0.03, -0.7, -0.2], [0.042, 1.2, 0.1], [0.055, 0.1, -0.12]];
     const slipFrame = ([, yaw, tilt]) => {
       const f = [Math.cos(yaw), Math.sin(tilt), Math.sin(yaw)], n = v.norm([-f[1] * Math.cos(yaw), 1, -f[1] * Math.sin(yaw)]);

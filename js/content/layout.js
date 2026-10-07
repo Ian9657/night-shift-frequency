@@ -49,9 +49,9 @@
       phone: { sprite: 'store-phone' },
       printer: { sprite: 'store-printer', slot: point(printer.x + 0.01, counter.y + printer.h, printer.z - printer.d / 2 + printer.d * printer.exit) },
     }),
-    // Drawn with the machines but not clicked: the clerk's half-finished can of coffee
-    // and the receipt spike.
-    decor: Object.freeze(['store-can', 'store-spike']),
+    // Drawn with the machines but not clicked: the clerk's mug of coffee and the
+    // receipt spike.
+    decor: Object.freeze(['store-mug', 'store-spike']),
     // Goods wait at the far side of the lane and come forward once scanned.
     lane: { x: laneLeft.x, width: laneRight.x - laneLeft.x, incomingFoot: laneLeft.y, scannedFoot: point(0, counter.y, lane.scannedZ).y, gap: 4 },
     // Cash and change are left on the change tray; goods are handed over the far edge.

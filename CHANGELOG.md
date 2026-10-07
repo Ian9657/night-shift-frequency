@@ -5,6 +5,29 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — the sale on a mat, the clerk's things on their own surfaces
+
+- The counter read as one surface with the sale and the clerk's things in one row. A
+  dark ribbed checkout mat with a raised rim and a printed border now runs across the
+  middle, from the scanner past the basket: the basket, the goods taken out and the
+  scanned goods stand on it (the lane is shifted 4 cm right to stay on it).
+- On the right, an old wooden tray with two coffee rings holds the clerk's things: a
+  chipped white mug of cold coffee (it replaces the can, which looked like the iced
+  coffee on sale), and the magazine with the flip phone on it. On the left, a dark desk
+  pad lies under the rota, the receipt spike and a receipt. The second loose receipt is
+  gone.
+
+### Verified (zones)
+
+- All five checks pass. Desktop card-sale and cash screenshots were reviewed. A THANK
+  YOU print on the mat was tried and dropped: at this angle it squashes to three
+  unreadable pixels.
+
+### Not verified (zones)
+
+- Phone screenshots were not looked at. The pool of light over the mat is planned
+  next.
+
 ### Changed — a lower PIN pad, further right
 
 - The PIN pad's pole is 4 cm instead of 7.5 cm, and the pad stands 5 cm further right;
