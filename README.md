@@ -7,7 +7,8 @@ tower that went dark years ago is blinking red.
 Tonight the scanner reads a bottle of cola as a **spare key**, and the record you keep
 decides what happens to the customer who comes for it later.
 
-A 480×270 pixel-art browser game. Download it, open it, play. No install, no build.
+A 480×270 pixel-art browser game. **Play it at <https://ian9657.github.io/night-shift-frequency/>**,
+or download it and open `index.html`. No install, no build.
 
 ## How to play
 

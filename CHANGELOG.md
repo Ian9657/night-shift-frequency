@@ -5,6 +5,23 @@ verified and what was not.
 
 ## Unreleased
 
+### Added — playable on the web
+
+- GitHub Pages serves the repository's `main` branch at
+  <https://ian9657.github.io/night-shift-frequency/>; every push to `main` republishes
+  it. The README links to it.
+
+### Verified (web)
+
+- The Pages build succeeded. In Chrome against the live URL: the page and sprite
+  bundle load (HTTP 200), no page errors or failed requests, the shift starts and the
+  phone opens.
+
+### Not verified (web)
+
+- Other browsers (Safari, Firefox) and real phones against the live URL. The whole
+  repository (docs, art sources, tests) is reachable on the site, not only the game.
+
 ### Changed — reversed sign, visible tide table, one clock
 
 - The OPEN 24H neon faces the street again and reads reversed from the counter, as
