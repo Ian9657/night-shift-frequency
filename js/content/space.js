@@ -42,9 +42,10 @@
     // hooked over its near lip.
     bags: [{ x: 0.48, z: 0.495, w: 0.26, h: 0.18, d: 0.01, y: counter.y - 0.18 }],
     // The radio is the clerk's, at their right hand; the small receipt printer sits at
-    // their left, in front of the register's keyboard.
+    // their left, in front of the register's keyboard, its paper leaving the lid top.
     radio: [{ x: 0.95, z: 0.7, w: 0.24, h: 0.14, d: 0.09 }],
-    printer: [{ x: -0.6, z: 0.64, w: 0.13, h: 0.075, d: 0.13 }],
+    // `exit`: where the paper leaves the lid, as a fraction of the depth from the front.
+    printer: [{ x: -0.57, z: 0.64, w: 0.13, h: 0.075, d: 0.13, exit: 0.25 }],
     // The cash drawer, flush with the counter's front under the register; open, it
     // slides out towards the clerk.
     drawer: [{ x: -0.45, z: 0.515, w: 0.4, h: 0.09, d: 0.02, y: counter.y - counter.thick - 0.1 }],
@@ -67,7 +68,7 @@
     // The sign-in sheet on its board, foot on the counter, leaning back on the printer's
     // front and turned a little, so one corner rests on it (h is the board's length, d
     // its thickness). Its pen lies by its foot, tied to the clip.
-    signIn: { x: -0.63, z: 0.55, w: 0.1, h: 0.14, d: 0.008, yaw: 0.2 },
+    signIn: { x: -0.665, z: 0.55, w: 0.1, h: 0.14, d: 0.008, yaw: 0.2 },
     pen: { x: -0.5, z: 0.545, w: 0.1, h: 0.009, d: 0.009, yaw: 0.45 },
     // Months of night shifts, on the clerk's right: the rota on a clipboard, loose
     // receipts and an old magazine; the receipt spike stands at the front left, clear of

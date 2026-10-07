@@ -5,6 +5,29 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — printer and microwave get real build detail
+
+- The receipt printer is a two-tone thermal printer: a charcoal base with a brand line,
+  FEED button and power and paper lights; a lighter lid set in from the base's edges,
+  with a tear bar, the exit slot and the hinge; the last receipt standing out of the
+  slot and bending toward the clerk. The printer moves 3 cm right and the sign-in board
+  3.5 cm left, so the board rests on the printer's left corner and the front shows.
+  The shift report rises from the new exit slot (`exit` on the printer in `space.js`).
+- The microwave is brushed stainless steel: the door's gap and frame, a perforated
+  window onto a dim cavity with the turntable, old splashes and a glare, a handle bar on
+  stand-offs, raised keys, START and STOP, and a laminated heating-time card on its
+  side. Heating keeps the warm glow, now behind the mesh.
+
+### Verified (printer, microwave)
+
+- All five checks pass. Close-ups of both and the desktop heating screenshot were
+  reviewed.
+
+### Not verified (printer, microwave)
+
+- Brushed lines on the microwave's top barely show from this angle. Phone screenshots
+  were not looked at.
+
 ### Changed — a real POS keypad
 
 - The register's keypad is a beige wedge matching the monitor, low at the clerk's edge

@@ -471,24 +471,61 @@ function sprites() {
   const F = space.fixtures;
   const result = {};
 
-  // Microwave: meshed door window, handle, control panel with a clock and keys.
-  // Heating, the window glows warm over the turntable and the clock counts down.
-  const micro = heating => fixture(F.microwave, [RAMP.steel], [both(panel('front', 82, 48, p => {
-    p.rect(2, 3, 52, 42, 'steel4').frame(2, 3, 52, 42, 'steel2');
-    for (let y = 7; y < 41; y++) for (let x = 6; x < 50; x++) {
-      if (heating) {
-        const d = Math.hypot((x - 27) / 21, (y - 23) / 16);
-        p.px(x, y, d < 0.45 ? 'yellow3' : d < 0.75 ? 'yellow2' : 'orange2');
-      } else p.px(x, y, (x + y) % 2 ? 'steel0' : 'steel1');
-    }
-    if (heating) p.ellipse(27, 36, 14, 2, 'orange3').ellipse(27, 33, 6, 3, 'wood2').hline(22, 32, 30, 'wood3');   // the plate and a bowl
-    p.frame(5, 6, 46, 36, 'steel2').hline(6, 49, 7, heating ? 'yellow3' : 'steel2');
-    p.rect(55, 6, 2, 36, 'steel6').vline(56, 6, 41, 'steel3');                                // handle
-    p.rect(60, 4, 20, 9, 'ink').frame(60, 4, 20, 9, 'steel2');
-    if (heating) text(p, 62, 6, '0:42', 'phos4');                                             // idle, the runtime shows the time
-    for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) p.rect(61 + c * 6, 16 + r * 5, 5, 3, 'steel5').hline(61 + c * 6, 65 + c * 6, 18 + r * 5, 'steel2');
-    p.rect(61, 38, 8, 5, 'green2').rect(71, 38, 8, 5, 'red2').hline(61, 78, 42, 'steel1');
-  }))]);
+  // Microwave, a commercial stainless one: brushed steel, the door's gap and frame, a
+  // perforated window onto the dim cavity (turntable, old splashes, a glare across the
+  // glass), a handle bar standing off the door, raised keys and START/STOP, and the
+  // store's laminated heating-time card on its side. Heating, the cavity glows warm over
+  // the turntable and the display counts down; idle, the runtime shows the time.
+  const micro = heating => {
+    const [m] = F.microwave, s = new Stage();
+    const front = panel('front', 82, 48, p => {
+      p.rect(1, 1, 54, 46, 'steel4').frame(1, 1, 54, 46, 'ink');                                 // the door and its gap
+      p.hline(2, 53, 2, 'steel6').vline(2, 2, 45, 'steel5');
+      for (let y = 7; y < 41; y++) for (let x = 6; x < 50; x++) {
+        let c;
+        if (heating) {
+          const d = Math.hypot((x - 27) / 21, (y - 23) / 16);
+          c = d < 0.45 ? 'yellow3' : d < 0.75 ? 'yellow2' : 'orange2';
+        } else {
+          c = y < 11 ? 'steel3' : 'steel2';                                                       // the cavity, lit from its roof
+          if (Math.abs((x - 27) / 18) ** 2 + ((y - 35) / 3) ** 2 < 1) c = y < 35 ? 'steel5' : 'steel4';   // the turntable
+          if ([[11, 13], [12, 13], [12, 14], [37, 20], [38, 20], [21, 27], [22, 27], [44, 29]].some(([sx, sy]) => sx === x && sy === y)) c = 'wood2';   // old splashes
+        }
+        if (x % 2 === 0 && y % 2 === 0) c = heating ? 'orange1' : 'steel0';                        // the perforated screen
+        if (x + y > 20 && x + y < 27 && (x + y) % 3 !== 0 && x < 22) c = heating ? 'yellow3' : 'steel5';   // glare on the glass
+        p.px(x, y, c);
+      }
+      if (heating) p.ellipse(27, 36, 14, 2, 'orange3').ellipse(27, 33, 6, 3, 'wood2').hline(22, 32, 30, 'wood3');   // the plate and a bowl
+      p.frame(5, 6, 46, 36, 'steel2').hline(6, 49, 41, 'steel5');
+      p.vline(56, 1, 46, 'ink');                                                                 // the panel's seam
+      p.rect(60, 4, 20, 9, 'ink').frame(60, 4, 20, 9, 'steel2').hline(61, 78, 12, 'steel5');
+      if (heating) text(p, 62, 6, '0:42', 'phos4');
+      for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) {                                   // raised keys
+        const kx = 61 + c * 6, ky = 16 + r * 5;
+        p.rect(kx, ky, 5, 3, 'steel5').hline(kx, kx + 4, ky, 'steel7').hline(kx, kx + 4, ky + 3, 'steel1');
+      }
+      for (const [kx, top, body] of [[61, 'green3', 'green2'], [71, 'red3', 'red2']]) p.rect(kx, 38, 8, 5, body).hline(kx, kx + 7, 38, top).hline(kx, kx + 7, 43, 'steel1');
+    });
+    s.box(m, RAMP.steel, (f, u, t) => {
+      const found = front(f, u, t);
+      if (found) return found;
+      if (f === 'right') {                                                                       // the heating-time card
+        if (u > 0.12 && u < 0.62 && t > 0.3 && t < 0.86) {
+          if (t > 0.76) return 'red2';
+          return (t * 14) % 1 < 0.35 && u > 0.17 && u < 0.57 ? (u < 0.4 ? 'steel3' : 'steel4') : 'white';
+        }
+        return Math.floor(t * 34) % 4 === 0 ? 'steel4' : null;                                   // brushed
+      }
+      if (f === 'top') return Math.floor(t * 46) % 5 === 0 ? 'steel6' : null;
+      return null;
+    });
+    // The handle bar on its stand-offs, off the door's opening edge.
+    const hx = m.x - m.w / 2 + m.w * (52 / 82), fz = m.z - m.d / 2;
+    s.box({ x: hx, z: fz - 0.016, w: 0.016, h: 0.17, d: 0.01, y: counter.y + 0.05 }, RAMP.steel, (f, u, t) => (f === 'front' ? (u < 0.4 ? 'steel7' : 'steel5') : null));
+    for (const y of [0.06, 0.2]) s.box({ x: hx, z: fz - 0.007, w: 0.008, h: 0.008, d: 0.012, y: counter.y + y }, RAMP.steel);
+    s.outline();
+    return s.sprite();
+  };
   result['store-microwave'] = micro(false);
   result['store-microwave-heating'] = micro(true);
 
@@ -672,16 +709,37 @@ function sprites() {
     p.ellipse(36, 36, 6, 6, 'buoy2').ellipse(36, 36, 3, 3, 'navy2');
   })]);
 
-  // Receipt printer with paper curling out of the slot and a power light.
+  // Receipt printer, a two-tone thermal printer: a charcoal base with a FEED button,
+  // power and paper lights and a brand line; a lighter clamshell lid set in from the
+  // base's edges, with its seam, the tear bar and the exit slot across its top; the
+  // last receipt still standing out of the slot and curling toward the clerk.
   result['store-printer'] = (() => {
-    const [b] = F.printer, s = new Stage();
-    s.box(b, RAMP.dark, (f, u, t) => {
-      if (f === 'top' && t > 0.62 && t < 0.7 && u > 0.12 && u < 0.88) return 'ink';
-      if (f === 'front' && u > 0.78 && u < 0.86 && t > 0.62 && t < 0.72) return 'phos4';
-      if (f === 'front' && u > 0.1 && u < 0.5 && t > 0.62 && t < 0.68) return 'steel4';
+    const [b] = F.printer, s = new Stage(), base = b.h * 0.6, LID = ['steel0', 'steel1', 'steel2', 'steel3', 'steel5'];
+    s.box({ ...b, h: base }, RAMP.dark, (f, u, t) => {
+      if (f !== 'front') return null;
+      if (t > 0.45 && t < 0.75 && u > 0.08 && u < 0.3) return 'steel3';                        // brand line
+      if (t > 0.35 && t < 0.75 && u > 0.6 && u < 0.72) return 'steel4';                         // FEED
+      if (t > 0.45 && t < 0.7 && u > 0.78 && u < 0.83) return 'phos4';                          // power
+      if (t > 0.45 && t < 0.7 && u > 0.87 && u < 0.92) return 'red1';                            // paper
       return null;
+    }, { name: 'printer base' });
+    const lid = { x: b.x, z: b.z + b.d * 0.05, w: b.w * 0.92, d: b.d * 0.86, h: b.h - base, y: counter.y + base };
+    const exitT = (b.exit * b.d - (lid.z - lid.d / 2 - (b.z - b.d / 2))) / lid.d;
+    s.box(lid, LID, (f, u, t) => {
+      if (f === 'top' && Math.abs(t - exitT) < 0.03 && u > 0.12 && u < 0.88) return 'ink';         // exit slot
+      if (f === 'top' && t > exitT - 0.09 && t < exitT - 0.03 && u > 0.1 && u < 0.9) return (Math.floor(u * 40) % 2 ? 'steel6' : 'steel4');   // tear bar
+      if (f === 'top' && t > 0.93) return 'steel3';                                                // the hinge
+      if (f === 'front' && t > 0.7) return 'steel4';                                               // rounded front edge
+      return null;
+    }, { name: 'printer lid' });
+    // The receipt: up out of the slot, then bending forward over the tear bar.
+    const paper = s.object('receipt', { ramp: RAMP.paper }), pw = 0.058, px = b.x + 0.01;
+    let P = [px - pw / 2, counter.y + b.h, b.z - b.d / 2 + b.d * b.exit];
+    [[0.03, 0], [0.012, 0.6], [0.012, 1.2]].forEach(([len, tilt], i) => {
+      const V = [0, len * Math.cos(tilt), -len * Math.sin(tilt)], n = [0, Math.sin(tilt), -Math.cos(tilt)];
+      s.quad(P, [pw, 0, 0], V, n, (u, t, Q, sx, sy) => (i === 0 && u > 0.12 && u < 0.8 && (t * 5) % 1 < 0.3 ? 'paper1' : shade(RAMP.paper, lightAt(Q, n), sx, sy)), paper);
+      P = vec.add(P, V);
     });
-    s.box({ x: b.x, z: b.z + b.d * 0.16, w: b.w * 0.6, h: 0.05, d: 0.004, y: counter.y + b.h }, RAMP.paper, (f, u, t) => (f === 'front' && (t * 6) % 1 < 0.18 && u > 0.15 && u < 0.7 ? 'paper1' : null));
     s.outline();
     return s.sprite();
   })();

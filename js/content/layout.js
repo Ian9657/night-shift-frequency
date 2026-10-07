@@ -41,7 +41,7 @@
       radio: { sprite: 'store-radio', echo: 'store-radio-echo', dial: face(radio.x, radio.w, radio.z - radio.d / 2, counter.y, counter.y + radio.h, [26 / 48, 45 / 48], [5 / 28, 14 / 28]) },
       // The clerk's flip phone: opens close up as the settings menu (js/game/phone.js).
       phone: { sprite: 'store-phone' },
-      printer: { sprite: 'store-printer', slot: point(printer.x, counter.y + printer.h, printer.z + printer.d * 0.16) },
+      printer: { sprite: 'store-printer', slot: point(printer.x + 0.01, counter.y + printer.h, printer.z - printer.d / 2 + printer.d * printer.exit) },
     }),
     // The register's screen, where the runtime draws the sale.
     pos: { screen: face(pos.x, pos.w, pos.z - pos.d / 2, counter.y, counter.y + pos.h, [8 / 80, 72 / 80], [7 / 73, 55 / 73]) },
