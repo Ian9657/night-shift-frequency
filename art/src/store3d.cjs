@@ -246,6 +246,18 @@ function sides() {
     s.box({ ...cap, h: 0.012, y }, RAMP.steel, null, { name: 'end-cap shelf' });
     s.box({ x: cap.x, z: cap.z - cap.d / 2, w: cap.w, h: 0.03, d: 0.004, y: y + 0.012 }, RAMP.steel, null, { name: 'wire lip' });
   }
+  // A clip strip down the end-cap's left upright: small snack bags hung one under the
+  // other, each with its crimped header, a coloured print and a clear window.
+  const stripX = cap.x - cap.w / 2 - 0.04, stripZ = cap.z - cap.d / 2 - 0.006;
+  s.box({ x: stripX, z: stripZ + 0.002, w: 0.012, h: 0.52, d: 0.003, y: 1.1 }, RAMP.steel, null, { name: 'clip strip' });
+  ['orange', 'green', 'red', 'yellow', 'blue', 'orange'].forEach((print, i) => {
+    s.box({ x: stripX, z: stripZ - 0.004, w: 0.065, h: 0.075, d: 0.01, y: 1.535 - i * 0.085 }, RAMP[print], (f, u, t) => {
+      if (f !== 'front') return null;
+      if (t > 0.86) return (u * 14) % 1 < 0.5 ? 'paper3' : 'paper2';                              // crimped header
+      if (Math.hypot((u - 0.5) * 1.4, t - 0.4) < 0.2) return 'paper3';                           // window
+      return t > 0.66 && t < 0.78 && u > 0.2 && u < 0.8 ? 'white' : null;                        // brand line
+    }, { name: 'snack bag' });
+  });
   // Magazines standing in the rack, covers out: masthead, cover photo, cover lines.
   [['red', 'pink'], ['blue', 'yellow'], ['green', 'orange']].forEach(([mast, ground], i) => {
     s.box({ x: cap.x - 0.12 + i * 0.12, z: cap.z + 0.01, w: 0.1, h: 0.15, d: 0.012, y: 1.312 }, RAMP.paper, panel('front', 20, 28, p => {

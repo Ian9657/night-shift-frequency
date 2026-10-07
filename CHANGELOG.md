@@ -5,6 +5,16 @@ verified and what was not.
 
 ## Unreleased
 
+### Added — a clip strip of snacks at the end-cap
+
+- A steel clip strip hangs down the end-cap's left side, in the bare gap beside the
+  fridge glass, with six small snack bags one under another: crimped header, coloured
+  print, a clear window and a brand line.
+
+### Verified (clip strip)
+
+- All five checks pass. The desktop card-sale screenshot was reviewed close up.
+
 ### Changed — an end-cap at the fridge's end
 
 - The fridge's end panel facing the clerk was one tall poster. The poster is now a short
