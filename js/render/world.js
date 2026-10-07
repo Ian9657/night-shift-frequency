@@ -4,7 +4,7 @@
 // held out over the machines, things in motion, and the clerk's own things nearest.
 (function (root) {
   'use strict';
-  const { sprites, layout, customers, space, time, radio, night, outside } = root.NSF;
+  const { sprites, layout, customers, space, time, radio, night, outside, drift } = root.NSF;
   const CUE = '#f5d873', SELECTED = '#f1f5e6', HEAT = '#eda04c';
   // 3x5 digits for the microwave's clock display.
   const LED = {
@@ -209,7 +209,7 @@
       ctx.fillRect(tx - 1, ty - 1, 3, 3);
     }
     const clock = night.clock();
-    clockHands(ctx, clock);
+    clockHands(ctx, drift.wallClock(clock));
     placed(ctx, 'store-sides', look);
 
     customer(ctx, game, 'behind', mood);

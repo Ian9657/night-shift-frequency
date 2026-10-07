@@ -4,7 +4,7 @@
 // clickable region drawn here is registered for the input router.
 (function (root) {
   'use strict';
-  const { text, strings, dialogue, radio, records, layout, time, audio, engine, space, customers, sprites, phone, night, signin, story } = root.NSF;
+  const { text, strings, dialogue, radio, records, layout, time, audio, engine, space, customers, sprites, phone, night, signin, story, drift } = root.NSF;
   const t = strings.t;
   const C = {
     ink: '#101517', paper: '#ece8d0', paperShade: '#b4ae94', phosphor: '#aef08c', phosphorDim: '#55b066',
@@ -76,7 +76,7 @@
     while (rows.length < 3) rows.push(['', C.phosphor]);
     const last = o.finalReport && state.bagged ? [t('pos.printReport'), time.now % 900 < 600 ? C.amber : C.panel]
       : [t('pos.total', { amount: money(total) }), C.phosphor];
-    return [[mode, C.phosphorDim, t('pos.items', { count: scanned.length })], ...rows.slice(0, 3), last];
+    return [[mode, C.phosphorDim, t('pos.items', { count: drift.posCount(scanned.length) })], ...rows.slice(0, 3), last];
   }
 
   // The green screen: a status bar (register, shift clock), the sale's lines with a

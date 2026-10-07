@@ -2,7 +2,7 @@
 // model the renderer draws. Cross-order history lives in the shift engine.
 (function (root) {
   'use strict';
-  const { time, audio, dialogue, radio, records, broadcast, engine, story, customers, layout, sprites, phone, night, signin } = root.NSF;
+  const { time, audio, dialogue, radio, records, broadcast, engine, story, customers, layout, sprites, phone, night, signin, drift } = root.NSF;
 
   const params = new URLSearchParams(root.location?.search || '');
   const shift = engine.createShift(params.get('seed') || String(Date.now()));
@@ -419,7 +419,8 @@
         await time.wait(dialogue.readTime(reaction.text));
       }
     }
-    dialogue.say(o.exitLine ? [o.exitLine] : []);
+    const exit = drift.exitLine(o);
+    dialogue.say(exit ? [exit] : []);
     await time.wait(200);
     const hand = layout.handoff;
     if (handoff === 'bag') {
@@ -629,5 +630,6 @@
   records.attach(controller);
   broadcast.attach(controller);
   night.attach(controller);
+  drift.attach(controller);
   root.NSF.game = controller;
 })(globalThis);

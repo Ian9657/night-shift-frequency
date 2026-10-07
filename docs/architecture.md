@@ -23,7 +23,7 @@ How the code is organised and why. For what changed when, see
 | Content | `js/content/` | The store in metres and its camera (`space.js`), screen positions derived from it (`layout.js`), customer poses, strings, colour ramps, customer looks, story and radio script. Data only, plus small pure helpers. |
 | Engine | `js/engine/shift.js` | The shift's domain: order generation from a seed, re-scan checks, record decisions, settlement, the report and the ending key. No DOM, audio or time. |
 | Core | `js/core/time.js` | The single game clock: `wait`, `after`, stepped `path` motion. Tests speed it up. `paused` stops it while the phone is open; `uiNow` keeps running for what animates over it. |
-| Game | `js/game/` | Interaction: `checkout.js` (current-order state, scene model, player actions), `dialogue.js`, `radio.js` (the player), `broadcast.js` (what is on air), `records.js` (the POS record view), `phone.js` (the flip phone as the settings menu), `audio.js` (synthesised sound), `night.js` (the clock of the night, dawn and the colours outside), `signin.js` (the sign-in sheet and the clerk's name), `outside.js` (cars, the ferry, rain and the tower's light, as functions of the game clock). |
+| Game | `js/game/` | Interaction: `checkout.js` (current-order state, scene model, player actions), `dialogue.js`, `radio.js` (the player), `broadcast.js` (what is on air), `records.js` (the POS record view), `phone.js` (the flip phone as the settings menu), `audio.js` (synthesised sound), `night.js` (the clock of the night, dawn and the colours outside), `signin.js` (the sign-in sheet and the clerk's name), `outside.js` (cars, the ferry, rain and the tower's light, as functions of the game clock), `drift.js` (what the readings show as the night wears on, planned from the seed). |
 | Render | `js/render/` | `sprites.js` (indexed sprites → cached canvases, slot recolouring, moods, outlines), `text.js` (bitmap font), `world.js` (480×270 world), `ui.js` (960×540 overlays and their click regions). |
 | Boot | `js/main.js` | Canvas sizing, the frame loop, input routing, test hooks (`NSF.debug`). |
 
@@ -133,7 +133,7 @@ purpose; it is texture, not game state. Everything else waits on `NSF.time`.
 ## Randomness
 
 Order generation and the customer lineup come from the shift seed (`?seed=`, or the
-current time). Sound, flicker and rain use `Math.random()` and never affect play. The
+current time). Drift is planned from the seed too. Sound, flicker timing and rain use `Math.random()` and never affect play. The
 seed is printed to the console, exposed as `NSF.debug.seed` and shown on the closing
 card.
 

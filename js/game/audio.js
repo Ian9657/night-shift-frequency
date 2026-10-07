@@ -323,6 +323,17 @@
     source.start(start); source.stop(start + length);
   }
 
+  // The wall clock's movement catching up ten minutes at once: a run of quick ticks.
+  function clockSkip() {
+    for (let i = 0; i < 10; i++) tone({ frequency: 2300, endFrequency: 2100, duration: 0.012, type: 'triangle', gain: 0.0024, delay: i * 0.035, lowpass: 3600 });
+  }
+
+  // A tube flickering: a short ballast buzz.
+  function tubeFlicker() {
+    tone({ frequency: 100, duration: 0.09, type: 'sawtooth', gain: 0.0042, lowpass: 900 });
+    noise({ duration: 0.05, gain: 0.0022, frequency: 3200 });
+  }
+
   // The sign-in sheet: a pen stroke per letter, the pen pressed down to sign.
   function pen() {
     noise({ duration: between(0.05, 0.08), gain: 0.0034, frequency: between(2600, 3400) });
@@ -335,7 +346,7 @@
   root.NSF.audio = {
     unlock: audio, startAmbience, scan, payment, anomaly, cashPaper, cashDrawer, microwaveStart, microwaveDone,
     stopMicrowave, receipt, bag, dialogueTick, resetTicks() { tickStep = 0; },
-    radioStation, radioTune, radioVoice, phoneKey, phoneFlip, pen, stamp, carPass,
+    radioStation, radioTune, radioVoice, phoneKey, phoneFlip, pen, stamp, carPass, clockSkip, tubeFlicker,
     // Levels 0–5 for 'master', 'radio' and 'sounds'.
     level(name) { return levels[name]; },
     setLevel(name, value) { levels[name] = Math.max(0, Math.min(5, Math.round(value))); applyLevels(); },

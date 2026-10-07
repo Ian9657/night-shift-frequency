@@ -5,6 +5,24 @@ verified and what was not.
 
 ## Unreleased
 
+### Added — drift that grows through the night
+
+- `js/game/drift.js` plans each shift's drift from its seed and changes only readings:
+  the wall clock skips ten minutes in two later orders (the microwave and POS stay
+  right), the POS count flashes 5 for a moment, order 6's customer leaves with Nell's
+  last words, and the tube flicker (moved here from `main.js`) comes more often as the
+  night goes on, sometimes in the echo's colours after three, with a ballast buzz.
+
+### Verified (drift)
+
+- All five checks pass. A scripted run logged the borrowed line on order 6 and a
+  desktop screenshot showed the wall clock ten minutes ahead of the microwave with the
+  POS reading 5 ITEMS for one item.
+
+### Not verified (drift)
+
+- How noticeable the drift is at natural speed was not judged by a player.
+
 ### Added — life outside the window
 
 - `js/game/outside.js`: cars pass on the wet street now and then (fewer in the small

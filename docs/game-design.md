@@ -85,6 +85,19 @@ adds no service variation. Card and cash alternate between ordinary orders. Soft
 constraints avoid repeating the last three orders' main products and back-to-back no-bag orders. The same seed and
 the same decisions reproduce the same shift.
 
+## Drift
+
+The later it gets, the less the store's readings can be trusted (`js/game/drift.js`).
+Drift changes only what things show, never a record, and comes from the shift seed:
+
+- Two of orders 4, 6 and 7 lose ten minutes on the wall clock once their first item is
+  scanned (a run of ticks); the microwave and the POS keep the right time.
+- In order 6 or 7 the POS item count reads 5 for a moment on the first scan.
+- Order 6's customer leaves with Nell's last words from order 5.
+- The tubes flicker more often as the night goes on; after three a flicker can show the
+  echo's cold colours instead of a dip.
+- At sign-out every earlier line on the sheet reads as the clerk's name.
+
 ## Order 5: notice, check, decide
 
 - The item is a cola (COLA 500ML); the register reads SPARE KEY. Same price; only

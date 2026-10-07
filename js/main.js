@@ -1,7 +1,7 @@
 // Boot: canvas scaling, the frame loop and input routing.
 (function (root) {
   'use strict';
-  const { time, layout, world, ui, game, records, sprites, dialogue, radio, phone, signin, outside } = root.NSF;
+  const { time, layout, world, ui, game, records, sprites, dialogue, radio, phone, signin, outside, drift } = root.NSF;
   const canvas = document.querySelector('[data-game]');
   const ctx = canvas.getContext('2d');
   const live = document.querySelector('[data-live]');
@@ -72,18 +72,6 @@
     if (value !== lastLive) { lastLive = value; live.textContent = value; }
   }
 
-  // Fluorescent flicker: rare, a little more often once the records start disagreeing.
-  function scheduleFlicker() {
-    time.after(4000 + Math.random() * 9000, () => {
-      if (game.scene.mood === 'normal' && game.state.phase === 'shift') {
-        game.scene.mood = 'dim';
-        time.after(70, () => { if (game.scene.mood === 'dim') game.scene.mood = 'normal'; });
-      }
-      scheduleFlicker();
-    });
-  }
-  scheduleFlicker();
-
   function render() {
     game.update();
     ctx.fillStyle = '#07090f';
@@ -95,6 +83,7 @@
   function frame(timestamp) {
     time.tick(timestamp);
     if (game.state.phase !== 'title') outside.update();
+    drift.update();
     render();
     announce();
     root.requestAnimationFrame(frame);
@@ -104,7 +93,7 @@
   // Test hooks: client-space centres of every clickable target.
   console.info(`Night Shift Frequency · seed ${game.shift.seed} · replay with ?seed=${encodeURIComponent(game.shift.seed)}`);
   root.NSF.debug = {
-    game, time, records, radio, dialogue, phone, signin, seed: game.shift.seed,
+    game, time, records, radio, dialogue, phone, signin, drift, seed: game.shift.seed,
     targets() {
       render();
       const rect = canvas.getBoundingClientRect();

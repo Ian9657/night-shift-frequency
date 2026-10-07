@@ -226,7 +226,8 @@ Not implemented yet:
 - Texting from the flip phone (the phone opens only as the settings menu now): song
   requests to *Night Ferry*, which need the station's music, and the text from the
   clerk's own number.
-- Drift that grows through the night (clock jumps, borrowed lines, the clerk's own
-  notes). The counter's props are there (sign-in sheet, rota, receipts, magazine,
-  sticky note) but don't change through the night yet.
+- Most of the drift. The build has the wall clock skipping ten minutes, a POS count
+  that flickers, one borrowed line, tube flickers that grow with the night and the
+  sign-in sheet at dawn; the rota, receipts, magazine and sticky note don't change, and
+  no customer thinks it's daytime.
 - Customers who stayed becoming more frequent as the night goes on.
