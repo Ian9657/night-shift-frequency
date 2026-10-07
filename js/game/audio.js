@@ -335,6 +335,18 @@
     noise({ duration: 0.05, gain: 0.0022, frequency: 3200 });
   }
 
+  // A text arriving: the phone buzzing twice against the tray. A text going: a chirp.
+  function phoneBuzz() {
+    for (const delay of [0, 0.32]) {
+      tone({ frequency: 150, endFrequency: 140, duration: 0.2, type: 'sawtooth', gain: 0.006, delay, lowpass: 420 });
+      noise({ duration: 0.2, gain: 0.003, delay, filterType: 'lowpass', frequency: 300 });
+    }
+  }
+  function phoneSent() {
+    tone({ frequency: 1320, duration: 0.06, type: 'sine', gain: 0.008, lowpass: 3000 });
+    tone({ frequency: 1760, duration: 0.09, type: 'sine', gain: 0.008, delay: 0.07, lowpass: 3000 });
+  }
+
   // The sign-in sheet: a pen stroke per letter, the pen pressed down to sign.
   function pen() {
     noise({ duration: between(0.05, 0.08), gain: 0.0034, frequency: between(2600, 3400) });
@@ -347,7 +359,7 @@
   root.NSF.audio = {
     unlock: audio, startAmbience, scan, payment, anomaly, cashPaper, cashDrawer, microwaveStart, microwaveDone,
     stopMicrowave, receipt, bag, dialogueTick, resetTicks() { tickStep = 0; },
-    radioStation, radioTune, radioVoice, phoneKey, phoneFlip, pen, stamp, carPass, clockSkip, tubeFlicker,
+    radioStation, radioTune, radioVoice, phoneKey, phoneFlip, pen, stamp, carPass, clockSkip, tubeFlicker, phoneBuzz, phoneSent,
     // Levels 0–5 for 'master', 'radio' and 'sounds'.
     level(name) { return levels[name]; },
     setLevel(name, value) { levels[name] = Math.max(0, Math.min(5, Math.round(value))); applyLevels(); },

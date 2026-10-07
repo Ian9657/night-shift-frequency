@@ -1,7 +1,7 @@
 // Boot: canvas scaling, the frame loop and input routing.
 (function (root) {
   'use strict';
-  const { time, layout, world, ui, game, records, sprites, dialogue, radio, phone, signin, outside, drift } = root.NSF;
+  const { time, layout, world, ui, game, records, sprites, dialogue, radio, phone, signin, outside, drift, messages } = root.NSF;
   const canvas = document.querySelector('[data-game]');
   const ctx = canvas.getContext('2d');
   const live = document.querySelector('[data-live]');
@@ -94,6 +94,7 @@
     time.tick(timestamp);
     if (game.state.phase !== 'title') outside.update();
     drift.update();
+    messages.update();
     render();
     announce();
     root.requestAnimationFrame(frame);
@@ -103,7 +104,7 @@
   // Test hooks: client-space centres of every clickable target.
   console.info(`Night Shift Frequency · seed ${game.shift.seed} · replay with ?seed=${encodeURIComponent(game.shift.seed)}`);
   root.NSF.debug = {
-    game, time, records, radio, dialogue, phone, signin, drift, seed: game.shift.seed,
+    game, time, records, radio, dialogue, phone, signin, drift, messages, seed: game.shift.seed,
     targets() {
       render();
       const rect = canvas.getBoundingClientRect();

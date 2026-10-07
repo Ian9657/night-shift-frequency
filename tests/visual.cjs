@@ -106,6 +106,20 @@ async function finish(page, index) {
     await page.keyboard.press('Escape');
     await click(page, 'phone');
     await page.waitForFunction(() => NSF.phone.frame() === 2);
+    await shot(page, 'phone-menu');
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('Enter');
+    await shot(page, 'phone-text');
+    await page.keyboard.press('Escape');
+    await page.keyboard.press('Escape');
+    await page.keyboard.press('ArrowDown');
+    await shot(page, 'phone-compose-row');
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('ArrowDown');
+    await shot(page, 'phone-compose');
+    await page.keyboard.press('Escape');
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('Enter');
     await page.keyboard.press('ArrowDown');
     await shot(page, 'settings-phone');
     await page.close();
@@ -121,7 +135,7 @@ async function finish(page, index) {
     assert.equal(await phone.evaluate(() => document.querySelector('canvas').getBoundingClientRect().bottom <= innerHeight), true, 'the whole view fits the phone');
     await phone.close();
     assert.deepEqual(errors, []);
-    console.log('PASS: key poses, heating, scanner bleed, echo radio, record view, settings phone and landscape phone captured.');
+    console.log('PASS: key poses, heating, scanner bleed, echo radio and a signal, record view, the phone\'s menu, a text, compose and settings, and landscape phone captured.');
   } finally {
     await browser.close();
   }

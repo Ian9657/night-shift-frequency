@@ -75,7 +75,25 @@
     ],
   });
 
-  const api = { catalog, drinks, clocks, night, contexts, records, radio };
+  // Texts on the clerk's flip phone. Incoming ones arrive when the order with index
+  // `at` begins; `from` is 'unknown' or 'self' (the clerk's own number). The clerk can
+  // send Night Ferry one text a night; June reads it at the start of the next segment,
+  // and someone who heard it writes back an order later.
+  const messages = Object.freeze({
+    incoming: [
+      { id: 'light', at: 3, from: 'unknown', text: 'text.light' },
+      { id: 'ferry', at: 5, from: 'unknown', text: 'text.ferry' },
+      { id: 'home', at: 7, from: 'self', text: 'text.home' },
+    ],
+    presets: [
+      { id: 'request', text: 'text.request', label: 'text.requestLabel', onAir: 'radio.textRequest' },
+      { id: 'anyone', text: 'text.anyone', label: 'text.anyoneLabel', onAir: 'radio.textAnyone' },
+      { id: 'rain', text: 'text.rain', label: 'text.rainLabel', onAir: 'radio.textRain' },
+    ],
+    reply: { id: 'heard', from: 'unknown', text: 'text.heard' },
+  });
+
+  const api = { catalog, drinks, clocks, night, contexts, records, radio, messages };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else (root.NSF = root.NSF || {}).story = api;
 })(globalThis);

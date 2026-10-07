@@ -146,10 +146,20 @@ The four combinations lead to four letters read by *Night Ferry* after the shift
 ## The phone
 
 - Clicking the clerk's flip phone on the counter flips it open close up and pauses the
-  shift (the game clock stops; the radio drops back). A click outside, BACK or Escape
-  puts it away and the shift resumes.
-- Its screen holds the settings: VOLUME, RADIO and SOUNDS levels (0–5) and SILENT MODE.
-  Click a row or a bar, or use the arrow keys and Enter. The browser remembers them.
+  shift (the game clock stops; the radio drops back). A click outside puts it away;
+  BACK, the red key or Escape go back a screen, and from the menu put it away.
+- The menu: MESSAGES, TEXT NIGHT FERRY, SETTINGS. Click a row to select it and again to
+  open it, or use the arrow keys and Enter.
+- Texts arrive with orders 4 and 6 from no number ("your light's the only one on the
+  front", "the ferry's running. don't tell june.") and with order 8 from the clerk's own
+  number, shown as their name: "Door's unlocked. Come home when the radio stops." The
+  phone on the counter buzzes and its light blinks until they are read.
+- Once a night the clerk can text Night Ferry one of three messages (a request, anyone
+  up?, the rain). June reads it with the clerk's name before the next segment (before
+  the closing letter if no order is left), and the order after that someone who heard
+  it writes back.
+- SETTINGS: VOLUME, RADIO and SOUNDS levels (0–5) and SILENT MODE. The browser
+  remembers them.
 
 ## Record contract
 

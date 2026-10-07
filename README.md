@@ -24,8 +24,9 @@ sign-in sheet (type it, or use the letter keys) and sign in.
   item disagree, scan the item again at the counter before the record choices appear.
 - Click the radio to open its dial and tune it: 87.6 is *Night Ferry*, 87.7 something
   else, and there is more between them.
-- Click the flip phone on the counter for settings: volume, radio, sounds and silent
-  mode. The shift waits while it is open. A landscape window works best.
+- Click the flip phone on the counter to read your texts, send one to *Night Ferry*, or
+  change the volume, radio, sounds and silent mode. The shift waits while it is open. A
+  landscape window works best.
 
 `index.html?seed=review-01` replays the same shift. The current shift's seed is shown
 on the closing card and printed to the browser console. Reloading starts a new shift;

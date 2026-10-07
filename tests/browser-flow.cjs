@@ -17,6 +17,19 @@ const { chromium, artifacts, URL_BASE, idle, click, playOrder, signIn, signOut }
       await page.evaluate(() => { NSF.debug.time.speed = 12; });
       await signIn(page, first === 'keep' ? 'JO' : '');
       assert.equal(await page.evaluate(() => NSF.debug.signin.name), first === 'keep' ? 'JO' : 'ROBIN');
+      const texting = name === 'keep-linked';
+      if (texting) {
+        // One text to Night Ferry: menu → TEXT NIGHT FERRY → pick ANYONE UP? → send.
+        await click(page, 'phone');
+        await page.waitForFunction(() => NSF.phone.frame() === 2);
+        await click(page, 'ui:phone-row-compose');
+        await click(page, 'ui:phone-row-compose');
+        await click(page, 'ui:phone-send-anyone');
+        await click(page, 'ui:phone-send-anyone');
+        assert.equal(await page.evaluate(() => NSF.debug.messages.sent.preset.id), 'anyone');
+        await click(page, 'ui:phone-away');
+        await page.waitForFunction(() => !NSF.phone.view.open);
+      }
       for (let i = 0; i < 8; i++) {
         const order = await playOrder(page, [first, last], name).catch(async error => {
           await page.screenshot({ path: path.join(artifacts, `${name}-failure.png`) });
@@ -42,6 +55,10 @@ const { chromium, artifacts, URL_BASE, idle, click, playOrder, signIn, signOut }
       assert.equal(result.report.overrides, first === 'correct' ? 1 : 0);
       assert.equal(result.report.links, last === 'linked' ? 1 : 0);
       assert.equal(result.overflow, false);
+      // Texts arrive through the night; a sent one is read on air and answered.
+      const inbox = await page.evaluate(() => NSF.debug.messages.inbox().map(m => m.id).sort().join());
+      assert.equal(inbox, texting ? 'ferry,heard,home,light' : 'ferry,home,light');
+      if (texting) assert.equal(await page.evaluate(() => NSF.debug.messages.sent.readOnAir), 1);
       assert.deepEqual(errors, []);
       await page.close();
       console.log('path ok:', name);
@@ -63,7 +80,7 @@ const { chromium, artifacts, URL_BASE, idle, click, playOrder, signIn, signOut }
       const a = NSF.audio, failed = [];
       const calls = [['scan'], ['payment', 'card'], ['anomaly'], ['cashPaper'], ['cashDrawer'], ['microwaveStart'],
         ['microwaveDone'], ['receipt'], ['bag'], ['dialogueTick', 'a'], ['radioTune'], ['radioVoice', 800, true], ['radioStation', 'echo'],
-        ['pen'], ['stamp'], ['carPass', true], ['clockSkip'], ['tubeFlicker']];
+        ['pen'], ['stamp'], ['carPass', true], ['clockSkip'], ['tubeFlicker'], ['phoneBuzz'], ['phoneSent']];
       for (const [name, ...args] of calls) {
         try { a[name](...args); } catch (error) { failed.push(name + ': ' + error.message); }
       }
@@ -112,10 +129,14 @@ const { chromium, artifacts, URL_BASE, idle, click, playOrder, signIn, signOut }
     const frozen = await page.evaluate(() => NSF.debug.time.now);
     await page.waitForTimeout(150);
     assert.equal(await page.evaluate(() => NSF.debug.time.now), frozen);
+    await click(page, 'ui:phone-row-settings');
+    await click(page, 'ui:phone-row-settings');
     await click(page, 'ui:phone-silent');
     assert.equal(await page.evaluate(() => NSF.audio.muted), true);
     await click(page, 'ui:phone-radio-2');
     assert.equal(await page.evaluate(() => NSF.audio.level('radio')), 2);
+    await click(page, 'ui:phone-softR');
+    assert.equal(await page.evaluate(() => NSF.phone.view.screen), 'home');
     await click(page, 'ui:phone-softR');
     await page.waitForFunction(() => !NSF.phone.view.open);
     assert.equal(await page.evaluate(() => NSF.debug.time.paused), false);

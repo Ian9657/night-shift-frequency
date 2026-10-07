@@ -4,7 +4,7 @@
 // held out over the machines, things in motion, and the clerk's own things nearest.
 (function (root) {
   'use strict';
-  const { sprites, layout, customers, space, time, radio, night, outside, drift } = root.NSF;
+  const { sprites, layout, customers, space, time, radio, night, outside, drift, messages } = root.NSF;
   const CUE = '#f5d873', SELECTED = '#f1f5e6', HEAT = '#eda04c';
   // 3x5 digits for the microwave's clock display.
   const LED = {
@@ -222,9 +222,15 @@
       if (!current) continue;
       if (name === 'radio') current = radio.view.kind === 'echo' ? fixture.echo : fixture.sprite;
       if (name === 'recordKey' && game.recordPending() && blinking(900, 600)) current = fixture.lit;
-      const [x, y] = sprites.anchor(current, 'at');
+      let [x, y] = sprites.anchor(current, 'at');
+      if (name === 'phone' && messages.buzzing()) x += Math.floor(time.now / 45) % 2 ? 1 : -1;
       if (scene.cues.has(name) && blinking()) sprite(ctx, current, x, y, { outline: CUE });
       sprite(ctx, current, x, y, look);
+      if (name === 'phone' && messages.unread() && blinking(1400, 300)) {       // the new-text light
+        const size = sprites.size(current);
+        ctx.fillStyle = '#7ce0dc';
+        ctx.fillRect(x + Math.floor(size.w * 0.5), y + Math.floor(size.h * 0.35), 2, 1);
+      }
     }
     radioNeedle(ctx, radio.view.freq);
     if (!scene.fixtures.microwave || scene.fixtures.microwave === layout.fixtures.microwave.sprite) microwaveClock(ctx, clock);

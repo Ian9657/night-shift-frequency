@@ -122,7 +122,7 @@
     setEchoProvider(fn) { echoProvider = fn; },
     setSignalProvider(fn) { signalProvider = fn; },
     // How long a run of Night Ferry lines takes on air.
-    duration: keys => keys.reduce((sum, key) => sum + lineDuration(key), 0),
+    duration: lines => lines.reduce((sum, line) => sum + (typeof line === 'string' ? lineDuration(line) : lineDuration(line.key, line.vars)), 0),
     caption() {
       if (!view.key) return '';
       return strings.t(view.key, view.vars);

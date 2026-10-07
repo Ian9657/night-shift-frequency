@@ -5,6 +5,27 @@ verified and what was not.
 
 ## Unreleased
 
+### Added — texts on the flip phone
+
+- The phone opens on a menu: MESSAGES, TEXT NIGHT FERRY, SETTINGS (`phone.js` now has
+  screens; `messages.js` holds what arrived and what was sent).
+- Three texts arrive in the night: two from no number (orders 4 and 6) and, with order
+  8, one from the clerk's own number, shown as their name. The phone on the counter
+  buzzes and shakes, and its light blinks until they are read.
+- Once a night the clerk can text Night Ferry one of three messages; June reads it with
+  the clerk's name before the next segment, and someone who heard it writes back.
+
+### Verified (texts)
+
+- All five checks pass; one browser path sends a text and checks it is read on air and
+  answered, the others that the three texts arrive. Desktop screenshots of the menu, a
+  text, compose and settings were reviewed.
+
+### Not verified (texts)
+
+- The buzz and shake on the counter were not watched; phone screenshots were not
+  looked at.
+
 ### Added — tuning the radio
 
 - Clicking the radio opens its dial (87.5–88.1, steps of 0.05) instead of flipping

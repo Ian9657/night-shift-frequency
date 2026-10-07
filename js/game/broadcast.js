@@ -3,7 +3,7 @@
 // progress; this module decides what is on air.
 (function (root) {
   'use strict';
-  const { radio, story } = root.NSF;
+  const { radio, story, messages, signin } = root.NSF;
   let game = null;
 
   // 87.7 reads the register's records back from the other side.
@@ -39,13 +39,15 @@
       radio.setSignalProvider(signal);
     },
     shiftStarted() { radio.play([...story.radio.intro, ...story.radio.orders[0]]); },
-    orderStarted(index) { radio.play(story.radio.orders[index]); },
+    // A text the clerk sent is read before the segment.
+    orderStarted(index) { radio.play([messages.takeOnAir(index, signin.name), ...story.radio.orders[index]].filter(Boolean)); },
     // The closing letter and sign-off on 87.6: `done` resolves once they have been
     // heard; `duration` is how long they take on air.
     shiftClosed(ending) {
       if (radio.view.kind !== 'ferry') radio.tune('87.6');
+      const text = messages.takeOnAir(game.state.eventIndex, signin.name);
       const keys = [...story.radio.endings[ending], story.radio.signoff];
-      return { done: radio.play(keys), duration: radio.duration(keys) };
+      return { done: radio.play([text, ...keys].filter(Boolean)), duration: radio.duration(keys) + (text ? radio.duration([text]) : 0) };
     },
     offAir() { radio.signOff(); },
   };

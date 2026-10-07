@@ -216,7 +216,8 @@ or arbitrary sprite rotation. New views and poses must preserve the quiet, tired
 
 Implemented now: Lowtide, Harbor Mart, the window view and tower; the 01:00–05:00 night
 in eight orders, from naming the clerk on the sign-in sheet to signing out at dawn after
-the radio signs off; *Night Ferry* on 87.6 with June, and the echo on 87.7, and three faint frequencies between them on a dial the player tunes; the spare-key
+the radio signs off; *Night Ferry* on 87.6 with June, and the echo on 87.7, and three faint frequencies between them on a dial the player tunes; texts on the flip
+phone, including one to Night Ferry and one from the clerk's own number; the spare-key
 story in orders 5 and 8 with the four letters; the cast's English names; the "records may
 not lie" rule.
 
@@ -225,9 +226,9 @@ Not implemented yet:
 - Tuning across the whole band. The dial covers 87.5–88.1 with three people's
   frequencies (Walt, Ana, the ferry report); listening to them doesn't yet change how a
   sale can be recorded.
-- Texting from the flip phone (the phone opens only as the settings menu now): song
-  requests to *Night Ferry*, which need the station's music, and the text from the
-  clerk's own number.
+- Texting freely and to 87.7. The phone sends Night Ferry one preset text a night and
+  receives three texts (two from no number, one from the clerk's own); song requests
+  get no song, since the station has no music yet.
 - Most of the drift. The build has the wall clock skipping ten minutes, a POS count
   that flickers, one borrowed line, tube flickers that grow with the night and the
   sign-in sheet at dawn; the rota, receipts, magazine and sticky note don't change, and
