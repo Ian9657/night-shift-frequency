@@ -694,28 +694,82 @@ function sprites() {
   result['store-scanner'] = scanner(false);
   result['store-scanner-reading'] = scanner(true);
 
-  // Chip-and-PIN terminal on its swivel stand, turned to face the customer, so the
-  // clerk sees its back: a maker's sticker, vents, status lights (green once approved)
-  // and the coiled cable dropping to the stand; on top the card slot, its far edge lit
-  // by the screen the customer is reading.
-  const terminal = (approved, card = false) => fixture(card ? [...F.terminal, cardInSlot] : F.terminal, [RAMP.dark, RAMP.steel, RAMP.blue], [both(panel('back', 16, 28, p => {
-    p.rect(3, 3, 10, 6, 'paper2').hline(4, 11, 5, 'steel3').hline(4, 9, 7, 'steel3');           // sticker
-    for (let y = 11; y < 17; y += 2) p.hline(4, 11, y, 'ink');                                   // vents
-    p.px(4, 20, approved ? 'green4' : 'green1').px(7, 20, 'buoy2').px(10, 20, approved ? 'green4' : 'steel3');
-    for (let y = 22; y < 28; y++) p.px(12 + (y % 2), y, 'steel5').px(13 - (y % 2), y, 'ink');   // coiled cable
-  }), (f, u, t) => {
-    if (f !== 'top') return null;
-    if (t > 0.45 && t < 0.58 && u > 0.12 && u < 0.88) return 'ink';                           // card slot
-    if (t < 0.3) return approved ? 'phos4' : 'phos2';                                          // screen glow
-    return null;
-  }), (f, u, t) => (f === 'top' && Math.hypot(u - 0.5, t - 0.5) < 0.18 ? 'steel2' : null),   // the swivel
-  (f, u, t) => (f === 'back' || f === 'front' ? (t > 0.55 && t < 0.75 ? 'paper3' : u < 0.3 && t < 0.45 ? 'yellow2' : null) : null)]);   // the card: stripe, chip
-  // The customer's card standing in the slot, its back to the clerk.
-  const [pinpad] = F.terminal;
-  const cardInSlot = { x: pinpad.x, z: pinpad.z, w: 0.054, h: 0.034, d: 0.002, yaw: pinpad.yaw, y: pinpad.y + pinpad.h - 0.012 };
-  result['store-terminal'] = terminal(false);
-  result['store-terminal-card'] = terminal(false, true);
-  result['store-terminal-approved'] = terminal(true, true);
+  // A box on arbitrary unit axes [X across, Y along, Z out of its face], half sizes h.
+  // paint(face, u, t) names a palette colour or returns null for the lit ramp; faces
+  // are 'face' (+Z), 'back', 'top' (+Y), 'bottom', 'right' (+X) and 'left'.
+  function orientedBox(s, c, [X, Y, Z], [hx, hy, hz], ramp, paint, name) {
+    const id = s.object(name, { ramp }), m = vec.mul, a = vec.add;
+    const faces = [
+      ['face', a(c, m(X, -hx), m(Y, -hy), m(Z, hz)), m(X, 2 * hx), m(Y, 2 * hy), Z],
+      ['back', a(c, m(X, -hx), m(Y, -hy), m(Z, -hz)), m(X, 2 * hx), m(Y, 2 * hy), m(Z, -1)],
+      ['top', a(c, m(X, -hx), m(Y, hy), m(Z, -hz)), m(X, 2 * hx), m(Z, 2 * hz), Y],
+      ['bottom', a(c, m(X, -hx), m(Y, -hy), m(Z, -hz)), m(X, 2 * hx), m(Z, 2 * hz), m(Y, -1)],
+      ['right', a(c, m(X, hx), m(Y, -hy), m(Z, -hz)), m(Y, 2 * hy), m(Z, 2 * hz), X],
+      ['left', a(c, m(X, -hx), m(Y, -hy), m(Z, -hz)), m(Y, 2 * hy), m(Z, 2 * hz), m(X, -1)],
+    ];
+    for (const [face, O, U, V, n] of faces) {
+      s.quad(O, U, V, n, (u, t, P, sx, sy) => (paint && paint(face, u, t)) || shade(ramp, lightAt(P, n), sx, sy), id);
+    }
+  }
+
+  // Chip-and-PIN terminal, a light grey 2005 PIN pad on a swivel pole: a round base, a
+  // short pole and a bracket holding the pad at 60 degrees, its face to the customer.
+  // The clerk sees its sloped back (maker's label, vents, the PIN shield's rim), the
+  // status lights along its top edge and a coiled cable to the counter. Paying by card,
+  // the customer's card stands half out of the slot in the top edge; the lights go amber,
+  // then green as the screen's light spills onto the base.
+  const [cradle] = F.terminal;
+  const TILT = 1.05, PAD = [0.04, 0.085, 0.016], POLE = 0.075;
+  const toward = [Math.sin(cradle.yaw), 0, Math.cos(cradle.yaw)], sideways = [Math.cos(cradle.yaw), 0, -Math.sin(cradle.yaw)];
+  const lengthwise = vec.add(vec.mul([0, 1, 0], Math.sin(TILT)), vec.mul(toward, -Math.cos(TILT)));
+  const facing = vec.add(vec.mul([0, 1, 0], Math.cos(TILT)), vec.mul(toward, Math.sin(TILT)));
+  const baseTop = counter.y + cradle.h, poleTop = [cradle.x, baseTop + POLE, cradle.z];
+  const padCentre = vec.add(poleTop, vec.mul(facing, PAD[2] + 0.008), vec.mul(lengthwise, 0.01));
+  const terminal = state => {
+    const s = new Stage();
+    s.box(cradle, RAMP.dark, (f, u, t) => {
+      if (f !== 'top') return null;
+      const r = Math.hypot(u - 0.5, t - 0.5);
+      if (r > 0.48) return 'clear';
+      if (state === 'approved' && r < 0.4 && t > 0.5) return r < 0.25 ? 'green3' : 'green2';     // the screen's light
+      return r > 0.42 ? 'steel3' : null;
+    }, { name: 'base' });
+    s.box({ x: cradle.x, z: cradle.z, w: 0.016, h: POLE, d: 0.016, y: baseTop, yaw: cradle.yaw }, RAMP.steel, null, { name: 'pole' });
+    orientedBox(s, vec.add(poleTop, vec.mul(facing, 0.004)), [sideways, lengthwise, facing], [0.022, 0.02, 0.005], RAMP.dark, null, 'bracket');
+    orientedBox(s, padCentre, [sideways, lengthwise, facing], PAD, RAMP.steel, (face, u, t) => {
+      if (face === 'back') {
+        if (u < 0.06 || u > 0.94 || t < 0.04 || t > 0.96) return 'steel3';                       // the shell's rim
+        if (t > 0.62 && t < 0.84 && u > 0.2 && u < 0.8) return t > 0.79 ? 'paper2' : (t * 30) % 1 < 0.35 && u < 0.65 ? 'steel3' : 'white';   // maker's label
+        if (t > 0.18 && t < 0.46 && u > 0.25 && u < 0.75 && (t * 24) % 1 < 0.45) return 'steel2';   // vents
+        return null;
+      }
+      if (face === 'top' && u > 0.2 && u < 0.5) {                                               // status lights
+        const i = Math.floor((u - 0.2) / 0.1);
+        if ((u * 10) % 1 > 0.6) return null;
+        return state === 'approved' ? 'green4' : state === 'card' ? (i === 1 ? 'yellow3' : 'green1') : ['green1', 'buoy2', 'steel3'][i];
+      }
+      return null;
+    }, 'terminal');
+    if (state !== 'idle') {                                                                       // the customer's card, half out of the slot in the top edge
+      const card = vec.add(padCentre, vec.mul(lengthwise, PAD[1] + 0.022), vec.mul(sideways, 0.006));
+      orientedBox(s, card, [sideways, lengthwise, facing], [0.027, 0.043, 0.0008], RAMP.blue,
+        (face, u, t) => (t < 0.35 && t > 0.2 ? 'white' : u > 0.65 && t < 0.18 ? 'yellow2' : null), 'card');
+    }
+    // The coiled cable from the pad's top edge down past the pole to the counter.
+    const cable = s.object('cable', { outline: false });
+    const from = vec.add(padCentre, vec.mul(lengthwise, PAD[1]), vec.mul(facing, -PAD[2])), to = [cradle.x + 0.05, counter.y, cradle.z - 0.06];
+    for (let i = 0; i <= 90; i++) {
+      const k = i / 90, B = vec.add(vec.mul(from, 1 - k), vec.mul(to, k));
+      const P = [B[0] + Math.cos(i * 1.1) * 0.003, Math.max(counter.y + 0.002, B[1] + Math.sin(i * 1.1) * 0.003 - Math.sin(k * Math.PI) * 0.02), B[2]];
+      const [x, y] = space.project(...P).map(Math.round);
+      s.plot(y * s.w + x, P[2] - 0.003, Math.sin(i * 1.1) > 0 ? 'steel3' : 'ink', cable);
+    }
+    s.outline();
+    return s.sprite();
+  };
+  result['store-terminal'] = terminal('idle');
+  result['store-terminal-card'] = terminal('card');
+  result['store-terminal-approved'] = terminal('approved');
 
   // The cash drawer under the register, in a dark steel housing hung under the counter.
   // Shut, its front: folded steel edges, a bevelled check slot, a round key lock with

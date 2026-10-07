@@ -5,6 +5,27 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — the card terminal is a PIN pad on a swivel pole
+
+- The card terminal was an upright black box with the card lying on top. It is now a
+  light grey 2005 PIN pad on a swivel pole (round base, short pole, bracket), held at
+  60 degrees with its face to the customer. The clerk sees its sloped back with the
+  maker's label, vents and rim, the status lights along its top edge and a coiled cable
+  to the counter. Paying by card, the customer's blue card stands half out of the slot
+  in the top edge and the lights go amber; approved, they go green and the screen's
+  light spills green onto the base. A handheld lying in a cradle was tried first: from
+  the clerk's eye its face is almost edge-on and it read as a dark lump.
+- `orientedBox` draws a box on any axes in the art build (the pad, its bracket, the card).
+
+### Verified (PIN pad)
+
+- All five checks pass. Idle, card-in and approved states were reviewed close up, and
+  the desktop card-sale screenshot.
+
+### Not verified (PIN pad)
+
+- Phone screenshots were not looked at.
+
 ### Added — a clip strip of snacks at the end-cap
 
 - A steel clip strip hangs down the end-cap's left side, in the bare gap beside the

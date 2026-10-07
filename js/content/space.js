@@ -35,9 +35,9 @@
     // The record key heads the function column, third row up (w across, d along the slope).
     recordKey: [{ ...onKeypad(0.7725, 0.5425), w: 0.026, h: 0.005, d: 0.022 }],
     scanner: [{ x: -0.21, z: 0.95, w: 0.09, h: 0.19, d: 0.12 }],
-    // The chip-and-PIN terminal is turned on its stand to face the customer.
-    terminal: [{ x: 0.33, z: 0.95, w: 0.085, h: 0.15, d: 0.07, yaw: Math.PI - 0.45, y: counter.y + 0.02 },
-      { x: 0.33, z: 0.95, w: 0.12, h: 0.02, d: 0.12 }],
+    // The chip-and-PIN terminal's round base; the pad on its pole is turned (yaw) to
+    // face the customer.
+    terminal: [{ x: 0.33, z: 0.95, w: 0.1, h: 0.012, d: 0.1, yaw: -0.38 }],
     // Carrier bags stand folded in a steel pocket rack (S, M, L) hung under the counter
     // on the clerk's side, like the cash drawer; their tops show above the pockets.
     bags: [{ x: 0.48, z: 0.505, w: 0.27, h: 0.095, d: 0.02, y: counter.y - counter.thick - 0.1 }],
