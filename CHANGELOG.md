@@ -5,6 +5,17 @@ verified and what was not.
 
 ## Unreleased
 
+### Fixed — carrier bag static silhouette · 2026-10-07
+
+- Removed the full bag body from the idle `store-bags` sprite. The recessed
+  counter fixture now renders only two handles, the folded mouth and a short
+  shadow; `bag-open` still supplies the full bag after interaction.
+
+### Verified (carrier bag silhouette)
+
+- Rebuilt 252 sprites; all five checks pass with bundled Playwright and Chrome.
+- Reviewed the native-pixel preview and browser visual screenshots.
+
 ### Changed — recessed carrier bag bundle · 2026-10-07
 
 - Moved the carrier bag bundle behind the clerk-side counter fascia, reduced its

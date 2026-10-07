@@ -739,20 +739,17 @@ function sprites() {
     s.outline();
     return s.sprite();
   })();
-  // White carrier bags hanging in a bundle on the clerk's side of the counter: their
-  // handles looped over two steel hooks on the lip, the bundle's layered tops below
-  // it, creases, and the brand buoy lower down.
-  result['store-bags'] = fixture(F.bags, [RAMP.paper], [panel('front', 72, 50, p => {
-    p.rect(0, 0, 72, 10, 'top2');                                                               // the counter's front behind the handles
+  // Only the recessed bundle's handles and mouth are visible below the fascia.
+  // The full bag is a separate bag-open sprite used after the player pulls one out.
+  result['store-bags'] = fixture(F.bags, [RAMP.paper], [panel('front', 72, 24, p => {
+    p.rect(0, 0, 72, 7, 'top2');                                                               // fascia shadow behind the handles
     for (const hx of [17, 54]) {
-      p.ellipse(hx, 8, 10, 8, 'paper1').ellipse(hx, 8, 9, 7, 'white').ellipse(hx, 9, 6, 5, 'paper1').ellipse(hx, 9, 5, 4, 'top2');   // a handle loop, the lip through it
-      p.hline(hx - 7, hx + 7, 2, 'paper2');                                                      // more handles behind
-      p.rect(hx - 1, 0, 3, 3, 'steel3').px(hx, 0, 'steel6');                                    // the hook
+      p.ellipse(hx, 7, 8, 6, 'paper1').ellipse(hx, 7, 7, 5, 'white').ellipse(hx, 8, 5, 4, 'paper1').ellipse(hx, 8, 4, 3, 'top2'); // handle loop
+      p.hline(hx - 6, hx + 6, 2, 'paper2');                                                     // rear handle
+      p.rect(hx - 1, 0, 3, 2, 'steel3').px(hx, 0, 'steel6');                                   // hook
     }
-    p.rect(2, 10, 68, 40, 'paper3');
-    for (let k = 0; k < 5; k++) p.hline(3 + (k % 2) * 2, 68 - k, 10 + k * 2, k % 2 ? 'paper2' : 'white');   // layered tops
-    for (let x = 6; x < 68; x += 6) p.vline(x + (x % 4), 21, 49, 'paper2');                      // creases
-    p.ellipse(36, 36, 6, 6, 'buoy2').ellipse(36, 36, 3, 3, 'navy2');
+    p.hline(4, 68, 14, 'paper2').hline(8, 64, 16, 'white');                                    // folded bag mouth
+    p.hline(13, 59, 20, 'paper1');                                                              // small underside shadow
   })]);
 
   // Receipt printer, a two-tone thermal printer: a charcoal base with a FEED button,
