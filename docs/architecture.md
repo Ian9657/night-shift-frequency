@@ -154,8 +154,7 @@ Not covered: natural-speed pacing, audio mix, accessibility beyond the record vi
 
 New systems get their own module in `js/game/` instead of growing `checkout.js`. The
 checkout reports shift progress; other modules decide what happens around it. The
-phone (`phone.js`) follows this pattern; the planned night timeline, texting and radio
-dial (see [worldview.md](worldview.md)) will too.
+phone, the night's clock, drift, texts and the view outside follow this pattern.
 
 ## Deliberately not done
 
