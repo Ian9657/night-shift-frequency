@@ -520,16 +520,16 @@ function sprites() {
       if ((lu * 5) % 1 > 0.74 || (lt * 3) % 1 > 0.64) return null;
       return lt > 0.66 ? ['buoy2', 'green2', 'yellow2', 'red2', 'blue2'][col] : 'cream4';
     }
-    if (u > 0.5 && u < 0.7) {                                                                 // number pad
-      const lu = (u - 0.5) / 0.2, ku = (lu * 3) % 1, kt = (lt * 4) % 1;
+    if (u > 0.5 && u < 0.69) {                                                                // number pad
+      const lu = (u - 0.5) / 0.19, ku = (lu * 3) % 1, kt = (lt * 4) % 1;
       if (ku > 0.7 || kt > 0.62) return null;
       if (lt < 0.25 && lu < 0.33) return ku < 0.4 ? 'white' : 'cream5';                        // 0, worn shiny
       return ku > 0.25 && ku < 0.45 && kt > 0.2 && kt < 0.4 ? 'steel4' : 'cream4';
     }
-    if (u > 0.715 && u < 0.825 && lt > 0.3 && lt < 0.9) return 'steel1';                      // the record key's well
-    if (u > 0.83 && u < 0.96) {                                                               // CLEAR, TOTAL
+    if (u > 0.7 && u < 0.84 && lt > 0.25 && lt < 0.95) return 'ink';                           // the record key's well
+    if (u > 0.85 && u < 0.965) {                                                              // CLEAR, TOTAL
       if (lt > 0.62) return lt > 0.68 ? 'red2' : null;
-      return u > 0.87 && u < 0.92 && lt > 0.2 && lt < 0.45 ? 'buoy3' : 'buoy2';
+      return u > 0.88 && u < 0.93 && lt > 0.2 && lt < 0.45 ? 'buoy3' : 'buoy2';
     }
     return null;
   };
@@ -556,10 +556,10 @@ function sprites() {
     return s.sprite();
   })();
 
-  // The record key: an amber cap that lights up while a record waits.
+  // The record key: a tall amber cap in a black well, lit up while a record waits.
   const recordKey = lit => {
     const s = new Stage();
-    s.box(F.recordKey[0], RAMP.yellow, lit ? (f => (f === 'top' ? 'white' : 'yellow3')) : null);
+    s.box(F.recordKey[0], RAMP.yellow, (f, u, t) => (lit ? (f === 'top' ? 'white' : 'yellow3') : f === 'top' ? (t > 0.6 && u < 0.5 ? 'white' : 'yellow3') : null));
     s.outline();
     return s.sprite();
   };

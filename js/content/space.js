@@ -28,17 +28,17 @@
     microwave: [{ x: -1.02, z: 1.04, w: 0.46, h: 0.27, d: 0.34 }],
     // The register and its keypad; only the record key on the keypad is clicked.
     pos: [{ x: -0.5, z: 0.99, w: 0.44, h: 0.4, d: 0.28 }, keypad],
-    recordKey: [{ x: keypad.x + keypad.w * 0.27, z: keypad.z + 0.01, w: 0.03, h: 0.008, d: 0.05, y: counter.y + keypad.h }],
+    recordKey: [{ x: keypad.x + keypad.w * 0.27, z: keypad.z + 0.01, w: 0.036, h: 0.016, d: 0.056, y: counter.y + keypad.h }],
     scanner: [{ x: -0.21, z: 0.95, w: 0.09, h: 0.19, d: 0.12 }],
     // The chip-and-PIN terminal is turned on its stand to face the customer.
-    terminal: [{ x: 0.23, z: 0.95, w: 0.085, h: 0.15, d: 0.07, yaw: Math.PI - 0.45, y: counter.y + 0.02 },
-      { x: 0.23, z: 0.95, w: 0.12, h: 0.02, d: 0.12 }],
+    terminal: [{ x: 0.33, z: 0.95, w: 0.085, h: 0.15, d: 0.07, yaw: Math.PI - 0.45, y: counter.y + 0.02 },
+      { x: 0.33, z: 0.95, w: 0.12, h: 0.02, d: 0.12 }],
     // Carrier bags hang in a bundle on the clerk's side of the counter, their handles
     // hooked over its near lip.
     bags: [{ x: 0.48, z: 0.495, w: 0.26, h: 0.18, d: 0.01, y: counter.y - 0.18 }],
     // The radio is the clerk's, at their right hand; the small receipt printer sits at
     // their left, in front of the register's keyboard.
-    radio: [{ x: 0.85, z: 0.7, w: 0.24, h: 0.14, d: 0.09 }],
+    radio: [{ x: 0.95, z: 0.7, w: 0.24, h: 0.14, d: 0.09 }],
     printer: [{ x: -0.6, z: 0.64, w: 0.13, h: 0.075, d: 0.13 }],
     // The cash drawer, flush with the counter's front under the register; open, it
     // slides out towards the clerk.
@@ -50,15 +50,15 @@
   const decor = Object.freeze({
     // On the customer's edge: gum in a two-tier rack, a tray of lighters, and the
     // charity box by the card terminal.
-    candyRack: { x: 0.44, z: 1.1, w: 0.22, h: 0.02, d: 0.06 },
-    lighters: { x: 0.6, z: 1.1, w: 0.07, h: 0.025, d: 0.05 },
-    donation: { x: 0.74, z: 1.0, w: 0.11, h: 0.15, d: 0.09 },
+    candyRack: { x: 0.54, z: 1.1, w: 0.22, h: 0.02, d: 0.06 },
+    lighters: { x: 0.7, z: 1.1, w: 0.07, h: 0.025, d: 0.05 },
+    donation: { x: 0.84, z: 1.0, w: 0.11, h: 0.15, d: 0.09 },
   });
 
   // The clerk's own things, nearest the camera.
   const personal = Object.freeze({
-    phone: { x: 0.47, z: 0.63, w: 0.048, h: 0.022, d: 0.095, yaw: 0.35 },
-    can: { x: 0.36, z: 0.66, w: 0.066, h: 0.115, d: 0.066 },
+    phone: { x: 0.57, z: 0.63, w: 0.048, h: 0.022, d: 0.095, yaw: 0.35 },
+    can: { x: 0.46, z: 0.66, w: 0.066, h: 0.115, d: 0.066 },
     // The sign-in sheet on its board, foot on the counter, leaning back on the printer's
     // front and turned a little, so one corner rests on it (h is the board's length, d
     // its thickness). Its pen lies by its foot, tied to the clip.
@@ -67,10 +67,10 @@
     // Months of night shifts, on the clerk's right: the rota on a clipboard, loose
     // receipts and an old magazine; the receipt spike stands at the front left, clear of
     // the customer's hands.
-    rota: { x: 0.17, z: 0.62, w: 0.19, h: 0.01, d: 0.13, yaw: 0.1 },
-    receipt1: { x: 0.29, z: 0.77, w: 0.05, h: 0.002, d: 0.11, yaw: 0.6 },
-    receipt2: { x: 0.53, z: 0.56, w: 0.05, h: 0.002, d: 0.1, yaw: -0.4 },
-    magazine: { x: 0.63, z: 0.65, w: 0.16, h: 0.006, d: 0.21, yaw: -0.18 },
+    rota: { x: 0.27, z: 0.62, w: 0.19, h: 0.01, d: 0.13, yaw: 0.1 },
+    receipt1: { x: 0.39, z: 0.77, w: 0.05, h: 0.002, d: 0.11, yaw: 0.6 },
+    receipt2: { x: 0.63, z: 0.56, w: 0.05, h: 0.002, d: 0.1, yaw: -0.4 },
+    magazine: { x: 0.73, z: 0.65, w: 0.16, h: 0.006, d: 0.21, yaw: -0.18 },
     spike: { x: -0.85, z: 0.62, w: 0.055, h: 0.12, d: 0.055 },
   });
 

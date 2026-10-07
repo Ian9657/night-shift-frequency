@@ -5,6 +5,26 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — a bolder record key; the right of the counter moves right
+
+- The record key is larger and twice as tall, a bright amber cap with a highlight in a
+  black well; lit, its cap turns white.
+- The card terminal, gum rack, lighters, charity box, radio and the clerk's rota,
+  receipts, coffee can, phone and magazine all sit 10 cm further right. The card
+  customer's reach follows the terminal.
+- The art preview composite no longer lists the removed monitor and now includes the
+  record key and the receipt spike.
+
+### Verified (key, right side)
+
+- All five checks pass. Desktop card-sale and record-pending screenshots were
+  reviewed; the lit and unlit key were compared close up.
+
+### Not verified (key, right side)
+
+- Phone screenshots were not looked at. Card poses of customers other than the one in
+  the card-sale screenshot were not reviewed.
+
 ### Changed — the register: a record key, a livelier screen and keypad
 
 - The screen no longer opens the record view. A yellow record key on the keypad (between
