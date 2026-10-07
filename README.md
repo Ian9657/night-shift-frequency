@@ -14,10 +14,12 @@ or download it and open `index.html`. No install, no build.
 
 Open `index.html` in a browser and click **START SHIFT**.
 
-- Click an item, then the scanner. When everything is scanned, take payment the way the
-  customer asks: card on the card terminal, cash into the drawer under the register.
-- Ready meals are heated after payment: click the microwave. Click the bags to bag an order.
-- Click the register screen to see the transaction record. When the register and the
+- Click the customer's basket to take an item out, then the scanner. When everything is
+  scanned, take payment the way the customer asks: card on the card terminal, cash from
+  the change tray into the drawer under the register.
+- Ready meals are heated after payment: click the microwave. Click the bag rack under the
+  counter to bag an order.
+- Press the yellow REC key on the register's keypad to see the transaction record. When the register and the
   item disagree, scan the item again at the counter before the record choices appear.
 - Click the radio to switch between 87.6 and 87.7.
 - Click the flip phone on the counter for settings: volume, radio, sounds and silent

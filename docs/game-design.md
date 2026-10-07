@@ -29,11 +29,15 @@ player who can say what they judged, on what basis, and what happened afterwards
 scan every item → take payment → heat if asked (after payment) → bag or hand over
 ```
 
-- Select an item, then click the scanner. Identical items scan one by one and group as
-  quantities on the POS and receipt.
-- Payment matches what the customer says: card on the terminal, cash into the
-  drawer under the register. The wrong device gets a reaction, not a penalty. At
-  other times the drawer just opens and shuts when clicked.
+- The customer sets a basket down on the far side of the counter and waits. Click the
+  basket to take the next item out (it is selected), then click the scanner. Scanned
+  items stay on the counter and can be selected again for a re-scan. Identical items
+  scan one by one and group as quantities on the POS and receipt.
+- Payment matches what the customer says: their card stands in the terminal's slot, or
+  their note lies on the change tray and goes into the drawer under the register. The
+  wrong device gets a reaction, not a penalty. At other times the drawer just opens and
+  shuts when clicked. The customer keeps their own pose throughout; goods and the bag
+  are handed over across the far edge of the counter.
 - Heating happens after payment; the lasagne must be heated before bagging.
 - No-bag orders are handed over directly.
 - Early or wrong actions get a short reaction ("These first.", "Not yet.", "Hot first.").

@@ -123,7 +123,6 @@ function store(sprites, id = 'nell', pose = process.env.POSE || customers.poseFo
   put('store-counter');
   parts.counter.forEach(draw);
   for (const name of ['store-microwave', 'store-printer', 'store-pos', 'store-pos-key', 'store-spike', 'store-bags', 'store-scanner', 'store-terminal', 'store-drawer', 'store-radio', 'store-phone', 'store-can']) put(name);
-  parts.over.forEach(draw);
   put('store-front');
   return surface;
 }
@@ -150,7 +149,7 @@ const RIG_TESTS = [
   { height: 1.52, build: 'average', arms: [0.97, 1], hands: [0.94, 0.96] }, { height: 1.72, build: 'heavy', arms: [0.97, 1.08], hands: [1, 1.12] },
   { height: 1.72, build: 'slim', arms: [1.04, 0.88], hands: [1.06, 0.9] },
 ];
-const RIG_POSES = ['both-rest', 'phone-call', 'phone-one', 'phone-check', 'card', 'card-reader', 'receive'];
+const RIG_POSES = ['stand', 'one-rest', 'both-rest', 'phone-call', 'phone-one', 'phone-check'];
 function rigSheet(sprites, flat) {
   const { figure } = require(path.join(SRC, 'people.cjs'));
   const { ramp } = require('../../js/content/colors.js');
@@ -160,7 +159,7 @@ function rigSheet(sprites, flat) {
   const sheet = new Surface(RIG_TESTS.length * (cw + 4), RIG_POSES.length * (ch + 4), [255, 255, 255, 255]);
   RIG_POSES.forEach((pose, row) => RIG_TESTS.forEach((test, col) => {
     const f = figure({ ...test, body: 'plain' }, pose, { flat });
-    const local = { ...sprites, back: f.back, front: f.front, counter: f.counter, over: f.over };
+    const local = { ...sprites, back: f.back, front: f.front, counter: f.counter };
     const [hx, hy] = f.back.anchors.head;
     const surface = new Surface(480, 270);
     const put = name => surface.draw(local, name, ...(local[name].anchors.at || [0, 0]));
@@ -171,7 +170,6 @@ function rigSheet(sprites, flat) {
     put('store-counter');
     surface.draw(local, 'counter', ox, oy, { slots });
     for (const name of ['store-scanner', 'store-terminal']) put(name);
-    surface.draw(local, 'over', ox, oy, { slots });
     if (flat) for (const [x, y] of f.joints) {
       const tx = ox + x, ty = oy + y;
       if (tx >= 0 && ty >= 0 && tx < 480 && ty < 270) surface.rgba.set([255, 40, 160, 255], (ty * 480 + tx) * 4);
@@ -196,7 +194,7 @@ function sampleSheet(sprites) {
   const panels = [];
   for (const mode of ['structure', 'shaded', 'counter']) {
     const f = figure(person, 'both-rest', { flat: mode === 'structure' });
-    const local = { ...sprites, back: f.back, front: f.front, counter: f.counter, over: f.over };
+    const local = { ...sprites, back: f.back, front: f.front, counter: f.counter };
     const [hx, hy] = f.back.anchors.head;
     const surface = new Surface(480, 270, [24, 34, 52, 255]);
     const put = name => surface.draw(local, name, ...(local[name].anchors.at || [0, 0]));
@@ -207,7 +205,6 @@ function sampleSheet(sprites) {
     if (mode === 'counter') put('store-counter');
     surface.draw(local, 'counter', ox, oy, { slots });
     if (mode === 'counter') for (const name of ['store-scanner', 'store-terminal']) put(name);
-    surface.draw(local, 'over', ox, oy, { slots });
     if (mode === 'structure') {
       const L = f.landmarks, ink = [255, 60, 170, 255];
       const dot = ([x, y]) => { for (const [i, j] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]) { const X = ox + x + i, Y = oy + y + j; if (X >= 0 && Y >= 0 && X < 480 && Y < 270) surface.rgba.set(ink, (Y * 480 + X) * 4); } };

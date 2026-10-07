@@ -33,7 +33,7 @@ How the code is organised and why. For what changed when, see
 requestAnimationFrame
   → time.tick()       advance the game clock, fire due timers, step motion
   → game.update()     place products, derive next-action cues
-  → world.draw()      store, rain and clock, customer behind the counter, counter, fixtures, goods, hands over the counter, store front
+  → world.draw()      store, rain and clock, customer behind the counter, counter, fixtures, goods, store front
   → ui.draw()         POS text, speech bubble, radio caption, panels; registers click regions
 ```
 
@@ -78,10 +78,11 @@ Rule: one source of truth per fact. Derive, don't copy.
   (sprite, slot colours, mood, outline). Customers remap the skin, hair, cloth, under
   and accent slots; moods (`echo`, `dim`) transform the whole palette.
 - Customers are layers on a shared 176×210 canvas (`docs/character-assets.md`).
-  `customers.parts(id, pose)` names them in three passes: `behind` the counter, `counter`
-  over its top and `over` the machines on it. Head, hair and face parts follow the
-  figure's height. Game actions map to authored poses (`poses.js`); props are placed
-  at the pose's `hand` or `palm` anchor. Code never generates limbs.
+  `customers.parts(id, pose)` names them in two passes: `behind` the counter and
+  `counter` over its top. Head, hair and face parts follow the figure's height. A
+  customer stays in their own authored pose (`poses.js`) for the whole sale; money and
+  goods move through the change tray, the terminal's slot and the basket, never a hand.
+  Code never generates limbs.
 
 ## Art and font pipeline
 
@@ -113,7 +114,7 @@ sprites carry their top-left as anchor `at`. Two renderers use it:
   `art/src/goods.cjs`; customers' bodies and held props in `art/src/people.cjs`, the
   scanner gun). A figure is a skeleton in metres; arms are solved by two-bone IK
   against the counter; each pose is rendered into depth layers (`back`, `front`,
-  `counter`, `over`) that interleave with the head sprite, hair and counter devices.
+  `counter`) that interleave with the head sprite, hair and counter devices.
   Hands are simple sculpted forms (palm, one finger block, thumb) whose frame follows
   anatomy and the wrist's range. Only the parts the cast uses are built.
 

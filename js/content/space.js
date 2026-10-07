@@ -44,6 +44,9 @@
     // The radio is the clerk's, at their right hand; the small receipt printer sits at
     // their left, in front of the register's keyboard, its paper leaving the lid top.
     radio: [{ x: 0.95, z: 0.7, w: 0.24, h: 0.14, d: 0.09 }],
+    // The customer's shopping basket, set down on the far side right of the scanner;
+    // the clerk takes the goods out one at a time.
+    basket: [{ x: 0.12, z: 1.02, w: 0.26, h: 0.15, d: 0.2 }],
     // `exit`: where the paper leaves the lid, as a fraction of the depth from the front.
     printer: [{ x: -0.57, z: 0.64, w: 0.13, h: 0.075, d: 0.13, exit: 0.25 }],
     // The cash drawer, flush with the counter's front under the register; open, it
@@ -54,10 +57,11 @@
 
   // Static things on the counter (not clickable): drawn into the counter layer.
   const decor = Object.freeze({
-    // On the customer's edge: gum in a two-tier rack, a tray of lighters, and the
-    // charity box by the card terminal.
+    // On the customer's edge: gum in a two-tier rack, a tray of lighters, the charity
+    // box by the card terminal, and the change tray where cash and change are left.
     candyRack: { x: 0.54, z: 1.1, w: 0.22, h: 0.02, d: 0.06 },
     lighters: { x: 0.7, z: 1.1, w: 0.07, h: 0.025, d: 0.05 },
+    tray: { x: 0.46, z: 0.98, w: 0.13, h: 0.012, d: 0.09 },
     donation: { x: 0.84, z: 1.0, w: 0.11, h: 0.15, d: 0.09 },
   });
 
@@ -80,8 +84,9 @@
     spike: { x: -0.85, z: 0.62, w: 0.055, h: 0.12, d: 0.055 },
   });
 
-  // Where goods sit: the customer puts them down at the far lane; scanned goods come nearer.
-  const lane = Object.freeze({ z: 1.0, scannedZ: 0.9, x0: -0.16, x1: 0.19, gap: 0.02 });
+  // Where goods sit: taken out of the basket they wait in front of it; scanned, they
+  // come nearer the clerk.
+  const lane = Object.freeze({ z: 0.86, scannedZ: 0.74, x0: -0.16, x1: 0.19, gap: 0.02 });
 
   // Top-left of the customer canvas on screen.
   function customerOrigin() {

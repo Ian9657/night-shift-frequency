@@ -5,6 +5,34 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — checkout from a basket; customers keep their pose
+
+- The customer sets a red shopping basket down right of the scanner and waits in their
+  own pose for the whole sale. Clicking the basket takes the next item out to stand in
+  front of it, selected, ready for the scanner; the basket shows empty after the last
+  and goes back on the stack when the customer leaves. Scanned items stay on the counter
+  for re-scans.
+- Card payments show the customer's card standing in the terminal's slot, then the
+  approval; cash is a note left on a new change tray, which goes into the drawer. Goods
+  and the bag are handed over across the far edge of the counter.
+- The reaching poses (`card`, `cash`, `card-reader`, `receive`), their arm modes
+  (`reach`, `swipe`, `take`), the held card and note, the `downRight` gaze and the
+  customers' `over` layer are removed (252 → 104 sprites). The rig sheet shows the
+  waiting poses.
+- README and game-design describe the basket, the tray and the REC key (the README
+  still said to click the register screen).
+
+### Verified (basket checkout)
+
+- All five checks pass with the flows updated to take items from the basket. Desktop
+  card, cash and heating screenshots, a full basket and the first item out were
+  reviewed.
+
+### Not verified (basket checkout)
+
+- A both-rest customer's right hand lies behind the basket. Phone screenshots were not
+  looked at. The personal items and the fridge end-cap (steps 2 and 3) are not done.
+
 ### Changed — carrier bags in a pocket rack under the counter
 
 - The recessed bag bundle sat behind the counter's fascia, where the clerk cannot see,

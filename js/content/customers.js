@@ -73,8 +73,8 @@
   // Arms are authored per figure: build plus height in centimetres.
   const personFrame = person => `${person.build}-${Math.round(person.height * 100)}`;
 
-  // The sprites that draw a customer in a pose, back to front, in three passes:
-  // `behind` before the counter, `counter` after it, `over` after the machines on it.
+  // The sprites that draw a customer in a pose, back to front, in two passes:
+  // `behind` before the counter, `counter` after it.
   // A part with `follows` moves with the figure's height and lean (the head, hair and
   // face); `flip` mirrors hair parts for the Nell who stayed.
   function parts(id, pose) {
@@ -94,13 +94,12 @@
         { sprite: 'person-front-' + key },
       ],
       counter: [{ sprite: 'person-counter-' + key }],
-      over: [{ sprite: 'person-over-' + key }],
     };
   }
   // The pose for something the game asks of the customer, or how they wait.
-  const poseFor = (id, action) => poses.actions[action] || customers[id].person.poses[0];
+  const poseFor = id => customers[id].person.poses[0];
   // Every pose a customer is drawn in.
-  const posesOf = id => [...new Set([...customers[id].person.poses, ...Object.values(poses.actions)])];
+  const posesOf = id => customers[id].person.poses;
 
   const api = { customers, regulars, slotColors, personFrame, parts, poseFor, posesOf };
   if (node) module.exports = api;

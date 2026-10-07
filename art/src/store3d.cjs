@@ -311,7 +311,7 @@ function counterLayer() {
   s.quad([-room.halfW, counter.y - counter.thick, counter.near], [2 * room.halfW, 0, 0], [0, counter.thick, 0], [0, 0, -1], () => 'top2', TOP);
   const UNDER = s.object('under', { outline: false });
   s.quad([-room.halfW, 0, counter.near + 0.06], [2 * room.halfW, 0, 0], [0, counter.y - counter.thick, 0], [0, 0, -1], (u, v, P, sx, sy) => ((sx + sy) % 2 ? 'wall0' : 'ink'), UNDER);
-  const { candyRack, lighters, donation } = space.decor;
+  const { candyRack, lighters, donation, tray } = space.decor;
   const PACKS = ['red', 'green', 'blue', 'yellow', 'pink', 'buoy', 'cyan', 'violet'];
   // Gum: a steel tray with two tiers of packs, each with a white wrapper band.
   s.box(candyRack, RAMP.steel, null, { name: 'candy rack' });
@@ -337,6 +337,12 @@ function counterLayer() {
     if (f === 'front' && t > 0.5 && t < 0.78 && u > 0.15 && u < 0.85) return Math.hypot(u - 0.5, (t - 0.64) * 1.6) < 0.12 ? 'red2' : 'paper3';
     return f === 'front' ? 'cyan2' : 'cyan1';
   }, { name: 'donation box' });
+  // The change tray: a shallow grey dish with a raised rim and rubber nubs.
+  s.box(tray, RAMP.steel, (f, u, t) => {
+    if (f !== 'top') return null;
+    if (u < 0.08 || u > 0.92 || t < 0.1 || t > 0.9) return 'steel4';
+    return (Math.floor(u * 12) + Math.floor(t * 8)) % 3 === 0 ? 'steel2' : 'steel1';
+  }, { name: 'change tray' });
   // Contact shadows of everything that stands on the counter (not the drawer below it).
   const footprints = [...Object.values(space.fixtures).flat(), ...Object.values(space.personal), ...Object.values(space.decor)].filter(f => f.y === undefined);
   s.contactShadows(TOP, footprints);
@@ -662,7 +668,7 @@ function sprites() {
   // clerk sees its back: a maker's sticker, vents, status lights (green once approved)
   // and the coiled cable dropping to the stand; on top the card slot, its far edge lit
   // by the screen the customer is reading.
-  const terminal = approved => fixture(F.terminal, [RAMP.dark, RAMP.steel], [both(panel('back', 16, 28, p => {
+  const terminal = (approved, card = false) => fixture(card ? [...F.terminal, cardInSlot] : F.terminal, [RAMP.dark, RAMP.steel, RAMP.blue], [both(panel('back', 16, 28, p => {
     p.rect(3, 3, 10, 6, 'paper2').hline(4, 11, 5, 'steel3').hline(4, 9, 7, 'steel3');           // sticker
     for (let y = 11; y < 17; y += 2) p.hline(4, 11, y, 'ink');                                   // vents
     p.px(4, 20, approved ? 'green4' : 'green1').px(7, 20, 'buoy2').px(10, 20, approved ? 'green4' : 'steel3');
@@ -672,9 +678,14 @@ function sprites() {
     if (t > 0.45 && t < 0.58 && u > 0.12 && u < 0.88) return 'ink';                           // card slot
     if (t < 0.3) return approved ? 'phos4' : 'phos2';                                          // screen glow
     return null;
-  }), (f, u, t) => (f === 'top' && Math.hypot(u - 0.5, t - 0.5) < 0.18 ? 'steel2' : null)]);   // the swivel
+  }), (f, u, t) => (f === 'top' && Math.hypot(u - 0.5, t - 0.5) < 0.18 ? 'steel2' : null),   // the swivel
+  (f, u, t) => (f === 'back' || f === 'front' ? (t > 0.55 && t < 0.75 ? 'paper3' : u < 0.3 && t < 0.45 ? 'yellow2' : null) : null)]);   // the card: stripe, chip
+  // The customer's card standing in the slot, its back to the clerk.
+  const [pinpad] = F.terminal;
+  const cardInSlot = { x: pinpad.x, z: pinpad.z, w: 0.054, h: 0.034, d: 0.002, yaw: pinpad.yaw, y: pinpad.y + pinpad.h - 0.012 };
   result['store-terminal'] = terminal(false);
-  result['store-terminal-approved'] = terminal(true);
+  result['store-terminal-card'] = terminal(false, true);
+  result['store-terminal-approved'] = terminal(true, true);
 
   // The cash drawer under the register, in a dark steel housing hung under the counter.
   // Shut, its front: folded steel edges, a bevelled check slot, a round key lock with
@@ -791,6 +802,40 @@ function sprites() {
     s.outline();
     return s.sprite();
   })();
+
+  // The customer's shopping basket, red plastic: rows of holes in its sides, a white
+  // label on the front, a thicker rim, and the black handles folded down along the long
+  // sides. Full, goods fill its mouth and a few stand up out of it; empty, its gridded
+  // floor.
+  const basket = full => {
+    const [b] = F.basket, s = new Stage(), top = counter.y + b.h;
+    const GOODS = ['yellow2', 'blue2', 'green2', 'white', 'orange2', 'pink2', 'cyan2', 'paper3'];
+    s.box(b, RAMP.red, (f, u, t) => {
+      if (f === 'top') {
+        if (u < 0.04 || u > 0.96 || t < 0.06 || t > 0.94) return 'red3';                         // the rim
+        if (full) {
+          const cell = hash(Math.floor(u * 6), Math.floor(t * 3));
+          return (u * 6) % 1 < 0.1 || (t * 3) % 1 < 0.12 ? 'red0' : GOODS[Math.floor(cell * GOODS.length)];
+        }
+        return (u * 14) % 1 < 0.3 || (t * 7) % 1 < 0.3 ? 'red0' : 'red1';                         // the floor's grid
+      }
+      if (t > 0.84) return 'red3';
+      if (f === 'front' && u > 0.38 && u < 0.62 && t > 0.5 && t < 0.76) return 'white';           // label
+      if (t > 0.12 && (u * 9) % 1 > 0.25 && (u * 9) % 1 < 0.75 && (t * 4) % 1 > 0.3 && (t * 4) % 1 < 0.75) return 'red0';   // holes
+      return null;
+    }, { name: 'basket' });
+    for (const dz of [-1, 1]) s.box({ x: b.x, z: b.z + dz * (b.d / 2 - 0.01), w: b.w * 0.7, h: 0.008, d: 0.014, y: top }, RAMP.dark, null, { name: 'handle' });
+    // Full, a carton, a bottle and a snack bag stand up out of its mouth.
+    if (full) {
+      s.box({ x: b.x - 0.08, z: b.z + 0.03, w: 0.07, h: 0.07, d: 0.05, y: top - 0.04 }, RAMP.paper, (f, u, t) => (t > 0.55 && t < 0.75 ? 'blue2' : null), { name: 'carton' });
+      s.box({ x: b.x + 0.01, z: b.z + 0.04, w: 0.035, h: 0.11, d: 0.035, y: top - 0.05 }, RAMP.green, (f, u, t) => (t > 0.4 && t < 0.62 ? 'white' : t > 0.9 ? 'steel5' : null), { name: 'bottle' });
+      s.box({ x: b.x + 0.08, z: b.z + 0.02, w: 0.09, h: 0.06, d: 0.03, y: top - 0.035, yaw: 0.2 }, RAMP.orange, (f, u, t) => (Math.hypot(u - 0.5, t - 0.5) < 0.2 ? 'yellow3' : null), { name: 'snack bag' });
+    }
+    s.outline();
+    return s.sprite();
+  };
+  result['store-basket'] = basket(true);
+  result['store-basket-empty'] = basket(false);
 
   // The radio: perforated speaker, a lit dial whose scale starts below 88 so the
   // needle can sit on 87.7, tuning and volume knobs, the band, a signal light. It

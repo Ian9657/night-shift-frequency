@@ -88,7 +88,7 @@
     const c = game.scene.customer;
     if (!c.visible) return;
     const person = customers.customers[c.id].person;
-    const pose = customers.poseFor(c.id, c.action);
+    const pose = customers.poseFor(c.id);
     const list = customers.parts(c.id, pose);
     const [hx, hy] = sprites.anchor(list.behind.find(p => p.sprite.startsWith('person-back-')).sprite, 'head') || [0, 0];
     const ox = layout.customer.x + c.dx, oy = layout.customer.y + c.dy, rise = space.figureOffset(person.height);
@@ -137,7 +137,8 @@
 
     for (const name of layout.decor) placed(ctx, name, look);       // machines and things that aren't clicked
     for (const [name, fixture] of Object.entries(layout.fixtures)) {
-      let current = scene.fixtures[name] || fixture.sprite;
+      let current = name in scene.fixtures ? scene.fixtures[name] : fixture.sprite;
+      if (!current) continue;
       if (name === 'radio') current = radio.view.station === '87.7' ? fixture.echo : fixture.sprite;
       if (name === 'recordKey' && game.recordPending() && blinking(900, 600)) current = fixture.lit;
       const [x, y] = sprites.anchor(current, 'at');
@@ -167,7 +168,6 @@
       sprite(ctx, name, x, y, { mood: product.flicker ? 'echo' : mood });
     }
 
-    customer(ctx, game, 'over', mood);
     for (const extra of scene.extras) sprite(ctx, extra.sprite, extra.x, extra.y, look);
     placed(ctx, 'store-front', look);
     ctx.restore();

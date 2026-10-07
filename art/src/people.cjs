@@ -93,7 +93,6 @@ function head(kind, gaze) {
 const GAZES = {
   down: { open: false, iris: [[2, 3], [1, 2]] },        // at the counter
   downLeft: { open: false, iris: [[1, 2], [0, 1]] },    // at the register
-  downRight: { open: false, iris: [[3, 4], [3, 4]] },   // at the card terminal, down and right
   phoneSide: { open: true, iris: [[3, 4], [2, 3]], talk: true }, // past the phone at the ear, level, talking
   phone: { open: false, iris: [[2, 3], [1, 2]], pitch: 2, brow: 1 }, // at something held low: the head tips forward
   clerk: { open: true, iris: [[2, 3], [1, 2]], brow: -1 }, // at the clerk, brows lifted a little
@@ -428,8 +427,8 @@ function fromCanvas(x, y, Z) {
   return [(x + OX + 0.5 - vx) * (Z - z) / k, eyeY - (y + OY + 0.5 - vy) * (Z - z) / k, Z];
 }
 
-// Props in metres (half extents): each half of a 2005 flip phone, and a bank card.
-const FLIP = [0.0235, 0.0425, 0.0045], CARD = [0.043, 0.027, 0.0012], BILL = [0.075, 0.034, 0.0008];
+// Props in metres (half extents): each half of a 2005 flip phone.
+const FLIP = [0.0235, 0.0425, 0.0045];
 const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
 // An open flip phone hinged at `hinge`: the keypad half runs along `low`, the lid
 // along `lid`; `inner` is the keypad's face (the lid's screen faces back along it).
@@ -526,18 +525,6 @@ function armPose(R, side, [mode, at]) {
       const hand = frame(lid, out);
       return solve(null, [side * 0.4, -1, -0.45], { ...hand, curl: [0.35, 0.45] }, prop, { at: palm, reach: 0.05 * hs * R.handLength });
     }
-    case 'reach': {
-      // The hand well out over the counter toward the clerk, the elbow kept back so
-      // the forearm foreshortens. The card is pinched by one narrow end between thumb
-      // and index finger, its length pointing on toward the clerk, face up.
-      const W = [side * 0.06, space.counter.y + 0.2, Math.max(0.82, BODY_Z - 0.62 * (R.upper + R.fore) - 0.04)];
-      const hand = frame([-side * 0.3, -0.12, -1], [side, 0.25, 0]);
-      const pinch = v3.add(W, v3.add(v3.mul(hand.f, 0.085 * hs * R.handLength), v3.mul(hand.r, 0.014 * hs)));
-      const long = v3.norm([-side * 0.25, -0.25, -1]), face = v3.norm(v3.sub([0, 1, 0], v3.mul(long, v3.dot([0, 1, 0], long))));
-      const note = at === 'bill', half = note ? BILL : CARD;
-      const prop = { kind: note ? 'bill' : 'card', c: v3.add(pinch, v3.mul(long, half[0] - 0.008)), axes: [long, cross(face, long), face], half };
-      return solve(W, [side * 0.5, -1, 0.6], { ...hand, curl: [1.1, 0.9], thumbTip: v3.add(pinch, v3.mul(face, 0.006)) }, prop);
-    }
     case 'hold1': {
       // One hand holds the open flip phone low in front: the keypad half lies along
       // the palm, the fingers curl up round its sides, the thumb is on the keys.
@@ -548,24 +535,6 @@ function armPose(R, side, [mode, at]) {
       const hand = frame(v3.mul(low, -1), v3.mul(up, -1));
       const thumbTip = v3.add(kp.c, v3.add(v3.mul(up, FLIP[2] + 0.006), v3.mul(low, -0.008)));
       return solve(null, [side * 0.4, -1, 0.5], { ...hand, curl: [0.6, 0.5], thumbTip }, prop, { at: palm, reach: 0.05 * hs * R.handLength });
-    }
-    case 'swipe': {
-      // The card stands in the slot on top of the terminal, its face to the clerk,
-      // its upper half showing; the hand comes from the side and pinches its outer
-      // edge, so most of the card stays in view.
-      const t = space.fixtures.terminal[0], top = t.y + t.h;
-      const card = [t.x, top + CARD[1] * 0.15, t.z + 0.01];
-      const pinch = v3.add(card, [side * (CARD[0] + 0.004), CARD[1] * 0.45, 0.006]);
-      const hand = frame([-side, -0.45, -0.25], [0, 0.35, 1]);
-      const prop = { kind: 'card', c: card, axes: [[1, 0, 0], [0, 1, 0], [0, 0, 1]], above: top };
-      return solve(null, [side * 0.6, -1, 0.4], { ...hand, curl: [1, 0.8], thumbTip: v3.add(pinch, [0, 0, -0.007]) }, prop, { at: pinch, reach: 0.08 * hs * R.handLength });
-    }
-    case 'take': {
-      // The hand out over the counter, palm up and loosely cupped, fingers toward
-      // the clerk; whatever is handed over sits at the 'palm' anchor.
-      const W = [side * 0.07, space.counter.y + 0.13, Math.max(0.9, BODY_Z - 0.55 * (R.upper + R.fore))];
-      const hand = frame([-side * 0.25, 0.05, -1], [0, -1, 0]);
-      return solve(W, [side * 0.5, -1, 0.5], { ...hand, curl: [0.25, 0.35] });
     }
     default: {
       const E = v3.add(S, [side * 0.04, -R.upper * 0.99, -0.02]);
@@ -692,9 +661,7 @@ function bodyField(R, arms, garment) {
     });
     for (const [name, field] of extras) { const c = field(q); if (c < d) { d = c; tag = name; } }
     for (const prop of props) {
-      const c = prop.kind === 'phone'
-        ? Math.min(...prop.halves.map(half => box(p, half.c, half.axes, half.half || FLIP, 0.003)))
-        : Math.max(box(p, prop.c, prop.axes, prop.half || CARD, 0.0006), prop.above !== undefined ? prop.above - p[1] : -Infinity);
+      const c = Math.min(...prop.halves.map(half => box(p, half.c, half.axes, half.half || FLIP, 0.003)));
       if (c < d) { d = c; tag = prop.kind; }
     }
     return [d, tag];
@@ -709,11 +676,10 @@ function bodyField(R, arms, garment) {
 // distance from the shoulder joint.
 const RAMPS = {
   cloth: ['cloth1', 'cloth2', 'cloth3', 'cloth4'], under: ['under1', 'under2', 'under3', 'under3'], skin: ['skin1', 'skin2', 'skin3', 'skin3'],
-  accent: ['accent0', 'accent1', 'accent2', 'accent2'], phone: ['steel3', 'steel4', 'steel5', 'steel6'], card: ['blue1', 'blue2', 'blue3', 'blue3'],
-  bill: ['green1', 'green2', 'green3', 'green3'],
+  accent: ['accent0', 'accent1', 'accent2', 'accent2'], phone: ['steel3', 'steel4', 'steel5', 'steel6'],
 };
-const OUTLINE = { cloth: 'cloth0', under: 'under0', skin: 'skin0', accent: 'accent0', phone: 'steel1', card: 'blue0', bill: 'green0' };
-const HELD = new Set(['phone', 'card', 'bill']);                    // props held in a hand
+const OUTLINE = { cloth: 'cloth0', under: 'under0', skin: 'skin0', accent: 'accent0', phone: 'steel1' };
+const HELD = new Set(['phone']);                                    // props held in a hand
 // Trousers, by name: [outline, shadow, mid, light, highlight].
 const TROUSERS = {
   navy: ['navy0', 'navy1', 'navy2', 'navy3', 'navy3'], black: ['ink', 'steel0', 'steel1', 'steel2', 'steel2'],
@@ -997,16 +963,6 @@ function shadeHit(hit, R, garment, arms, flat) {
       return { color: (Math.round(u / 0.008) + Math.round(v / 0.009)) % 2 ? 'steel2' : 'steel5', material };
     }
   }
-  if (prop && material === 'bill' && !flat) {
-    const [u, v] = sculpt.local(hit.P, prop.c, prop.axes);
-    if (Math.hypot(u / BILL[0], v / BILL[1]) < 0.4) return { color: 'paper3', material };
-    if (Math.abs(u) > BILL[0] - 0.008 || Math.abs(v) > BILL[1] - 0.006) return { color: 'green1', material };
-  }
-  if (prop && material === 'card' && !flat) {
-    const [u, v] = sculpt.local(hit.P, prop.c, prop.axes);
-    if (v > CARD[1] * 0.35 && v < CARD[1] * 0.65) return { color: 'paper3', material };
-    if (u < -CARD[0] * 0.45 && u > -CARD[0] * 0.8 && Math.abs(v) < CARD[1] * 0.25) return { color: 'yellow2', material };
-  }
   if (!flat && hit.tag === 'torso') {
     const [x, y, z] = R.unlean(hit.P), b = R.b;
     for (const side of [-1, 1]) {
@@ -1030,9 +986,7 @@ function shadeHit(hit, R, garment, arms, flat) {
 // ------------------------------------------------------------------ rendering a pose
 // A pose rendered as layers: `back` (torso and the arms at the sides, under the
 // hair), `front` (arms raised or held in front, over it), `counter` (whatever is
-// nearer than the counter's far edge, drawn over the counter) and `over` (a hand
-// held out over the counter or onto the card terminal, drawn over the machines;
-// its 'palm' anchor is where a receiving hand holds what it is given). Outlines run round
+// nearer than the counter's far edge, drawn over the counter). Outlines run round
 // the silhouette and where one part passes in front of another, never across the
 // shoulder where arm and torso are one surface; the cuff edges the wrist.
 // The back layer's 'head' anchor is how far the lean moves the head sprite.
@@ -1079,13 +1033,11 @@ function poseParts(R, pose, garment, { flat = false } = {}) {
     const around = [colors[i - 1], colors[i + 1], colors[i - W], colors[i + W]];
     if (around.every(c => c && c === around[0]) && around[0] !== colors[i] && !Object.values(OUTLINE).includes(colors[i]) && colors[i] !== 'skin1') tidy[i] = around[0];
   }
-  const back = canvas(), front = canvas(), counter = canvas(), over = canvas();
-  const outSides = new Set(arms.filter(A => ['reach', 'swipe', 'take'].includes(A.mode)).map(A => A.side));
+  const back = canvas(), front = canvas(), counter = canvas();
   hits.forEach((hit, i) => {
     if (!hit) return;
     const forward = HELD.has(hit.tag) || frontSides.has(sideOf(hit.tag));
-    const held = hit.tag === 'card' || hit.tag === 'bill' || outSides.has(sideOf(hit.tag));
-    const layer = hit.P[2] < space.counter.far ? (held ? over : counter) : forward ? front : back;
+    const layer = hit.P[2] < space.counter.far ? counter : forward ? front : back;
     layer.px(i % W, Math.floor(i / W), tidy[i]);
   });
   // A resting hand presses on the laminate: a tight shadow just below and beside it.
@@ -1098,10 +1050,8 @@ function poseParts(R, pose, garment, { flat = false } = {}) {
       if (nx >= 0 && ny >= 0 && nx < W && ny < H && !hits[ny * W + nx] && !counter.get(nx, ny)) counter.px(nx, ny, 'top2');
     }
   });
-  for (const A of arms.filter(A => A.mode === 'reach')) over.anchor('hand', ...toCanvas(A.prop ? A.prop.c : A.W));
-  for (const A of arms.filter(A => A.mode === 'take')) over.anchor('palm', ...toCanvas(v3.add(A.W, v3.add(v3.mul(A.hand.f, 0.05 * R.hand * R.handLength), v3.mul(A.hand.n, -0.02)))));
   back.anchor('head', ...R.headOffset);
-  return { back, front, counter, over, arms };
+  return { back, front, counter, arms };
 }
 
 // ------------------------------------------------------------------ extras
@@ -1197,7 +1147,7 @@ module.exports = () => {
       const key = `${body}-${frame}-${name}`;
       if (sprites['person-back-' + key]) continue;
       const parts = poseParts(rigFor(c.person, POSES[name]), POSES[name], GARMENTS[body]);
-      for (const layer of ['back', 'front', 'counter', 'over']) sprites[`person-${layer}-${key}`] = parts[layer];
+      for (const layer of ['back', 'front', 'counter']) sprites[`person-${layer}-${key}`] = parts[layer];
     }
   }
   for (const name of Object.keys(sprites)) sprites[name] = crop(sprites[name]);

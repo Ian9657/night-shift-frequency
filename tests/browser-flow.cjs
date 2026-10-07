@@ -77,7 +77,8 @@ const { chromium, artifacts, URL_BASE, idle, click, playOrder } = require('./bro
       const original = NSF.audio.scan;
       NSF.audio.scan = () => { NSF.audio.scan = original; throw new Error('injected test failure'); };
     });
-    await click(page, 'item:' + item);
+    await click(page, 'basket');
+    await idle(page);
     await click(page, 'scanner');
     await idle(page);
     assert.equal(await page.evaluate(id => NSF.debug.game.state.scannedIds.includes(id), item), false);

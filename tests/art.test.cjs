@@ -53,7 +53,7 @@ for (const name of names) {
 for (const name of used) assert.ok(sprites[name], `referenced sprite ${name} is missing`);
 
 // Machines sit inside the view, placed by their 'at' anchor; customer parts carry
-// their place on the customer canvas; the hands the game hands things to exist.
+// their place on the customer canvas.
 for (const [key, fixture] of Object.entries(layout.fixtures)) {
   const s = sprites[fixture.sprite], [x, y] = s.anchors.at;
   assert.ok(x > -s.w && x < layout.world.width && y >= 0 && y + s.h <= layout.world.height, key + ' is in view');
@@ -62,9 +62,6 @@ for (const id of Object.keys(customers.customers)) {
   for (const pose of customers.posesOf(id)) for (const part of Object.values(customers.parts(id, pose)).flat()) {
     assert.ok(sprites[part.sprite].anchors.at, `${part.sprite} has its canvas place`);
   }
-  const over = action => sprites[customers.parts(id, customers.poseFor(id, action)).over[0].sprite].anchors;
-  assert.ok(over('cash').hand, id + ' holds out the note');
-  assert.ok(over('receive').palm, id + ' has a palm to receive into');
   assert.equal(Object.keys(customers.slotColors(id)).length, palette.slots.length, id);
 }
 

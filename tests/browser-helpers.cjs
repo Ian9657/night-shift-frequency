@@ -32,8 +32,10 @@ async function playOrder(page, choices, shots) {
     return { id: o.id, index: o.index, items: o.items.map(i => i.id), mismatch: Boolean(o.mismatch), kind: o.decisionKind,
       payment: o.paymentType, bag: o.bagPreference, heat: o.items.filter(i => i.heat).map(i => i.id), final: o.finalReport };
   });
-  for (const id of order.items) {
-    await click(page, 'item:' + id);
+  // Each item comes out of the basket ready to scan.
+  for (let i = 0; i < order.items.length; i++) {
+    await click(page, 'basket');
+    await idle(page);
     await click(page, 'scanner');
     await idle(page);
   }

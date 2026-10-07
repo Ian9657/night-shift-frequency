@@ -15,8 +15,9 @@ const order = page => page.evaluate(() => {
 
 async function scanAll(page) {
   await idle(page);
-  for (const id of (await order(page)).items) {
-    await click(page, 'item:' + id);
+  for (let i = 0; i < (await order(page)).items.length; i++) {
+    await click(page, 'basket');
+    await idle(page);
     await click(page, 'scanner');
     await idle(page);
   }
@@ -42,13 +43,13 @@ async function finish(page, index) {
     await scanAll(page);
     await speed(page, 0.2);
     await click(page, 'terminal');
-    await page.waitForFunction(() => NSF.debug.game.scene.customer.action === 'card' && NSF.debug.game.scene.fixtures.terminal === 'store-terminal-approved');
+    await page.waitForFunction(() => NSF.debug.game.scene.fixtures.terminal === 'store-terminal-approved');
     await shot(page, 'card-contact');
     await speed(page, 12);
     await idle(page);
     await finish(page, 0);
 
-    // Order 2: the bill leaves the customer's hand.
+    // Order 2: the customer's note on the change tray goes into the drawer.
     await scanAll(page);
     await speed(page, 0.2);
     await click(page, 'drawer');

@@ -18,7 +18,7 @@
 
   const F = space.fixtures;
   const [pos] = F.pos, [radio] = F.radio, [drawer] = F.drawer, [bags] = F.bags, [printer] = F.printer;
-  const [scanner] = F.scanner, [microwave] = F.microwave;
+  const [scanner] = F.scanner, [microwave] = F.microwave, [basket] = F.basket, { tray } = space.decor;
   const lane = space.lane;
   const laneLeft = point(lane.x0, counter.y, lane.z), laneRight = point(lane.x1, counter.y, lane.z);
   const origin = space.customerOrigin();
@@ -36,7 +36,10 @@
       pos: { sprite: 'store-pos', inert: true, screen: face(pos.x, pos.w, pos.z - pos.d / 2, counter.y, counter.y + pos.h, [8 / 80, 72 / 80], [7 / 73, 55 / 73]) },
       recordKey: { sprite: 'store-pos-key', lit: 'store-pos-key-lit' },
       scanner: { sprite: 'store-scanner', busy: 'store-scanner-reading', beam: point(scanner.x - 0.03, counter.y + 0.08, scanner.z - 0.1) },
-      terminal: { sprite: 'store-terminal', busy: 'store-terminal-approved' },
+      // A card payment: the customer's card stands in the slot, then the terminal approves.
+      terminal: { sprite: 'store-terminal', card: 'store-terminal-card', busy: 'store-terminal-approved' },
+      // The customer's basket: full until the last item is taken out of its mouth.
+      basket: { sprite: 'store-basket', empty: 'store-basket-empty', mouth: point(basket.x, counter.y + basket.h, basket.z) },
       // Cash goes into the drawer: it opens, takes the note and shuts.
       drawer: { sprite: 'store-drawer', busy: 'store-drawer-open', drop: point(drawer.x, drawer.y + drawer.h, counter.near - space.drawerTravel * 0.4) },
       // A bag is pulled off the hanging bundle and opened at the packing place on the counter.
@@ -51,6 +54,9 @@
     decor: Object.freeze(['store-can', 'store-spike']),
     // Goods wait at the far side of the lane and come forward once scanned.
     lane: { x: laneLeft.x, width: laneRight.x - laneLeft.x, incomingFoot: laneLeft.y, scannedFoot: point(0, counter.y, lane.scannedZ).y, gap: 4 },
+    // Cash and change are left on the change tray; goods are handed over the far edge.
+    tray: point(tray.x, counter.y + tray.h, tray.z),
+    handoff: point(0.05, counter.y + 0.14, 1.16),
     microwaveCavity: point(microwave.x - 0.05, counter.y + 0.13, microwave.z - microwave.d / 2 + 0.06),
     // The customer canvas (art/src/people.cjs): its top-left, the head, and how far
     // they walk in from the right.
