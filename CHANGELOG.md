@@ -5,6 +5,19 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — touch targeting and long-press labels
+
+- Touch pointers now use a wider pixel hit tolerance for counter targets.
+- A short touch keeps the target highlighted; holding a counter object reveals its
+  existing desktop label for a moment, then clears it automatically.
+- Pointer leave clears desktop hover state.
+
+### Verified (touch targeting)
+
+- Content, interaction, browser-flow and visual checks pass after the input-router
+  change. The touch path was exercised through browser pointer events; physical
+  phone hardware remains unverified.
+
 ### Changed — validated queued actions and visible selection
 
 - Revalidate queued checkout actions against the current order. Pause queue dispatch

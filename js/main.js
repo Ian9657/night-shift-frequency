@@ -34,29 +34,38 @@
   // World targets under a screen point, tested against their pixels with a pixel of
   // slack: goods first, then machines from the nearest-drawn back, since machines
   // overlap in the first-person view.
-  function worldTarget(point) {
+  function worldTarget(point, slop = 1) {
     if (game.state.phase !== 'shift' || records.view.open || phone.view.open || found.view.open) return null;
     const x = Math.floor(point.x / K), y = Math.floor(point.y / K);
     const list = game.targets();
-    const hit = target => [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]
+    const offsets = [[0, 0]];
+    for (let i = 1; i <= slop; i++) offsets.push([i, 0], [-i, 0], [0, i], [0, -i]);
+    const hit = target => offsets
       .some(([dx, dy]) => sprites.opaqueAt(target.sprite, x - target.x + dx, y - target.y + dy));
     return list.filter(t => t.product).reverse().find(hit) || list.filter(t => !t.product).reverse().find(hit) || null;
   }
 
-  function targetAt(point) {
+  function targetAt(point, slop = 1) {
     const hit = ui.hitTest(point.x, point.y);
     if (hit) return { ui: hit };
-    const target = worldTarget(point);
+    const target = worldTarget(point, slop);
     return target ? { world: target } : null;
   }
 
   // A UI region with `drag` (the radio's dial) follows the pointer while it is held.
   let dragging = null;
+  let press = null;
+  let touchHoverUntil = 0;
   canvas.addEventListener('pointerdown', event => {
     event.preventDefault();
     render(); // hit regions must reflect the current state, not the last frame
     const point = toScreen(event);
-    const hit = targetAt(point);
+    const hit = targetAt(point, event.pointerType === 'touch' ? 3 : 1);
+    if (hit?.world) {
+      game.setHover(hit.world.name);
+      touchHoverUntil = event.pointerType === 'touch' ? time.uiNow + 1600 : 0;
+      press = event.pointerType === 'touch' ? { name: hit.world.name, until: time.uiNow + 450 } : null;
+    } else press = null;
     if (hit?.ui) {
       hit.ui.action(point);
       if (hit.ui.drag) { dragging = hit.ui; canvas.setPointerCapture?.(event.pointerId); }
@@ -66,7 +75,7 @@
   canvas.addEventListener('pointermove', event => {
     const point = toScreen(event);
     if (dragging) { dragging.drag(point); return; }
-    const hit = targetAt(point);
+    const hit = targetAt(point, event.pointerType === 'touch' ? 3 : 1);
     game.setHover(hit?.world?.name || hit?.ui?.name || null);
     canvas.style.cursor = hit ? 'pointer' : 'default';
   });
@@ -77,9 +86,14 @@
     else if (records.view.open) records.close();
     else if (radio.view.dialOpen) radio.closeDial();
   });
-  const release = () => { dragging = null; };
+  const release = () => {
+    dragging = null;
+    if (press && time.uiNow < press.until) game.setHover(null);
+    press = null;
+  };
   canvas.addEventListener('pointerup', release);
   canvas.addEventListener('pointercancel', release);
+  canvas.addEventListener('pointerleave', () => { game.setHover(null); canvas.style.cursor = 'default'; });
   root.addEventListener('keydown', event => {
     if (signin.key(event.key) || found.key(event.key) || phone.key(event.key) || records.key(event.key) || radio.key(event.key)) { event.preventDefault(); return; }
     if ((event.key === 'Enter' || event.key === ' ') && game.state.phase === 'title') game.startShift();
@@ -102,6 +116,14 @@
 
   function frame(timestamp) {
     time.tick(timestamp);
+    if (press && time.uiNow >= press.until) {
+      touchHoverUntil = time.uiNow + 1600;
+      press = null;
+    }
+    if (touchHoverUntil && time.uiNow >= touchHoverUntil) {
+      touchHoverUntil = 0;
+      game.setHover(null);
+    }
     if (game.state.phase !== 'title') outside.update();
     drift.update();
     messages.update();
