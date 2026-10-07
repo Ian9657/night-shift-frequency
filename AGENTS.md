@@ -63,6 +63,7 @@
 - `node tests/content.test.cjs`
 - `node tests/art.test.cjs`
 - `node tests/browser-flow.cjs`
+- `node tests/interaction.test.cjs`
 - `node tests/visual.cjs`
 
 Browser tests require Chrome and Playwright; set PLAYWRIGHT_MODULE to an absolute

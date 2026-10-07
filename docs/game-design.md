@@ -30,9 +30,10 @@ scan every item → take payment → heat if asked (after payment) → bag or ha
 ```
 
 - The customer sets a basket down on the far side of the counter and waits. Click the
-  basket to take the next item out (it is selected), then click the scanner. Scanned
-  items stay on the counter and can be selected again for a re-scan. Identical items
-  scan one by one and group as quantities on the POS and receipt.
+  basket to take the next item out (it is selected), then click the scanner; or click
+  the scanner straight away and it takes the next item itself. Scanned items stay on the
+  counter and can be selected again for a re-scan, which is always done by hand.
+  Identical items scan one by one and group as quantities on the POS and receipt.
 - Payment matches what the customer says: their card stands in the terminal's slot, or
   their note lies on the change tray and goes into the drawer under the register. The
   wrong device gets a reaction, not a penalty. At other times the drawer just opens and
@@ -40,7 +41,15 @@ scan every item → take payment → heat if asked (after payment) → bag or ha
   are handed over across the far edge of the counter.
 - Heating happens after payment; the lasagne must be heated before bagging.
 - No-bag orders are handed over directly.
-- Early or wrong actions get a short reaction ("These first.", "Not yet.", "Hot first.").
+- Early or wrong actions get a short reaction ("These first.", "Not yet.", "Hot first.")
+  and, for a moment, the reason in the POS's status field (PAY FIRST, CASH: DRAWER...).
+- Every click is answered. A click on a machine while another is still moving is kept
+  (up to three, one per machine, only for this sale) and done when it is free, unless it
+  no longer applies (SKIPPED); the machine's outline flashes and a soft tick sounds. A
+  click on nothing just ticks.
+- The object under the pointer is outlined and named in a small label; on a touch screen,
+  holding it does the same. Right-click (or the phone's back key) closes whichever panel
+  is open.
 
 Guidance: from order 3, next-action outlines appear after a 780 ms delay. During a
 record conflict all outlines disappear; the POS screen itself blinks for attention and,
@@ -137,8 +146,14 @@ The four combinations lead to four letters read by *Night Ferry* after the shift
 - Clicking the radio opens its dial over it: a scale from 87.5 to 88.1 in steps of 0.05.
   Drag or click the needle, use the step keys, or the arrow keys; × or Escape puts it
   away. The counter stays live while it is open.
-- 87.6 *Night Ferry*: an intro and one segment per order; missed lines replay when the
-  player tunes back. After the sign-off it is static.
+- 87.6 *Night Ferry*: an intro and one segment per order. A new order's segment replaces
+  any of the last one still waiting (or playing), except the clerk's own moments: their
+  text read out and its song, and their call. A line or song interrupted by tuning away
+  is replayed (a song from the top) on tuning back. Songs run as many whole bars as fit
+  in 15 s. After the sign-off it is static.
+- The phone, the records and lost and found pause the shift: the clock stops and Night
+  Ferry goes quiet (a song starts again afterwards); the room keeps its sound. Only one
+  panel is open at a time.
 - 87.7, the echo: static early; from order 5 it reads register records, and after order
   5 is decided it reads the record the player did **not** save.
 - Between them, unmarked, three people who stayed, each from a point in the night:
@@ -165,7 +180,7 @@ Listening changes what people say, never a record (`js/game/company.js`):
 ## The phone
 
 - Clicking the clerk's flip phone on the counter flips it open close up and pauses the
-  shift (the game clock stops; the radio drops back). A click outside puts it away;
+  shift (the game clock stops; Night Ferry goes quiet). A click outside puts it away;
   BACK, the red key or Escape go back a screen, and from the menu put it away.
 - The menu: MESSAGES, TEXT NIGHT FERRY, CALL NIGHT FERRY, SETTINGS. Click a row to select it and again to
   open it, or use the arrow keys and Enter.

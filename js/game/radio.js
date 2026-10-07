@@ -14,18 +14,23 @@
     freq: BAND.ferry, station: label(BAND.ferry), kind: 'ferry', song: null,
     key: null, vars: {}, startedAt: 0, duration: 0, echo: false, offAir: false, dialOpen: false,
   };
+  // Queued Night Ferry entries: { key, vars } or { song }; `keep` marks the clerk's own
+  // moments on air (their text read out, the song it asked for, their call), which a
+  // new order's segment never discards. `current` is the entry on air.
   let queue = [];
+  let current = null;
   let lineTimer = null;
   let echoProvider = () => null;
   let signalProvider = () => null;
   let listener = () => {};
   let finished = [];
+  // Songs are a short interlude so an order never waits on a full arrangement: as many
+  // whole bars as fit in 15 s. The synth is stopped by the next line.
   const songLength = id => {
-    const song = story.radio.songs[id];
-    // Keep songs as a short bedside-radio interlude so an order never waits on a
-    // full 25-second arrangement. The synth is stopped by the next advance call.
-    return Math.min(15000, song.chords.length * 4 * 60000 / song.tempo);
+    const song = story.radio.songs[id], bar = 4 * 60000 / song.tempo;
+    return Math.min(song.chords.length, Math.max(1, Math.floor(15000 / bar))) * bar;
   };
+  const entry = line => (typeof line === 'string' ? { key: line, vars: {} } : line);
 
   function lineDuration(key, vars) {
     return Math.max(2600, strings.t(key, vars).length * 52 + 1200);
@@ -58,6 +63,7 @@
     lineTimer = null;
     if (view.kind !== 'ferry' || view.offAir) return other();
     const next = queue.shift();
+    current = next || null;
     if (!next) {
       show(null);
       const callbacks = finished;
@@ -73,22 +79,43 @@
   // Queue Night Ferry lines (string keys, { key, vars } or { song }); resolves when
   // they have all been heard on 87.6.
   function play(lines) {
-    queue.push(...lines.map(line => (typeof line === 'string' ? { key: line, vars: {} } : line)));
+    queue.push(...lines.map(entry));
     const done = new Promise(resolve => finished.push(resolve));
     if (view.kind === 'ferry' && !lineTimer) advance();
     return done;
   }
 
-  // Start a fresh order segment. Anything ordinary left from the previous customer
-  // is no longer relevant, so discard it and the currently playing line/song before
-  // putting the new segment on air.
+  // A new order's segment replaces whatever ordinary lines of the last one are still
+  // waiting, but not the clerk's own moments on air. A line already on 87.6 is cut
+  // unless it is one of those; on another frequency, that keeps playing and the new
+  // segment waits for the clerk to tune back.
   function beginOrder(lines) {
+    queue = [...queue.filter(line => line.keep), ...lines.map(entry)];
+    if (view.kind !== 'ferry' || view.offAir || current?.keep) return;
     time.cancel(lineTimer);
     lineTimer = null;
-    queue = [];
-    if (view.key || view.song) show(null);
-    queue.push(...lines.map(line => (typeof line === 'string' ? { key: line, vars: {} } : line)));
-    if (view.kind === 'ferry' && !view.offAir) advance();
+    advance();
+  }
+
+  // While the phone, records or lost and found are open the shift is paused: Night
+  // Ferry goes quiet, and a song in progress starts again from the top afterwards.
+  let held = false;
+  function hold() {
+    if (held) return;
+    held = true;
+    audio.radioHeld = true;
+    if (view.song) {
+      queue.unshift(current || { song: view.song });
+      time.cancel(lineTimer);
+      lineTimer = null;
+      show(null);
+    }
+  }
+  function release() {
+    if (!held) return;
+    held = false;
+    audio.radioHeld = false;
+    if (!lineTimer) advance();
   }
 
   function kindOf(freq) {
@@ -103,7 +130,7 @@
     if (next === view.freq) return;
     // The current Night Ferry line (or song, from the top) is replayed when the player
     // tunes back.
-    if (view.kind === 'ferry' && view.key && !view.offAir) queue.unshift(view.song ? { song: view.song } : { key: view.key, vars: view.vars });
+    if (view.kind === 'ferry' && view.key && !view.offAir) queue.unshift(current || (view.song ? { song: view.song } : { key: view.key, vars: view.vars }));
     view.freq = next;
     view.station = label(next);
     view.kind = kindOf(next);
@@ -111,10 +138,7 @@
     audio.radioStation(view.offAir && view.kind === 'ferry' ? 'static' : view.kind, night.progress());
     show(null);
     time.cancel(lineTimer);
-    // The dial is a paused overlay, so a game-clock timer would never fire while
-    // it is open. Start the tuned station immediately; its normal line timer then
-    // resumes when the panel closes.
-    advance();
+    lineTimer = time.after(300, advance);
   }
 
   // Tune straight to a station by its label ('87.6'), as the ending does.
@@ -137,11 +161,11 @@
   }
 
   root.NSF.radio = {
-    view, band: BAND, label, play, beginOrder, tune, setFrequency, skip, signOff,
+    view, band: BAND, label, play, beginOrder, hold, release, tune, setFrequency, skip, signOff,
     step(direction) { setFrequency(view.freq + direction * BAND.step); },
     openDial() {
       if (view.dialOpen) return closeDial();
-      if (!overlay.open('radio')) return;
+      if (!overlay.open('radio', { pause: false })) return;
       view.dialOpen = true;
       audio.phoneKey();
     },

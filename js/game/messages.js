@@ -39,7 +39,7 @@
   function takeOnAir(index, name) {
     if (!sent || sent.readOnAir !== null) return [];
     sent.readOnAir = index;
-    return [{ key: sent.preset.onAir, vars: { name } }, ...(sent.preset.song ? [{ song: sent.preset.song }] : [])];
+    return [{ key: sent.preset.onAir, vars: { name }, keep: true }, ...(sent.preset.song ? [{ song: sent.preset.song, keep: true }] : [])];
   }
 
   // Calling in: once the lines are open, once a night. What the clerk said and June's
@@ -51,7 +51,7 @@
     if (!preset || !linesOpen()) return false;
     call = { preset, clock: night.clock() };
     audio.phoneSent();
-    radio.play([{ key: 'radio.caller', vars: { name, said: '@' + preset.said } }, preset.reply]);
+    radio.play([{ key: 'radio.caller', vars: { name, said: '@' + preset.said }, keep: true }, { key: preset.reply, vars: {}, keep: true }]);
     return true;
   }
   // June's thanks before the sign-off, if the clerk reached the station.

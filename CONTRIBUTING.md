@@ -70,6 +70,7 @@ node tests/shift-engine.test.cjs   # 500 seeds, four record branches, immutable 
 node tests/content.test.cjs        # string references, no orphans, endings, glyph coverage
 node tests/art.test.cjs            # bundle matches sources, palette, references, layout, anchors
 node tests/browser-flow.cjs        # real clicks through all four branches, audio smoke, recovery, seed
+node tests/interaction.test.cjs    # buffered clicks, panels and pausing, the radio across orders
 node tests/visual.cjs              # key frames for review: card, cash, heating, echo radio, phone
 ```
 

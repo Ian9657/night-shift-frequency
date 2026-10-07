@@ -15,7 +15,8 @@ or download it and open `index.html`. No install, no build.
 Open `index.html` in a browser and click **START SHIFT**, then write your name on the
 sign-in sheet (type it, or use the letter keys) and sign in.
 
-- Click the customer's basket to take an item out, then the scanner. When everything is
+- Click the customer's basket to take an item out, then the scanner (or just the scanner:
+  it takes the next item itself). Hover over, or hold, anything to see what it is. When everything is
   scanned, take payment the way the customer asks: card on the card terminal, cash from
   the change tray into the drawer under the register.
 - Ready meals are heated after payment: click the microwave. Click the bags hanging under the

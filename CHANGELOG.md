@@ -5,6 +5,37 @@ verified and what was not.
 
 ## Unreleased
 
+### Fixed — review of the interaction pass
+
+- The radio's dial paused the shift and suspended all sound, so nothing could be heard
+  while tuning. Panels now come in two kinds (`overlay.js`): the phone, records and lost
+  and found pause the shift and hold only Night Ferry (a song starts again afterwards);
+  the dial is exclusive but live. The whole-context suspend (`audio.paused`) and the
+  phone's radio duck are gone; the room keeps its sound behind a panel.
+- A new order's segment cleared the queue outright: a call made in order 6 was never
+  answered, and the echo or a signal went silent for good after an order change. Now
+  the clerk's own moments (text read out, its song, the call) are kept, and another
+  frequency keeps playing while the new segment waits for the clerk to tune back.
+- POS text overlapped: PLEASE WAIT sat on the TOTAL row during every animation and the
+  feedback banner covered it. Feedback now takes the status field for a moment, in
+  shorter words; the step hint, which never fitted beside TOTAL, is removed (scene
+  guidance is the next step).
+- Hover drew bounding rectangles across other machines; it is now the object's own
+  pixel outline, as the cues are. QUEUED, PLEASE WAIT and NOTHING THERE are gone: a
+  queued click flashes the machine's outline and ticks, an empty click only ticks.
+- Songs are cut at a whole bar instead of mid-phrase.
+- Regression tests for the live dial, the echo across an order change, the call kept on
+  air and the radio held and resumed; the interaction test is in the verification list.
+
+### Verified (review fixes)
+
+- All six checks pass. A probe script confirmed each bug before and its fix after.
+  Desktop screenshots of the hover outline, a queued scan and PAY FIRST were reviewed.
+
+### Not verified (review fixes)
+
+- Not tried on a physical phone; not listened to.
+
 ### Changed — touch targeting and long-press labels
 
 - Touch pointers now use a wider pixel hit tolerance for counter targets.

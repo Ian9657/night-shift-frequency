@@ -14,10 +14,9 @@
   let radioBed = null;
   let tickStep = 0;
   let muted = false;
-  let paused = false;
   let bus = null;
   const levels = { master: 5, radio: 5, sounds: 5 };
-  let radioDuck = 1;
+  let radioHeld = false;
   const between = (min, max) => min + Math.random() * (max - min);
   const gainOf = level => (level / 5) ** 2;
 
@@ -35,7 +34,7 @@
       bus = { master, sounds, radio };
       applyLevels();
     }
-    if (context.state === 'suspended' && !paused) context.resume().catch(() => {});
+    if (context.state === 'suspended') context.resume().catch(() => {});
     return context;
   }
 
@@ -44,7 +43,7 @@
     const now = context.currentTime;
     bus.master.gain.setTargetAtTime(gainOf(levels.master), now, 0.03);
     bus.sounds.gain.setTargetAtTime(gainOf(levels.sounds), now, 0.03);
-    bus.radio.gain.setTargetAtTime(gainOf(levels.radio) * radioDuck, now, 0.03);
+    bus.radio.gain.setTargetAtTime(radioHeld ? 0 : gainOf(levels.radio), now, 0.03);
   }
 
   function tone({ frequency, duration, type = 'square', gain = 0.035, delay = 0, endFrequency = frequency, lowpass = 2200 }) {
@@ -499,11 +498,9 @@
     // Levels 0–5 for 'master', 'radio' and 'sounds'.
     level(name) { return levels[name]; },
     setLevel(name, value) { levels[name] = Math.max(0, Math.min(5, Math.round(value))); applyLevels(); },
-    // While the phone is open the radio drops back, as when the clerk looks away from it.
-    set radioDucked(value) { radioDuck = value ? 0.3 : 1; applyLevels(); },
-    set muted(value) { muted = Boolean(value); if (muted && context) context.suspend(); else if (context && !paused) context.resume(); },
+    // While the shift is paused the radio is silent; the room keeps its sound.
+    set radioHeld(value) { radioHeld = Boolean(value); applyLevels(); },
+    set muted(value) { muted = Boolean(value); if (muted && context) context.suspend(); else if (context) context.resume(); },
     get muted() { return muted; },
-    set paused(value) { paused = Boolean(value); if (context && !muted) (paused ? context.suspend() : context.resume()).catch(() => {}); },
-    get paused() { return paused; },
   };
 })(globalThis);

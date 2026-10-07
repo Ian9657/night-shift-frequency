@@ -4,7 +4,7 @@
 // clickable region drawn here is registered for the input router.
 (function (root) {
   'use strict';
-  const { text, strings, dialogue, radio, records, layout, time, audio, engine, space, customers, sprites, phone, night, signin, story, drift, messages, found, world } = root.NSF;
+  const { text, strings, dialogue, radio, records, layout, time, audio, engine, space, customers, sprites, phone, night, signin, story, drift, messages, found, world, overlay } = root.NSF;
   const t = strings.t;
   const C = {
     ink: '#101517', paper: '#ece8d0', paperShade: '#b4ae94', phosphor: '#aef08c', phosphorDim: '#55b066',
@@ -23,9 +23,8 @@
   const money = value => (value / 100).toFixed(2);
   const label = key => t(key);
   const shortId = id => id.replace('sale-', '#');
-  const PHASE_LABELS = { scan: 'ui.phase.scan', record: 'ui.phase.record', heat: 'ui.phase.heat', bag: 'ui.phase.bag', complete: 'ui.phase.complete', busy: 'ui.phase.busy' };
   const FEEDBACK_LABELS = {
-    queued: 'ui.feedback.queued', busy: 'ui.feedback.busy', empty: 'ui.feedback.empty', paid: 'ui.feedback.paid',
+    paid: 'ui.feedback.paid',
     alreadyScanned: 'ui.feedback.alreadyScanned', scanFirst: 'ui.feedback.scanFirst', useCash: 'ui.feedback.useCash', useCard: 'ui.feedback.useCard', selectItem: 'ui.feedback.selectItem', recordFirst: 'ui.feedback.recordFirst',
     paidFirst: 'ui.feedback.paidFirst', noHeat: 'ui.feedback.noHeat', payFirst: 'ui.feedback.payFirst',
     heatFirst: 'ui.feedback.heatFirst', blocked: 'ui.feedback.blocked', stale: 'ui.feedback.stale',
@@ -82,14 +81,16 @@
         [status, saved || time.now % 900 < 600 ? C.amber : C.panel]];
     }
     const grouped = engine.groupItems(shift.displayedItems(o.id).filter(item => state.scannedIds.includes(item.id)));
-    const mode = state.modeOverride ? t(state.modeOverride) : state.paid ? t('pos.' + o.paymentType) : t('pos.ready');
+    // The status field: why the last click did nothing (amber, briefly), or the mode.
+    const feedback = state.feedback && t(FEEDBACK_LABELS[state.feedback.kind]);
+    const mode = feedback || (state.modeOverride ? t(state.modeOverride) : state.paid ? t('pos.' + o.paymentType) : t('pos.ready'));
     const total = scanned.reduce((sum, item) => sum + item.price, 0);
     const rows = grouped.length ? grouped.map(item => [label(item.pos), C.phosphor, 'x' + item.quantity])
       : [[t('pos.waiting'), C.phosphorDim]];
     while (rows.length < 3) rows.push(['', C.phosphor]);
     const last = o.finalReport && state.bagged ? [t('pos.printReport'), time.now % 900 < 600 ? C.amber : C.panel]
       : [t('pos.total', { amount: money(total) }), C.phosphor];
-    return [[mode, C.phosphorDim, t('pos.items', { count: drift.posCount(scanned.length) })], ...rows.slice(0, 3), last];
+    return [[mode, feedback ? C.amber : C.phosphorDim, t('pos.items', { count: drift.posCount(scanned.length) })], ...rows.slice(0, 3), last];
   }
 
   // The green screen: a status bar (register, shift clock), the sale's lines with a
@@ -127,51 +128,23 @@
     }
     ctx.fillStyle = 'rgba(241,245,230,0.07)';
     for (let i = 0; i < 26; i += 2) ctx.fillRect(x + 6 + i * 2, y + 30 - i, 14, 2);
-    const phase = game.interactionPhase?.();
-    if (phase && phase !== 'title') {
-      const hint = t(PHASE_LABELS[phase]);
-      text.draw(ctx, hint, x + w - 5, y + h - 13, phase === 'busy' ? C.amber : C.phosphorDim, { align: 'right', scale: ts });
-    }
   }
 
-  function interactionOverlay(ctx, game) {
+  // The name of the counter object under the pointer (or held on a touch screen), in a
+  // small label over it; the outline itself is drawn with the object (world.js).
+  function hoverLabel(ctx, game) {
     const name = game.state.hoverTarget;
-    const selectedName = game.state.selectedId ? 'item:' + game.state.selectedId : null;
-    if (game.state.phase === 'shift' && !phone.view.open && !found.view.open && !records.view.open && !radio.view.dialOpen) {
-      const selectedTarget = game.targets().find(item => item.name === selectedName);
-      if (selectedTarget) {
-        const k = layout.screen.scale;
-        ctx.strokeStyle = C.cyan; ctx.lineWidth = 2;
-        ctx.strokeRect(selectedTarget.x * k - 2, selectedTarget.y * k - 2, selectedTarget.w * k + 4, selectedTarget.h * k + 4);
-      }
-      const activeName = name || selectedName;
-      const target = activeName && game.targets().find(item => item.name === activeName);
-      if (target) {
-        const k = layout.screen.scale;
-        const selected = target.name === selectedName;
-        ctx.strokeStyle = selected ? 'rgba(99,212,208,0.95)' : 'rgba(245,216,115,0.8)';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(target.x * k - 2, target.y * k - 2, target.w * k + 4, target.h * k + 4);
-        const labelKey = TARGET_LABELS[target.name];
-        const item = target.name.startsWith('item:') && game.order().items.find(entry => entry.id === target.name.slice(5));
-        const caption = item ? label(item.real || item.pos) : labelKey ? t(labelKey) : '';
-        if (caption) {
-          const width = text.width(caption) + 12;
-          const lx = Math.round(Math.max(4, Math.min(SW - width - 4, target.x * k + target.w * k / 2 - width / 2)));
-          const ly = Math.max(4, target.y * k - 20);
-          box(ctx, lx, ly, width, 16, 'rgba(7,9,15,0.86)', selected ? C.cyan : C.amber);
-          text.draw(ctx, caption, lx + width / 2, ly + 3, selected ? C.cyan : C.amber, { align: 'center' });
-        }
-      }
-    }
-    const feedback = game.state.feedback;
-    if (feedback) {
-      const value = t(FEEDBACK_LABELS[feedback.kind]);
-      const screen = layout.fixtures.pos.screen, k = layout.screen.scale;
-      const x = screen.x * k, y = (screen.y + screen.h) * k - 18;
-      box(ctx, x, y, screen.w * k, 18, C.panel, C.amber);
-      text.draw(ctx, value, x + 4, y + 3, C.amber, { clipWidth: screen.w * k - 8 });
-    }
+    if (!name || game.state.phase !== 'shift' || overlay.view.active) return;
+    const target = game.targets().find(item => item.name === name);
+    if (!target) return;
+    const item = name.startsWith('item:') && game.order().items.find(entry => entry.id === name.slice(5));
+    const caption = item ? label(item.real || item.pos) : TARGET_LABELS[name] ? t(TARGET_LABELS[name]) : '';
+    if (!caption) return;
+    const k = layout.screen.scale, width = text.width(caption) + 12;
+    const lx = Math.round(Math.max(4, Math.min(SW - width - 4, (target.x + target.w / 2) * k - width / 2)));
+    const ly = Math.max(4, target.y * k - 20);
+    box(ctx, lx, ly, width, 16, 'rgba(7,9,15,0.86)', C.amber);
+    text.draw(ctx, caption, lx + width / 2, ly + 3, C.amber, { align: 'center' });
   }
 
   // ------------------------------------------------------------ speech bubble
@@ -661,7 +634,7 @@
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     pos(ctx, game);
-    interactionOverlay(ctx, game);
+    hoverLabel(ctx, game);
     bubble(ctx, game);
     caption(ctx, game);
     dial(ctx, game);

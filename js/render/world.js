@@ -5,7 +5,7 @@
 (function (root) {
   'use strict';
   const { sprites, layout, customers, space, time, radio, night, outside, drift, messages, found } = root.NSF;
-  const CUE = '#f5d873', SELECTED = '#f1f5e6', HEAT = '#eda04c';
+  const CUE = '#f5d873', SELECTED = '#f1f5e6', HEAT = '#eda04c', HOVER = '#9fd6e6';
   // 3x5 digits for the microwave's clock display.
   const LED = {
     0: ['###', '#.#', '#.#', '#.#', '###'], 1: ['.#.', '##.', '.#.', '.#.', '###'], 2: ['###', '..#', '###', '#..', '###'],
@@ -185,6 +185,8 @@
   }
 
   const blinking = (period = 800, on = 520) => time.now % period < on;
+  // Under the pointer (or held on a touch screen), or just tapped.
+  const pointed = (state, name) => state.phase === 'shift' && (state.hoverTarget === name || state.flash?.name === name);
 
   // Soft contact shadow under something standing on the counter.
   function shadow(ctx, x, w, foot) {
@@ -259,7 +261,8 @@
       if (name === 'recordKey' && game.recordPending() && blinking(900, 600)) current = fixture.lit;
       let [x, y] = sprites.anchor(current, 'at');
       if (name === 'phone' && messages.buzzing()) x += Math.floor(time.now / 45) % 2 ? 1 : -1;
-      if (scene.cues.has(name) && blinking()) sprite(ctx, current, x, y, { outline: CUE });
+      if (pointed(state, name)) sprite(ctx, current, x, y, { outline: HOVER });
+      else if (scene.cues.has(name) && blinking()) sprite(ctx, current, x, y, { outline: CUE });
       sprite(ctx, current, x, y, look);
       if (name === 'phone' && messages.unread() && blinking(1400, 300)) {       // the new-text light
         const size = sprites.size(current);
@@ -288,6 +291,7 @@
       const item = game.order().items.find(entry => entry.id === product.id);
       if (state.selectedId === product.id) sprite(ctx, name, x, y, { outline: SELECTED });
       else if (state.paid && item?.heat && !state.heatedIds.includes(item.id)) sprite(ctx, name, x, y, { outline: HEAT });
+      else if (pointed(state, 'item:' + product.id)) sprite(ctx, name, x, y, { outline: HOVER });
       else if (scene.cues.has('item:' + product.id) && blinking()) sprite(ctx, name, x, y, { outline: CUE });
       sprite(ctx, name, x, y, { mood: product.flicker ? 'echo' : mood });
     }

@@ -36,6 +36,40 @@ const { chromium, URL_BASE, signIn, idle, click } = require('./browser-helpers.c
     });
     assert.equal(await page.evaluate(() => NSF.game.state.feedback.kind), 'stale');
     assert.equal(await page.evaluate(() => NSF.game.state.bagged), false);
-    console.log('PASS: premature bagging reason, queue deduplication, modal pause, automatic scan, stale order and invalid queued action.');
+
+    // The radio's dial is exclusive but live: the shift keeps running and lines advance.
+    await page.evaluate(() => NSF.radio.openDial());
+    const before = await page.evaluate(() => NSF.time.now);
+    await page.evaluate(() => NSF.radio.setFrequency(8770));
+    await page.waitForFunction(() => NSF.radio.view.key, null, { timeout: 5000 });
+    assert.equal(await page.evaluate(() => NSF.time.paused), false);
+    assert.ok(await page.evaluate(t => NSF.time.now > t, before));
+    // A new order's segment does not silence another frequency.
+    await page.evaluate(() => NSF.radio.beginOrder(['radio.o4']));
+    await page.waitForTimeout(400);
+    assert.ok(await page.evaluate(() => NSF.radio.view.key), 'the echo keeps playing across an order change');
+    await page.evaluate(() => NSF.radio.closeDial());
+    // The clerk's call survives the next order's segment: their words and June's reply
+    // play before it.
+    await page.evaluate(() => {
+      NSF.radio.tune('87.6');
+      NSF.radio.play([{ key: 'radio.caller', vars: { name: 'JO', said: '@call.hello' }, keep: true }, { key: 'radio.replyHello', vars: {}, keep: true }]);
+      NSF.radio.beginOrder(['radio.o7']);
+    });
+    const heard = [];
+    for (let i = 0; i < 400 && !heard.includes('radio.o7'); i++) {
+      const key = await page.evaluate(() => NSF.radio.view.key);
+      if (key && heard.at(-1) !== key) heard.push(key);
+      await page.waitForTimeout(25);
+    }
+    assert.ok(heard.indexOf('radio.replyHello') >= 0 && heard.indexOf('radio.replyHello') < heard.indexOf('radio.o7'), 'reply before the next segment: ' + heard);
+    // A pausing overlay holds the radio, and a song in progress starts again afterwards.
+    await page.evaluate(() => { NSF.radio.play([{ song: 'slowTide' }]); });
+    await page.waitForFunction(() => NSF.radio.view.song, null, { timeout: 20000 });
+    await page.evaluate(() => NSF.found.open());
+    assert.equal(await page.evaluate(() => [NSF.time.paused, NSF.radio.view.song]).then(v => v.join()), 'true,');
+    await page.evaluate(() => NSF.found.close());
+    await page.waitForFunction(() => NSF.radio.view.song === 'slowTide', null, { timeout: 5000 });
+    console.log('PASS: premature bagging reason, queue deduplication, modal pause, automatic scan, stale order, invalid queued action, live dial, echo across orders, a call kept on air, radio held and resumed.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

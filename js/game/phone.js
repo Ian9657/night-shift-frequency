@@ -46,14 +46,12 @@
     if (view.open) return;
     if (!overlay.open('phone')) return;
     Object.assign(view, { open: true, closing: false, since: time.uiNow, screen: 'home', row: messages.unread() ? 0 : view.row % HOME.length, reading: null });
-    audio.radioDucked = true;
     audio.phoneFlip(true);
   }
   function close() {
     if (!view.open || view.closing) return;
     Object.assign(view, { closing: true, since: time.uiNow });
     overlay.close('phone');
-    audio.radioDucked = false;
     audio.phoneFlip(false);
   }
 

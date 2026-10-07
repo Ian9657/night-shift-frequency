@@ -70,7 +70,7 @@
       hit.ui.action(point);
       if (hit.ui.drag) { dragging = hit.ui; canvas.setPointerCapture?.(event.pointerId); }
     } else if (hit?.world) game.activate(hit.world.name);
-    else if (game.state.phase === 'shift' && !phone.view.open && !found.view.open && !records.view.open) game.notify('empty');
+    else if (game.state.phase === 'shift' && !phone.view.open && !found.view.open && !records.view.open) game.tap(null);
   });
   canvas.addEventListener('pointermove', event => {
     const point = toScreen(event);

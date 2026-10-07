@@ -68,6 +68,8 @@ from; only the click priority (UI, then products, then fixtures) is defined sepa
 | Phase (title → signin → shift → report → ending → clockout → end) | `checkout.js` `state` | |
 | The store's clock and the sky's colours | `night.js` | Derived from the phase and the order; the ending's dawn runs on the game clock. The sky is a slot remap of the back wall's night, sea and lamp colours. |
 | The clerk's name, the sheet's draft | `signin.js` | |
+| Which panel is open, and whether it pauses | `overlay.js` | One at a time. Pausing panels stop the game clock and hold the radio (`radio.hold`/`release`); the dial is exclusive but live. |
+| The action queue, click feedback, hover target | `checkout.js` `state` | `queuedActions`, `feedback`, `flash`, `hoverTarget`; presentation of them is in `world.js` and `ui.js`. |
 | Texts received, the text sent and when it was read on air, the call made | `messages.js` | Arrivals and the open lines derive from the order reached. |
 
 Rule: one source of truth per fact. Derive, don't copy.
@@ -148,6 +150,7 @@ card.
 | `content.test.cjs` | Every referenced string exists, no orphaned strings, story keys, endings, glyph coverage |
 | `art.test.cjs` | The bundle matches its sources, palette bounds, PNG round-trip, every sprite used, layout and anchors |
 | `browser-flow.cjs` | Real pointer input through all eight orders on all four branches, report, ending, audio smoke, recovery from a failing action, seed, narrow viewport |
+| `interaction.test.cjs` | Feedback for blocked clicks, the action queue (dedupe, stale, paused), the live dial, other frequencies across an order change, the clerk's call kept on air, the radio held and resumed by a pausing panel |
 | `visual.cjs` | Screenshots of key moments for human review |
 
 Not covered: natural-speed pacing, audio mix, accessibility beyond the record view.
@@ -177,6 +180,8 @@ checkout prerequisites before dispatching an entry. The action handlers still
 validate their own payment and record rules. Rejected queued actions are discarded
 with feedback; they are not promises to perform a future transaction.
 
-The UI renders failure reasons on the POS, a persistent cyan selection outline, and
-desktop hover labels. Labels for physical products use their visible identity;
-register observations remain on the POS. Feedback expiry uses the UI clock.
+Failure reasons appear briefly in the POS's status field. The object under the pointer
+(or held on a touch screen) and a just-queued machine get a pixel outline with the
+object (`world.js`); `ui.js` draws only the name label over it. Labels for physical
+products use their visible identity; register observations remain on the POS. Feedback
+expiry uses the UI clock.
