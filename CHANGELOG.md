@@ -5,6 +5,25 @@ verified and what was not.
 
 ## Unreleased
 
+### Added — the room's sounds
+
+- A door chime as each customer comes in; the drinks fridge's compressor starting,
+  humming for a minute or so and stopping with a rattle; gulls at first light before the
+  sign-out. With the earlier steps the store also has tyre hiss outside, the wall
+  clock's ticks when it skips, a ballast buzz on flickers, the phone's buzz and chirp,
+  and the pen on the sign-in sheet.
+- The echo's hiss thins as the night goes on, so 87.7 is clearer toward dawn.
+
+### Verified (sounds)
+
+- All five checks pass; the browser flow's audio smoke test calls every new sound
+  against a real AudioContext.
+
+### Not verified (sounds)
+
+- None of the new sounds was listened to; levels against the room tone and the radio
+  are untested by ear.
+
 ### Added — texts on the flip phone
 
 - The phone opens on a menu: MESSAGES, TEXT NIGHT FERRY, SETTINGS (`phone.js` now has

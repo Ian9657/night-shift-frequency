@@ -5,7 +5,7 @@
 // string keys resolved at draw time.
 (function (root) {
   'use strict';
-  const { time, audio, strings, story } = root.NSF;
+  const { time, audio, strings, story, night } = root.NSF;
   const BAND = story.radio.band;
   const label = freq => (freq % 10 ? (freq / 100).toFixed(2) : (freq / 100).toFixed(1));
 
@@ -81,7 +81,7 @@
     view.station = label(next);
     view.kind = kindOf(next);
     audio.radioTune();
-    audio.radioStation(view.offAir && view.kind === 'ferry' ? 'static' : view.kind);
+    audio.radioStation(view.offAir && view.kind === 'ferry' ? 'static' : view.kind, night.progress());
     show(null);
     time.cancel(lineTimer);
     lineTimer = time.after(450, advance);

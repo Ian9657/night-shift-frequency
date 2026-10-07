@@ -126,8 +126,9 @@ sprites carry their top-left as anchor `at`. Two renderers use it:
 
 ## Audio
 
-All sound is synthesised with Web Audio: room tone, machines, dialogue ticks, the
-radio bed and voice. There are no audio files. Everything plays through a `sounds` or a
+All sound is synthesised with Web Audio: room tone, the fridge's compressor, machines,
+the door chime, cars outside, the phone, dialogue ticks, the radio bed and voice, and
+gulls at dawn. There are no audio files. Everything plays through a `sounds` or a
 `radio` bus into `master`; the phone's settings set their levels. Ambient drift uses real timers on
 purpose; it is texture, not game state. Everything else waits on `NSF.time`.
 

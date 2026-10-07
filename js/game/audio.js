@@ -119,6 +119,28 @@
     root.setTimeout(ambientIncident, between(6500, 12500));
   }
 
+  // The drinks fridge's compressor: a start thump, a low hum for a minute or so, a
+  // clunk and a rattle as it stops, then quiet for a while.
+  function fridgeCycle(ctx, destination) {
+    const on = between(40, 90), off = between(50, 110);
+    const start = ctx.currentTime + 0.05;
+    tone({ frequency: 62, endFrequency: 48, duration: 0.18, type: 'triangle', gain: 0.008, lowpass: 300 });
+    const hum = ctx.createOscillator(), harmonic = ctx.createOscillator(), volume = ctx.createGain();
+    hum.type = 'sine'; hum.frequency.value = 49;
+    harmonic.type = 'triangle'; harmonic.frequency.value = 98;
+    volume.gain.setValueAtTime(0.0001, start);
+    volume.gain.exponentialRampToValueAtTime(0.006, start + 1.5);
+    volume.gain.setValueAtTime(0.006, start + on - 0.4);
+    volume.gain.exponentialRampToValueAtTime(0.0001, start + on);
+    hum.connect(volume); harmonic.connect(volume); volume.connect(destination);
+    hum.start(start); harmonic.start(start); hum.stop(start + on + 0.05); harmonic.stop(start + on + 0.05);
+    root.setTimeout(() => {
+      tone({ frequency: 90, endFrequency: 55, duration: 0.12, type: 'triangle', gain: 0.007, lowpass: 400 });
+      noise({ duration: 0.3, gain: 0.002, delay: 0.08, frequency: 1600 });
+      root.setTimeout(() => fridgeCycle(ctx, destination), off * 1000);
+    }, on * 1000);
+  }
+
   function startAmbience() {
     const ctx = audio();
     if (!ctx || ambienceStarted) return;
@@ -138,6 +160,7 @@
     // Rain against the glass.
     loop(ctx, master, { filterType: 'highpass', frequency: 5200, gain: 0.0024, duration: 2.3 });
     root.setTimeout(ambientIncident, between(6500, 12500));
+    root.setTimeout(() => fridgeCycle(ctx, master), between(4000, 20000));
     startRadioBed(ctx);
   }
 
@@ -153,11 +176,12 @@
 
   // What the dial is on: 'ferry' (Night Ferry, clean), 'echo' (hissing), 'signal'
   // (someone's frequency, mostly hiss) or 'static'.
-  function radioStation(kind) {
+  // `clarity` (0–1) thins the echo's hiss as the night goes on.
+  function radioStation(kind, clarity = 0) {
     if (!radioBed || !context) return;
     const now = context.currentTime;
     radioBed.station = kind;
-    const hiss = { ferry: 0.0026, echo: 0.011, signal: 0.015 }[kind] ?? 0.02;
+    const hiss = { ferry: 0.0026, echo: 0.014 - 0.009 * clarity, signal: 0.015 }[kind] ?? 0.02;
     radioBed.hiss.volume.gain.setTargetAtTime(hiss, now, 0.08);
     radioBed.hiss.filter.frequency.setTargetAtTime(kind === 'ferry' ? 3100 : 1800, now, 0.08);
   }
@@ -347,6 +371,20 @@
     tone({ frequency: 1760, duration: 0.09, type: 'sine', gain: 0.008, delay: 0.07, lowpass: 3000 });
   }
 
+  // The door's chime as a customer comes in: two soft notes, the second lower.
+  function doorChime() {
+    tone({ frequency: 1318, endFrequency: 1310, duration: 0.7, type: 'sine', gain: 0.007, lowpass: 4000 });
+    tone({ frequency: 1046, endFrequency: 1040, duration: 0.9, type: 'sine', gain: 0.007, delay: 0.26, lowpass: 4000 });
+  }
+
+  // Gulls over the harbour at first light: a few falling cries, far off.
+  function gulls() {
+    [0, 0.42, 1.6, 1.92, 2.2].forEach((delay, i) => {
+      const top = between(1500, 1900) - i * 40;
+      tone({ frequency: top, endFrequency: top * 0.62, duration: between(0.22, 0.34), type: 'triangle', gain: 0.0032, delay, lowpass: 2600 });
+    });
+  }
+
   // The sign-in sheet: a pen stroke per letter, the pen pressed down to sign.
   function pen() {
     noise({ duration: between(0.05, 0.08), gain: 0.0034, frequency: between(2600, 3400) });
@@ -359,7 +397,7 @@
   root.NSF.audio = {
     unlock: audio, startAmbience, scan, payment, anomaly, cashPaper, cashDrawer, microwaveStart, microwaveDone,
     stopMicrowave, receipt, bag, dialogueTick, resetTicks() { tickStep = 0; },
-    radioStation, radioTune, radioVoice, phoneKey, phoneFlip, pen, stamp, carPass, clockSkip, tubeFlicker, phoneBuzz, phoneSent,
+    radioStation, radioTune, radioVoice, phoneKey, phoneFlip, pen, stamp, carPass, clockSkip, tubeFlicker, phoneBuzz, phoneSent, doorChime, gulls,
     // Levels 0–5 for 'master', 'radio' and 'sounds'.
     level(name) { return levels[name]; },
     setLevel(name, value) { levels[name] = Math.max(0, Math.min(5, Math.round(value))); applyLevels(); },

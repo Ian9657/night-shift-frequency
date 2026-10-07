@@ -452,6 +452,7 @@
     // The basket is set down once the customer has reached the counter.
     scene.fixtures.basket = null;
     scene.customer.visible = true;
+    audio.doorChime();
     await walk(layout.customer.walk, 0, 1100);
     await time.wait(90);
     scene.fixtures.basket = F.basket.sprite;
@@ -511,7 +512,9 @@
     await closing.done;
     await leaving;
     broadcast.offAir();
-    await time.wait(1200);
+    await time.wait(900);
+    audio.gulls();
+    await time.wait(1400);
     state.phase = 'clockout';
     signin.open('out', () => time.after(1100, () => { state.phase = 'end'; }));
   }
