@@ -24,7 +24,9 @@
   const label = key => t(key);
   const shortId = id => id.replace('sale-', '#');
 
-  function hit(x, y, w, h, action, name) { targets.push({ x, y, w, h, action, name }); }
+  // `action` gets the screen-grid point clicked; `drag`, if given, also follows the
+  // pointer while it is held down.
+  function hit(x, y, w, h, action, name, drag) { targets.push({ x, y, w, h, action, name, drag }); }
 
   function box(ctx, x, y, w, h, fill, border, notch = 2) {
     ctx.fillStyle = border;
@@ -151,7 +153,7 @@
       }
       return;
     }
-    const echo = radio.view.echo;
+    const tone = { ferry: C.amber, echo: C.cyan, signal: C.paper }[radio.view.kind] || C.muted;
     const chip = 'FM ' + radio.view.station;
     const ts = narrow() ? 1.2 : 1;
     const chipWidth = text.width(chip) * ts + 12;
@@ -163,15 +165,58 @@
     const width = 16 + chipWidth + Math.max(...lines.map(line => text.width(line))) + 10 - 8;
     ctx.fillStyle = 'rgba(7,9,15,0.8)';
     ctx.fillRect(8, y, width, height);
-    ctx.fillStyle = echo ? C.cyan : C.amber;
+    ctx.fillStyle = tone;
     ctx.fillRect(8, y, 2, height);
-    text.draw(ctx, chip, 16, y + 5, echo ? C.cyan : C.amber, { scale: ts });
+    text.draw(ctx, chip, 16, y + 5, tone, { scale: ts });
     let remaining = Math.floor([...value].length * radio.progress());
     lines.forEach((line, i) => {
       const count = Math.max(0, Math.min([...line].length, remaining));
       remaining -= [...line].length;
-      text.draw(ctx, line, 16 + chipWidth, y + 5 + i * 14 * ts, echo ? C.cyan : C.white, { maxChars: count, scale: ts });
+      text.draw(ctx, line, 16 + chipWidth, y + 5 + i * 14 * ts, radio.view.kind === 'ferry' ? C.white : tone, { maxChars: count, scale: ts });
     });
+  }
+
+  // ------------------------------------------------------------ the radio's dial, close up
+  // Over the radio while it is open: the dial's cream scale from 87.5 to 88.1 with its
+  // red needle, step keys either side, the frequency and a signal meter. Click or drag
+  // on the scale to tune. Only Night Ferry and the echo are marked; the rest is found
+  // by ear. The counter stays live round it.
+  function dial(ctx, game) {
+    if (!radio.view.dialOpen || game.state.phase === 'title' || game.state.phase === 'signin') return;
+    const { low, high } = radio.band;
+    const x = 540, y = 204, w = 408, h = 84;
+    box(ctx, x, y, w, h, '#2c353d', '#14191e', 3);
+    hit(x, y, w, h, () => {}, null);
+    const wx = x + 42, wy = y + 10, ww = w - 84, wh = 40;
+    ctx.fillStyle = '#e0dac2';
+    ctx.fillRect(wx, wy, ww, wh);
+    ctx.fillStyle = '#a8a088';
+    ctx.fillRect(wx, wy + wh - 2, ww, 2);
+    const at = freq => Math.round(wx + 20 + (freq - low) / (high - low) * (ww - 40));
+    for (let f = low; f <= high; f += radio.band.step) {
+      const major = f % 10 === 0;
+      ctx.fillStyle = '#5e5848';
+      ctx.fillRect(at(f), wy + 4, 1, major ? 9 : 5);
+      if (major) text.draw(ctx, radio.label(f), at(f), wy + 16, C.ink, { align: 'center' });
+    }
+    for (const [f, color] of [[radio.band.ferry, '#df8a3a'], [radio.band.echo, '#3fb3b3']]) {
+      ctx.fillStyle = color;
+      ctx.fillRect(at(f) - 2, wy + 1, 5, 2);
+    }
+    ctx.fillStyle = '#c8403a';
+    ctx.fillRect(at(radio.view.freq) - 1, wy, 2, wh);
+    const tuneTo = point => radio.setFrequency(low + (point.x - wx - 20) / (ww - 40) * (high - low));
+    hit(wx, wy, ww, wh, tuneTo, 'dial', tuneTo);
+    button(ctx, x + 8, y + 18, 26, '<', () => radio.step(-1), { name: 'dial-down' });
+    button(ctx, x + w - 34, y + 18, 26, '>', () => radio.step(1), { name: 'dial-up' });
+    const readout = text.draw(ctx, t('radio.dial', { freq: radio.view.station }), wx, y + 58, C.phosphor);
+    const strength = { ferry: radio.view.offAir ? 0 : 4, echo: 4, signal: radio.caption() && radio.caption() !== t('radio.static') ? 2 : 0 }[radio.view.kind] || 0;
+    for (let b = 0; b < 4; b++) {
+      ctx.fillStyle = b < strength ? C.phosphor : '#3f4b54';
+      ctx.fillRect(readout + 10 + b * 7, y + 70 - b * 3, 5, 4 + b * 3);
+    }
+    text.draw(ctx, t('radio.dialHint'), wx + ww, y + 58, C.muted, { align: 'right' });
+    button(ctx, x + w - 26, y - 10, 22, '×', () => radio.closeDial(), { name: 'dial-close' });
   }
 
   // ------------------------------------------------------------ the phone, close up
@@ -482,6 +527,7 @@
     pos(ctx, game);
     bubble(ctx, game);
     caption(ctx, game);
+    dial(ctx, game);
     recordView(ctx, game);
     report(ctx, game);
     ending(ctx, game);

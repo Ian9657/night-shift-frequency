@@ -87,9 +87,19 @@ async function finish(page, index) {
     await speed(page, 12);
     await idle(page);
     await click(page, 'radio');
+    await click(page, 'ui:dial-up');
+    await click(page, 'ui:dial-up');
     await page.waitForFunction(() => NSF.debug.radio.view.echo && NSF.debug.radio.caption());
     await page.waitForTimeout(400);
     await shot(page, 'radio-echo');
+    // Between the stations, someone's frequency: the taxi dispatch.
+    await click(page, 'ui:dial-up');
+    await click(page, 'ui:dial-up');
+    await click(page, 'ui:dial-up');
+    await page.waitForFunction(() => NSF.debug.radio.view.kind === 'signal' && NSF.debug.radio.caption().startsWith('Car six'));
+    await page.waitForTimeout(500);
+    await shot(page, 'radio-signal');
+    await click(page, 'ui:dial-close');
     await click(page, 'recordKey');
     await click(page, 'ui:choice:keep');
     await shot(page, 'record-choices');

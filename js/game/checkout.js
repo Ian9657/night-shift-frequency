@@ -616,7 +616,7 @@
     if (name.startsWith('item:')) return guarded(() => selectItem(name.slice(5)));
     const actions = {
       scanner: scan, terminal: () => pay('terminal'), drawer, microwave: heat, bags: bag, basket: takeOut,
-      printer: printReport, recordKey: () => records.open(), radio: () => radio.tune(), phone: () => phone.open(),
+      printer: printReport, recordKey: () => records.open(), radio: () => radio.openDial(), phone: () => phone.open(),
     };
     return actions[name] ? guarded(actions[name]) : undefined;
   }

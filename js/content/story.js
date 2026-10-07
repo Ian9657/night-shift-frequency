@@ -64,6 +64,15 @@
       'correct-independent': ['radio.endCorrectIndependent1', 'radio.endCorrectIndependent2'],
     },
     signoff: 'radio.signoff',
+    // The dial, in hundredths of a megahertz, and what lies between the two stations:
+    // faint signals that belong to people who stayed, audible from the order `from`
+    // (an index) on, each cycling through its lines.
+    band: { low: 8750, high: 8810, step: 5, ferry: 8760, echo: 8770 },
+    signals: [
+      { freq: 8785, from: 1, lines: ['radio.taxi1', 'radio.taxi2', 'radio.taxi3'] },
+      { freq: 8795, from: 3, lines: ['radio.ward1', 'radio.ward2', 'radio.ward3'] },
+      { freq: 8805, from: 5, lines: ['radio.ferry1', 'radio.ferry2', 'radio.ferry3'] },
+    ],
   });
 
   const api = { catalog, drinks, clocks, night, contexts, records, radio };

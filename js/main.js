@@ -50,18 +50,28 @@
     return target ? { world: target } : null;
   }
 
+  // A UI region with `drag` (the radio's dial) follows the pointer while it is held.
+  let dragging = null;
   canvas.addEventListener('pointerdown', event => {
     event.preventDefault();
     render(); // hit regions must reflect the current state, not the last frame
-    const found = targetAt(toScreen(event));
-    if (found?.ui) found.ui.action();
-    else if (found?.world) game.activate(found.world.name);
+    const point = toScreen(event);
+    const found = targetAt(point);
+    if (found?.ui) {
+      found.ui.action(point);
+      if (found.ui.drag) { dragging = found.ui; canvas.setPointerCapture?.(event.pointerId); }
+    } else if (found?.world) game.activate(found.world.name);
   });
   canvas.addEventListener('pointermove', event => {
-    canvas.style.cursor = targetAt(toScreen(event)) ? 'pointer' : 'default';
+    const point = toScreen(event);
+    if (dragging) { dragging.drag(point); return; }
+    canvas.style.cursor = targetAt(point) ? 'pointer' : 'default';
   });
+  const release = () => { dragging = null; };
+  canvas.addEventListener('pointerup', release);
+  canvas.addEventListener('pointercancel', release);
   root.addEventListener('keydown', event => {
-    if (signin.key(event.key) || phone.key(event.key) || records.key(event.key)) { event.preventDefault(); return; }
+    if (signin.key(event.key) || phone.key(event.key) || records.key(event.key) || radio.key(event.key)) { event.preventDefault(); return; }
     if ((event.key === 'Enter' || event.key === ' ') && game.state.phase === 'title') game.startShift();
   });
 

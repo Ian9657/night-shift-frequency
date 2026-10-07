@@ -22,7 +22,8 @@ sign-in sheet (type it, or use the letter keys) and sign in.
   counter to bag an order.
 - Press the yellow REC key on the register's keypad to see the transaction record. When the register and the
   item disagree, scan the item again at the counter before the record choices appear.
-- Click the radio to switch between 87.6 and 87.7.
+- Click the radio to open its dial and tune it: 87.6 is *Night Ferry*, 87.7 something
+  else, and there is more between them.
 - Click the flip phone on the counter for settings: volume, radio, sounds and silent
   mode. The shift waits while it is open. A landscape window works best.
 

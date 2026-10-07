@@ -36,7 +36,7 @@
   // The tower's light blinks slowly; while the echo speaks on 87.7 it keeps time with
   // the voice instead.
   function tower() {
-    if (radio.view.echo && radio.view.key && radio.view.station === '87.7') return (time.now - radio.view.startedAt) % 760 < 300;
+    if (radio.view.echo && radio.view.key) return (time.now - radio.view.startedAt) % 760 < 300;
     return time.now % 1600 < 420;
   }
 

@@ -130,11 +130,11 @@
     ctx.fillRect(cx, cy, 1, 1);
   }
 
-  // The radio's needle at the low end of the dial: 87.7 sits one pixel right of 87.6.
-  function radioNeedle(ctx, station) {
+  // The radio's needle at the low end of the dial: a pixel per 0.1 MHz from 87.6.
+  function radioNeedle(ctx, freq) {
     const d = layout.fixtures.radio.dial;
     ctx.fillStyle = '#c8403a';
-    ctx.fillRect(d.x + (station === '87.7' ? 4 : 3), d.y + 1, 1, d.h - 2);
+    ctx.fillRect(d.x + 3 + Math.round((freq - radio.band.ferry) / 10), d.y + 1, 1, d.h - 2);
   }
 
   // The microwave's idle display: the same time as the wall clock, without the leading zero.
@@ -220,13 +220,13 @@
     for (const [name, fixture] of Object.entries(layout.fixtures)) {
       let current = name in scene.fixtures ? scene.fixtures[name] : fixture.sprite;
       if (!current) continue;
-      if (name === 'radio') current = radio.view.station === '87.7' ? fixture.echo : fixture.sprite;
+      if (name === 'radio') current = radio.view.kind === 'echo' ? fixture.echo : fixture.sprite;
       if (name === 'recordKey' && game.recordPending() && blinking(900, 600)) current = fixture.lit;
       const [x, y] = sprites.anchor(current, 'at');
       if (scene.cues.has(name) && blinking()) sprite(ctx, current, x, y, { outline: CUE });
       sprite(ctx, current, x, y, look);
     }
-    radioNeedle(ctx, radio.view.station);
+    radioNeedle(ctx, radio.view.freq);
     if (!scene.fixtures.microwave || scene.fixtures.microwave === layout.fixtures.microwave.sprite) microwaveClock(ctx, clock);
     if (scene.fixtures.paper) {                                     // the receipt rising from the printer
       const slot = layout.fixtures.printer.slot;

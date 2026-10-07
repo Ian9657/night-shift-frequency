@@ -7,7 +7,7 @@
     'title.name': 'NIGHT SHIFT FREQUENCY',
     'title.place': 'LOWTIDE · HARBOR MART · 1 A.M.',
     'title.start': 'START SHIFT',
-    'ui.radioHint': 'Click the radio to change station',
+    'ui.radioHint': 'Click the radio to tune it',
     'title.hint': 'Click to play · sound starts after you begin',
     'end.title': 'SHIFT OVER',
     'end.records': 'WHAT YOU RECORDED',
@@ -182,6 +182,18 @@
     'radio.echoRecord': 'REG#02. {time}. {label}, one.',
     'radio.echoOpposite': 'REG#02. 02:41. {label}. Origin: {origin}.',
     'radio.echoDoor': "She's at the door already.",
+    // Between the stations: people who stayed, faintly
+    'radio.taxi1': 'Car six, are you there? Fare at the pier, going nowhere in particular.',
+    'radio.taxi2': "...Car six. Your meter's been running since midnight.",
+    'radio.taxi3': "Nobody's called it in, Walt. Just keep driving.",
+    'radio.ward1': '(a call bell) ...Bed nine. Bed nine again.',
+    'radio.ward2': "Ana, you were due off at eleven. You're still on the board.",
+    'radio.ward3': '(the bell once more, a long way down the corridor)',
+    'radio.ferry1': 'Crossing report, Lowtide to the far shore. Sea slight. Visibility good.',
+    'radio.ferry2': 'The 03:40 sailing is running on time.',
+    'radio.ferry3': '...All sailings tonight remain suspended.',
+    'radio.dial': 'FM {freq}',
+    'radio.dialHint': 'Drag the needle, or use the arrow keys',
   };
 
   function t(key, vars = {}) {

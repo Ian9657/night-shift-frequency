@@ -148,17 +148,18 @@
     master.connect(bus.radio);
     const hiss = loop(ctx, master, { filterType: 'bandpass', frequency: 3100, gain: 0.0026, duration: 1.7, drift: false });
     const hum = loop(ctx, master, { filterType: 'lowpass', frequency: 180, gain: 0.0018, duration: 2.1, drift: false });
-    radioBed = { master, hiss, hum, station: '87.6' };
+    radioBed = { master, hiss, hum, station: 'ferry' };
   }
 
-  function radioStation(station) {
+  // What the dial is on: 'ferry' (Night Ferry, clean), 'echo' (hissing), 'signal'
+  // (someone's frequency, mostly hiss) or 'static'.
+  function radioStation(kind) {
     if (!radioBed || !context) return;
     const now = context.currentTime;
-    radioBed.station = station;
-    // Night Ferry is clean, the echo hisses; anything else is open static.
-    const hiss = station === '87.6' ? 0.0026 : station === '87.7' ? 0.011 : 0.02;
+    radioBed.station = kind;
+    const hiss = { ferry: 0.0026, echo: 0.011, signal: 0.015 }[kind] ?? 0.02;
     radioBed.hiss.volume.gain.setTargetAtTime(hiss, now, 0.08);
-    radioBed.hiss.filter.frequency.setTargetAtTime(station === '87.6' ? 3100 : 1800, now, 0.08);
+    radioBed.hiss.filter.frequency.setTargetAtTime(kind === 'ferry' ? 3100 : 1800, now, 0.08);
   }
 
   function radioTune() {

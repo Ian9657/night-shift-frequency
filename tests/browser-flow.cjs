@@ -62,12 +62,12 @@ const { chromium, artifacts, URL_BASE, idle, click, playOrder, signIn, signOut }
     const failures = await page.evaluate(() => {
       const a = NSF.audio, failed = [];
       const calls = [['scan'], ['payment', 'card'], ['anomaly'], ['cashPaper'], ['cashDrawer'], ['microwaveStart'],
-        ['microwaveDone'], ['receipt'], ['bag'], ['dialogueTick', 'a'], ['radioTune'], ['radioVoice', 800, true], ['radioStation', '87.7'],
-        ['pen'], ['stamp']];
+        ['microwaveDone'], ['receipt'], ['bag'], ['dialogueTick', 'a'], ['radioTune'], ['radioVoice', 800, true], ['radioStation', 'echo'],
+        ['pen'], ['stamp'], ['carPass', true], ['clockSkip'], ['tubeFlicker']];
       for (const [name, ...args] of calls) {
         try { a[name](...args); } catch (error) { failed.push(name + ': ' + error.message); }
       }
-      a.radioStation('87.6');
+      a.radioStation('ferry');
       return failed;
     });
     assert.deepEqual(failures, []);
@@ -88,6 +88,24 @@ const { chromium, artifacts, URL_BASE, idle, click, playOrder, signIn, signOut }
     await click(page, 'scanner');
     await idle(page);
     assert.equal(await page.evaluate(id => NSF.debug.game.state.scannedIds.includes(id), item), true);
+
+    // The radio's dial: dragging the needle along the scale tunes it, step keys move it
+    // by 0.05, Night Ferry's line is replayed on tuning back.
+    await click(page, 'radio');
+    const scale = await page.evaluate(() => {
+      const d = NSF.debug.targets()['ui:dial'], c = document.querySelector('canvas').getBoundingClientRect();
+      return { x: d.x, y: d.y, w: c.width * 324 / 960 };
+    });
+    await page.mouse.move(scale.x, scale.y);
+    await page.mouse.down();
+    await page.mouse.move(scale.x + scale.w * 0.5, scale.y, { steps: 6 });
+    await page.mouse.up();
+    assert.equal(await page.evaluate(() => NSF.debug.radio.view.freq), 8810);
+    await click(page, 'ui:dial-down');
+    assert.equal(await page.evaluate(() => NSF.debug.radio.view.station), '88.05');
+    await page.evaluate(() => NSF.debug.radio.tune('87.6'));
+    assert.equal(await page.evaluate(() => NSF.debug.radio.view.kind), 'ferry');
+    await click(page, 'ui:dial-close');
 
     await click(page, 'phone');
     await page.waitForFunction(() => NSF.debug.time.paused && NSF.phone.frame() === 2);

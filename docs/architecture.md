@@ -61,8 +61,8 @@ from; only the click priority (UI, then products, then fixtures) is defined sepa
 | Current order progress: selection, scanned, paid, heated, bagged, busy, phase | `checkout.js` `state` | Reset per order. |
 | What is on screen: product positions, customer pose, fixtures, extras, mood, cues | `checkout.js` `scene` | Presentation only. Cues are recomputed every frame. |
 | Speech bubble text and input lock | `dialogue.js` | |
-| Station, caption, queue | `radio.js` | Plays what it is given. |
-| What plays when; what 87.7 says | `broadcast.js` | Reads game state through `attach(controller)`. |
+| Frequency, dial open, caption, queue | `radio.js` | Plays what it is given; frequencies are hundredths of a MHz. |
+| What plays when; what 87.7 and the signals between say | `broadcast.js` | Reads game state through `attach(controller)`. |
 | Record view open/draft/focus | `records.js` | Its model is derived from the engine on every draw. |
 | Phone open/frame/selected row | `phone.js` | Levels and silent mode live in `audio.js`; the phone saves them to localStorage. |
 | Phase (title → signin → shift → report → ending → clockout → end) | `checkout.js` `state` | |
@@ -165,4 +165,4 @@ dial (see [worldview.md](worldview.md)) will too.
 | Saving | One shift per session by design (only the phone's settings persist) | The game spans several nights |
 | Keyboard control of counter actions | Pointer-first pixel game | Accessibility becomes a goal |
 | Phone-size UI text | Requires a scalable UI layout | The radio dial and phone UI are built |
-| One declaration for drawing and clicking world objects | Low risk today | The radio dial adds many small interactive parts |
+| One declaration for drawing and clicking world objects | Low risk today; the radio's dial is a UI panel, not world parts | More world objects become interactive |

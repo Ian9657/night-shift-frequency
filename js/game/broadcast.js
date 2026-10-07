@@ -20,17 +20,30 @@
     return { key: 'radio.echoOpposite', vars: { label: kept ? '@item.cola' : '@item.spareKey', origin: kept ? '@origin.MANUAL' : '@origin.REGISTER' } };
   }
 
+  // Between the stations: someone's frequency, once the night has reached them, each
+  // line in turn; before that, static.
+  const heard = new Map();
+  function signal(freq) {
+    const s = story.radio.signals.find(entry => entry.freq === freq);
+    const live = ['shift', 'report', 'ending'].includes(game.state.phase);
+    if (!s || !live || game.state.eventIndex < s.from) return null;
+    const n = heard.get(freq) || 0;
+    heard.set(freq, n + 1);
+    return { key: s.lines[n % s.lines.length] };
+  }
+
   root.NSF.broadcast = {
     attach(controller) {
       game = controller;
       radio.setEchoProvider(echo);
+      radio.setSignalProvider(signal);
     },
     shiftStarted() { radio.play([...story.radio.intro, ...story.radio.orders[0]]); },
     orderStarted(index) { radio.play(story.radio.orders[index]); },
     // The closing letter and sign-off on 87.6: `done` resolves once they have been
     // heard; `duration` is how long they take on air.
     shiftClosed(ending) {
-      if (radio.view.station !== '87.6') radio.tune('87.6');
+      if (radio.view.kind !== 'ferry') radio.tune('87.6');
       const keys = [...story.radio.endings[ending], story.radio.signoff];
       return { done: radio.play(keys), duration: radio.duration(keys) };
     },

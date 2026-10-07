@@ -131,11 +131,17 @@ The four combinations lead to four letters read by *Night Ferry* after the shift
 
 ## The radio
 
+- Clicking the radio opens its dial over it: a scale from 87.5 to 88.1 in steps of 0.05.
+  Drag or click the needle, use the step keys, or the arrow keys; × or Escape puts it
+  away. The counter stays live while it is open.
 - 87.6 *Night Ferry*: an intro and one segment per order; missed lines replay when the
-  player tunes back.
+  player tunes back. After the sign-off it is static.
 - 87.7, the echo: static early; from order 5 it reads register records, and after order
   5 is decided it reads the record the player did **not** save.
-- Clicking the radio switches stations.
+- Between them, unmarked, three people who stayed, each from a point in the night:
+  a taxi dispatch calling Walt's car (87.85, from order 2), a ward calling Ana
+  (87.95, from order 4) and a crossing report for the suspended ferry (88.05, from
+  order 6). Their lines repeat in turn. Everything else is static.
 
 ## The phone
 

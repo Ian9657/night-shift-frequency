@@ -5,6 +5,27 @@ verified and what was not.
 
 ## Unreleased
 
+### Added — tuning the radio
+
+- Clicking the radio opens its dial (87.5–88.1, steps of 0.05) instead of flipping
+  between two stations: drag or click the needle, step keys, or arrow keys. UI regions
+  can now follow a held pointer (`drag` in `ui.js`, routed by `main.js`).
+- Between 87.6 and 87.7, unmarked, three people who stayed come in as the night goes
+  on: a taxi dispatch calling Walt (87.85), a ward calling Ana (87.95) and a crossing
+  report for the suspended ferry (88.05). Elsewhere is static, louder than the echo.
+- `radio.js` is now built around a frequency and a kind (ferry, echo, signal, static);
+  Night Ferry lines may carry variables; after the sign-off 87.6 is static.
+
+### Verified (radio)
+
+- All five checks pass; the browser flow drags the needle to the top of the band, steps
+  back to 88.05 and tunes back to Night Ferry. Desktop screenshots of the echo and the
+  taxi dispatch with the dial open were reviewed.
+
+### Not verified (radio)
+
+- The dial on a phone was not looked at; dragging on touch was not tried on a device.
+
 ### Added — drift that grows through the night
 
 - `js/game/drift.js` plans each shift's drift from its seed and changes only readings:
