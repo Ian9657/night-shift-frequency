@@ -1,7 +1,7 @@
 // Boot: canvas scaling, the frame loop and input routing.
 (function (root) {
   'use strict';
-  const { time, layout, world, ui, game, records, sprites, dialogue, radio, phone, signin } = root.NSF;
+  const { time, layout, world, ui, game, records, sprites, dialogue, radio, phone, signin, outside } = root.NSF;
   const canvas = document.querySelector('[data-game]');
   const ctx = canvas.getContext('2d');
   const live = document.querySelector('[data-live]');
@@ -94,6 +94,7 @@
 
   function frame(timestamp) {
     time.tick(timestamp);
+    if (game.state.phase !== 'title') outside.update();
     render();
     announce();
     root.requestAnimationFrame(frame);

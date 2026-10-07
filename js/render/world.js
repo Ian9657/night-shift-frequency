@@ -4,7 +4,7 @@
 // held out over the machines, things in motion, and the clerk's own things nearest.
 (function (root) {
   'use strict';
-  const { sprites, layout, customers, space, time, radio, night } = root.NSF;
+  const { sprites, layout, customers, space, time, radio, night, outside } = root.NSF;
   const CUE = '#f5d873', SELECTED = '#f1f5e6', HEAT = '#eda04c';
   // 3x5 digits for the microwave's clock display.
   const LED = {
@@ -26,16 +26,92 @@
     sprite(ctx, name, x, y, options);
   }
 
-  function rain(ctx) {
+  // The glass of the storefront minus the door's mullion and its two handles, which
+  // stand in front of everything outside.
+  function glass() {
     const [gx, gy] = sprites.anchor('store-back', 'window'), [gw, gh] = sprites.anchor('store-back', 'windowSize');
-    const [mx, mw] = sprites.anchor('store-back', 'mullion');
+    const [mx] = sprites.anchor('store-back', 'mullion');
+    return { gx, gy, gw, gh, door: [mx - 5, mx + 11], horizon: space.camera.vy };
+  }
+  function clipGlass(ctx, g) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(g.gx, g.gy, g.door[0] - g.gx, g.gh);
+    ctx.rect(g.door[1] + 1, g.gy, g.gx + g.gw - g.door[1] - 1, g.gh);
+    ctx.clip();
+  }
+
+  function rain(ctx, g) {
     ctx.fillStyle = 'rgba(109,143,179,0.45)';
-    for (let i = 0; i < 80; i++) {
-      const x = gx + (i * 37 + Math.floor(i / 7) * 11) % gw;
-      const y = gy + Math.floor((i * 53 + time.now * (0.09 + (i % 3) * 0.02)) % gh);
-      if (x >= mx - 1 && x <= mx + mw) continue;
-      ctx.fillRect(x, y, 1, Math.min(3, gy + gh - y));
+    const count = Math.round(80 * outside.rain());
+    for (let i = 0; i < count; i++) {
+      const x = g.gx + (i * 37 + Math.floor(i / 7) * 11) % g.gw;
+      const y = g.gy + Math.floor((i * 53 + time.now * (0.09 + (i % 3) * 0.02)) % g.gh);
+      ctx.fillRect(x, y, 1, Math.min(3, g.gy + g.gh - y));
     }
+    // Drops on the glass itself: each hangs, then slides a little way and hangs again,
+    // leaving a faint wet trail.
+    for (let i = 0; i < Math.round(18 * outside.rain()); i++) {
+      const x = g.gx + 2 + Math.floor(outside.hash(i + 101) * (g.gw - 4));
+      const period = 5200 + outside.hash(i + 202) * 6000, phase = (time.now + outside.hash(i + 303) * period) % period;
+      const run = Math.floor(outside.hash(i + 404) * g.gh), slid = Math.min(1, phase / period * 3) * 22;
+      const y = g.gy + Math.floor((run + Math.floor(time.now / period) * 22 + slid) % g.gh);
+      ctx.fillStyle = 'rgba(173,188,189,0.14)';
+      ctx.fillRect(x, Math.max(g.gy, y - 4), 1, Math.min(4, y - g.gy));
+      ctx.fillStyle = 'rgba(212,221,216,0.55)';
+      ctx.fillRect(x, y, 1, 2);
+    }
+  }
+
+  // A car along the wet street, headlights first, its lights smeared on the road.
+  function car(ctx, g) {
+    const c = outside.car();
+    if (!c) return;
+    const L = 32, span = g.gw + 80, base = g.horizon + (c.near ? 47 : 39);
+    const x = Math.round(c.leftward ? g.gx + g.gw + 40 - c.f * span : g.gx - 40 - L + c.f * span);
+    const dir = c.leftward ? -1 : 1, front = c.leftward ? x : x + L - 1, back = c.leftward ? x + L - 1 : x;
+    ctx.fillStyle = 'rgba(251,231,166,0.45)';                                     // the beams ahead
+    for (let i = 1; i < 30; i++) for (let j = -Math.floor(i / 6); j <= Math.floor(i / 8); j++) {
+      if ((i + j) % 2 && outside.hash(i * 31 + j) > i / 40) ctx.fillRect(front + dir * i, base - 4 + j, 1, 1);
+    }
+    ctx.fillStyle = 'rgba(224,179,99,0.35)';                                      // reflections on the road
+    for (let k = 1; k < 11; k += 2) ctx.fillRect(front - dir * 3 - 1, base + k, 3, 1);
+    ctx.fillStyle = 'rgba(200,64,58,0.35)';
+    for (let k = 1; k < 8; k += 2) ctx.fillRect(back - 1, base + k, 2, 1);
+    const cab = c.leftward ? x + 8 : x + 10;
+    ctx.fillStyle = '#05070c';
+    ctx.fillRect(x, base - 7, L, 7);                                              // body
+    ctx.fillRect(cab, base - 12, 14, 5);                                          // cabin
+    ctx.fillStyle = '#203759';
+    ctx.fillRect(cab + 1, base - 11, 5, 3); ctx.fillRect(cab + 8, base - 11, 5, 3); // windows catching the lamp
+    ctx.fillStyle = '#2d4b73';
+    ctx.fillRect(x + 1, base - 7, L - 2, 1);                                      // the roofline's sheen
+    ctx.fillStyle = '#0e1214';
+    for (const wx of [5, L - 10]) ctx.fillRect(x + wx, base - 1, 5, 2);            // wheels
+    ctx.fillStyle = '#fbe7a6';
+    ctx.fillRect(front - (dir < 0 ? 0 : 1), base - 5, 2, 2);
+    ctx.fillStyle = '#ff5a4a';
+    ctx.fillRect(back - (dir < 0 ? 1 : 0), base - 5, 2, 2);
+  }
+
+  // The ferry, lit, out on the bay, and its lights broken up in the water.
+  function ferry(ctx, g) {
+    const f = outside.ferry();
+    if (f === null) return;
+    const x = Math.round(g.gx - 34 + f * (g.gw + 68)), y = g.horizon + 11;
+    ctx.fillStyle = 'rgba(224,179,99,0.4)';
+    for (let k = 3; k < 15; k += 2) ctx.fillRect(x + 6 + (k * 3) % 7, y + k, 10 - Math.floor(k / 2), 1);
+    ctx.fillStyle = '#05070c';
+    ctx.fillRect(x, y - 2, 30, 4);                                                // hull
+    ctx.fillRect(x + 6, y - 6, 18, 4);                                            // decks
+    ctx.fillRect(x + 10, y - 9, 9, 3);
+    ctx.fillRect(x + 14, y - 13, 1, 4);                                           // mast
+    ctx.fillStyle = '#e0b363';
+    for (let wx = 0; wx < 7; wx++) ctx.fillRect(x + 8 + wx * 2, y - 5, 1, 2);
+    ctx.fillStyle = '#fbe7a6';
+    for (const wx of [11, 14, 17]) ctx.fillRect(x + wx, y - 8, 1, 1);
+    ctx.fillStyle = time.now % 1400 < 700 ? '#f3f6ea' : '#5cbf63';
+    ctx.fillRect(x + 14, y - 14, 1, 1);
   }
 
   function clockHands(ctx, clock) {
@@ -121,8 +197,13 @@
     ctx.save();
     ctx.setTransform(layout.screen.scale, 0, 0, layout.screen.scale, 0, 0);
     placed(ctx, 'store-back', { mood, slots: night.sky() });
-    rain(ctx);
-    if (time.now % 1600 < 420) {
+    const g = glass();
+    clipGlass(ctx, g);
+    ferry(ctx, g);
+    car(ctx, g);
+    rain(ctx, g);
+    ctx.restore();
+    if (outside.tower()) {
       const [tx, ty] = sprites.anchor('store-back', 'tower');
       ctx.fillStyle = '#ff5a4a';
       ctx.fillRect(tx - 1, ty - 1, 3, 3);

@@ -74,6 +74,10 @@ the closing letter is read the clock runs from 04:44 to 05:00. After the sign-of
 is static; the sheet comes back, the earlier lines now read as the clerk's name, and
 SIGN OUT writes 05:00 on tonight's line.
 
+Outside, cars pass on the wet street now and then, fewer in the small hours. The rain
+eases from half past three. After three the ferry, suspended according to June, crosses
+the bay anyway. While the echo speaks on 87.7, the tower's light blinks with the voice.
+
 Ordinary orders (2, 3, 4, 6, 7) are generated from the shift seed under hard
 constraints: one catalogue for products, prices and heatability; payment types that
 always have a completable path; no repeated small talk within a shift; the first order

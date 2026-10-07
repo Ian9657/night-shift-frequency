@@ -5,6 +5,25 @@ verified and what was not.
 
 ## Unreleased
 
+### Added — life outside the window
+
+- `js/game/outside.js`: cars pass on the wet street now and then (fewer in the small
+  hours), headlights first, with beams and reflections on the road and a tyre hiss
+  through the glass; they pass behind the door's mullion and handles.
+- After three the ferry, which June says is suspended, crosses the bay anyway, lit.
+- Drops hang on the glass and slide down in steps; the rain eases from half past three
+  to a drizzle by five.
+- While the echo on 87.7 speaks, the tower's red light blinks in time with the voice.
+
+### Verified (outside)
+
+- All five checks pass. Desktop close-ups of a car and the ferry were reviewed.
+
+### Not verified (outside)
+
+- The car sound's level against the room tone was not listened to. Phone screenshots
+  were not looked at.
+
 ### Added — the night runs from sign-in at 01:00 to dawn at 05:00
 
 - START SHIFT opens the night staff sign-in sheet: type a name (keyboard or the letter

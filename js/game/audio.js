@@ -304,6 +304,25 @@
     tone({ frequency: opening ? 420 : 300, endFrequency: opening ? 380 : 220, duration: 0.04, type: 'triangle', gain: 0.012, delay: 0.012, lowpass: 1600 });
   }
 
+  // A car on the wet street outside, through the glass: tyre hiss swelling and falling.
+  function carPass(near) {
+    const ctx = audio();
+    if (!ctx) return;
+    const start = ctx.currentTime, length = 2.4;
+    const source = ctx.createBufferSource(), filter = ctx.createBiquadFilter(), volume = ctx.createGain();
+    source.buffer = noiseBuffer(ctx, length, 0.4);
+    filter.type = 'bandpass';
+    filter.Q.value = 0.8;
+    filter.frequency.setValueAtTime(700, start);
+    filter.frequency.linearRampToValueAtTime(1300, start + length * 0.45);
+    filter.frequency.linearRampToValueAtTime(520, start + length);
+    volume.gain.setValueAtTime(0.0001, start);
+    volume.gain.exponentialRampToValueAtTime((near ? 0.012 : 0.007) * SFX_GAIN, start + length * 0.45);
+    volume.gain.exponentialRampToValueAtTime(0.0001, start + length);
+    source.connect(filter); filter.connect(volume); volume.connect(bus.sounds);
+    source.start(start); source.stop(start + length);
+  }
+
   // The sign-in sheet: a pen stroke per letter, the pen pressed down to sign.
   function pen() {
     noise({ duration: between(0.05, 0.08), gain: 0.0034, frequency: between(2600, 3400) });
@@ -316,7 +335,7 @@
   root.NSF.audio = {
     unlock: audio, startAmbience, scan, payment, anomaly, cashPaper, cashDrawer, microwaveStart, microwaveDone,
     stopMicrowave, receipt, bag, dialogueTick, resetTicks() { tickStep = 0; },
-    radioStation, radioTune, radioVoice, phoneKey, phoneFlip, pen, stamp,
+    radioStation, radioTune, radioVoice, phoneKey, phoneFlip, pen, stamp, carPass,
     // Levels 0–5 for 'master', 'radio' and 'sounds'.
     level(name) { return levels[name]; },
     setLevel(name, value) { levels[name] = Math.max(0, Math.min(5, Math.round(value))); applyLevels(); },
