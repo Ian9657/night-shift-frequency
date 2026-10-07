@@ -5,6 +5,23 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — a pool of light over the checkout mat
+
+- The counter and everything on and under it are lit brightest over the checkout mat
+  and fall off toward both ends (`pool` in `art/tools/raycast.cjs`, used by the ray-cast
+  lighting and the sculpted objects). The laminate's hand-painted tones step down to
+  match, dithered where they change. Walls, shelving and the fridge are unaffected.
+
+### Verified (light pool)
+
+- All five checks pass. Desktop card-sale and heating screenshots were reviewed. A
+  first version also dimmed the lower wall shelves; the pool is now limited to the
+  counter.
+
+### Not verified (light pool)
+
+- Phone screenshots were not looked at.
+
 ### Changed — the sale on a mat, the clerk's things on their own surfaces
 
 - The counter read as one surface with the sale and the clerk's things in one row. A

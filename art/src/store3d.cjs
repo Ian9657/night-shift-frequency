@@ -4,7 +4,7 @@
 // placed by their 'at' anchor.
 'use strict';
 const { Pix } = require('../tools/pixel.cjs');
-const { Stage, shade, lightAt } = require('../tools/raycast.cjs');
+const { Stage, shade, lightAt, pool } = require('../tools/raycast.cjs');
 const { sign, width: signWidth } = require('../tools/signs.cjs');
 const space = require('../../js/content/space.js');
 const palette = require('../palette.cjs');
@@ -322,7 +322,17 @@ function sides() {
 function counterLayer() {
   const s = new Stage();
   const TOP = s.object('counter', { ramp: RAMP.top });
-  s.quad([-room.halfW, counter.y, counter.near], [2 * room.halfW, 0, 0], [0, 0, counter.far - counter.near], [0, 1, 0], (u, v, P, sx, sy) => {
+  // The laminate's tones step down with the pool of light toward the counter's ends,
+  // dithered where they change.
+  const TONES = ['top1', 'top2', 'top3', 'top4', 'top5'];
+  const dimmed = (paint) => (u, v, P, sx, sy) => {
+    const c = paint(u, v, P, sx, sy), i = TONES.indexOf(c === 'white' ? 'top5' : c);
+    if (i < 0) return c;
+    const steps = (1 - pool(P)) / 0.12 + ((sx + sy) % 2 ? 0.25 : -0.25);
+    const level = Math.max(0, i - Math.max(0, Math.floor(steps)));
+    return level === i ? c : TONES[level];
+  };
+  s.quad([-room.halfW, counter.y, counter.near], [2 * room.halfW, 0, 0], [0, 0, counter.far - counter.near], [0, 1, 0], dimmed((u, v, P, sx, sy) => {
     if (counter.far - P[2] < 0.015) return 'buoy2';                         // brand strip on the far lip
     if (P[2] - counter.near < 0.03) return P[2] - counter.near < 0.012 ? 'white' : 'top5'; // bullnose
     const n = hash(Math.floor(P[0] * 220 + 900), Math.floor(P[2] * 220));
@@ -336,8 +346,8 @@ function counterLayer() {
     // deterministic, so rebuilds do not make the counter shimmer.
     if (P[2] > 0.58 && P[2] < 0.9 && P[0] > -0.35 && P[0] < 0.42 && ((sx * 7 + sy * 3) % 47 === 0)) return 'top3';
     return P[2] > 1.02 ? 'top3' : 'top4';
-  }, TOP);
-  s.quad([-room.halfW, counter.y - counter.thick, counter.near], [2 * room.halfW, 0, 0], [0, counter.thick, 0], [0, 0, -1], () => 'top2', TOP);
+  }), TOP);
+  s.quad([-room.halfW, counter.y - counter.thick, counter.near], [2 * room.halfW, 0, 0], [0, counter.thick, 0], [0, 0, -1], dimmed(() => 'top2'), TOP);
   const UNDER = s.object('under', { outline: false });
   s.quad([-room.halfW, 0, counter.near + 0.06], [2 * room.halfW, 0, 0], [0, counter.y - counter.thick, 0], [0, 0, -1], (u, v, P, sx, sy) => ((sx + sy) % 2 ? 'wall0' : 'ink'), UNDER);
   const { candyRack, lighters, donation, tray } = space.decor;
@@ -513,7 +523,7 @@ function sculpted(box, field, ramp, paint) {
   const p = new Pix(w, h);
   hits.forEach((hit, i) => {
     if (!hit) return;
-    const lum = (0.3 + 0.7 * Math.max(0, sculpt.vec.dot(hit.n, LIGHT))) * (0.6 + 0.4 * hit.ao);
+    const lum = (0.3 + 0.7 * Math.max(0, sculpt.vec.dot(hit.n, LIGHT))) * (0.6 + 0.4 * hit.ao) * pool(hit.P);
     p.px(i % w, Math.floor(i / w), (paint && paint(hit)) || ramp[lum < 0.35 ? 1 : lum < 0.6 ? 2 : lum < 0.85 ? 3 : 4]);
   });
   for (let i = 0; i < hits.length; i++) {

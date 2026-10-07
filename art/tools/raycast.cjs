@@ -27,7 +27,16 @@ function lightAt(P, n) {
     const below = room.ceiling - P[1];
     I += 0.34 * Math.exp(-(across * across * 1.8 + below * below) / 1.7);
   }
-  return Math.min(1, I);
+  return Math.min(1, I * pool(P));
+}
+
+// The pool of light on the counter: things on and under it are brightest over the
+// checkout mat and fall off toward both ends, so the eye goes to the sale.
+const { counter, mat } = space;
+function pool(P) {
+  if (P[1] > counter.y + 0.5 || P[2] > counter.far + 0.15 || P[0] < -1.4 || P[0] > 1.02) return 1;   // the counter, not the walls or the fridge
+  const d = Math.abs(P[0] - mat.x), t = Math.min(1, Math.max(0, (d - 0.36) / 0.9));
+  return 1.06 - 0.06 * Math.min(1, d / 0.36) - 0.3 * t * t * (3 - 2 * t);
 }
 
 // Cel bands over a 5-tone ramp [outline, dark, mid, light, highlight]; the highlight
@@ -181,4 +190,4 @@ function stamp(pix) {
   };
 }
 
-module.exports = { Stage, shade, lightAt, stamp, TUBES };
+module.exports = { Stage, shade, lightAt, pool, stamp, TUBES };
