@@ -5,6 +5,25 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — validated queued actions and visible selection
+
+- Revalidate queued checkout actions against the current order. Pause queue dispatch
+  during modal inspection or locked dialogue, and discard stale entries.
+- Keep selected products outlined when hovering elsewhere; add desktop fixture and
+  product labels without exposing record choices.
+- Show specific payment, scanning, heating and packing failure reasons on the POS,
+  with a longer reading interval instead of a separate bottom HUD.
+- Added interaction regression coverage for duplicate clicks, modal queue suspension,
+  auto scanning, stale orders and invalid queued actions.
+
+### Verification (validated input)
+
+- Full standard verification suite and the new interaction test passed. Desktop and
+  landscape phone screenshots reviewed; font regenerated.
+- Physical phone use and speaker listening were not verified. Touch long-press labels
+  are not implemented in this update.
+
+
 ### Changed — interaction feedback and input resilience
 
 - Added a derived POS phase hint for scanning, record checks, heating, packing and

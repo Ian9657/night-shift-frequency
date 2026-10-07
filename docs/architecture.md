@@ -168,3 +168,15 @@ phone, the night's clock, drift, texts and the view outside follow this pattern.
 | Keyboard control of counter actions | Pointer-first pixel game | Accessibility becomes a goal |
 | Phone-size UI text | Requires a scalable UI layout | The radio dial and phone UI are built |
 | One declaration for drawing and clicking world objects | Low risk today; the radio's dial is a UI panel, not world parts | More world objects become interactive |
+
+## Counter input feedback
+
+Checkout owns the bounded, deduplicated action queue. Updates discard entries from
+older orders, wait through locked dialogue and modal inspection, and check current
+checkout prerequisites before dispatching an entry. The action handlers still
+validate their own payment and record rules. Rejected queued actions are discarded
+with feedback; they are not promises to perform a future transaction.
+
+The UI renders failure reasons on the POS, a persistent cyan selection outline, and
+desktop hover labels. Labels for physical products use their visible identity;
+register observations remain on the POS. Feedback expiry uses the UI clock.

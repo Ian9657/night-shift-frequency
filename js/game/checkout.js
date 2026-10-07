@@ -143,9 +143,18 @@
     return lines;
   }
   const sayOnce = key => sayReactionSequence([key])[0] || null;
-  function reactToBlocked(key) { if (!state.busy) sayOnce(key); }
+  const feedbackFor = {
+    scanAfterPay: 'paid', redundantScan: 'alreadyScanned', earlyPayment: 'scanFirst', wrongPayment: 'wrongPayment',
+    earlyHeat: 'paidFirst', unneededHeat: 'noHeat', earlyBag: 'payFirst', bagBeforeHeat: 'heatFirst',
+  };
+  function reactToBlocked(key) {
+    if (!state.busy) {
+      notify(key === 'wrongPayment' ? (order().paymentType === 'cash' ? 'useCash' : 'useCard') : feedbackFor[key] || 'blocked');
+      sayOnce(key);
+    }
+  }
   function notify(kind) {
-    state.feedback = { kind, until: time.uiNow + 650 };
+    state.feedback = { kind, until: time.uiNow + 1800 };
     audio.uiClick();
   }
 
@@ -201,7 +210,7 @@
       if (waiting) state.selectedId = waiting.id;
       else await takeOut();
     }
-    if (!state.selectedId) return;
+    if (!state.selectedId) { notify('selectItem'); return; }
     const item = o.items.find(entry => entry.id === state.selectedId);
     if (item && isScanned(item) && (!o.mismatch || hasSavedRecord())) {
       reactToBlocked('redundantScan');
@@ -303,6 +312,7 @@
   async function pay(source) {
     const o = order();
     if (blocked()) return;
+    if (o.mismatch && o.items.every(isScanned) && !hasSavedRecord()) { notify('recordFirst'); return; }
     if (state.busy || !isPaymentReady()) {
       if (!state.busy && !state.paid) reactToBlocked('earlyPayment');
       return;
@@ -579,9 +589,11 @@
   function update() {
     if (state.feedback && time.uiNow >= state.feedback.until) state.feedback = null;
     const queued = state.queuedActions[0];
-    if (queued && !state.busy && queued.eventIndex === state.eventIndex) {
+    if (queued && queued.eventIndex !== state.eventIndex) state.queuedActions.shift();
+    else if (queued && !state.busy && !dialogue.locked && !root.NSF.overlay.view.active) {
       state.queuedActions.shift();
-      activate(queued.name);
+      if (actionStillRelevant(queued.name)) activate(queued.name);
+      else notify('stale');
     }
     placeProducts();
     const targets = cueTargets();
@@ -591,6 +603,18 @@
       cueReadyAt = time.now + (state.eventIndex >= CUE_DELAY_START ? CUE_DELAY_MS : 0);
     }
     scene.cues = new Set(time.now >= cueReadyAt ? targets : []);
+  }
+
+  function actionStillRelevant(name) {
+    const o = order();
+    if (!started() || !o) return false;
+    if (name === 'scanner') return !state.paid && scannedItems(o).length < o.items.length;
+    if (name === 'terminal' || name === 'drawer') return isPaymentReady();
+    if (name === 'microwave') return state.paid && pendingHeat(o).length > 0;
+    if (name === 'bags') return state.paid && !state.bagged && !pendingHeat(o).length && needsBag(o);
+    if (name === 'basket') return !state.paid && !o.items.some(item => !inBasket(item) && !isScanned(item)) && o.items.some(inBasket);
+    if (name === 'printer') return Boolean(o.finalReport && state.bagged && !state.reportShown);
+    return true;
   }
 
   // ------------------------------------------------------------ world hit targets

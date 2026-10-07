@@ -24,7 +24,16 @@
   const label = key => t(key);
   const shortId = id => id.replace('sale-', '#');
   const PHASE_LABELS = { scan: 'ui.phase.scan', record: 'ui.phase.record', heat: 'ui.phase.heat', bag: 'ui.phase.bag', complete: 'ui.phase.complete', busy: 'ui.phase.busy' };
-  const FEEDBACK_LABELS = { queued: 'ui.feedback.queued', busy: 'ui.feedback.busy', empty: 'ui.feedback.empty' };
+  const FEEDBACK_LABELS = {
+    queued: 'ui.feedback.queued', busy: 'ui.feedback.busy', empty: 'ui.feedback.empty', paid: 'ui.feedback.paid',
+    alreadyScanned: 'ui.feedback.alreadyScanned', scanFirst: 'ui.feedback.scanFirst', useCash: 'ui.feedback.useCash', useCard: 'ui.feedback.useCard', selectItem: 'ui.feedback.selectItem', recordFirst: 'ui.feedback.recordFirst',
+    paidFirst: 'ui.feedback.paidFirst', noHeat: 'ui.feedback.noHeat', payFirst: 'ui.feedback.payFirst',
+    heatFirst: 'ui.feedback.heatFirst', blocked: 'ui.feedback.blocked', stale: 'ui.feedback.stale',
+  };
+  const TARGET_LABELS = {
+    scanner: 'ui.target.scanner', terminal: 'ui.target.terminal', drawer: 'ui.target.drawer', microwave: 'ui.target.microwave',
+    basket: 'ui.target.basket', bags: 'ui.target.bags', radio: 'ui.target.radio', phone: 'ui.target.phone', lostFound: 'ui.target.lostFound',
+  };
 
   // `action` gets the screen-grid point clicked; `drag`, if given, also follows the
   // pointer while it is held down.
@@ -127,20 +136,41 @@
 
   function interactionOverlay(ctx, game) {
     const name = game.state.hoverTarget;
-    if (name && game.state.phase === 'shift' && !phone.view.open && !found.view.open && !records.view.open && !radio.view.dialOpen) {
-      const target = game.targets().find(item => item.name === name);
+    const selectedName = game.state.selectedId ? 'item:' + game.state.selectedId : null;
+    if (game.state.phase === 'shift' && !phone.view.open && !found.view.open && !records.view.open && !radio.view.dialOpen) {
+      const selectedTarget = game.targets().find(item => item.name === selectedName);
+      if (selectedTarget) {
+        const k = layout.screen.scale;
+        ctx.strokeStyle = C.cyan; ctx.lineWidth = 2;
+        ctx.strokeRect(selectedTarget.x * k - 2, selectedTarget.y * k - 2, selectedTarget.w * k + 4, selectedTarget.h * k + 4);
+      }
+      const activeName = name || selectedName;
+      const target = activeName && game.targets().find(item => item.name === activeName);
       if (target) {
         const k = layout.screen.scale;
-        ctx.strokeStyle = 'rgba(245,216,115,0.8)';
+        const selected = target.name === selectedName;
+        ctx.strokeStyle = selected ? 'rgba(99,212,208,0.95)' : 'rgba(245,216,115,0.8)';
         ctx.lineWidth = 2;
         ctx.strokeRect(target.x * k - 2, target.y * k - 2, target.w * k + 4, target.h * k + 4);
+        const labelKey = TARGET_LABELS[target.name];
+        const item = target.name.startsWith('item:') && game.order().items.find(entry => entry.id === target.name.slice(5));
+        const caption = item ? label(item.real || item.pos) : labelKey ? t(labelKey) : '';
+        if (caption) {
+          const width = text.width(caption) + 12;
+          const lx = Math.round(Math.max(4, Math.min(SW - width - 4, target.x * k + target.w * k / 2 - width / 2)));
+          const ly = Math.max(4, target.y * k - 20);
+          box(ctx, lx, ly, width, 16, 'rgba(7,9,15,0.86)', selected ? C.cyan : C.amber);
+          text.draw(ctx, caption, lx + width / 2, ly + 3, selected ? C.cyan : C.amber, { align: 'center' });
+        }
       }
     }
     const feedback = game.state.feedback;
     if (feedback) {
       const value = t(FEEDBACK_LABELS[feedback.kind]);
-      box(ctx, MID - 64, SH - 38, 128, 18, 'rgba(7,9,15,0.82)', C.amber);
-      text.draw(ctx, value, MID, SH - 34, C.amber, { align: 'center' });
+      const screen = layout.fixtures.pos.screen, k = layout.screen.scale;
+      const x = screen.x * k, y = (screen.y + screen.h) * k - 18;
+      box(ctx, x, y, screen.w * k, 18, C.panel, C.amber);
+      text.draw(ctx, value, x + 4, y + 3, C.amber, { clipWidth: screen.w * k - 8 });
     }
   }
 
