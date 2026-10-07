@@ -5,7 +5,7 @@
   const strings = {
     // Title and shell
     'title.name': 'NIGHT SHIFT FREQUENCY',
-    'title.place': 'LOWTIDE · HARBOR MART · 2 A.M.',
+    'title.place': 'LOWTIDE · HARBOR MART · 1 A.M.',
     'title.start': 'START SHIFT',
     'ui.radioHint': 'Click the radio to change station',
     'title.hint': 'Click to play · sound starts after you begin',
@@ -14,6 +14,20 @@
     'end.again': 'ANOTHER SHIFT',
     'end.seed': 'SEED {seed}',
     'end.note': 'Record it differently and the radio reads another letter.',
+
+    // The night staff sign-in sheet
+    'sheet.store': 'HARBOR MART',
+    'sheet.title': 'NIGHT STAFF SIGN-IN',
+    'sheet.date': 'DATE',
+    'sheet.name': 'NAME',
+    'sheet.in': 'IN',
+    'sheet.out': 'OUT',
+    'sheet.erase': 'DEL',
+    'sheet.signIn': 'SIGN IN',
+    'sheet.signOut': 'SIGN OUT',
+    'sheet.hintIn': "Write your name on tonight's line.",
+    'sheet.hintOut': 'Five o\'clock. The radio has stopped.',
+    'sheet.defaultName': 'ROBIN',
 
     // Items as the register names them
     'item.coffee': 'ICED COFFEE',
@@ -140,7 +154,7 @@
 
     // Radio: FM 87.6 Night Ferry, host June
     'radio.intro1': "This is FM 87.6, Night Ferry. I'm June.",
-    'radio.intro2': 'Two a.m. Good evening to everyone still awake.',
+    'radio.intro2': 'One a.m. Good evening to everyone still awake.',
     'radio.o1': "Rain until dawn. The ferry's suspended — hang in there, dock crew.",
     'radio.o2': 'A listener requested an old song for the night clerk at the corner store.',
     'radio.o3a': 'The old relay tower across the bay has been dead for twelve years.',

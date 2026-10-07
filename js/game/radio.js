@@ -6,7 +6,7 @@
   const { time, audio, strings } = root.NSF;
   const STATIONS = ['87.6', '87.7'];
 
-  const view = { station: '87.6', key: null, vars: {}, startedAt: 0, duration: 0, echo: false };
+  const view = { station: '87.6', key: null, vars: {}, startedAt: 0, duration: 0, echo: false, offAir: false };
   let queue = [];
   let lineTimer = null;
   let echoProvider = () => null;
@@ -72,8 +72,17 @@
     if (view.station === '87.6' && view.key) advance();
   }
 
+  // After Night Ferry signs off, 87.6 carries only static.
+  function signOff() {
+    view.offAir = true;
+    audio.radioStation('static');
+    if (view.station === '87.6') { show('radio.static', {}, true); time.cancel(lineTimer); lineTimer = null; }
+  }
+
   root.NSF.radio = {
-    view, play, tune, skip,
+    view, play, tune, skip, signOff,
+    // How long a run of Night Ferry lines takes on air.
+    duration: keys => keys.reduce((sum, key) => sum + lineDuration(key), 0),
     setEchoProvider(fn) { echoProvider = fn; },
     caption() {
       if (!view.key) return '';

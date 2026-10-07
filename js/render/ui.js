@@ -4,7 +4,7 @@
 // clickable region drawn here is registered for the input router.
 (function (root) {
   'use strict';
-  const { text, strings, dialogue, radio, records, layout, time, audio, engine, space, customers, sprites, phone } = root.NSF;
+  const { text, strings, dialogue, radio, records, layout, time, audio, engine, space, customers, sprites, phone, night, signin, story } = root.NSF;
   const t = strings.t;
   const C = {
     ink: '#101517', paper: '#ece8d0', paperShade: '#b4ae94', phosphor: '#aef08c', phosphorDim: '#55b066',
@@ -90,7 +90,7 @@
     ctx.fillRect(x, y, w, h);
     ctx.fillStyle = C.panelLine;
     ctx.fillRect(x + 2, y + 2, w - 4, 12);
-    const clock = game.state.phase === 'end' || game.state.phase === 'ending' ? '03:04' : game.order().clock;
+    const clock = night.clock();
     text.draw(ctx, t('pos.register'), x + 5, y + 1, C.phosphor, { scale: ts });
     text.draw(ctx, clock, x + w - 5, y + 1, C.phosphor, { align: 'right', scale: ts });
     const lines = posLines(game);
@@ -209,7 +209,7 @@
     for (let i = 0; i < 4; i++) ctx.fillRect(x0 + 4 + i * 4, y0 + 11 - i * 2, 3, 3 + i * 2);
     ctx.fillRect(x1 - 20, y0 + 5, 14, 7); ctx.fillRect(x1 - 6, y0 + 7, 2, 3);
     ctx.fillStyle = LCD.bar; ctx.fillRect(x1 - 19, y0 + 6, 3, 5);
-    text.draw(ctx, game.order().clock, x0 + w / 2, y0 + 1, LCD.light, { align: 'center' });
+    text.draw(ctx, night.clock(), x0 + w / 2, y0 + 1, LCD.light, { align: 'center' });
     text.draw(ctx, t('phone.title'), x0 + w / 2, y0 + 20, LCD.ink, { align: 'center' });
     phone.rows.forEach((row, i) => {
       const ry = y0 + 40 + i * 24, selected = phone.view.row === i;
@@ -350,7 +350,7 @@
       cy += 18;
     }
     cy += 8;
-    text.draw(ctx, '02:12 — 03:04', x + w / 2, cy, C.muted, { align: 'center' }); cy += 26;
+    text.draw(ctx, `${game.orders[0].clock} — ${story.night.closing}`, x + w / 2, cy, C.muted, { align: 'center' }); cy += 26;
     text.draw(ctx, t('report.continue'), x + w / 2, cy, time.now % 1000 < 650 ? C.ink : C.paperShade, { align: 'center' });
     hit(0, 0, SW, SH, () => game.startEnding(), 'report');
   }
@@ -372,7 +372,7 @@
     ctx.fillStyle = 'rgba(7,9,15,0.86)';
     ctx.fillRect(0, 0, SW, SH);
     text.draw(ctx, t('end.title'), MID, 90, C.white, { align: 'center', scale: 2 });
-    text.draw(ctx, '02:12 — 03:04 · REG#02', MID, 134, C.muted, { align: 'center' });
+    text.draw(ctx, `${story.night.start} — ${story.night.dawn} · ${signin.name}`, MID, 134, C.muted, { align: 'center' });
     text.draw(ctx, t('end.records'), MID, 172, C.amber, { align: 'center' });
     let cy = 196;
     for (const o of [orders[4], orders[7]]) {
@@ -398,6 +398,83 @@
     }, { name: 'again' });
   }
 
+  // ------------------------------------------------------------ the sign-in sheet
+  // A clipboard on the left: Harbor Mart's night staff sheet, the same signature on
+  // every night before this one and none of them signed out. At 01:00 the clerk writes
+  // their name on tonight's line with the letter keys on the right (or the keyboard);
+  // at 05:00 the earlier lines read as their name, and they sign out.
+  const INK = '#2c4a9a';
+  function scribble(ctx, x, y) {
+    ctx.fillStyle = INK;
+    for (let i = 0; i < 58; i++) {
+      const dy = Math.round(Math.sin(i / 3.1) * 3 + Math.sin(i / 1.3) * 1.5);
+      ctx.fillRect(x + i, y + 6 + dy, 2, 2);
+    }
+    ctx.fillRect(x + 62, y + 4, 2, 2);
+  }
+  function sheet(ctx, game) {
+    const v = signin.view;
+    if (game.state.phase !== 'signin' && game.state.phase !== 'clockout') return;
+    const out = v.mode === 'out';
+    ctx.fillStyle = out ? 'rgba(7,9,15,0.3)' : 'rgba(7,9,15,0.6)';
+    ctx.fillRect(0, 0, SW, SH);
+    hit(0, 0, SW, SH, () => {}, null);
+    const bx = 28, by = 60, bw = 372, bh = 384;
+    box(ctx, bx, by, bw, bh, '#7d5a3c', '#3c2a1c', 4);
+    ctx.fillStyle = '#a07a54';
+    ctx.fillRect(bx + 6, by + 4, bw - 12, 2);
+    const px = bx + 16, py = by + 34, pw = bw - 32, ph = bh - 46;
+    ctx.fillStyle = C.paperShade;
+    ctx.fillRect(px + 3, py + 3, pw, ph);
+    ctx.fillStyle = C.paper;
+    ctx.fillRect(px, py, pw, ph);
+    box(ctx, bx + bw / 2 - 60, by + 14, 120, 30, '#adbcbd', '#3f4b54', 3);           // the clip
+    ctx.fillStyle = '#7f8f96';
+    ctx.fillRect(bx + bw / 2 - 50, by + 34, 100, 3);
+    text.draw(ctx, t('sheet.store'), px + pw / 2, py + 16, C.ink, { align: 'center' });
+    text.draw(ctx, t('sheet.title'), px + pw / 2, py + 32, C.ink, { align: 'center' });
+    const cols = [px + 12, px + 70, px + 228, px + 282];
+    const top = py + 64, step = 34;
+    ['sheet.date', 'sheet.name', 'sheet.in', 'sheet.out'].forEach((key, i) => text.draw(ctx, t(key), cols[i], top, C.muted));
+    ctx.fillStyle = C.ink;
+    ctx.fillRect(px + 8, top + 16, pw - 16, 1);
+    const nights = ['10/09', '10/10', '10/11', '10/12', '10/13', '10/14'];
+    nights.forEach((date, i) => {
+      const y = top + 24 + i * step, tonight = i === nights.length - 1;
+      ctx.fillStyle = C.paperShade;
+      ctx.fillRect(px + 8, y + step - 8, pw - 16, 1);
+      for (const cx of cols.slice(1)) ctx.fillRect(cx - 8, top, 1, step * nights.length + 16);
+      text.draw(ctx, date, cols[0], y + 4, C.ink);
+      if (!tonight) {
+        if (out) text.draw(ctx, signin.name, cols[1], y + 4, INK);
+        else scribble(ctx, cols[1], y + 2);
+        text.draw(ctx, story.night.start, cols[2], y + 4, INK);
+        return;
+      }
+      const name = v.mode === 'in' && v.open ? v.draft : signin.name;
+      const end = text.draw(ctx, name, cols[1], y + 4, INK);
+      if (v.mode === 'in' && v.open && time.uiNow % 1000 < 550) { ctx.fillStyle = INK; ctx.fillRect(end + 1, y + 4, 2, 13); }
+      if (out) text.draw(ctx, story.night.start, cols[2], y + 4, INK);
+      if (v.signedOut) text.draw(ctx, story.night.dawn, cols[3], y + 4, INK);
+    });
+    text.draw(ctx, t(out ? 'sheet.hintOut' : 'sheet.hintIn'), px + pw / 2, py + ph - 26, C.muted, { align: 'center' });
+    if (out) {
+      if (!v.signedOut) button(ctx, 486, 404, 200, t('sheet.signOut'), () => signin.sign(), { name: 'sheet-sign' });
+      return;
+    }
+    // Letter keys, nine to a row, the last key rubs out.
+    const keys = [...signin.letters, 'DEL'];
+    const kx = 494, ky = 188;
+    keys.forEach((key, i) => {
+      const x = kx + (i % 9) * 46, y = ky + Math.floor(i / 9) * 40;
+      const erase = key === 'DEL';
+      box(ctx, x, y, 40, 32, C.panel, C.phosphor);
+      text.draw(ctx, erase ? t('sheet.erase') : key, x + 20, y + 9, C.phosphor, { align: 'center' });
+      hit(x, y, 40, 32, () => (erase ? signin.erase() : signin.type(key)), erase ? 'sheet-del' : 'sheet-' + key);
+    });
+    button(ctx, kx + 116, ky + 140, 180, t('sheet.signIn'), () => signin.sign(), { name: 'sheet-sign' });
+  }
+
   function draw(ctx, game) {
     targets = [];
     ctx.save();
@@ -409,6 +486,7 @@
     report(ctx, game);
     ending(ctx, game);
     title(ctx, game);
+    sheet(ctx, game);
     phoneView(ctx, game);
     ctx.restore();
   }

@@ -27,10 +27,13 @@
     },
     shiftStarted() { radio.play([...story.radio.intro, ...story.radio.orders[0]]); },
     orderStarted(index) { radio.play(story.radio.orders[index]); },
-    // Resolves once the closing letter and sign-off have been heard on 87.6.
+    // The closing letter and sign-off on 87.6: `done` resolves once they have been
+    // heard; `duration` is how long they take on air.
     shiftClosed(ending) {
       if (radio.view.station !== '87.6') radio.tune('87.6');
-      return radio.play([...story.radio.endings[ending], story.radio.signoff]);
+      const keys = [...story.radio.endings[ending], story.radio.signoff];
+      return { done: radio.play(keys), duration: radio.duration(keys) };
     },
+    offAir() { radio.signOff(); },
   };
 })(globalThis);

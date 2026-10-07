@@ -86,5 +86,7 @@
     if (x < 0 || y < 0 || x >= sprite.w || y >= sprite.h) return false;
     return Boolean(indices[name][y * sprite.w + x]);
   }
-  root.NSF.sprites = { get, size, anchor, opaqueAt };
+  // A palette entry's authored colour as '#rrggbb'.
+  function color(name) { return data.palette[nameIndex[name]].slice(0, 7); }
+  root.NSF.sprites = { get, size, anchor, opaqueAt, color };
 })(globalThis);

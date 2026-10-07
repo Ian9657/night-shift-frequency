@@ -2,7 +2,7 @@
 // model the renderer draws. Cross-order history lives in the shift engine.
 (function (root) {
   'use strict';
-  const { time, audio, dialogue, radio, records, broadcast, engine, story, customers, layout, sprites, phone } = root.NSF;
+  const { time, audio, dialogue, radio, records, broadcast, engine, story, customers, layout, sprites, phone, night, signin } = root.NSF;
 
   const params = new URLSearchParams(root.location?.search || '');
   const shift = engine.createShift(params.get('seed') || String(Date.now()));
@@ -10,7 +10,7 @@
   const CUE_DELAY_START = 2, CUE_DELAY_MS = 780;
 
   const state = {
-    phase: 'title', // title -> shift -> report -> ending -> end
+    phase: 'title', // title -> signin -> shift -> report -> ending -> clockout -> end
     eventIndex: 0, selectedId: null, takenIds: [], scannedIds: [], paid: false, bagged: false, heatedIds: [],
     reportShown: false, busy: false, modeOverride: null, reactionCounts: {}, dialogueFlags: new Set(),
   };
@@ -496,24 +496,36 @@
     printReceipt();
   }
 
+  // The last customer leaves, Night Ferry reads its letter and signs off while the sky
+  // lightens to five, and the clerk signs out on the sheet they signed in on.
   async function startEnding() {
     if (state.phase !== 'report') return;
     state.phase = 'ending';
     dialogue.clear();
+    scene.fixtures.basket = null;
     const leaving = walk(0, layout.customer.walk, 1100).then(() => { scene.customer.visible = false; });
     await time.wait(600);
-    await broadcast.shiftClosed(shift.ending());
+    const closing = broadcast.shiftClosed(shift.ending());
+    night.beginDawn(closing.duration);
+    await closing.done;
     await leaving;
-    state.phase = 'end';
+    broadcast.offAir();
+    await time.wait(1200);
+    state.phase = 'clockout';
+    signin.open('out', () => time.after(1100, () => { state.phase = 'end'; }));
   }
 
+  // START SHIFT: the sign-in sheet first; the shift begins once it is signed.
   function startShift() {
     if (state.phase !== 'title') return;
-    state.phase = 'shift';
+    state.phase = 'signin';
     audio.unlock();
     audio.startAmbience();
-    dialogue.say(order().customerLines, { lock: true });
-    broadcast.shiftStarted();
+    signin.open('in', () => {
+      state.phase = 'shift';
+      dialogue.say(order().customerLines, { lock: true });
+      broadcast.shiftStarted();
+    });
   }
 
   // ------------------------------------------------------------ per-frame derived state
@@ -616,5 +628,6 @@
   };
   records.attach(controller);
   broadcast.attach(controller);
+  night.attach(controller);
   root.NSF.game = controller;
 })(globalThis);

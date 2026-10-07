@@ -214,19 +214,18 @@ or arbitrary sprite rotation. New views and poses must preserve the quiet, tired
 
 ## Current build vs. this document
 
-Implemented now: Lowtide, Harbor Mart, the window view and tower; *Night Ferry* on 87.6
-with June, and the echo on 87.7 (two fixed stations); the spare-key story in orders 5
-and 8 with the four letters; the cast's English names; the "records may not lie" rule.
+Implemented now: Lowtide, Harbor Mart, the window view and tower; the 01:00–05:00 night
+in eight orders, from naming the clerk on the sign-in sheet to signing out at dawn after
+the radio signs off; *Night Ferry* on 87.6 with June, and the echo on 87.7; the spare-key
+story in orders 5 and 8 with the four letters; the cast's English names; the "records may
+not lie" rule.
 
 Not implemented yet:
 
-- The 01:00–05:00 night (the build runs 02:12–03:04 in eight orders) and ending at
-  the radio sign-off with clocking out.
 - Free tuning across the band and per-person frequencies.
 - Texting from the flip phone (the phone opens only as the settings menu now): song
   requests to *Night Ferry*, which need the station's music, and the text from the
   clerk's own number.
-- Naming the clerk on a sign-in sheet.
 - Drift that grows through the night (clock jumps, borrowed lines, the clerk's own
   notes). The counter's props are there (sign-in sheet, rota, receipts, magazine,
   sticky note) but don't change through the night yet.

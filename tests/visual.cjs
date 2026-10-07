@@ -4,7 +4,7 @@
 // landscape. Screenshots go to tests/artifacts/visual-*.png.
 const path = require('node:path');
 const assert = require('node:assert/strict');
-const { chromium, artifacts, URL_BASE, idle, click, playOrder } = require('./browser-helpers.cjs');
+const { chromium, artifacts, URL_BASE, idle, click, playOrder, signIn } = require('./browser-helpers.cjs');
 
 const shot = (page, name) => page.screenshot({ path: path.join(artifacts, `visual-${name}.png`) });
 const speed = (page, value) => page.evaluate(v => { NSF.debug.time.speed = v; }, value);
@@ -37,6 +37,9 @@ async function finish(page, index) {
     page.on('pageerror', e => errors.push(e.message));
     await page.goto(URL_BASE + '?seed=visual-check');
     await click(page, 'ui:start');
+    for (const letter of 'JO') await click(page, 'ui:sheet-' + letter);
+    await shot(page, 'sign-in');
+    await click(page, 'ui:sheet-sign');
     await speed(page, 12);
 
     // Order 1: card contact at the terminal.
@@ -101,7 +104,7 @@ async function finish(page, index) {
     const phone = await browser.newPage({ viewport: { width: 844, height: 390 }, isMobile: true, hasTouch: true });
     phone.on('pageerror', e => errors.push(e.message));
     await phone.goto(URL_BASE + '?seed=visual-check');
-    await click(phone, 'ui:start');
+    await signIn(phone);
     await phone.waitForTimeout(1500);
     await shot(phone, 'phone-landscape');
     assert.equal(await phone.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);

@@ -17,8 +17,10 @@
   ]);
   const drinks = Object.freeze(['tea', 'water', 'juice', 'cola']);
 
-  const clocks = Object.freeze(['02:12', '02:18', '02:24', '02:30', '02:41', '02:46', '02:52', '02:58']);
-  const closingClock = '03:04';
+  // The night runs 01:00 (sign-in) to 05:00 (Night Ferry signs off, the clerk signs out).
+  // Each order's clock; the report is printed at `closing`.
+  const clocks = Object.freeze(['01:14', '01:42', '02:09', '02:27', '02:41', '03:23', '03:58', '04:31']);
+  const night = Object.freeze({ start: '01:00', closing: '04:44', dawn: '05:00' });
 
   const contexts = Object.freeze([
     { name: 'quiet', style: 'quiet', lines: [] },
@@ -64,7 +66,7 @@
     signoff: 'radio.signoff',
   });
 
-  const api = { catalog, drinks, clocks, closingClock, contexts, records, radio };
+  const api = { catalog, drinks, clocks, night, contexts, records, radio };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else (root.NSF = root.NSF || {}).story = api;
 })(globalThis);

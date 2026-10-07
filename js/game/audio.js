@@ -155,9 +155,10 @@
     if (!radioBed || !context) return;
     const now = context.currentTime;
     radioBed.station = station;
-    const echo = station === '87.7';
-    radioBed.hiss.volume.gain.setTargetAtTime(echo ? 0.011 : 0.0026, now, 0.08);
-    radioBed.hiss.filter.frequency.setTargetAtTime(echo ? 1800 : 3100, now, 0.08);
+    // Night Ferry is clean, the echo hisses; anything else is open static.
+    const hiss = station === '87.6' ? 0.0026 : station === '87.7' ? 0.011 : 0.02;
+    radioBed.hiss.volume.gain.setTargetAtTime(hiss, now, 0.08);
+    radioBed.hiss.filter.frequency.setTargetAtTime(station === '87.6' ? 3100 : 1800, now, 0.08);
   }
 
   function radioTune() {
@@ -303,10 +304,19 @@
     tone({ frequency: opening ? 420 : 300, endFrequency: opening ? 380 : 220, duration: 0.04, type: 'triangle', gain: 0.012, delay: 0.012, lowpass: 1600 });
   }
 
+  // The sign-in sheet: a pen stroke per letter, the pen pressed down to sign.
+  function pen() {
+    noise({ duration: between(0.05, 0.08), gain: 0.0034, frequency: between(2600, 3400) });
+  }
+  function stamp() {
+    noise({ duration: 0.16, gain: 0.0048, frequency: 2900 });
+    noise({ duration: 0.05, gain: 0.0062, delay: 0.17, filterType: 'lowpass', frequency: 700 });
+  }
+
   root.NSF.audio = {
     unlock: audio, startAmbience, scan, payment, anomaly, cashPaper, cashDrawer, microwaveStart, microwaveDone,
     stopMicrowave, receipt, bag, dialogueTick, resetTicks() { tickStep = 0; },
-    radioStation, radioTune, radioVoice, phoneKey, phoneFlip,
+    radioStation, radioTune, radioVoice, phoneKey, phoneFlip, pen, stamp,
     // Levels 0–5 for 'master', 'radio' and 'sounds'.
     level(name) { return levels[name]; },
     setLevel(name, value) { levels[name] = Math.max(0, Math.min(5, Math.round(value))); applyLevels(); },

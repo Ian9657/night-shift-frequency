@@ -3,7 +3,7 @@
 // and rendering paths are unchanged.
 const path = require('node:path');
 const assert = require('node:assert/strict');
-const { chromium, artifacts, URL_BASE, idle, click, playOrder } = require('./browser-helpers.cjs');
+const { chromium, artifacts, URL_BASE, idle, click, playOrder, signIn, signOut } = require('./browser-helpers.cjs');
 
 (async () => {
   const browser = await chromium.launch({ headless: true, channel: 'chrome' });
@@ -15,7 +15,8 @@ const { chromium, artifacts, URL_BASE, idle, click, playOrder } = require('./bro
       page.on('pageerror', e => errors.push(e.message));
       await page.goto(URL_BASE + '?seed=browser-check');
       await page.evaluate(() => { NSF.debug.time.speed = 12; });
-      await click(page, 'ui:start');
+      await signIn(page, first === 'keep' ? 'JO' : '');
+      assert.equal(await page.evaluate(() => NSF.debug.signin.name), first === 'keep' ? 'JO' : 'ROBIN');
       for (let i = 0; i < 8; i++) {
         const order = await playOrder(page, [first, last], name).catch(async error => {
           await page.screenshot({ path: path.join(artifacts, `${name}-failure.png`) });
@@ -30,7 +31,7 @@ const { chromium, artifacts, URL_BASE, idle, click, playOrder } = require('./bro
       await page.waitForFunction(() => NSF.debug.game.state.phase === 'report');
       await page.screenshot({ path: path.join(artifacts, `${name}-report.png`) });
       await click(page, 'ui:report');
-      await page.waitForFunction(() => NSF.debug.game.state.phase === 'end', null, { timeout: 60000 });
+      await signOut(page, path.join(artifacts, `${name}-clockout.png`));
       await page.screenshot({ path: path.join(artifacts, `${name}-end.png`) });
       const result = await page.evaluate(() => ({
         ending: NSF.debug.game.shift.ending(), report: NSF.debug.game.shift.report(),
@@ -54,14 +55,15 @@ const { chromium, artifacts, URL_BASE, idle, click, playOrder } = require('./bro
     assert.equal(await page.evaluate(() => NSF.debug.seed), 'browser-check');
     await page.screenshot({ path: path.join(artifacts, 'mobile-title.png') });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
-    await click(page, 'ui:start');
+    await signIn(page);
     await page.evaluate(() => { NSF.debug.time.speed = 12; });
 
     // Every synthesised sound runs against a real AudioContext without throwing.
     const failures = await page.evaluate(() => {
       const a = NSF.audio, failed = [];
       const calls = [['scan'], ['payment', 'card'], ['anomaly'], ['cashPaper'], ['cashDrawer'], ['microwaveStart'],
-        ['microwaveDone'], ['receipt'], ['bag'], ['dialogueTick', 'a'], ['radioTune'], ['radioVoice', 800, true], ['radioStation', '87.7']];
+        ['microwaveDone'], ['receipt'], ['bag'], ['dialogueTick', 'a'], ['radioTune'], ['radioVoice', 800, true], ['radioStation', '87.7'],
+        ['pen'], ['stamp']];
       for (const [name, ...args] of calls) {
         try { a[name](...args); } catch (error) { failed.push(name + ': ' + error.message); }
       }

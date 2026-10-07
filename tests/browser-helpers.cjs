@@ -78,4 +78,20 @@ async function playOrder(page, choices, shots) {
   return order;
 }
 
-module.exports = { chromium, artifacts, URL_BASE, idle, click, playOrder };
+// START SHIFT, then sign tonight's line on the sheet (with a typed name, or the default).
+async function signIn(page, name = '') {
+  await click(page, 'ui:start');
+  for (const letter of name) await click(page, 'ui:sheet-' + letter);
+  await click(page, 'ui:sheet-sign');
+  await page.waitForFunction(() => NSF.debug.game.state.phase === 'shift');
+}
+
+// After the report: Night Ferry signs off, the clerk signs out, the closing card shows.
+async function signOut(page, shot) {
+  await page.waitForFunction(() => NSF.debug.game.state.phase === 'clockout', null, { timeout: 60000 });
+  if (shot) await page.screenshot({ path: shot });
+  await click(page, 'ui:sheet-sign');
+  await page.waitForFunction(() => NSF.debug.game.state.phase === 'end', null, { timeout: 15000 });
+}
+
+module.exports = { chromium, artifacts, URL_BASE, idle, click, playOrder, signIn, signOut };

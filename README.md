@@ -1,7 +1,7 @@
 # Night Shift Frequency
 
-2 a.m. at Harbor Mart, a convenience store in the seaside town of Lowtide. You work an
-eight-order night shift at the register: scan, take payment, heat, bag.
+1 a.m. at Harbor Mart, a convenience store in the seaside town of Lowtide. You sign in
+for the night shift and work the register until dawn: scan, take payment, heat, bag.
 The radio on the counter is playing FM 87.6, *Night Ferry*. Across the bay, a relay
 tower that went dark years ago is blinking red.
 Tonight the scanner reads a bottle of cola as a **spare key**, and the record you keep
@@ -12,7 +12,8 @@ or download it and open `index.html`. No install, no build.
 
 ## How to play
 
-Open `index.html` in a browser and click **START SHIFT**.
+Open `index.html` in a browser and click **START SHIFT**, then write your name on the
+sign-in sheet (type it, or use the letter keys) and sign in.
 
 - Click the customer's basket to take an item out, then the scanner. When everything is
   scanned, take payment the way the customer asks: card on the card terminal, cash from

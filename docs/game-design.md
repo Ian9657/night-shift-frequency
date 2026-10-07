@@ -48,19 +48,31 @@ once the item has been re-scanned, the record key on the register's keypad flash
 A few lines lock input until read (the first order's opening, the first re-scan
 reaction in a record order).
 
-## The shift: eight orders, 02:12–03:04
+## The night: 01:00–05:00, eight orders
+
+**START SHIFT** opens the night staff sign-in sheet. The clerk types a name on
+tonight's line (keyboard or the letter keys beside the sheet; empty signs as ROBIN)
+and signs in at 01:00. The earlier nights on the sheet carry the same signature and
+were never signed out.
 
 | Order | Time | Content | Role |
 | --- | --- | --- | --- |
-| 1 | 02:12 | Coffee and sandwich, card, bagged, quiet customer | Learn scan, pay, bag |
-| 2 | 02:18 | Cash, no bag; sometimes two of one drink | Cash and direct hand-over |
-| 3 | 02:24 | Lasagne and tea, heating requested after payment | Service order |
-| 4 | 02:30 | Coffee and bread, cash; fully normal | The system is usually right |
+| 1 | 01:14 | Coffee and sandwich, card, bagged, quiet customer | Learn scan, pay, bag |
+| 2 | 01:42 | Cash, no bag; sometimes two of one drink | Cash and direct hand-over |
+| 3 | 02:09 | Lasagne and tea, heating requested after payment | Service order |
+| 4 | 02:27 | Coffee and bread, cash; fully normal | The system is usually right |
 | 5 | 02:41 | **Record order A**: one cola, cash | First accountable record |
-| 6 | 02:46 | One random item | Recover the rhythm |
-| 7 | 02:52 | Two of one drink | Memory gap |
-| 8 | 02:58 | **Record order B**: one cola, cash; links to #005 | History becomes evidence |
-| — | 03:04 | Print the shift report; the radio reads the ending | One of four endings |
+| 6 | 03:23 | One random item | Recover the rhythm |
+| 7 | 03:58 | Two of one drink | Memory gap |
+| 8 | 04:31 | **Record order B**: one cola, cash; links to #005 | History becomes evidence |
+| — | 04:44 | Print the shift report; the radio reads the ending | One of four endings |
+| — | 05:00 | Night Ferry signs off; the clerk signs out on the sheet | The same act on every path |
+
+The view outside follows the clock: the night deepens toward 03:30, greys from 04:30
+and is a cold dawn by five, when the street lamp and the town's windows go out. While
+the closing letter is read the clock runs from 04:44 to 05:00. After the sign-off 87.6
+is static; the sheet comes back, the earlier lines now read as the clerk's name, and
+SIGN OUT writes 05:00 on tonight's line.
 
 Ordinary orders (2, 3, 4, 6, 7) are generated from the shift seed under hard
 constraints: one catalogue for products, prices and heatability; payment types that

@@ -1,7 +1,7 @@
 // Boot: canvas scaling, the frame loop and input routing.
 (function (root) {
   'use strict';
-  const { time, layout, world, ui, game, records, sprites, dialogue, radio, phone } = root.NSF;
+  const { time, layout, world, ui, game, records, sprites, dialogue, radio, phone, signin } = root.NSF;
   const canvas = document.querySelector('[data-game]');
   const ctx = canvas.getContext('2d');
   const live = document.querySelector('[data-live]');
@@ -61,7 +61,7 @@
     canvas.style.cursor = targetAt(toScreen(event)) ? 'pointer' : 'default';
   });
   root.addEventListener('keydown', event => {
-    if (phone.key(event.key) || records.key(event.key)) { event.preventDefault(); return; }
+    if (signin.key(event.key) || phone.key(event.key) || records.key(event.key)) { event.preventDefault(); return; }
     if ((event.key === 'Enter' || event.key === ' ') && game.state.phase === 'title') game.startShift();
   });
 
@@ -103,7 +103,7 @@
   // Test hooks: client-space centres of every clickable target.
   console.info(`Night Shift Frequency · seed ${game.shift.seed} · replay with ?seed=${encodeURIComponent(game.shift.seed)}`);
   root.NSF.debug = {
-    game, time, records, radio, dialogue, phone, seed: game.shift.seed,
+    game, time, records, radio, dialogue, phone, signin, seed: game.shift.seed,
     targets() {
       render();
       const rect = canvas.getBoundingClientRect();

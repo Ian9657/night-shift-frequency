@@ -5,6 +5,32 @@ verified and what was not.
 
 ## Unreleased
 
+### Added — the night runs from sign-in at 01:00 to dawn at 05:00
+
+- START SHIFT opens the night staff sign-in sheet: type a name (keyboard or the letter
+  keys beside it; empty signs as ROBIN) on tonight's line. The earlier nights carry the
+  same signature, none signed out.
+- The eight orders are spread over the night (01:14 to 04:31; the report at 04:44), so
+  order 5 stays at 02:41 and order 8 comes near dawn. June's intro says one a.m.
+- The view outside follows the clock (`js/game/night.js`): the back wall's night, sea and
+  lamp colours are remapped per two minutes of game time, deepest toward 03:30, grey
+  from 04:30, a cold dawn at five with the street lamp and the town's windows out.
+- The ending: while the closing letter and sign-off are read, the clock runs 04:44 →
+  05:00 and the sky lightens; then 87.6 is static, the sheet comes back with every
+  earlier line now reading as the clerk's name, and SIGN OUT writes 05:00. The closing
+  card shows 01:00 — 05:00 and the name. The customer's basket no longer stays behind.
+
+### Verified (night)
+
+- All five checks pass; the browser flow signs in with a typed name on two branches and
+  the default on two, and signs out on all four. Desktop screenshots of the sign-in
+  sheet, order 8 at 04:31 and the dawn sign-out were reviewed.
+
+### Not verified (night)
+
+- Phone screenshots of the sheet were not looked at. Natural-speed timing of the dawn
+  against the radio was not watched.
+
 ### Changed — a pool of light over the checkout mat
 
 - The counter and everything on and under it are lit brightest over the checkout mat
