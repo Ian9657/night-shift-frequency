@@ -226,23 +226,40 @@ function sides() {
     if (f === 'left') return t > 0.9 ? (t > 0.95 ? 'navy1' : 'buoy2') : null;
     return null;
   }, { name: 'fridge end' });
-  s.box({ x: fx, z: F.z0 - 0.002, w: fw - 0.06, h: 1.1, d: 0.004, y: 0.95 }, RAMP.paper, panel('front', 92, 168, p => {
-    // ICE COLD over a big bottle of cola, bubbles rising, on a deep blue ground.
-    p.rect(0, 0, 92, 168, 'white').rect(3, 3, 86, 162, 'navy1');
-    for (let y = 3; y < 165; y++) if (y % 3 === 0) p.dither(3, y, 86, 1, y < 80 ? 'navy2' : 'blue1', 'sparse');
-    // ICE over COLD, doubled, in the part of the poster the screen edge leaves visible.
+  // The end panel's top carries a short ICE COLD poster with the cola bottle; below it,
+  // an end-cap of three wire shelves over the counter's end: on top film, a disposable
+  // camera and the charity box (drawn with the counter), then a magazine rack, and just
+  // above the counter battery cards, phone cards and the lighters.
+  s.box({ x: fx, z: F.z0 - 0.002, w: fw - 0.06, h: 0.42, d: 0.004, y: 1.63 }, RAMP.paper, panel('front', 92, 64, p => {
+    p.rect(0, 0, 92, 64, 'white').rect(3, 3, 86, 58, 'navy1');
+    for (let y = 3; y < 61; y++) if (y % 3 === 0) p.dither(3, y, 86, 1, 'navy2', 'sparse');
     p.rect(3, 3, 86, 28, 'buoy2').hline(3, 88, 30, 'buoy0');
     const word = new Pix(30, 14);
     sign(word, 2, 0, 'ICE', 'white'); sign(word, 0, 7, 'COLD', 'white');
     for (let y = 0; y < 14; y++) for (let x = 0; x < 30; x++) if (word.get(x, y)) p.rect(10 + x * 2, 4 + y * 2, 2, 2, 'white');
-    // The bottle: cap, neck, shoulders, body with a white wave label, highlight.
-    p.rect(42, 36, 8, 5, 'red3').rect(43, 41, 6, 14, 'wood1');
-    p.ellipse(46, 66, 13, 12, 'wood1').rect(33, 66, 27, 84, 'wood1').ellipse(46, 150, 13, 4, 'wood1');
-    p.rect(33, 92, 27, 22, 'red2');
-    for (let x = 33; x < 60; x++) p.px(x, 102 + Math.round(Math.sin(x / 3) * 2), 'white').px(x, 103 + Math.round(Math.sin(x / 3) * 2), 'white');
-    p.vline(37, 60, 146, 'wood3').vline(38, 70, 140, 'wood2');
-    for (const [bx, by] of [[22, 60], [26, 82], [20, 110], [68, 70], [72, 98], [66, 128], [24, 138]]) p.ellipse(bx, by, 2, 2, 'cyan3').px(bx - 1, by - 1, 'white');
+    p.rect(38, 33, 4, 3, 'red3').rect(38, 36, 4, 5, 'wood1').rect(34, 41, 12, 19, 'wood1').rect(34, 47, 12, 5, 'red2').hline(34, 45, 49, 'white');   // the bottle
+    for (const [bx, by] of [[18, 40], [24, 52], [56, 44], [62, 54]]) p.ellipse(bx, by, 1, 1, 'cyan3');
   }), { name: 'poster' });
+  const cap = { x: F.x0 + 0.21, z: F.z0 - 0.05, w: 0.38, d: 0.1 };
+  for (const x of [cap.x - cap.w / 2, cap.x + cap.w / 2]) s.box({ x, z: cap.z, w: 0.012, h: 0.58, d: cap.d, y: counter.y + 0.03 }, RAMP.steel, null, { name: 'end-cap bracket' });
+  for (const y of [1.08, 1.3, 1.5]) {
+    s.box({ ...cap, h: 0.012, y }, RAMP.steel, null, { name: 'end-cap shelf' });
+    s.box({ x: cap.x, z: cap.z - cap.d / 2, w: cap.w, h: 0.03, d: 0.004, y: y + 0.012 }, RAMP.steel, null, { name: 'wire lip' });
+  }
+  // Magazines standing in the rack, covers out: masthead, cover photo, cover lines.
+  [['red', 'pink'], ['blue', 'yellow'], ['green', 'orange']].forEach(([mast, ground], i) => {
+    s.box({ x: cap.x - 0.12 + i * 0.12, z: cap.z + 0.01, w: 0.1, h: 0.15, d: 0.012, y: 1.312 }, RAMP.paper, panel('front', 20, 28, p => {
+      p.rect(0, 0, 20, 28, ground + '2').rect(0, 0, 20, 6, mast + '2').hline(2, 17, 2, 'white');
+      p.ellipse(12, 16, 5, 6, 'skin3').ellipse(12, 11, 5, 3, ['ink', 'wood1', 'yellow2'][i]).rect(7, 22, 11, 6, mast + '1');
+      for (let y = 9; y < 24; y += 4) p.hline(1, 5, y, 'white');
+    }), { name: 'magazine' });
+  });
+  // Small things: film boxes and a disposable camera on top; battery cards and phone
+  // cards at the bottom.
+  [[-0.15, 0.04, 0.05, RAMP.yellow, 'ink', 1.512], [-0.09, 0.04, 0.05, RAMP.yellow, 'ink', 1.512], [-0.02, 0.07, 0.045, RAMP.green, 'yellow2', 1.512],
+    [-0.12, 0.05, 0.08, RAMP.paper, 'orange2', 1.092], [-0.05, 0.06, 0.09, RAMP.blue, 'white', 1.092]].forEach(([dx, w, h, ramp, mark, y]) => {
+    s.box({ x: cap.x + dx, z: cap.z + 0.01, w, h, d: 0.03, y }, ramp, (f, u, t) => (f === 'front' && t > 0.35 && t < 0.65 && u > 0.2 && u < 0.8 ? mark : null), { name: 'end-cap goods' });
+  });
   s.box({ x: fx, z: fz, w: fw, h: 0.25, d: fd, y: 1.95 }, RAMP.steel, (f, u, t) => {
     if (f !== 'left') return null;
     return t > 0.55 ? (t > 0.8 ? 'navy1' : 'buoy2') : t > 0.18 ? 'white' : 'steel3';
@@ -327,7 +344,7 @@ function counterLayer() {
   s.box(lighters, RAMP.dark, null, { name: 'lighters' });
   for (let i = 0; i < 8; i++) {
     const row = Math.floor(i / 4), col = i % 4;
-    s.box({ x: lighters.x - 0.024 + col * 0.016, z: lighters.z + 0.012 - row * 0.022, w: 0.011, h: 0.06, d: 0.009, y: counter.y + 0.004 },
+    s.box({ x: lighters.x - 0.024 + col * 0.016, z: lighters.z + 0.012 - row * 0.022, w: 0.011, h: 0.06, d: 0.009, y: lighters.y + 0.004 },
       RAMP[['red', 'yellow', 'blue', 'green', 'pink', 'buoy', 'cyan', 'violet'][(i * 5) % 8]], (f, u, t) => (t > 0.86 ? 'steel5' : null), { name: 'lighter' });
   }
   // A clear charity box: coins in the bottom, the slot on top, a paper label.

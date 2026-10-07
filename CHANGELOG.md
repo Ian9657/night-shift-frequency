@@ -5,6 +5,24 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — an end-cap at the fridge's end
+
+- The fridge's end panel facing the clerk was one tall poster. The poster is now a short
+  ICE COLD sign with the cola bottle at the top; below it an end-cap of three wire
+  shelves over the counter's end: film, a disposable camera and the charity box on top,
+  a magazine rack with three covers in the middle, and battery cards, phone cards and
+  the lighters just above the counter.
+- The charity box and the lighters leave the counter's customer edge, which keeps the
+  gum rack and the change tray.
+
+### Verified (end-cap)
+
+- All five checks pass. Desktop card-sale and phone-landscape screenshots were reviewed.
+
+### Not verified (end-cap)
+
+- The radio hides most of the bottom shelf (battery cards, lighters) from the clerk's eye.
+
 ### Changed — the clerk's things gather at the two ends of the counter
 
 - The middle of the counter is left to the sale. On the right, the clerk's corner: the

@@ -57,12 +57,15 @@
 
   // Static things on the counter (not clickable): drawn into the counter layer.
   const decor = Object.freeze({
-    // On the customer's edge: gum in a two-tier rack, a tray of lighters, the charity
-    // box by the card terminal, and the change tray where cash and change are left.
+    // On the customer's edge: gum in a two-tier rack and the change tray where cash and
+    // change are left.
     candyRack: { x: 0.54, z: 1.1, w: 0.22, h: 0.02, d: 0.06 },
-    lighters: { x: 0.7, z: 1.1, w: 0.07, h: 0.025, d: 0.05 },
+
     tray: { x: 0.46, z: 0.98, w: 0.13, h: 0.012, d: 0.09 },
-    donation: { x: 0.84, z: 1.0, w: 0.11, h: 0.15, d: 0.09 },
+    // On the end-cap at the fridge's end: the charity box on the top shelf, clear of the
+    // radio, and a tray of lighters on the bottom one, just above the counter.
+    donation: { x: 1.34, z: 0.99, w: 0.11, h: 0.12, d: 0.08, y: 1.512 },
+    lighters: { x: 1.32, z: 0.99, w: 0.07, h: 0.025, d: 0.05, y: 1.092 },
   });
 
   // The clerk's own things, nearest the camera, kept to the two ends so the middle of
