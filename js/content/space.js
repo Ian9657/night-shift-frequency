@@ -22,10 +22,13 @@
   const customer = Object.freeze({ z: 1.32, canvas: [176, 210], centre: 88, headTop: 40, height: 1.68 });
 
   // Interactive fixtures on the counter: centre x/z, width/height/depth, optional yaw (radians).
+  const keypad = Object.freeze({ x: -0.43, z: 0.78, w: 0.32, h: 0.035, d: 0.14 });
   // A fixture may be made of several boxes; the first is its click target.
   const fixtures = Object.freeze({
     microwave: [{ x: -1.02, z: 1.04, w: 0.46, h: 0.27, d: 0.34 }],
-    pos: [{ x: -0.5, z: 0.99, w: 0.44, h: 0.4, d: 0.28 }, { x: -0.43, z: 0.78, w: 0.32, h: 0.035, d: 0.14 }],
+    // The register and its keypad; only the record key on the keypad is clicked.
+    pos: [{ x: -0.5, z: 0.99, w: 0.44, h: 0.4, d: 0.28 }, keypad],
+    recordKey: [{ x: keypad.x + keypad.w * 0.27, z: keypad.z + 0.01, w: 0.03, h: 0.008, d: 0.05, y: counter.y + keypad.h }],
     scanner: [{ x: -0.21, z: 0.95, w: 0.09, h: 0.19, d: 0.12 }],
     // The chip-and-PIN terminal is turned on its stand to face the customer.
     terminal: [{ x: 0.23, z: 0.95, w: 0.085, h: 0.15, d: 0.07, yaw: Math.PI - 0.45, y: counter.y + 0.02 },

@@ -30,7 +30,8 @@
     fixtures: Object.freeze({
       // Idle, the microwave's display shows the shift clock (drawn by the runtime).
       microwave: { sprite: 'store-microwave', busy: 'store-microwave-heating', display: face(microwave.x, microwave.w, microwave.z - microwave.d / 2, counter.y, counter.y + microwave.h, [60 / 82, 80 / 82], [4 / 48, 13 / 48]) },
-      pos: { sprite: 'store-pos', screen: face(pos.x, pos.w, pos.z - pos.d / 2, counter.y, counter.y + pos.h, [8 / 80, 72 / 80], [7 / 73, 55 / 73]) },
+      // The register's record key opens the record view; it lights while a record waits.
+      recordKey: { sprite: 'store-pos-key', lit: 'store-pos-key-lit' },
       scanner: { sprite: 'store-scanner', busy: 'store-scanner-reading', beam: point(scanner.x - 0.03, counter.y + 0.08, scanner.z - 0.1) },
       terminal: { sprite: 'store-terminal', busy: 'store-terminal-approved' },
       // Cash goes into the drawer: it opens, takes the note and shuts.
@@ -42,9 +43,11 @@
       phone: { sprite: 'store-phone' },
       printer: { sprite: 'store-printer', slot: point(printer.x, counter.y + printer.h, printer.z + printer.d * 0.16) },
     }),
-    // Drawn with the machines but not clicked: the clerk's half-finished can of coffee
-    // and the receipt spike.
-    decor: Object.freeze(['store-can', 'store-spike']),
+    // The register's screen, where the runtime draws the sale.
+    pos: { screen: face(pos.x, pos.w, pos.z - pos.d / 2, counter.y, counter.y + pos.h, [8 / 80, 72 / 80], [7 / 73, 55 / 73]) },
+    // Drawn with the machines but not clicked: the register, the clerk's half-finished
+    // can of coffee and the receipt spike.
+    decor: Object.freeze(['store-pos', 'store-can', 'store-spike']),
     // Goods wait at the far side of the lane and come forward once scanned.
     lane: { x: laneLeft.x, width: laneRight.x - laneLeft.x, incomingFoot: laneLeft.y, scannedFoot: point(0, counter.y, lane.scannedZ).y, gap: 4 },
     microwaveCavity: point(microwave.x - 0.05, counter.y + 0.13, microwave.z - microwave.d / 2 + 0.06),

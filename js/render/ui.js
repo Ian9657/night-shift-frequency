@@ -74,20 +74,39 @@
     return [[mode, C.phosphorDim, t('pos.items', { count: scanned.length })], ...rows.slice(0, 3), last];
   }
 
+  // The green screen: a status bar (register, shift clock), the sale's lines with a
+  // blinking cursor after the last, then scanlines, curved-glass corners and a glare.
   function pos(ctx, game) {
-    const s = layout.fixtures.pos.screen, k = layout.screen.scale;
-    const x = s.x * k, y = s.y * k, w = s.w * k;
+    const s = layout.pos.screen, k = layout.screen.scale;
+    const x = s.x * k, y = s.y * k, w = s.w * k, h = s.h * k;
     ctx.fillStyle = '#0a1210';
-    ctx.fillRect(x, y, w, s.h * k);
-    posLines(game).forEach(([value, color, right], i) => {
-      const top = y + 3 + i * 15;
+    ctx.fillRect(x, y, w, h);
+    ctx.fillStyle = C.panelLine;
+    ctx.fillRect(x + 2, y + 2, w - 4, 12);
+    const clock = game.state.phase === 'end' || game.state.phase === 'ending' ? '03:04' : game.order().clock;
+    text.draw(ctx, t('pos.register'), x + 5, y + 1, C.phosphor);
+    text.draw(ctx, clock, x + w - 5, y + 1, C.phosphor, { align: 'right' });
+    const lines = posLines(game);
+    lines.forEach(([value, color, right], i) => {
+      const top = y + 16 + i * 15;
       const rightWidth = right ? text.width(right) + 4 : 0;
       text.draw(ctx, value, x + 5, top, color, { clipWidth: w - 10 - rightWidth });
       if (right) text.draw(ctx, right, x + w - 5, top, color === C.phosphor ? C.phosphorDim : color, { align: 'right' });
+      if (i === lines.length - 1 && time.now % 1000 < 500) {
+        ctx.fillStyle = C.phosphor;
+        ctx.fillRect(Math.min(x + 7 + text.width(value), x + w - 11), top + 2, 6, 10);
+      }
     });
-    // Scanlines.
     ctx.fillStyle = 'rgba(0,0,0,0.22)';
-    for (let line = y; line < y + s.h * k; line += 2) ctx.fillRect(x, line, w, 1);
+    for (let line = y; line < y + h; line += 2) ctx.fillRect(x, line, w, 1);
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    for (let i = 0; i < 4; i++) {
+      const r = 8 - i * 2;
+      ctx.fillRect(x, y + i * 2, r, 2); ctx.fillRect(x + w - r, y + i * 2, r, 2);
+      ctx.fillRect(x, y + h - 2 - i * 2, r, 2); ctx.fillRect(x + w - r, y + h - 2 - i * 2, r, 2);
+    }
+    ctx.fillStyle = 'rgba(241,245,230,0.07)';
+    for (let i = 0; i < 26; i += 2) ctx.fillRect(x + 6 + i * 2, y + 30 - i, 14, 2);
   }
 
   // ------------------------------------------------------------ speech bubble

@@ -86,7 +86,7 @@ async function finish(page, index) {
     await page.waitForFunction(() => NSF.debug.radio.view.echo && NSF.debug.radio.caption());
     await page.waitForTimeout(400);
     await shot(page, 'radio-echo');
-    await click(page, 'pos');
+    await click(page, 'recordKey');
     await click(page, 'ui:choice:keep');
     await shot(page, 'record-choices');
     await page.keyboard.press('Escape');

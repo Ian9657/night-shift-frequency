@@ -39,7 +39,8 @@ scan every item → take payment → heat if asked (after payment) → bag or ha
 - Early or wrong actions get a short reaction ("These first.", "Not yet.", "Hot first.").
 
 Guidance: from order 3, next-action outlines appear after a 780 ms delay. During a
-record conflict all outlines disappear; the POS screen itself blinks for attention.
+record conflict all outlines disappear; the POS screen itself blinks for attention and,
+once the item has been re-scanned, the record key on the register's keypad flashes.
 A few lines lock input until read (the first order's opening, the first re-scan
 reaction in a record order).
 
@@ -68,7 +69,7 @@ the same decisions reproduce the same shift.
 
 - The item is a cola (COLA 500ML); the register reads SPARE KEY. Same price; only
   identity is in dispute.
-- The POS shows the mismatch. The record view (click the POS screen) shows the evidence
+- The POS shows the mismatch. The record view (press the record key on the register's keypad) shows the evidence
   but **no choices until the item has physically been re-scanned** at the counter.
 - After a re-scan, two equally weighted choices appear, with a preview of what will be
   saved; the choice can change until **SAVE RECORD**:

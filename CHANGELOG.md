@@ -5,6 +5,29 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — the register: a record key, a livelier screen and keypad
+
+- The screen no longer opens the record view. A yellow record key on the keypad (between
+  the number pad and TOTAL) does; it flashes while a re-scanned record waits, and the
+  screen's prompt reads PRESS REC KEY. The register itself is now drawn as decor.
+- The screen has a status bar (REG#02 and the shift clock), a blinking cursor after the
+  last line, darker curved-glass corners and a faint glare.
+- The keypad has a mode lock with a brass key turned to REG and a ring, a worn 0 key and
+  TOTAL, dots on the number keys, and the well of the record key. The monitor bezel
+  carries a REG2 label tape.
+
+### Verified (register)
+
+- All five checks pass. The record flow now asserts that the screen is not a click
+  target and that the key is pending after the re-scan. Desktop sale and record-pending
+  screenshots were reviewed; the lit and unlit key were compared close up. The phone
+  landscape screenshot was glanced at: the layout holds, the screen text is small.
+
+### Not verified (register)
+
+- The worn keys, number dots and mode-position marks are below a pixel or two at
+  native size. A coiled keypad cord was tried and dropped: the printer hides it.
+
 ### Removed — the security monitor
 
 - The CAM1 monitor on the microwave is gone (its data, sprite and decor entry); the

@@ -139,6 +139,7 @@
     for (const [name, fixture] of Object.entries(layout.fixtures)) {
       let current = scene.fixtures[name] || fixture.sprite;
       if (name === 'radio') current = radio.view.station === '87.7' ? fixture.echo : fixture.sprite;
+      if (name === 'recordKey' && game.recordPending() && blinking(900, 600)) current = fixture.lit;
       const [x, y] = sprites.anchor(current, 'at');
       if (scene.cues.has(name) && blinking()) sprite(ctx, current, x, y, { outline: CUE });
       sprite(ctx, current, x, y, look);

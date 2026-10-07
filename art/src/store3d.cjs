@@ -492,45 +492,79 @@ function sprites() {
   result['store-microwave'] = micro(false);
   result['store-microwave-heating'] = micro(true);
 
-  // Register: a beige CRT with the green-screen sale, brand badge and power light;
-  // a cash-register keypad in front of it, not a typing keyboard: department keys
-  // with coloured caps, a number pad, and the tall TOTAL and CLEAR keys.
-  result['store-pos'] = fixture(F.pos, [RAMP.cream, RAMP.steel], [both(panel('front', 80, 73, p => {
-    p.rect(0, 0, 80, 73, 'cream3');
-    p.hline(0, 79, 0, 'cream4').vline(0, 0, 72, 'cream4').hline(0, 79, 72, 'cream1').vline(79, 0, 72, 'cream1');
-    p.rect(6, 5, 68, 52, 'cream1').rect(8, 7, 64, 48, 'phos0');
-    for (const [x, y] of [[8, 7], [71, 7], [8, 54], [71, 54]]) p.px(x, y, 'cream1');               // rounded glass
-    p.rect(10, 9, 60, 8, 'phos2');
-    text(p, 18, 10, 'HARBOR MART', 'phos4');
-    [[22, 14], [30, 10], [26, 16], [18, 12]].forEach(([len, price], i) => {
-      p.hline(12, 12 + len, 21 + i * 6, 'phos3').hline(12, 12 + len - 2, 22 + i * 6, 'phos2');
-      p.hline(66 - price, 66, 21 + i * 6, 'phos3');
-    });
-    p.hline(12, 66, 45, 'phos2');
-    text(p, 12, 48, 'TOTAL', 'phos4');
-    p.rect(52, 48, 14, 5, 'phos3').rect(67, 48, 2, 5, 'phos4');                                // the sum, the cursor
-    p.rect(8, 61, 16, 5, 'buoy2').hline(8, 23, 61, 'buoy3');                                  // brand badge
-    p.rect(70, 62, 2, 2, 'phos4');                                                              // power light
-    for (let x = 30; x < 62; x += 3) p.vline(x, 61, 66, 'cream2');                              // vents
-    p.rect(65, 57, 12, 11, 'yellow2').hline(65, 76, 57, 'yellow3').px(76, 67, 'yellow1');          // a sticky note
-    p.hline(67, 74, 60, 'blue1').hline(67, 72, 62, 'blue1').hline(68, 73, 64, 'blue1');
-  })), (f, u, t) => {
+  // Register: a beige CRT with the green-screen sale (drawn by the runtime), brand
+  // badge, power light and a label-tape REG 2; a cash-register keypad in front of it,
+  // not a typing keyboard: a mode lock with its key turned to REG and a spare on the
+  // ring, department keys with coloured caps, a number pad with the 0 worn shiny, the
+  // well of the amber record key (its own sprite), and the tall TOTAL and CLEAR keys.
+  const [monitor, keypad] = F.pos;
+  const near = (u, lt, cu, clt) => Math.hypot((u - cu) * keypad.w, (lt - clt) * 0.72 * keypad.d);
+  const keys = (f, u, t) => {
     if (f !== 'top') return null;
     if (u < 0.03 || u > 0.97 || t < 0.1 || t > 0.9) return 'steel2';                          // the bezel
     const lt = (t - 0.14) / 0.72;
     if (lt < 0 || lt > 1) return null;
-    if (u > 0.05 && u < 0.47) {                                                               // department keys
-      const lu = (u - 0.05) / 0.42, col = Math.floor(lu * 5);
+    if (u < 0.15) {                                                                           // the mode lock
+      const r = near(u, lt, 0.09, 0.62);
+      if (r < 0.004) return 'ink';
+      if (r < 0.009) return 'steel5';
+      if (r < 0.011) return 'steel1';
+      for (const [i, angle] of [Math.PI, 2.3, 1.6, 0.9].entries()) {                          // OFF REG X Z
+        if (near(u, lt, 0.09 + Math.cos(angle) * 0.016 / keypad.w, 0.62 + Math.sin(angle) * 0.016 / (0.72 * keypad.d)) < 0.0022) return i === 1 ? 'phos3' : 'cream4';
+      }
+      const ring = near(u, lt, 0.09, 0.22);
+      return ring > 0.007 && ring < 0.0095 ? 'steel6' : null;                                   // the key ring
+    }
+    if (u > 0.17 && u < 0.47) {                                                               // department keys
+      const lu = (u - 0.17) / 0.3, col = Math.floor(lu * 5);
       if ((lu * 5) % 1 > 0.74 || (lt * 3) % 1 > 0.64) return null;
       return lt > 0.66 ? ['buoy2', 'green2', 'yellow2', 'red2', 'blue2'][col] : 'cream4';
     }
-    if (u > 0.52 && u < 0.77) {                                                               // number pad
-      const lu = (u - 0.52) / 0.25;
-      return (lu * 3) % 1 < 0.7 && (lt * 4) % 1 < 0.62 ? 'cream4' : null;
+    if (u > 0.5 && u < 0.7) {                                                                 // number pad
+      const lu = (u - 0.5) / 0.2, ku = (lu * 3) % 1, kt = (lt * 4) % 1;
+      if (ku > 0.7 || kt > 0.62) return null;
+      if (lt < 0.25 && lu < 0.33) return ku < 0.4 ? 'white' : 'cream5';                        // 0, worn shiny
+      return ku > 0.25 && ku < 0.45 && kt > 0.2 && kt < 0.4 ? 'steel4' : 'cream4';
     }
-    if (u > 0.81 && u < 0.95) return lt > 0.62 ? (lt > 0.68 ? 'red2' : null) : 'buoy2';      // CLEAR, TOTAL
+    if (u > 0.715 && u < 0.825 && lt > 0.3 && lt < 0.9) return 'steel1';                      // the record key's well
+    if (u > 0.83 && u < 0.96) {                                                               // CLEAR, TOTAL
+      if (lt > 0.62) return lt > 0.68 ? 'red2' : null;
+      return u > 0.87 && u < 0.92 && lt > 0.2 && lt < 0.45 ? 'buoy3' : 'buoy2';
+    }
     return null;
-  }]);
+  };
+  result['store-pos'] = (() => {
+    const s = new Stage();
+    s.box(monitor, RAMP.cream, panel('front', 80, 73, p => {
+      p.rect(0, 0, 80, 73, 'cream3');
+      p.hline(0, 79, 0, 'cream4').vline(0, 0, 72, 'cream4').hline(0, 79, 72, 'cream1').vline(79, 0, 72, 'cream1');
+      p.rect(6, 5, 68, 52, 'cream1').rect(8, 7, 64, 48, 'phos0');
+      for (const [x, y] of [[8, 7], [71, 7], [8, 54], [71, 54]]) p.px(x, y, 'cream1');             // rounded glass
+      p.rect(8, 61, 16, 5, 'buoy2').hline(8, 23, 61, 'buoy3');                                // brand badge
+      p.rect(27, 60, 19, 7, 'white').hline(27, 45, 66, 'paper2').px(45, 60, 'paper2');          // label tape
+      text(p, 29, 61, 'REG2', 'ink');
+      p.rect(70, 62, 2, 2, 'phos4');                                                            // power light
+      for (let x = 49; x < 62; x += 3) p.vline(x, 61, 66, 'cream2');                            // vents
+      p.rect(65, 57, 12, 11, 'yellow2').hline(65, 76, 57, 'yellow3').px(76, 67, 'yellow1');        // a sticky note
+      p.hline(67, 74, 60, 'blue1').hline(67, 72, 62, 'blue1').hline(68, 73, 64, 'blue1');
+    }));
+    s.box(keypad, RAMP.steel, keys);
+    // The brass key in the lock, turned to REG.
+    s.box({ x: keypad.x - keypad.w / 2 + keypad.w * 0.09, z: keypad.z - keypad.d / 2 + keypad.d * (0.14 + 0.72 * 0.62), w: 0.016, h: 0.022, d: 0.004, yaw: 0.6, y: counter.y + keypad.h },
+      RAMP.yellow, (f, u, t) => (t > 0.55 && Math.hypot(u - 0.5, t - 0.78) < 0.14 ? 'ink' : null), { name: 'mode key' });
+    s.outline();
+    return s.sprite();
+  })();
+
+  // The record key: an amber cap that lights up while a record waits.
+  const recordKey = lit => {
+    const s = new Stage();
+    s.box(F.recordKey[0], RAMP.yellow, lit ? (f => (f === 'top' ? 'white' : 'yellow3')) : null);
+    s.outline();
+    return s.sprite();
+  };
+  result['store-pos-key'] = recordKey(false);
+  result['store-pos-key-lit'] = recordKey(true);
 
   // Scanner gun in its cradle, turned side-on so its pistol shape reads: the head
   // points off toward the customer's side, its red window at the tip; the grip

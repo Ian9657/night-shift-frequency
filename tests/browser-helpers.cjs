@@ -39,7 +39,7 @@ async function playOrder(page, choices, shots) {
   }
   if (order.mismatch) {
     // Choices must not exist before the physical re-scan.
-    await click(page, 'pos');
+    await click(page, 'recordKey');
     const early = await page.evaluate(() => NSF.debug.records.model());
     assert.equal(early.deciding, false);
     assert.equal(early.needsRescan, true);
@@ -48,7 +48,11 @@ async function playOrder(page, choices, shots) {
     await click(page, 'item:' + order.items[0]);
     await click(page, 'scanner');
     await idle(page);
-    await click(page, 'pos');
+    // The record key, not the screen, opens the record; it lights once the re-scan is in.
+    const key = await page.evaluate(() => ({ pending: NSF.debug.game.recordPending(), screen: 'pos' in NSF.debug.targets() }));
+    assert.deepEqual(key, { pending: true, screen: false });
+    await page.screenshot({ path: path.join(artifacts, `${shots}-${order.index + 1}-key.png`) });
+    await click(page, 'recordKey');
     const choice = order.kind === 'identity' ? choices[0] : choices[1];
     await click(page, 'ui:choice:' + choice);
     await page.screenshot({ path: path.join(artifacts, `${shots}-${order.index + 1}-choices.png`) });

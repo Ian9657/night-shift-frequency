@@ -512,6 +512,13 @@
   }
 
   // ------------------------------------------------------------ per-frame derived state
+  // The sale's record waits for the clerk: re-scanned, not yet saved, not yet paid.
+  function recordPending() {
+    const o = order();
+    return Boolean(o.mismatch) && scannedItems(o).length === o.items.length && !state.paid
+      && !hasSavedRecord() && shift.checksFor(o.id).length > 0;
+  }
+
   function cueTargets() {
     const o = order();
     const targets = [];
@@ -588,7 +595,7 @@
     if (name.startsWith('item:')) return guarded(() => selectItem(name.slice(5)));
     const actions = {
       scanner: scan, terminal: () => pay('terminal'), drawer, microwave: heat, bags: bag,
-      printer: printReport, pos: () => records.open(), radio: () => radio.tune(), phone: () => phone.open(),
+      printer: printReport, recordKey: () => records.open(), radio: () => radio.tune(), phone: () => phone.open(),
     };
     return actions[name] ? guarded(actions[name]) : undefined;
   }
@@ -596,7 +603,7 @@
   resetProducts();
   const controller = {
     shift, orders, state, scene, order, update, targets, activate, startShift, startEnding: () => guarded(startEnding),
-    submitDecision, hasSavedRecord, scannedItems,
+    submitDecision, hasSavedRecord, recordPending, scannedItems,
     canOpenRecords: () => (state.phase === 'shift' || state.phase === 'report') && !state.busy,
   };
   records.attach(controller);
