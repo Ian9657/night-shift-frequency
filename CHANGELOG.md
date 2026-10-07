@@ -5,6 +5,24 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — narrow-screen text readability · 2026-10-07
+
+- Added a narrow-viewport text pass for the POS, customer speech bubble and
+  radio caption. Bitmap text scales to 1.15–1.2× below 900 CSS pixels, with
+  local wrapping and line spacing recalculated so the existing UI regions stay
+  inside the 960×540 canvas.
+
+### Verified (narrow-screen text)
+
+- `shift-engine`, `content`, `art`, `browser-flow` and `visual` pass using the
+  bundled Playwright and Chrome.
+- Reviewed the 844×390 landscape screenshot; the POS and caption remain inside
+  the canvas and are more readable.
+
+### Not verified (narrow-screen text)
+
+- Portrait phone layout and physical device font readability were not reviewed.
+
 ### Fixed — the CASH label fits its tape
 
 - The drawer's CASH tape was as wide as the word, so the last letter ran off its edge.

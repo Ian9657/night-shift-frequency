@@ -13,6 +13,11 @@
   };
   const LINE = 15;
   const SW = layout.screen.width, SH = layout.screen.height, MID = SW / 2;
+  // The canvas keeps its 960×540 coordinate system on every device. On a
+  // narrow viewport the CSS fit makes the bitmap font too small to read, so
+  // the dense text surfaces use a fractional nearest-neighbour scale and
+  // recompute their wrapping locally.
+  const narrow = () => root.innerWidth < 900 || (root.visualViewport && root.visualViewport.width < 900);
   let targets = [];
 
   const money = value => (value / 100).toFixed(2);
@@ -79,22 +84,24 @@
   function pos(ctx, game) {
     const s = layout.fixtures.pos.screen, k = layout.screen.scale;
     const x = s.x * k, y = s.y * k, w = s.w * k, h = s.h * k;
+    const ts = narrow() ? 1.15 : 1;
+    const step = narrow() ? 14 : 15;
     ctx.fillStyle = '#0a1210';
     ctx.fillRect(x, y, w, h);
     ctx.fillStyle = C.panelLine;
     ctx.fillRect(x + 2, y + 2, w - 4, 12);
     const clock = game.state.phase === 'end' || game.state.phase === 'ending' ? '03:04' : game.order().clock;
-    text.draw(ctx, t('pos.register'), x + 5, y + 1, C.phosphor);
-    text.draw(ctx, clock, x + w - 5, y + 1, C.phosphor, { align: 'right' });
+    text.draw(ctx, t('pos.register'), x + 5, y + 1, C.phosphor, { scale: ts });
+    text.draw(ctx, clock, x + w - 5, y + 1, C.phosphor, { align: 'right', scale: ts });
     const lines = posLines(game);
     lines.forEach(([value, color, right], i) => {
-      const top = y + 16 + i * 15;
-      const rightWidth = right ? text.width(right) + 4 : 0;
-      text.draw(ctx, value, x + 5, top, color, { clipWidth: w - 10 - rightWidth });
-      if (right) text.draw(ctx, right, x + w - 5, top, color === C.phosphor ? C.phosphorDim : color, { align: 'right' });
+      const top = y + 15 + i * step;
+      const rightWidth = right ? text.width(right) * ts + 4 : 0;
+      text.draw(ctx, value, x + 5, top, color, { clipWidth: w - 10 - rightWidth, scale: ts });
+      if (right) text.draw(ctx, right, x + w - 5, top, color === C.phosphor ? C.phosphorDim : color, { align: 'right', scale: ts });
       if (i === lines.length - 1 && time.now % 1000 < 500) {
         ctx.fillStyle = C.phosphor;
-        ctx.fillRect(Math.min(x + 7 + text.width(value), x + w - 11), top + 2, 6, 10);
+        ctx.fillRect(Math.min(x + 7 + text.width(value) * ts, x + w - 11), top + 2, 5, 9);
       }
     });
     ctx.fillStyle = 'rgba(0,0,0,0.22)';
@@ -114,10 +121,11 @@
     const visible = dialogue.visibleText();
     if (!visible || !game.scene.customer.visible) return;
     const full = dialogue.fullText();
-    const lines = text.wrap(full, 240);
-    const shownLines = text.wrap(visible, 240);
-    const width = Math.max(...lines.map(text.width)) + 20;
-    const height = lines.length * 14 + 12;
+    const ts = narrow() ? 1.2 : 1;
+    const lines = text.wrap(full, Math.floor(240 / ts));
+    const shownLines = text.wrap(visible, Math.floor(240 / ts));
+    const width = Math.max(...lines.map(text.width)) * ts + 20;
+    const height = lines.length * 14 * ts + 12;
     const k = layout.screen.scale, c = game.scene.customer, L = layout.customer;
     const rise = space.figureOffset(customers.customers[c.id].person.height);
     const headRight = (L.x + c.dx + L.head.x + 18) * k;
@@ -131,7 +139,7 @@
     for (let i = 0; i < 5; i++) ctx.fillRect(tx - i * 2, ty + i, 2 + i * 2, 1);
     ctx.fillStyle = C.paper;
     for (let i = 0; i < 4; i++) ctx.fillRect(tx - i * 2 + 2, ty + i, i * 2, 1);
-    shownLines.forEach((line, i) => text.draw(ctx, line, x + 10, y + 5 + i * 14, C.ink));
+    shownLines.forEach((line, i) => text.draw(ctx, line, x + 10, y + 5 + i * 14 * ts, C.ink, { scale: ts }));
   }
 
   // ------------------------------------------------------------ radio caption
@@ -145,9 +153,10 @@
     }
     const echo = radio.view.echo;
     const chip = 'FM ' + radio.view.station;
-    const chipWidth = text.width(chip) + 12;
-    const lines = text.wrap(value, 860 - chipWidth);
-    const height = lines.length * 14 + 10;
+    const ts = narrow() ? 1.2 : 1;
+    const chipWidth = text.width(chip) * ts + 12;
+    const lines = text.wrap(value, Math.floor((860 - chipWidth) / ts));
+    const height = lines.length * 14 * ts + 10;
     // At the top left, over the shelves, so the counter, the bags and the open drawer
     // stay in view; only as wide as the line.
     const y = 6;
@@ -156,12 +165,12 @@
     ctx.fillRect(8, y, width, height);
     ctx.fillStyle = echo ? C.cyan : C.amber;
     ctx.fillRect(8, y, 2, height);
-    text.draw(ctx, chip, 16, y + 5, echo ? C.cyan : C.amber);
+    text.draw(ctx, chip, 16, y + 5, echo ? C.cyan : C.amber, { scale: ts });
     let remaining = Math.floor([...value].length * radio.progress());
     lines.forEach((line, i) => {
       const count = Math.max(0, Math.min([...line].length, remaining));
       remaining -= [...line].length;
-      text.draw(ctx, line, 16 + chipWidth, y + 5 + i * 14, echo ? C.cyan : C.white, { maxChars: count });
+      text.draw(ctx, line, 16 + chipWidth, y + 5 + i * 14 * ts, echo ? C.cyan : C.white, { maxChars: count, scale: ts });
     });
   }
 
