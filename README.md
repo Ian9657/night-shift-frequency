@@ -18,7 +18,7 @@ sign-in sheet (type it, or use the letter keys) and sign in.
 - Click the customer's basket to take an item out, then the scanner. When everything is
   scanned, take payment the way the customer asks: card on the card terminal, cash from
   the change tray into the drawer under the register.
-- Ready meals are heated after payment: click the microwave. Click the bag rack under the
+- Ready meals are heated after payment: click the microwave. Click the bags hanging under the
   counter to bag an order.
 - Press the yellow REC key on the register's keypad to see the transaction record. When the register and the
   item disagree, scan the item again at the counter before the record choices appear.

@@ -5,6 +5,25 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — the counter's front is a cabinet, not a dark band
+
+- Under the counter the clerk's side was a dithered dark plane with the cash drawer and
+  an S/M/L bag rack floating on it, labelled like buttons. It is now the cabinet's front:
+  dark wood-grain laminate in the top's shadow, with seams, grain and knee scuffs.
+- The cash drawer loses its CASH tape and maker's plate for a pull along its lower
+  edge. The bags hang in a cubby in the cabinet: three bundles of folded white bags on a
+  steel rail by their handles, longer for bigger bags, the middle one with the buoy. The
+  bag fixture is taller (0.13 m) so the longest bundle runs off the bottom of the view.
+
+### Verified (cabinet)
+
+- All five checks pass. Desktop close-ups of the shut and open drawer and the bag
+  cubby, and the landscape phone screenshot, were reviewed.
+
+### Not verified (cabinet)
+
+- A bag being pulled off the rail was not looked at frame by frame.
+
 ### Added — the room's sounds
 
 - A door chime as each customer comes in; the drinks fridge's compressor starting,

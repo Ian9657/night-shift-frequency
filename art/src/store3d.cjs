@@ -348,8 +348,25 @@ function counterLayer() {
     return P[2] > 1.02 ? 'top3' : 'top4';
   }), TOP);
   s.quad([-room.halfW, counter.y - counter.thick, counter.near], [2 * room.halfW, 0, 0], [0, counter.thick, 0], [0, 0, -1], dimmed(() => 'top2'), TOP);
+  // Under the counter on the clerk's side, the cabinet's front: dark wood-grain laminate
+  // in the counter top's shadow, with panel seams, a little grain and knee scuffs; the
+  // cash drawer and the bag rail are set into it.
   const UNDER = s.object('under', { outline: false });
-  s.quad([-room.halfW, 0, counter.near + 0.06], [2 * room.halfW, 0, 0], [0, counter.y - counter.thick, 0], [0, 0, -1], (u, v, P, sx, sy) => ((sx + sy) % 2 ? 'wall0' : 'ink'), UNDER);
+  const lip = counter.y - counter.thick;
+  s.quad([-room.halfW, 0, counter.near + 0.06], [2 * room.halfW, 0, 0], [0, lip, 0], [0, 0, -1], (u, v, P, sx, sy) => {
+    const below = lip - P[1];
+    if (below < 0.014) return 'ink';                                                            // the top's shadow
+    if (below < 0.03) return (sx + sy) % 2 ? 'ink' : 'wood0';
+    for (const seam of [-1.15, -0.12, 0.86]) {
+      const d = P[0] - seam;
+      if (Math.abs(d) < 0.006) return 'wood0';
+      if (d > 0 && d < 0.012) return 'wood2';
+    }
+    const light = pool(P) + ((sx + sy) % 2 ? 0.04 : -0.04);
+    if (hash(Math.floor(P[0] * 90 + 400), Math.floor(P[1] * 300)) < 0.06) return light > 0.7 ? 'wood2' : 'wood0';   // grain
+    if (P[1] < 0.93 && hash(sx, sy) < 0.012) return 'wood2';                                   // knee scuffs
+    return light > 0.62 ? 'wood1' : 'wood0';
+  }, UNDER);
   const { candyRack, lighters, donation, tray } = space.decor;
   const PACKS = ['red', 'green', 'blue', 'yellow', 'pink', 'buoy', 'cyan', 'violet'];
   // Gum: a steel tray with two tiers of packs, each with a white wrapper band.
@@ -801,10 +818,9 @@ function sprites() {
   result['store-terminal-card'] = terminal('card');
   result['store-terminal-approved'] = terminal('approved');
 
-  // The cash drawer under the register, in a dark steel housing hung under the counter.
+  // The cash drawer under the register, in a dark steel housing set into the cabinet.
   // Shut, its front: folded steel edges, a bevelled check slot, a round key lock with
-  // its keyway, a CASH label tape, a maker's plate, corner screws, the finger recess
-  // under its lower edge and knee scuffs. Open, it slides out towards the clerk and
+  // its keyway, corner screws, the pull recessed along its lower edge and knee scuffs. Open, it slides out towards the clerk and
   // shows its till, a black plastic insert: stacks of notes under four spring clips at
   // the back, five cups of copper, silver and gold coins in front.
   const [till] = F.drawer;
@@ -817,9 +833,7 @@ function sprites() {
     p.vline(0, 0, 22, 'steel5').vline(103, 0, 22, 'steel2');
     for (const [x, y] of [[3, 3], [100, 3], [3, 18], [100, 18]]) p.px(x, y, 'steel1').px(x - 1, y - 1, 'steel6');   // screws
     p.rect(30, 5, 44, 5, 'steel2').hline(30, 73, 5, 'steel1').rect(32, 7, 40, 2, 'ink').hline(30, 73, 10, 'steel6');   // check slot
-    p.rect(6, 6, 19, 7, 'white').hline(6, 24, 12, 'paper2');                                    // label tape, two pixels round the word
-    text(p, 8, 7, 'CASH', 'ink');
-    p.rect(42, 13, 20, 4, 'steel2').hline(43, 60, 14, 'steel4').hline(43, 56, 15, 'steel3');       // maker's plate
+    p.rect(34, 15, 36, 4, 'steel1').hline(34, 69, 15, 'ink').hline(35, 68, 18, 'steel6');          // the pull
     p.ellipse(91, 11, 4, 4, 'steel6').ellipse(91, 11, 3, 3, 'steel3').vline(91, 9, 13, 'ink').px(90, 9, 'steel7');   // key lock
     for (const [x, y, len] of [[14, 17, 6], [36, 18, 3], [66, 18, 7], [80, 17, 5]]) p.hline(x, x + len, y, 'steel4');   // knee scuffs
   });
@@ -864,23 +878,28 @@ function sprites() {
     s.outline();
     return s.sprite();
   })();
-  // Carrier bags in a steel pocket rack under the counter: three pockets with S, M and
-  // L label tapes, each holding a stack of folded white bags whose tops and handle
-  // loops stand above the rim; the middle stack shows the brand buoy.
-  result['store-bags'] = fixture(F.bags, [RAMP.steel], [panel('front', 72, 26, p => {
-    p.rect(0, 0, 72, 26, 'steel2').hline(0, 71, 25, 'ink').vline(0, 0, 25, 'steel4').vline(71, 0, 25, 'steel1');
-    [['S', 2], ['M', 26], ['L', 50]].forEach(([size, x], i) => {
-      const h = [5, 7, 9][i];                                                                   // bigger bags stand taller
-      for (let k = 0; k < 4; k++) p.hline(x + 1 + (k % 2), x + 19 - (k % 2), 11 - h + k * 2, k % 2 ? 'paper2' : 'white');   // folded tops
-      p.rect(x + 1, 12 - h, 19, h, 'paper3');
-      for (let k = 0; k < 4; k++) p.hline(x + 1 + (k % 2), x + 19 - (k % 2), 12 - h + k * 2, k % 2 ? 'paper2' : 'white');
-      for (const hx of [x + 5, x + 15]) p.ellipse(hx, 11 - h, 3, 2, 'white').ellipse(hx, 11 - h, 2, 1, 'steel2');   // handle loops
-      if (i === 1) p.ellipse(x + 10, 9 - h + 4, 2, 2, 'buoy2').px(x + 10, 9 - h + 4, 'navy2');
-      p.rect(x, 12, 21, 13, 'steel4').hline(x, x + 20, 12, 'steel6').vline(x, 12, 24, 'steel5').vline(x + 20, 12, 24, 'steel2');   // the pocket
-      p.rect(x + 6, 16, 9, 7, 'white').hline(x + 6, x + 14, 22, 'paper2');                      // size tape
-      text(p, x + 9, 17, size, 'ink');
+  // Carrier bags hung in a cubby in the cabinet under the counter: a steel rail, and on
+  // its hooks three bundles of folded white bags by their handles, small to large
+  // (bigger bags hang longer), the middle bundle printed with the brand buoy.
+  const H = 34;
+  const bagFace = panel('front', 72, H, p => {
+    for (let y = 0; y < H; y++) for (let x = 0; x < 72; x++) p.px(x, y, (x + y) % 2 ? 'wood0' : 'ink');   // the cubby's back
+    p.hline(0, 71, 0, 'ink').vline(0, 0, H - 1, 'wood2').vline(71, 0, H - 1, 'wood0');
+    p.rect(1, 2, 70, 2, 'steel5').hline(1, 70, 2, 'steel7').hline(1, 70, 4, 'steel1');           // the rail
+    for (const x of [2, 68]) p.rect(x, 1, 2, 4, 'steel3').px(x, 2, 'steel6');                     // its brackets
+    [[13, 15, 16], [36, 17, 21], [59, 19, 27]].forEach(([cx, w, len], i) => {
+      const x0 = cx - Math.floor(w / 2), top = 10, end = Math.min(H - 1, top + len - 1);
+      p.vline(cx, 3, 6, 'steel6').px(cx + 1, 6, 'steel5');                                      // the hook
+      for (const hx of [cx - 3, cx + 3]) p.ellipse(hx, 8, 3, 3, 'white').ellipse(hx, 8, 2, 2, 'wood0');   // handle loops over it
+      p.rect(x0, top, w, end - top + 1, 'white');
+      for (let x = x0 + 2; x < x0 + w - 1; x += 3) p.vline(x, top + 1, end - 1, 'paper2');     // the folds
+      p.vline(x0 + w - 1, top, end, 'paper1').hline(x0, x0 + w - 1, top, 'paper2');
+      if (top + len < H) p.hline(x0, x0 + w - 1, end, 'paper1').hline(x0 + 1, x0 + w, end + 1, 'ink');   // its shadow
+      p.vline(x0 + w, top + 1, end, 'ink');
+      if (i === 1) p.ellipse(cx, top + 8, 3, 3, 'buoy2').ellipse(cx, top + 8, 1, 1, 'white').hline(x0 + 2, x0 + w - 3, top + 13, 'navy2');
     });
-  })]);
+  });
+  result['store-bags'] = fixture(F.bags, [RAMP.wood], [(f, u, t) => bagFace(f, u, t) || 'wood1']);
 
   // Receipt printer, a two-tone thermal printer: a charcoal base with a FEED button,
   // power and paper lights and a brand line; a lighter clamshell lid set in from the
