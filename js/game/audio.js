@@ -391,6 +391,9 @@
   function phoneKey() {
     tone({ frequency: 1400, duration: 0.05, type: 'sine', gain: 0.008, lowpass: 3000 });
   }
+  function uiClick() {
+    tone({ frequency: 1180, endFrequency: 980, duration: 0.035, type: 'triangle', gain: 0.0055, lowpass: 2600 });
+  }
   function phoneFlip(opening) {
     noise({ duration: 0.02, gain: 0.012, frequency: opening ? 2600 : 1900 });
     tone({ frequency: opening ? 420 : 300, endFrequency: opening ? 380 : 220, duration: 0.04, type: 'triangle', gain: 0.012, delay: 0.012, lowpass: 1600 });
@@ -492,7 +495,7 @@
   root.NSF.audio = {
     unlock: audio, startAmbience, scan, payment, anomaly, cashPaper, cashDrawer, microwaveStart, microwaveDone,
     stopMicrowave, receipt, bag, dialogueTick, resetTicks() { tickStep = 0; },
-    radioStation, radioTune, radioVoice, phoneKey, phoneFlip, pen, stamp, carPass, clockSkip, tubeFlicker, phoneBuzz, phoneRing, phoneSent, doorChime, gulls, playSong, stopSong, boxDrop,
+    radioStation, radioTune, radioVoice, phoneKey, uiClick, phoneFlip, pen, stamp, carPass, clockSkip, tubeFlicker, phoneBuzz, phoneRing, phoneSent, doorChime, gulls, playSong, stopSong, boxDrop,
     // Levels 0–5 for 'master', 'radio' and 'sounds'.
     level(name) { return levels[name]; },
     setLevel(name, value) { levels[name] = Math.max(0, Math.min(5, Math.round(value))); applyLevels(); },

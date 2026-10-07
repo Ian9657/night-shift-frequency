@@ -20,7 +20,12 @@
   let signalProvider = () => null;
   let listener = () => {};
   let finished = [];
-  const songLength = id => { const song = story.radio.songs[id]; return song.chords.length * 4 * 60000 / song.tempo; };
+  const songLength = id => {
+    const song = story.radio.songs[id];
+    // Keep songs as a short bedside-radio interlude so an order never waits on a
+    // full 25-second arrangement. The synth is stopped by the next advance call.
+    return Math.min(15000, song.chords.length * 4 * 60000 / song.tempo);
+  };
 
   function lineDuration(key, vars) {
     return Math.max(2600, strings.t(key, vars).length * 52 + 1200);

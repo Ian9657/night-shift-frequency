@@ -633,6 +633,7 @@
     const buffered = new Set(['scanner', 'terminal', 'drawer', 'microwave', 'bags', 'basket', 'printer']);
     if (state.busy && buffered.has(name)) {
       state.queuedAction = { name, eventIndex: state.eventIndex };
+      audio.uiClick();
       return;
     }
     if (name.startsWith('item:')) return guarded(() => selectItem(name.slice(5)));
