@@ -1,15 +1,16 @@
 // The clerk's flip phone: clicking it on the counter flips it open close up and pauses
 // the shift. Its menu leads to the texts (js/game/messages.js), a text to Night Ferry,
-// and the settings: volume levels and silent mode, a per-browser convenience kept in
-// localStorage.
+// a call to it once the lines are open, and the settings: volume levels and silent
+// mode, a per-browser convenience kept in localStorage.
 (function (root) {
   'use strict';
-  const { time, audio, messages } = root.NSF;
+  const { time, audio, messages, signin } = root.NSF;
   const FRAME_MS = 70;                                      // closed → half → open
   const SETTINGS = ['master', 'radio', 'sounds', 'silent'];
-  const HOME = ['inbox', 'compose', 'settings'];
+  const HOME = ['inbox', 'compose', 'call', 'settings'];
   const STORE = 'nsf.settings';
-  // screen: 'home', 'inbox', 'read' (a text, `reading` its id), 'compose' or 'settings'.
+  // screen: 'home', 'inbox', 'read' (a text, `reading` its id), 'compose', 'call' or
+  // 'settings'.
   const view = { open: false, closing: false, since: 0, screen: 'home', row: 0, reading: null };
 
   function save() {
@@ -32,6 +33,7 @@
     if (view.screen === 'settings') return SETTINGS;
     if (view.screen === 'inbox') return messages.inbox().map(m => m.id);
     if (view.screen === 'compose') return messages.sent ? [] : messages.presets.map(p => p.id);
+    if (view.screen === 'call') return messages.linesOpen() ? messages.calls.map(c => c.id) : [];
     return [];
   }
   function go(screen, row = 0) {
@@ -87,6 +89,7 @@
     if (view.screen === 'home') go(row);
     else if (view.screen === 'inbox') { messages.open(row); view.reading = row; go('read'); }
     else if (view.screen === 'compose') { if (messages.send(row)) view.row = 0; }
+    else if (view.screen === 'call') { if (messages.callIn(row, signin.name)) view.row = 0; }
     else if (view.screen === 'settings' && row === 'silent') toggleSilent();
   }
   function back() {

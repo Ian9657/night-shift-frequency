@@ -5,6 +5,24 @@ verified and what was not.
 
 ## Unreleased
 
+### Added — calling Night Ferry
+
+- With order 6 June opens the phone lines. The phone's menu gains CALL NIGHT FERRY:
+  once a night, until the report, the clerk says one of three things; when the phone
+  is put down Night Ferry carries their words and June's reply, and the window across
+  the bay blinks back. Before the lines open the screen says LINES CLOSED.
+- If the clerk texted or called, June thanks them by name before signing off.
+
+### Verified (call)
+
+- All five checks pass; one browser path calls in at order 6, waits for June's reply on
+  air and checks the thanks is queued; the others check it is not. Screenshots of the
+  menu and the closed lines were reviewed.
+
+### Not verified (call)
+
+- The sign-off with the thanks was not watched at natural speed.
+
 ### Added — lost and found
 
 - An open cardboard box in a cubby in the cabinet, between the cash drawer and the bags

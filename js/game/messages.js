@@ -3,7 +3,7 @@
 // buzzes the phone on the counter.
 (function (root) {
   'use strict';
-  const { story, audio, time, night } = root.NSF;
+  const { story, audio, time, night, radio } = root.NSF;
   const M = story.messages;
   let game = null;
   const inbox = [];                         // { id, from, text, clock, read }, newest first
@@ -41,7 +41,24 @@
     return [{ key: sent.preset.onAir, vars: { name } }, ...(sent.preset.song ? [{ song: sent.preset.song }] : [])];
   }
 
+  // Calling in: once the lines are open, once a night. What the clerk said and June's
+  // reply go straight onto Night Ferry's queue.
+  let call = null;                          // { preset, clock }
+  const linesOpen = () => game.state.phase === 'shift' && game.state.eventIndex >= M.linesOpen && !call;
+  function callIn(id, name) {
+    const preset = M.calls.find(c => c.id === id);
+    if (!preset || !linesOpen()) return false;
+    call = { preset, clock: night.clock() };
+    audio.phoneSent();
+    radio.play([{ key: 'radio.caller', vars: { name, said: '@' + preset.said } }, preset.reply]);
+    return true;
+  }
+  // June's thanks before the sign-off, if the clerk reached the station.
+  const thanks = name => (call || sent ? [{ key: M.thanks, vars: { name } }] : []);
+
   root.NSF.messages = {
+    callIn, thanks, calls: M.calls, linesOpen: () => linesOpen(),
+    get call() { return call; },
     attach(controller) { game = controller; },
     update, send, takeOnAir, presets: M.presets,
     inbox: () => inbox,

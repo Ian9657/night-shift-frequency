@@ -43,6 +43,19 @@ const { chromium, artifacts, URL_BASE, idle, click, playOrder, signIn, signOut }
           await click(page, 'ui:dial-close');
           assert.deepEqual(await page.evaluate(() => ['walt', 'ana', 'hal'].map(NSF.company.heard)), [true, true, true]);
         }
+        if (texting && i === 5) {
+          // The lines are open: call in and say hello; June answers, and thanks the clerk at the end.
+          await idle(page);
+          await click(page, 'phone');
+          await page.waitForFunction(() => NSF.phone.frame() === 2);
+          await click(page, 'ui:phone-row-call');
+          await click(page, 'ui:phone-row-call');
+          await click(page, 'ui:phone-say-hello');                 // the first row is already selected
+          assert.equal(await page.evaluate(() => NSF.debug.messages.call.preset.id), 'hello');
+          await click(page, 'ui:phone-away');
+          await page.waitForFunction(() => !NSF.phone.view.open);
+          await page.waitForFunction(() => NSF.debug.radio.view.key === 'radio.replyHello', null, { timeout: 30000 });
+        }
         if (listening && i === 5) {
           // The person who stayed knows the clerk was listening.
           await page.waitForFunction(() => NSF.debug.dialogue.fullText(), null, { timeout: 15000 });
@@ -85,6 +98,8 @@ const { chromium, artifacts, URL_BASE, idle, click, playOrder, signIn, signOut }
       const inbox = await page.evaluate(() => NSF.debug.messages.inbox().map(m => m.id).sort().join());
       assert.equal(inbox, texting ? 'ferry,heard,home,light' : 'ferry,home,light');
       if (texting) assert.equal(await page.evaluate(() => NSF.debug.messages.sent.readOnAir), 1);
+      // June thanks the clerk by name before signing off only if they texted or called.
+      assert.equal(await page.evaluate(() => NSF.debug.messages.thanks('X').length), texting ? 1 : 0);
       assert.deepEqual(errors, []);
       await page.close();
       console.log('path ok:', name);

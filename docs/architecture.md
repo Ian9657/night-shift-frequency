@@ -23,7 +23,7 @@ How the code is organised and why. For what changed when, see
 | Content | `js/content/` | The store in metres and its camera (`space.js`), screen positions derived from it (`layout.js`), customer poses, strings, colour ramps, customer looks, story and radio script. Data only, plus small pure helpers. |
 | Engine | `js/engine/shift.js` | The shift's domain: order generation from a seed, re-scan checks, record decisions, settlement, the report and the ending key. No DOM, audio or time. |
 | Core | `js/core/time.js` | The single game clock: `wait`, `after`, stepped `path` motion. Tests speed it up. `paused` stops it while the phone is open; `uiNow` keeps running for what animates over it. |
-| Game | `js/game/` | Interaction: `checkout.js` (current-order state, scene model, player actions), `dialogue.js`, `radio.js` (the player), `broadcast.js` (what is on air), `records.js` (the POS record view), `phone.js` (the flip phone: menu, texts and settings), `messages.js` (texts received and sent), `audio.js` (synthesised sound), `night.js` (the clock of the night, dawn and the colours outside), `signin.js` (the sign-in sheet and the clerk's name), `outside.js` (cars, the ferry, rain and the tower's light, as functions of the game clock), `drift.js` (what the readings show as the night wears on, planned from the seed), `company.js` (what the clerk has heard on the radio and who notices), `found.js` (the lost-and-found box, derived from who has been in). |
+| Game | `js/game/` | Interaction: `checkout.js` (current-order state, scene model, player actions), `dialogue.js`, `radio.js` (the player), `broadcast.js` (what is on air), `records.js` (the POS record view), `phone.js` (the flip phone: menu, texts and settings), `messages.js` (texts received and sent, the call to Night Ferry), `audio.js` (synthesised sound), `night.js` (the clock of the night, dawn and the colours outside), `signin.js` (the sign-in sheet and the clerk's name), `outside.js` (cars, the ferry, rain and the tower's light, as functions of the game clock), `drift.js` (what the readings show as the night wears on, planned from the seed), `company.js` (what the clerk has heard on the radio and who notices), `found.js` (the lost-and-found box, derived from who has been in). |
 | Render | `js/render/` | `sprites.js` (indexed sprites → cached canvases, slot recolouring, moods, outlines), `text.js` (bitmap font), `world.js` (480×270 world), `ui.js` (960×540 overlays and their click regions). |
 | Boot | `js/main.js` | Canvas sizing, the frame loop, input routing, test hooks (`NSF.debug`). |
 
@@ -68,7 +68,7 @@ from; only the click priority (UI, then products, then fixtures) is defined sepa
 | Phase (title → signin → shift → report → ending → clockout → end) | `checkout.js` `state` | |
 | The store's clock and the sky's colours | `night.js` | Derived from the phase and the order; the ending's dawn runs on the game clock. The sky is a slot remap of the back wall's night, sea and lamp colours. |
 | The clerk's name, the sheet's draft | `signin.js` | |
-| Texts received, the text sent and when it was read on air | `messages.js` | Arrivals derive from the order reached. |
+| Texts received, the text sent and when it was read on air, the call made | `messages.js` | Arrivals and the open lines derive from the order reached. |
 
 Rule: one source of truth per fact. Derive, don't copy.
 

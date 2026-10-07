@@ -9,8 +9,8 @@
   let hummed = false;
 
   radio.setListener(view => {
-    // June reading the clerk's text: the window across the bay answers.
-    if (story.messages.presets.some(p => p.onAir === view.key)) outside.answer();
+    // June reading the clerk's text or answering their call: the window across the bay answers.
+    if ([...story.messages.presets.map(p => p.onAir), ...story.messages.calls.map(c => c.reply)].includes(view.key)) outside.answer();
     if (view.song) heard.add('song:' + view.song);
     if (view.kind === 'signal' && view.key !== 'radio.static') {
       const signal = story.radio.signals.find(s => s.freq === view.freq);

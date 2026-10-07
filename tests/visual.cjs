@@ -123,6 +123,10 @@ async function finish(page, index) {
     await page.keyboard.press('Escape');
     await page.keyboard.press('ArrowDown');
     await page.keyboard.press('Enter');
+    await shot(page, 'phone-call-closed');
+    await page.keyboard.press('Escape');
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('Enter');
     await page.keyboard.press('ArrowDown');
     await shot(page, 'settings-phone');
     await page.close();

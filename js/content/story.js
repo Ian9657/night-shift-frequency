@@ -56,7 +56,7 @@
   const radio = Object.freeze({
     intro: ['radio.intro1', 'radio.intro2'],
     orders: [['radio.o1'], ['radio.o2', { song: 'slowTide' }], ['radio.o3a', 'radio.o3b'], ['radio.o4'],
-      ['radio.o5a', 'radio.o5b', 'radio.o5c'], ['radio.o6a', 'radio.o6b'], ['radio.o7', { song: 'harbourLights' }], ['radio.o8a', 'radio.o8b']],
+      ['radio.o5a', 'radio.o5b', 'radio.o5c'], ['radio.o6a', 'radio.o6b', 'radio.linesOpen'], ['radio.o7', { song: 'harbourLights' }], ['radio.o8a', 'radio.o8b']],
     endings: {
       'keep-linked': ['radio.endKeepLinked1', 'radio.endKeepLinked2'],
       'keep-independent': ['radio.endKeepIndependent1', 'radio.endKeepIndependent2'],
@@ -114,6 +114,16 @@
       { id: 'rain', text: 'text.rain', label: 'text.rainLabel', onAir: 'radio.textRain' },
     ],
     reply: { id: 'heard', from: 'unknown', text: 'text.heard' },
+    // June opens the phone lines with order 6's segment (index `linesOpen`); the clerk
+    // may call in once and say one of these. On air: what they said, then June's reply.
+    linesOpen: 5,
+    calls: [
+      { id: 'hello', label: 'call.helloLabel', said: 'call.hello', reply: 'radio.replyHello' },
+      { id: 'rain', label: 'call.rainLabel', said: 'call.rain', reply: 'radio.replyRain' },
+      { id: 'thanks', label: 'call.thanksLabel', said: 'call.thanks', reply: 'radio.replyThanks' },
+    ],
+    // Before signing off June thanks the clerk by name if they texted or called.
+    thanks: 'radio.thanks',
   });
 
   // The people who stayed who may come to the counter after three, and what they say

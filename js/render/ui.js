@@ -258,7 +258,7 @@
     const screen = phone.view.screen, rows = phone.rows();
     const sender = m => (m.from === 'self' ? t('phone.self', { name: signin.name }) : t('phone.unknown'));
     const reading = screen === 'read' && messages.inbox().find(m => m.id === phone.view.reading);
-    const heading = { home: t('phone.menu'), inbox: t('phone.inbox'), compose: t('phone.to'), settings: t('phone.title') }[screen] || sender(reading);
+    const heading = { home: t('phone.menu'), inbox: t('phone.inbox'), compose: t('phone.to'), call: t('phone.call'), settings: t('phone.title') }[screen] || sender(reading);
     text.draw(ctx, heading, x0 + w / 2, y0 + 20, LCD.ink, { align: 'center', clipWidth: w - 6 });
     // A selectable row: highlighted when selected; a click on it selects it, a click on
     // the selected row chooses it.
@@ -275,8 +275,8 @@
     const wrapped = (value, y, color = LCD.ink) => text.wrap(value, w - 10).forEach((line, i) => text.draw(ctx, line, x0 + 5, y + i * 14, color));
     if (screen === 'home') {
       const unread = messages.unread();
-      rows.forEach((id, i) => row(i, id === 'inbox' ? (unread ? t('phone.inboxNew', { count: unread }) : t('phone.inbox'))
-        : id === 'compose' ? t('phone.compose') : t('phone.title'), 'phone-row-' + id));
+      const caption = { inbox: unread ? t('phone.inboxNew', { count: unread }) : t('phone.inbox'), compose: t('phone.compose'), call: t('phone.call'), settings: t('phone.title') };
+      rows.forEach((id, i) => row(i, caption[id], 'phone-row-' + id));
     } else if (screen === 'inbox') {
       if (!rows.length) text.draw(ctx, t('phone.empty'), x0 + w / 2, y0 + 44, LCD.dim, { align: 'center' });
       messages.inbox().slice(0, 5).forEach((m, i) => {
@@ -294,6 +294,18 @@
         messages.presets.forEach((p, i) => row(i, t(p.label), 'phone-send-' + p.id));
         const p = messages.presets[phone.view.row];
         if (p) wrapped(t(p.text), y0 + 40 + messages.presets.length * 22 + 4, LCD.bar);
+      }
+    } else if (screen === 'call') {
+      if (messages.call) {
+        text.draw(ctx, t('phone.called', { clock: messages.call.clock }), x0 + 5, y0 + 40, LCD.dim);
+        wrapped(t('phone.onAir'), y0 + 58, LCD.bar);
+      } else if (!rows.length) {
+        text.draw(ctx, t('phone.closed'), x0 + w / 2, y0 + 44, LCD.ink, { align: 'center' });
+        wrapped(t('phone.closedHint'), y0 + 64, LCD.dim);
+      } else {
+        messages.calls.forEach((c, i) => row(i, t(c.label), 'phone-say-' + c.id));
+        const c = messages.calls[phone.view.row];
+        if (c) wrapped(t(c.said), y0 + 40 + messages.calls.length * 22 + 4, LCD.bar);
       }
     } else if (screen === 'settings') {
       rows.forEach((id, i) => {
@@ -317,7 +329,8 @@
       });
     }
     // Soft key captions over the two keys under the screen.
-    text.draw(ctx, t(screen === 'compose' && !messages.sent ? 'phone.send' : 'phone.select'), x0 + 5, y1 - 16, LCD.ink);
+    const soft = screen === 'compose' && !messages.sent ? 'phone.send' : screen === 'call' && rows.length ? 'phone.say' : 'phone.select';
+    text.draw(ctx, t(soft), x0 + 5, y1 - 16, LCD.ink);
     text.draw(ctx, t('phone.back'), x1 - 5, y1 - 16, LCD.ink, { align: 'right' });
   }
 

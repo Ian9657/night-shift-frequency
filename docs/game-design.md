@@ -79,7 +79,7 @@ eases from half past three. After three the ferry, suspended according to June, 
 the bay anyway. While the echo speaks on 87.7, the tower's light blinks with the voice.
 The town's windows across the bay go out one by one through the night. One stays on, like
 the store's: after two it blinks twice when the store's tubes flicker or when June reads
-the clerk's text, and it goes out when Night Ferry signs off.
+the clerk's text or answers their call, and it goes out when Night Ferry signs off.
 
 Ordinary orders (2, 3, 4, 6, 7) are generated from the shift seed under hard
 constraints: one catalogue for products, prices and heatability; payment types that
@@ -167,7 +167,7 @@ Listening changes what people say, never a record (`js/game/company.js`):
 - Clicking the clerk's flip phone on the counter flips it open close up and pauses the
   shift (the game clock stops; the radio drops back). A click outside puts it away;
   BACK, the red key or Escape go back a screen, and from the menu put it away.
-- The menu: MESSAGES, TEXT NIGHT FERRY, SETTINGS. Click a row to select it and again to
+- The menu: MESSAGES, TEXT NIGHT FERRY, CALL NIGHT FERRY, SETTINGS. Click a row to select it and again to
   open it, or use the arrow keys and Enter.
 - Texts arrive with orders 4 and 6 from no number ("your light's the only one on the
   front", "the ferry's running. don't tell june.") and with order 8 from the clerk's own
@@ -177,6 +177,10 @@ Listening changes what people say, never a record (`js/game/company.js`):
   up?, the rain). June reads it with the clerk's name before the next segment (before
   the closing letter if no order is left), and the order after that someone who heard
   it writes back.
+- With order 6 June opens the phone lines. From then until the report, the clerk can
+  call in once (CALL NIGHT FERRY) and say one of three things; once the phone is put
+  down, Night Ferry carries what they said and June's reply.
+- If the clerk texted or called, June thanks them by name before signing off.
 - SETTINGS: VOLUME, RADIO and SOUNDS levels (0–5) and SILENT MODE. The browser
   remembers them.
 

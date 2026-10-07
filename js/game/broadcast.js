@@ -45,7 +45,8 @@
     // heard; `duration` is how long they take on air.
     shiftClosed(ending) {
       if (radio.view.kind !== 'ferry') radio.tune('87.6');
-      const lines = [...messages.takeOnAir(game.state.eventIndex, signin.name), ...story.radio.endings[ending], story.radio.signoff];
+      const lines = [...messages.takeOnAir(game.state.eventIndex, signin.name), ...story.radio.endings[ending],
+        ...messages.thanks(signin.name), story.radio.signoff];
       return { done: radio.play(lines), duration: radio.duration(lines) };
     },
     offAir() { radio.signOff(); },
