@@ -5,6 +5,28 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — a real POS keypad
+
+- The register's keypad is a beige wedge matching the monitor, low at the clerk's edge
+  and high at the back, with raised key caps (lit tops, shaded edges, gaps): a 4x4
+  block of product keys with coloured paper labels, a dark number pad with a double 0,
+  and a function column with VOID, CLEAR, the amber record key and a double-height
+  TOTAL. A card-reader groove runs along the back; the mode lock and brass key sit at
+  the back left. The monitor's badge, label tape and vents move up two pixels.
+- The record key's position is a point on the keypad's slope (`space.js`), shared by
+  the art and the keypad layout.
+
+### Verified (keypad)
+
+- All five checks pass. A close-up of the keypad and the record-pending screenshot were
+  reviewed.
+
+### Not verified (keypad)
+
+- The card-reader groove is mostly hidden by the back row; worn tops are one or two
+  pixels. The mode marks and key ring were dropped as too small. Phone screenshots were
+  not looked at.
+
 ### Changed — a bolder record key; the right of the counter moves right
 
 - The record key is larger and twice as tall, a bright amber cap with a highlight in a

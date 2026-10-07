@@ -22,13 +22,18 @@
   const customer = Object.freeze({ z: 1.32, canvas: [176, 210], centre: 88, headTop: 40, height: 1.68 });
 
   // Interactive fixtures on the counter: centre x/z, width/height/depth, optional yaw (radians).
-  const keypad = Object.freeze({ x: -0.43, z: 0.78, w: 0.32, h: 0.035, d: 0.14 });
+  // The register's keypad is a wedge, low at the clerk's edge (front) and high at the
+  // back (h), so its keys tilt toward them.
+  const keypad = Object.freeze({ x: -0.43, z: 0.78, w: 0.32, h: 0.04, d: 0.14, front: 0.012 });
+  // A point on the keypad's slope: s across, t from front to back.
+  const onKeypad = (s, t) => ({ x: keypad.x - keypad.w / 2 + s * keypad.w, z: keypad.z - keypad.d / 2 + t * keypad.d, y: counter.y + keypad.front + t * (keypad.h - keypad.front) });
   // A fixture may be made of several boxes; the first is its click target.
   const fixtures = Object.freeze({
     microwave: [{ x: -1.02, z: 1.04, w: 0.46, h: 0.27, d: 0.34 }],
     // The register and its keypad; only the record key on the keypad is clicked.
     pos: [{ x: -0.5, z: 0.99, w: 0.44, h: 0.4, d: 0.28 }, keypad],
-    recordKey: [{ x: keypad.x + keypad.w * 0.27, z: keypad.z + 0.01, w: 0.036, h: 0.016, d: 0.056, y: counter.y + keypad.h }],
+    // The record key heads the function column, third row up (w across, d along the slope).
+    recordKey: [{ ...onKeypad(0.7725, 0.5425), w: 0.026, h: 0.005, d: 0.022 }],
     scanner: [{ x: -0.21, z: 0.95, w: 0.09, h: 0.19, d: 0.12 }],
     // The chip-and-PIN terminal is turned on its stand to face the customer.
     terminal: [{ x: 0.33, z: 0.95, w: 0.085, h: 0.15, d: 0.07, yaw: Math.PI - 0.45, y: counter.y + 0.02 },

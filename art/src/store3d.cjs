@@ -493,46 +493,32 @@ function sprites() {
   result['store-microwave-heating'] = micro(true);
 
   // Register: a beige CRT with the green-screen sale (drawn by the runtime), brand
-  // badge, power light and a label-tape REG 2; a cash-register keypad in front of it,
-  // not a typing keyboard: a mode lock with its key turned to REG and a spare on the
-  // ring, department keys with coloured caps, a number pad with the 0 worn shiny, the
-  // well of the amber record key (its own sprite), and the tall TOTAL and CLEAR keys.
+  // badge, power light and a label-tape REG 2. In front of it a matching beige POS
+  // keypad, a wedge sloping toward the clerk, its keys raised caps on the slope: a 4x4
+  // block of product keys with coloured paper labels under clear caps, a dark number pad
+  // with a double 0, and a function column (VOID, CLEAR, the amber record key, a
+  // double-height TOTAL). A card-reader groove runs along the back, the mode lock sits
+  // at the back left with its brass key turned to REG; the 0, CLEAR and TOTAL are worn.
   const [monitor, keypad] = F.pos;
-  const near = (u, lt, cu, clt) => Math.hypot((u - cu) * keypad.w, (lt - clt) * 0.72 * keypad.d);
-  const keys = (f, u, t) => {
-    if (f !== 'top') return null;
-    if (u < 0.03 || u > 0.97 || t < 0.1 || t > 0.9) return 'steel2';                          // the bezel
-    const lt = (t - 0.14) / 0.72;
-    if (lt < 0 || lt > 1) return null;
-    if (u < 0.15) {                                                                           // the mode lock
-      const r = near(u, lt, 0.09, 0.62);
-      if (r < 0.004) return 'ink';
-      if (r < 0.009) return 'steel5';
-      if (r < 0.011) return 'steel1';
-      for (const [i, angle] of [Math.PI, 2.3, 1.6, 0.9].entries()) {                          // OFF REG X Z
-        if (near(u, lt, 0.09 + Math.cos(angle) * 0.016 / keypad.w, 0.62 + Math.sin(angle) * 0.016 / (0.72 * keypad.d)) < 0.0022) return i === 1 ? 'phos3' : 'cream4';
-      }
-      const ring = near(u, lt, 0.09, 0.22);
-      return ring > 0.007 && ring < 0.0095 ? 'steel6' : null;                                   // the key ring
-    }
-    if (u > 0.17 && u < 0.47) {                                                               // department keys
-      const lu = (u - 0.17) / 0.3, col = Math.floor(lu * 5);
-      if ((lu * 5) % 1 > 0.74 || (lt * 3) % 1 > 0.64) return null;
-      return lt > 0.66 ? ['buoy2', 'green2', 'yellow2', 'red2', 'blue2'][col] : 'cream4';
-    }
-    if (u > 0.5 && u < 0.69) {                                                                // number pad
-      const lu = (u - 0.5) / 0.19, ku = (lu * 3) % 1, kt = (lt * 4) % 1;
-      if (ku > 0.7 || kt > 0.62) return null;
-      if (lt < 0.25 && lu < 0.33) return ku < 0.4 ? 'white' : 'cream5';                        // 0, worn shiny
-      return ku > 0.25 && ku < 0.45 && kt > 0.2 && kt < 0.4 ? 'steel4' : 'cream4';
-    }
-    if (u > 0.7 && u < 0.84 && lt > 0.25 && lt < 0.95) return 'ink';                           // the record key's well
-    if (u > 0.85 && u < 0.965) {                                                              // CLEAR, TOTAL
-      if (lt > 0.62) return lt > 0.68 ? 'red2' : null;
-      return u > 0.88 && u < 0.93 && lt > 0.2 && lt < 0.45 ? 'buoy3' : 'buoy2';
-    }
-    return null;
-  };
+  const vec = { add: (...vs) => vs.reduce((a, b) => a.map((x, i) => x + b[i])), mul: (v, k) => v.map(x => x * k) };
+  const rise = keypad.h - keypad.front, slopeLength = Math.hypot(keypad.d, rise);
+  const along = [0, rise / slopeLength, keypad.d / slopeLength], normal = [0, keypad.d / slopeLength, -rise / slopeLength];
+  const x0 = keypad.x - keypad.w / 2, z0 = keypad.z - keypad.d / 2;
+  const onSlope = (u, t) => [x0 + u * keypad.w, counter.y + keypad.front + t * rise, z0 + t * keypad.d];
+  const lit = (ramp, n) => (P, sx, sy) => shade(ramp, lightAt(P, n), sx, sy);
+  // A key cap centred at (u, t) on the slope, w across and d along it, standing h proud.
+  function keyCap(s, u, t, w, d, ramp, top = null, h = 0.004) {
+    const id = s.object('key', { ramp });
+    const O = vec.add(onSlope(u, t), [-w / 2, 0, 0], vec.mul(along, -d / 2)), U = [w, 0, 0], V = vec.mul(along, d), H = vec.mul(normal, h);
+    const face = n => (a, b, P, sx, sy) => lit(ramp, n)(P, sx, sy);
+    s.quad(vec.add(O, H), U, V, normal, (a, b, P, sx, sy) => (top && top(a, b)) || lit(ramp, normal)(P, sx, sy), id);
+    s.quad(O, U, H, vec.mul(along, -1), face(vec.mul(along, -1)), id);
+    s.quad(O, V, H, [-1, 0, 0], face([-1, 0, 0]), id);
+    s.quad(vec.add(O, U), V, H, [1, 0, 0], face([1, 0, 0]), id);
+  }
+  const ROW = 0.185, rowT = r => 0.08 + (r + 0.5) * ROW, KEY = 0.02;
+  const LABELS = ['buoy2', 'green2', 'yellow2', 'red2', 'blue2', null, 'pink2', 'cyan2', 'violet1', 'orange2', null, 'green2', 'yellow2', null, 'blue2', 'red2'];
+  const [rec] = F.recordKey, recU = (rec.x - x0) / keypad.w, fnU = [recU, recU + 0.095];
   result['store-pos'] = (() => {
     const s = new Stage();
     s.box(monitor, RAMP.cream, panel('front', 80, 73, p => {
@@ -540,26 +526,62 @@ function sprites() {
       p.hline(0, 79, 0, 'cream4').vline(0, 0, 72, 'cream4').hline(0, 79, 72, 'cream1').vline(79, 0, 72, 'cream1');
       p.rect(6, 5, 68, 52, 'cream1').rect(8, 7, 64, 48, 'phos0');
       for (const [x, y] of [[8, 7], [71, 7], [8, 54], [71, 54]]) p.px(x, y, 'cream1');             // rounded glass
-      p.rect(8, 61, 16, 5, 'buoy2').hline(8, 23, 61, 'buoy3');                                // brand badge
-      p.rect(27, 60, 19, 7, 'white').hline(27, 45, 66, 'paper2').px(45, 60, 'paper2');          // label tape
-      text(p, 29, 61, 'REG2', 'ink');
-      p.rect(70, 62, 2, 2, 'phos4');                                                            // power light
-      for (let x = 49; x < 62; x += 3) p.vline(x, 61, 66, 'cream2');                            // vents
-      p.rect(65, 57, 12, 11, 'yellow2').hline(65, 76, 57, 'yellow3').px(76, 67, 'yellow1');        // a sticky note
-      p.hline(67, 74, 60, 'blue1').hline(67, 72, 62, 'blue1').hline(68, 73, 64, 'blue1');
+      p.rect(8, 59, 16, 5, 'buoy2').hline(8, 23, 59, 'buoy3');                                // brand badge
+      p.rect(27, 58, 19, 7, 'white').hline(27, 45, 64, 'paper2').px(45, 58, 'paper2');          // label tape
+      text(p, 29, 59, 'REG2', 'ink');
+      p.rect(70, 60, 2, 2, 'phos4');                                                            // power light
+      for (let x = 49; x < 62; x += 3) p.vline(x, 59, 64, 'cream2');                            // vents
+      p.rect(65, 56, 12, 10, 'yellow2').hline(65, 76, 56, 'yellow3').px(76, 65, 'yellow1');        // a sticky note
+      p.hline(67, 74, 59, 'blue1').hline(67, 72, 61, 'blue1').hline(68, 73, 63, 'blue1');
     }));
-    s.box(keypad, RAMP.steel, keys);
+    // The keypad's body: the sloping top, the low front lip, the wedge-shaped ends.
+    const body = s.object('keypad', { ramp: RAMP.cream });
+    const lock = (u, t) => Math.hypot((u - 0.09) * keypad.w, (t - 0.86) * slopeLength);
+    s.quad(onSlope(0, 0), [keypad.w, 0, 0], vec.mul(along, slopeLength), normal, (u, t, P, sx, sy) => {
+      if (t > 0.87 && t < 0.9 && u > 0.42 && u < 0.95) return 'ink';                               // card-reader groove
+      const r = lock(u, t);
+      if (r < 0.0035) return 'ink';
+      if (r < 0.008) return 'steel5';
+      if (r < 0.0095) return 'steel1';
+      if (u < 0.015 || u > 0.985 || t > 0.97) return 'cream1';
+      return lit(RAMP.cream, normal)(P, sx, sy);
+    }, body);
+    s.quad([x0, counter.y, z0], [keypad.w, 0, 0], [0, keypad.front, 0], [0, 0, -1], (u, t, P, sx, sy) => lit(RAMP.cream, [0, 0, -1])(P, sx, sy), body);
+    for (const [u, n] of [[0, [-1, 0, 0]], [1, [1, 0, 0]]]) {
+      s.quad([x0 + u * keypad.w, counter.y, z0], [0, 0, keypad.d], [0, keypad.h, 0], n,
+        (a, b, P, sx, sy) => (b * keypad.h > keypad.front + a * rise ? null : lit(RAMP.cream, n)(P, sx, sy)), body);
+    }
+    // Product keys: pale caps over coloured paper labels.
+    for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) {
+      const label = LABELS[r * 4 + c];
+      keyCap(s, 0.06 + (c + 0.5) * 0.085, rowT(r), 0.022, KEY, RAMP.paper, (a, b) => (label && a > 0.2 && a < 0.8 && b > 0.3 && b < 0.75 ? label : null));
+    }
+    // The number pad: dark caps with a centre dot, the double 0 worn shiny.
+    for (let r = 1; r < 4; r++) for (let c = 0; c < 3; c++) {
+      keyCap(s, 0.4725 + c * 0.085, rowT(r), 0.022, KEY, RAMP.steel, (a, b) => (a > 0.4 && a < 0.6 && b > 0.35 && b < 0.65 ? 'steel6' : null));
+    }
+    keyCap(s, 0.515, rowT(0), 0.0492, KEY, RAMP.steel, (a, b) => (a > 0.25 && a < 0.75 && b > 0.3 && b < 0.7 ? 'steel7' : null));
+    keyCap(s, 0.6425, rowT(0), 0.022, KEY, RAMP.steel);
+    // The function column; the record key is its own sprite.
+    keyCap(s, fnU[0], rowT(3), 0.026, KEY, RAMP.steel);                                         // VOID
+    keyCap(s, fnU[1], rowT(3), 0.026, KEY, RAMP.red, (a, b) => (a > 0.3 && a < 0.7 && b > 0.3 && b < 0.7 ? 'red4' : null));   // CLEAR, worn
+    keyCap(s, fnU[1], rowT(2), 0.026, KEY, RAMP.steel);                                         // SUBTOTAL
+    keyCap(s, fnU[0], rowT(1), 0.026, KEY, RAMP.steel);
+    keyCap(s, fnU[0], rowT(0), 0.026, KEY, RAMP.steel);
+    keyCap(s, fnU[1], (rowT(0) + rowT(1)) / 2, 0.026, ROW * slopeLength + KEY, RAMP.green,
+      (a, b) => (a > 0.3 && a < 0.7 && b > 0.35 && b < 0.65 ? 'green4' : null));               // TOTAL, worn
     // The brass key in the lock, turned to REG.
-    s.box({ x: keypad.x - keypad.w / 2 + keypad.w * 0.09, z: keypad.z - keypad.d / 2 + keypad.d * (0.14 + 0.72 * 0.62), w: 0.016, h: 0.022, d: 0.004, yaw: 0.6, y: counter.y + keypad.h },
-      RAMP.yellow, (f, u, t) => (t > 0.55 && Math.hypot(u - 0.5, t - 0.78) < 0.14 ? 'ink' : null), { name: 'mode key' });
+    const [kx, ky, kz] = onSlope(0.09, 0.86);
+    s.box({ x: kx, z: kz, w: 0.016, h: 0.02, d: 0.004, yaw: 0.6, y: ky }, RAMP.yellow,
+      (f, u, t) => (t > 0.55 && Math.hypot(u - 0.5, t - 0.78) < 0.14 ? 'ink' : null), { name: 'mode key' });
     s.outline();
     return s.sprite();
   })();
 
-  // The record key: a tall amber cap in a black well, lit up while a record waits.
-  const recordKey = lit => {
+  // The record key: an amber cap in the function column, lit up while a record waits.
+  const recordKey = on => {
     const s = new Stage();
-    s.box(F.recordKey[0], RAMP.yellow, (f, u, t) => (lit ? (f === 'top' ? 'white' : 'yellow3') : f === 'top' ? (t > 0.6 && u < 0.5 ? 'white' : 'yellow3') : null));
+    keyCap(s, recU, (rec.z - z0) / keypad.d, rec.w, rec.d, RAMP.yellow, (a, b) => (on ? 'white' : a < 0.45 && b > 0.55 ? 'white' : 'yellow3'), rec.h);
     s.outline();
     return s.sprite();
   };
