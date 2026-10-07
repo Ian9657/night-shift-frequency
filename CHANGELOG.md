@@ -5,6 +5,27 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — louder, and a ringtone for texts
+
+- Everything was quiet against other audio on the same device (measured in Chrome:
+  scanner peaks at −24 dBFS, songs at −38.5 dB RMS, June's voice peaking at −35 dBFS).
+  The mix now has a +6 dB output gain into a limiter (−3 dB threshold) after `master`,
+  and the radio voice is raised a further ~4 dB to sit with the sound effects. Measured
+  after: scanner −17 dBFS peak, songs −31 dB RMS, voice −25 dBFS peak.
+- A text arriving now rings as well as buzzing: bright two-partial pings in rising
+  threes, played twice, through a bandpass like the phone's small speaker
+  (`phoneRing`).
+
+### Verified (volume)
+
+- All five checks pass; levels were measured before and after by tapping the output in
+  headless Chrome, and nothing reaches the limiter in those measurements.
+
+### Not verified (volume)
+
+- Not listened to: how loud it feels on speakers and headphones, and whether the
+  ringtone is pleasant.
+
 ### Changed — each night's content in one place
 
 - Everything that would change from one night of the week to the next now lives in one

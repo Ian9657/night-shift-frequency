@@ -15,6 +15,7 @@
     inbox.unshift({ id: entry.id, from: entry.from, text: entry.text, clock: night.clock(), read: false });
     buzzedAt = time.now;
     audio.phoneBuzz();
+    audio.phoneRing();
   }
 
   // Due texts arrive once the shift has reached them.

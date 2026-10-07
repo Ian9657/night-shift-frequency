@@ -1,9 +1,11 @@
 // Synthesised diegetic sound: room tone, machines, dialogue ticks and the
 // counter radio. No music tracks. Ambient drift uses real time on purpose:
 // it is texture, not game state. Everything plays through two buses, `sounds` and
-// `radio`, into `master`; the phone's settings set their levels (0–5).
+// `radio`, into `master`; the phone's settings set their levels (0–5). `master` then
+// gets the output gain and a limiter, so nothing clips when sounds pile up.
 (function (root) {
   'use strict';
+  const OUTPUT_GAIN = 2;                     // +6 dB: the mix sat well below other audio on the same device
   const SFX_GAIN = 2.65;
   const DIALOGUE_TICK_GAIN = 2.85;
   let context = null;
@@ -24,7 +26,11 @@
     if (!context) {
       context = new Context();
       const master = context.createGain(), sounds = context.createGain(), radio = context.createGain();
-      sounds.connect(master); radio.connect(master); master.connect(context.destination);
+      const output = context.createGain(), limiter = context.createDynamicsCompressor();
+      output.gain.value = OUTPUT_GAIN;
+      limiter.threshold.value = -3; limiter.knee.value = 0; limiter.ratio.value = 20;
+      limiter.attack.value = 0.002; limiter.release.value = 0.12;
+      sounds.connect(master); radio.connect(master); master.connect(output); output.connect(limiter); limiter.connect(context.destination);
       bus = { master, sounds, radio };
       applyLevels();
     }
@@ -207,7 +213,7 @@
       low.type = 'lowpass';
       low.frequency.value = 1500;
       volume.gain.setValueAtTime(0.0001, t);
-      volume.gain.exponentialRampToValueAtTime((echo ? 0.05 : 0.07) * between(0.6, 1), t + syllable * 0.3);
+      volume.gain.exponentialRampToValueAtTime((echo ? 0.08 : 0.11) * between(0.6, 1), t + syllable * 0.3);
       volume.gain.exponentialRampToValueAtTime(0.0001, t + syllable);
       source.connect(band); band.connect(low); low.connect(volume); volume.connect(bus.radio);
       source.start(t); source.stop(t + syllable);
@@ -426,6 +432,28 @@
       noise({ duration: 0.2, gain: 0.003, delay, filterType: 'lowpass', frequency: 300 });
     }
   }
+  // A text's ringtone through the phone's little speaker: bright two-partial pings in
+  // rising threes, played twice, the way phones of the time chirped.
+  function phoneRing() {
+    const ctx = audio();
+    if (!ctx) return;
+    const start = ctx.currentTime + 0.02, speaker = ctx.createBiquadFilter();
+    speaker.type = 'bandpass'; speaker.frequency.value = 2400; speaker.Q.value = 0.7;
+    speaker.connect(bus.sounds);
+    const ping = (note, at) => {
+      for (const [ratio, gain] of [[1, 0.05], [2.01, 0.014]]) {
+        const osc = ctx.createOscillator(), volume = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = 440 * 2 ** ((note - 69) / 12) * ratio;
+        volume.gain.setValueAtTime(0.0001, at);
+        volume.gain.exponentialRampToValueAtTime(gain, at + 0.004);
+        volume.gain.exponentialRampToValueAtTime(0.0001, at + 0.16);
+        osc.connect(volume); volume.connect(speaker);
+        osc.start(at); osc.stop(at + 0.18);
+      }
+    };
+    [0, 0.62].forEach(bar => [[83, 0], [88, 0.1], [91, 0.2], [88, 0.36], [91, 0.46]].forEach(([note, at]) => ping(note, start + bar + at)));
+  }
   function phoneSent() {
     tone({ frequency: 1320, duration: 0.06, type: 'sine', gain: 0.008, lowpass: 3000 });
     tone({ frequency: 1760, duration: 0.09, type: 'sine', gain: 0.008, delay: 0.07, lowpass: 3000 });
@@ -463,7 +491,7 @@
   root.NSF.audio = {
     unlock: audio, startAmbience, scan, payment, anomaly, cashPaper, cashDrawer, microwaveStart, microwaveDone,
     stopMicrowave, receipt, bag, dialogueTick, resetTicks() { tickStep = 0; },
-    radioStation, radioTune, radioVoice, phoneKey, phoneFlip, pen, stamp, carPass, clockSkip, tubeFlicker, phoneBuzz, phoneSent, doorChime, gulls, playSong, stopSong, boxDrop,
+    radioStation, radioTune, radioVoice, phoneKey, phoneFlip, pen, stamp, carPass, clockSkip, tubeFlicker, phoneBuzz, phoneRing, phoneSent, doorChime, gulls, playSong, stopSong, boxDrop,
     // Levels 0–5 for 'master', 'radio' and 'sounds'.
     level(name) { return levels[name]; },
     setLevel(name, value) { levels[name] = Math.max(0, Math.min(5, Math.round(value))); applyLevels(); },

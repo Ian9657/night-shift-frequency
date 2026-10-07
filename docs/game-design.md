@@ -172,7 +172,7 @@ Listening changes what people say, never a record (`js/game/company.js`):
 - Texts arrive with orders 4 and 6 from no number ("your light's the only one on the
   front", "the ferry's running. don't tell june.") and with order 8 from the clerk's own
   number, shown as their name: "Door's unlocked. Come home when the radio stops." The
-  phone on the counter buzzes and its light blinks until they are read.
+  phone on the counter rings and buzzes, and its light blinks until they are read.
 - Once a night the clerk can text Night Ferry one of three messages (a request, anyone
   up?, the rain). June reads it with the clerk's name before the next segment (before
   the closing letter if no order is left), and the order after that someone who heard
