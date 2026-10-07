@@ -535,7 +535,8 @@ function sprites() {
   // block of product keys with coloured paper labels under clear caps, a dark number pad
   // with a double 0, and a function column (VOID, CLEAR, the amber record key, a
   // double-height TOTAL). A card-reader groove runs along the back, the mode lock sits
-  // at the back left with its brass key turned to REG; the 0, CLEAR and TOTAL are worn.
+  // at the back left with its brass key turned to REG; the 0, CLEAR and TOTAL are worn,
+  // grime sits between the keys and old price-gun labels are stuck on the back edge.
   const [monitor, keypad] = F.pos;
   const vec = { add: (...vs) => vs.reduce((a, b) => a.map((x, i) => x + b[i])), mul: (v, k) => v.map(x => x * k) };
   const rise = keypad.h - keypad.front, slopeLength = Math.hypot(keypad.d, rise);
@@ -587,6 +588,8 @@ function sprites() {
       if (r < 0.008) return 'steel5';
       if (r < 0.0095) return 'steel1';
       if (u < 0.015 || u > 0.985 || t > 0.97) return 'cream1';
+      if (t > 0.9 && u > 0.17 && u < 0.39) return (u * 30) % 1 < 0.6 ? ((u * 15) % 1 < 0.5 ? 'white' : 'orange2') : 'cream2';   // price-gun labels stuck on the edge
+      if (t > 0.06 && t < 0.84 && u > 0.04 && u < 0.97 && hash(sx, sy) < 0.35) return 'cream2';    // grime between the keys
       return lit(RAMP.cream, normal)(P, sx, sy);
     }, body);
     s.quad([x0, counter.y, z0], [keypad.w, 0, 0], [0, keypad.front, 0], [0, 0, -1], (u, t, P, sx, sy) => lit(RAMP.cream, [0, 0, -1])(P, sx, sy), body);

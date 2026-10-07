@@ -5,6 +5,20 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — a used keypad
+
+- Grime speckles the keypad between its keys, and a row of old price-gun labels is stuck
+  on its back edge.
+
+### Verified (used keypad)
+
+- All five checks pass. A close-up of the keypad was reviewed.
+
+### Not verified (used keypad)
+
+- The contact shadow under the keypad was left as it was. Phone screenshots were not
+  looked at.
+
 ### Changed — monitor and cash drawer get real build detail
 
 - The register's monitor is a deep bezel with the CRT housing stepping in toward the
