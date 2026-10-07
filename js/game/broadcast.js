@@ -24,7 +24,7 @@
   // line in turn; before that, static.
   const heard = new Map();
   function signal(freq) {
-    const s = story.radio.signals.find(entry => entry.freq === freq);
+    const s = story.tonight.signals.find(entry => entry.freq === freq);
     const live = ['shift', 'report', 'ending'].includes(game.state.phase);
     if (!s || !live || game.state.eventIndex < s.from) return null;
     const n = heard.get(freq) || 0;
@@ -38,9 +38,9 @@
       radio.setEchoProvider(echo);
       radio.setSignalProvider(signal);
     },
-    shiftStarted() { radio.play([...story.radio.intro, ...story.radio.orders[0]]); },
+    shiftStarted() { radio.play([...story.radio.intro, ...story.tonight.segments[0]]); },
     // A text the clerk sent is read before the segment.
-    orderStarted(index) { radio.play([...messages.takeOnAir(index, signin.name), ...story.radio.orders[index]]); },
+    orderStarted(index) { radio.play([...messages.takeOnAir(index, signin.name), ...story.tonight.segments[index]]); },
     // The closing letter and sign-off on 87.6: `done` resolves once they have been
     // heard; `duration` is how long they take on air.
     shiftClosed(ending) {

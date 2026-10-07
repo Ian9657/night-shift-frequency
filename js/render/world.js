@@ -14,7 +14,7 @@
     9: ['###', '#.#', '###', '..#', '###'], ':': ['.', '#', '.', '#', '.'],
   };
   const AXIS = space.customer.centre - 0.5;
-  // Lost-and-found items as 8x8 pictures (story.found names them): peeking over the
+  // Lost-and-found items as 8x8 pictures (story.tonight.found names them): peeking over the
   // box's rim here, close up in ui.js.
   const ICON_COLORS = { Y: '#efcf5a', y: '#b8902f', d: '#6b4b16', W: '#f3f6ea', g: '#8f8a7a', B: '#3e64b4', P: '#ebe7d6', R: '#c8403a' };
   const BOOT = ['..YYYY..', '..YYYY..', '..YYYY..', '..YYYy..', '.YYYYy..', 'YYYYYy..', 'YYYYYYy.', 'dddddd..'];

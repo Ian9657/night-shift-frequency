@@ -5,6 +5,25 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — each night's content in one place
+
+- Everything that would change from one night of the week to the next now lives in one
+  entry of `story.nights`: the date and earlier dates on the sheet, the times and order
+  clocks, Night Ferry's segments, the frequencies between the stations, the texts that
+  arrive, when the lines open, who stayed, lost and found, and the drift plan. Code reads
+  `story.tonight` (the first night); the sign-in sheet's dates and `drift.js`'s plan
+  come from it. Shared content (catalogue, contexts, records, songs, endings, the
+  phone's presets and calls) stays where it was. Behaviour is unchanged.
+
+### Verified (nights)
+
+- All five checks pass; the content test checks every night has eight clocks and
+  segments.
+
+### Not verified (nights)
+
+- No second night exists, so switching nights has not been exercised.
+
 ### Added — calling Night Ferry
 
 - With order 6 June opens the phone lines. The phone's menu gains CALL NIGHT FERRY:

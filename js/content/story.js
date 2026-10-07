@@ -1,6 +1,7 @@
-// Shift content: catalogue, ordinary customer contexts, the two authored
-// record orders, the radio schedule and the four endings. Text values are
-// string keys from strings.js.
+// Shift content: catalogue, ordinary customer contexts, the two authored record
+// orders, the radio's songs and four endings, the phone's texts and calls, and each
+// night of the week (`nights`; `tonight` is the one played). Text values are string
+// keys from strings.js.
 (function (root) {
   'use strict';
   // Prices are in cents, shown with two decimals and no currency sign: Lowtide is in no
@@ -17,10 +18,6 @@
   ]);
   const drinks = Object.freeze(['tea', 'water', 'juice', 'cola']);
 
-  // The night runs 01:00 (sign-in) to 05:00 (Night Ferry signs off, the clerk signs out).
-  // Each order's clock; the report is printed at `closing`.
-  const clocks = Object.freeze(['01:14', '01:42', '02:09', '02:27', '02:41', '03:23', '03:58', '04:31']);
-  const night = Object.freeze({ start: '01:00', closing: '04:44', dawn: '05:00' });
 
   const contexts = Object.freeze([
     { name: 'quiet', style: 'quiet', lines: [] },
@@ -55,8 +52,6 @@
   // FM 87.6 segments, played once per order while the radio is on that station.
   const radio = Object.freeze({
     intro: ['radio.intro1', 'radio.intro2'],
-    orders: [['radio.o1'], ['radio.o2', { song: 'slowTide' }], ['radio.o3a', 'radio.o3b'], ['radio.o4'],
-      ['radio.o5a', 'radio.o5b', 'radio.o5c'], ['radio.o6a', 'radio.o6b', 'radio.linesOpen'], ['radio.o7', { song: 'harbourLights' }], ['radio.o8a', 'radio.o8b']],
     endings: {
       'keep-linked': ['radio.endKeepLinked1', 'radio.endKeepLinked2'],
       'keep-independent': ['radio.endKeepIndependent1', 'radio.endKeepIndependent2'],
@@ -64,15 +59,8 @@
       'correct-independent': ['radio.endCorrectIndependent1', 'radio.endCorrectIndependent2'],
     },
     signoff: 'radio.signoff',
-    // The dial, in hundredths of a megahertz, and what lies between the two stations:
-    // faint signals that belong to people who stayed, audible from the order `from`
-    // (an index) on, each cycling through its lines.
+    // The dial, in hundredths of a megahertz.
     band: { low: 8750, high: 8810, step: 5, ferry: 8760, echo: 8770 },
-    signals: [
-      { freq: 8785, from: 1, person: 'walt', lines: ['radio.taxi1', 'radio.taxi2', 'radio.taxi3'] },
-      { freq: 8795, from: 2, person: 'ana', lines: ['radio.ward1', 'radio.ward2', 'radio.ward3'] },
-      { freq: 8805, from: 3, person: 'hal', lines: ['radio.ferry1', 'radio.ferry2', 'radio.ferry3'] },
-    ],
     // Songs Night Ferry plays (js/game/audio.js synthesises them): a tempo, a chord per
     // bar (MIDI notes) and a melody of [note or null, beats]. One follows order 2's
     // request for the night clerk, one a text request, one the rain easing.
@@ -98,25 +86,17 @@
     },
   });
 
-  // Texts on the clerk's flip phone. Incoming ones arrive when the order with index
-  // `at` begins; `from` is 'unknown' or 'self' (the clerk's own number). The clerk can
-  // send Night Ferry one text a night; June reads it at the start of the next segment,
-  // and someone who heard it writes back an order later.
+  // The clerk's flip phone and Night Ferry (which texts arrive is per night, below). The
+  // clerk can send one text a night; June reads it at the start of the next segment, and
+  // someone who heard it writes back an order later. Once the lines are open they can
+  // call in once and say one of `calls`: on air go their words, then June's reply.
   const messages = Object.freeze({
-    incoming: [
-      { id: 'light', at: 3, from: 'unknown', text: 'text.light' },
-      { id: 'ferry', at: 5, from: 'unknown', text: 'text.ferry' },
-      { id: 'home', at: 7, from: 'self', text: 'text.home' },
-    ],
     presets: [
       { id: 'request', text: 'text.request', label: 'text.requestLabel', onAir: 'radio.textRequest', song: 'lastFerry' },
       { id: 'anyone', text: 'text.anyone', label: 'text.anyoneLabel', onAir: 'radio.textAnyone' },
       { id: 'rain', text: 'text.rain', label: 'text.rainLabel', onAir: 'radio.textRain' },
     ],
     reply: { id: 'heard', from: 'unknown', text: 'text.heard' },
-    // June opens the phone lines with order 6's segment (index `linesOpen`); the clerk
-    // may call in once and say one of these. On air: what they said, then June's reply.
-    linesOpen: 5,
     calls: [
       { id: 'hello', label: 'call.helloLabel', said: 'call.hello', reply: 'radio.replyHello' },
       { id: 'rain', label: 'call.rainLabel', said: 'call.rain', reply: 'radio.replyRain' },
@@ -126,22 +106,59 @@
     thanks: 'radio.thanks',
   });
 
-  // The people who stayed who may come to the counter after three, and what they say
-  // first if the clerk has been listening to their frequency.
-  const stayed = Object.freeze({ walt: 'say.heardWalt', ana: 'say.heardAna', hal: 'say.heardHal' });
 
-  // Lost and found: the left rain boot June mentions turns up in the box with order 4;
-  // each person who stayed leaves something on the counter; the right boot is there by
-  // order 8, and nobody brought it in.
-  const found = Object.freeze([
-    { id: 'boot', at: 3, icon: 'boot', tag: 'found.boot' },
-    { id: 'taxi', after: 'walt', icon: 'receipt', tag: 'found.taxi' },
-    { id: 'band', after: 'ana', icon: 'band', tag: 'found.band' },
-    { id: 'ticket', after: 'hal', icon: 'ticket', tag: 'found.ticket' },
-    { id: 'bootRight', at: 7, icon: 'bootRight', tag: 'found.bootRight' },
-  ]);
 
-  const api = { catalog, drinks, clocks, night, contexts, records, radio, messages, stayed, found };
+  // One entry per night of the week the clerk will work; the build plays the first.
+  // Everything that changes from night to night lives here: the date, the clocks, Night
+  // Ferry's segments, the frequencies between the stations, the texts that arrive, who
+  // stayed, what is left in lost and found and how the readings drift.
+  const nights = Object.freeze([{
+    // The sheet shows the nights before (`earlier`) and tonight's `date`.
+    date: '10/14', earlier: ['10/09', '10/10', '10/11', '10/12', '10/13'],
+    // 01:00 sign-in to 05:00 sign-out; each order's clock; the report is printed at `closing`.
+    times: { start: '01:00', closing: '04:44', dawn: '05:00' },
+    clocks: ['01:14', '01:42', '02:09', '02:27', '02:41', '03:23', '03:58', '04:31'],
+    // Night Ferry's segment for each order: lines, and songs from radio.songs.
+    segments: [['radio.o1'], ['radio.o2', { song: 'slowTide' }], ['radio.o3a', 'radio.o3b'], ['radio.o4'],
+      ['radio.o5a', 'radio.o5b', 'radio.o5c'], ['radio.o6a', 'radio.o6b', 'radio.linesOpen'], ['radio.o7', { song: 'harbourLights' }], ['radio.o8a', 'radio.o8b']],
+    // Faint signals between the stations that belong to people who stayed, audible from
+    // the order `from` (an index) on, each cycling through its lines.
+    signals: [
+      { freq: 8785, from: 1, person: 'walt', lines: ['radio.taxi1', 'radio.taxi2', 'radio.taxi3'] },
+      { freq: 8795, from: 2, person: 'ana', lines: ['radio.ward1', 'radio.ward2', 'radio.ward3'] },
+      { freq: 8805, from: 3, person: 'hal', lines: ['radio.ferry1', 'radio.ferry2', 'radio.ferry3'] },
+    ],
+    // Texts that arrive when the order with index `at` begins; 'self' is the clerk's own number.
+    incoming: [
+      { id: 'light', at: 3, from: 'unknown', text: 'text.light' },
+      { id: 'ferry', at: 5, from: 'unknown', text: 'text.ferry' },
+      { id: 'home', at: 7, from: 'self', text: 'text.home' },
+    ],
+    // June opens the phone lines with this order's segment.
+    linesOpen: 5,
+    // The people who stayed who may come to the counter after three (orders 6 and 7),
+    // and what they say first if the clerk has been listening to their frequency.
+    stayed: { walt: 'say.heardWalt', ana: 'say.heardAna', hal: 'say.heardHal' },
+    // Lost and found: the left rain boot June mentions turns up with order 4; each person
+    // who stayed leaves something; the right boot is there by order 8, and nobody
+    // brought it in.
+    found: [
+      { id: 'boot', at: 3, icon: 'boot', tag: 'found.boot' },
+      { id: 'taxi', after: 'walt', icon: 'receipt', tag: 'found.taxi' },
+      { id: 'band', after: 'ana', icon: 'band', tag: 'found.band' },
+      { id: 'ticket', after: 'hal', icon: 'ticket', tag: 'found.ticket' },
+      { id: 'bootRight', at: 7, icon: 'bootRight', tag: 'found.bootRight' },
+    ],
+    // Drift (js/game/drift.js): `skips` of the `skipFrom` orders lose ten minutes on the
+    // wall clock; one of `ghost` flashes a count of five; `borrow` leaves with the
+    // previous customer's words.
+    drift: { skipFrom: [3, 5, 6], skips: 2, ghost: [5, 6], borrow: 5 },
+  }]);
+  const freeze = value => { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
+  freeze(nights);
+  const tonight = nights[0];
+
+  const api = { catalog, drinks, contexts, records, radio, messages, nights, tonight };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else (root.NSF = root.NSF || {}).story = api;
 })(globalThis);

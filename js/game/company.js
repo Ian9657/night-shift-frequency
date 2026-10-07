@@ -13,7 +13,7 @@
     if ([...story.messages.presets.map(p => p.onAir), ...story.messages.calls.map(c => c.reply)].includes(view.key)) outside.answer();
     if (view.song) heard.add('song:' + view.song);
     if (view.kind === 'signal' && view.key !== 'radio.static') {
-      const signal = story.radio.signals.find(s => s.freq === view.freq);
+      const signal = story.tonight.signals.find(s => s.freq === view.freq);
       if (signal) heard.add(signal.person);
     }
   });
@@ -21,7 +21,8 @@
   // Lines a customer says before their own as they reach the counter.
   function greeting(order) {
     if (order.mismatch) return [];
-    if (story.stayed[order.customer] && heard.has(order.customer)) return [story.stayed[order.customer]];
+    const known = story.tonight.stayed[order.customer];
+    if (known && heard.has(order.customer)) return [known];
     if (!hummed && [...heard].some(h => h.startsWith('song:'))) {
       hummed = true;
       return ['say.hum'];

@@ -233,4 +233,7 @@ Not implemented yet:
   that flickers, one borrowed line, tube flickers that grow with the night and the
   sign-in sheet at dawn; the rota, receipts, magazine and sticky note don't change, and
   no customer thinks it's daytime.
-- Customers who stayed becoming more frequent as the night goes on.
+- More than one night. The week is the target; the content for each night has a place
+  (`story.nights`), but only the first night exists and nothing is saved between nights.
+- Customers who stayed becoming more frequent as the night goes on (orders 6 and 7 are
+  two of them; nobody else who stayed comes in).

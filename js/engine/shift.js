@@ -20,7 +20,7 @@
   const product = id => copy(story.catalog.find(p => p.id === id));
 
   // Customers by order index. Orders six and seven, after three, are two of the people
-  // who stayed (story.stayed), whose frequencies the radio can find earlier in the
+  // who stayed (story.tonight.stayed), whose frequencies the radio can find earlier in the
   // night; the earlier ordinary orders are drawn from everyone who went home.
   function lineup(seed) {
     const rng = random(seed + ':customers');
@@ -32,8 +32,8 @@
       }
       return pool;
     };
-    const stayed = shuffle(Object.keys(story.stayed)).slice(0, 2);
-    const others = shuffle(customerData.regulars.filter(id => !(id in story.stayed)));
+    const stayed = shuffle(Object.keys(story.tonight.stayed)).slice(0, 2);
+    const others = shuffle(customerData.regulars.filter(id => !(id in story.tonight.stayed)));
     return [...others.slice(0, 5), stayed[0], stayed[1]];
   }
 
@@ -81,7 +81,7 @@
       const context = record ? null : contexts.splice(i === 0 ? 0 : Math.floor(rng() * contexts.length), 1)[0];
       const paymentLine = 'say.' + paymentType;
       const order = {
-        id: `sale-${String(i + 1).padStart(3, '0')}`, index: i, clock: story.clocks[i], paymentType, bagPreference,
+        id: `sale-${String(i + 1).padStart(3, '0')}`, index: i, clock: story.tonight.clocks[i], paymentType, bagPreference,
         items, requiresHeat: i === 2, context: context?.name || 'record',
         customer: record ? record.customer : regulars[i],
         speechStyle: context?.style || 'brief',

@@ -451,7 +451,7 @@
       cy += 18;
     }
     cy += 8;
-    text.draw(ctx, `${game.orders[0].clock} — ${story.night.closing}`, x + w / 2, cy, C.muted, { align: 'center' }); cy += 26;
+    text.draw(ctx, `${game.orders[0].clock} — ${story.tonight.times.closing}`, x + w / 2, cy, C.muted, { align: 'center' }); cy += 26;
     text.draw(ctx, t('report.continue'), x + w / 2, cy, time.now % 1000 < 650 ? C.ink : C.paperShade, { align: 'center' });
     hit(0, 0, SW, SH, () => game.startEnding(), 'report');
   }
@@ -473,7 +473,7 @@
     ctx.fillStyle = 'rgba(7,9,15,0.86)';
     ctx.fillRect(0, 0, SW, SH);
     text.draw(ctx, t('end.title'), MID, 90, C.white, { align: 'center', scale: 2 });
-    text.draw(ctx, `${story.night.start} — ${story.night.dawn} · ${signin.name}`, MID, 134, C.muted, { align: 'center' });
+    text.draw(ctx, `${story.tonight.times.start} — ${story.tonight.times.dawn} · ${signin.name}`, MID, 134, C.muted, { align: 'center' });
     text.draw(ctx, t('end.records'), MID, 172, C.amber, { align: 'center' });
     let cy = 196;
     for (const o of [orders[4], orders[7]]) {
@@ -563,7 +563,7 @@
     ['sheet.date', 'sheet.name', 'sheet.in', 'sheet.out'].forEach((key, i) => text.draw(ctx, t(key), cols[i], top, C.muted));
     ctx.fillStyle = C.ink;
     ctx.fillRect(px + 8, top + 16, pw - 16, 1);
-    const nights = ['10/09', '10/10', '10/11', '10/12', '10/13', '10/14'];
+    const nights = [...story.tonight.earlier, story.tonight.date];
     nights.forEach((date, i) => {
       const y = top + 24 + i * step, tonight = i === nights.length - 1;
       ctx.fillStyle = C.paperShade;
@@ -573,14 +573,14 @@
       if (!tonight) {
         if (out) text.draw(ctx, signin.name, cols[1], y + 4, INK);
         else scribble(ctx, cols[1], y + 2);
-        text.draw(ctx, story.night.start, cols[2], y + 4, INK);
+        text.draw(ctx, story.tonight.times.start, cols[2], y + 4, INK);
         return;
       }
       const name = v.mode === 'in' && v.open ? v.draft : signin.name;
       const end = text.draw(ctx, name, cols[1], y + 4, INK);
       if (v.mode === 'in' && v.open && time.uiNow % 1000 < 550) { ctx.fillStyle = INK; ctx.fillRect(end + 1, y + 4, 2, 13); }
-      if (out) text.draw(ctx, story.night.start, cols[2], y + 4, INK);
-      if (v.signedOut) text.draw(ctx, story.night.dawn, cols[3], y + 4, INK);
+      if (out) text.draw(ctx, story.tonight.times.start, cols[2], y + 4, INK);
+      if (v.signedOut) text.draw(ctx, story.tonight.times.dawn, cols[3], y + 4, INK);
     });
     text.draw(ctx, t(out ? 'sheet.hintOut' : 'sheet.hintIn'), px + pw / 2, py + ph - 26, C.muted, { align: 'center' });
     if (out) {

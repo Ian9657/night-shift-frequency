@@ -21,7 +21,7 @@
   function update() {
     if (game.state.phase !== 'shift') return;
     const i = game.state.eventIndex;
-    for (const entry of M.incoming) if (entry.at <= i) deliver(entry);
+    for (const entry of story.tonight.incoming) if (entry.at <= i) deliver(entry);
     if (sent?.readOnAir !== null && sent?.readOnAir !== undefined && i > sent.readOnAir) deliver(M.reply);
   }
 
@@ -44,7 +44,7 @@
   // Calling in: once the lines are open, once a night. What the clerk said and June's
   // reply go straight onto Night Ferry's queue.
   let call = null;                          // { preset, clock }
-  const linesOpen = () => game.state.phase === 'shift' && game.state.eventIndex >= M.linesOpen && !call;
+  const linesOpen = () => game.state.phase === 'shift' && game.state.eventIndex >= story.tonight.linesOpen && !call;
   function callIn(id, name) {
     const preset = M.calls.find(c => c.id === id);
     if (!preset || !linesOpen()) return false;

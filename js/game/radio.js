@@ -77,7 +77,7 @@
   function kindOf(freq) {
     if (freq === BAND.ferry) return 'ferry';
     if (freq === BAND.echo) return 'echo';
-    return story.radio.signals.some(s => s.freq === freq) ? 'signal' : 'static';
+    return story.tonight.signals.some(s => s.freq === freq) ? 'signal' : 'static';
   }
 
   // Turn the dial to `freq` (snapped to the band's steps).

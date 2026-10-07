@@ -60,7 +60,7 @@ const { chromium, artifacts, URL_BASE, idle, click, playOrder, signIn, signOut }
           // The person who stayed knows the clerk was listening.
           await page.waitForFunction(() => NSF.debug.dialogue.fullText(), null, { timeout: 15000 });
           const said = await page.evaluate(() => ({ line: NSF.debug.dialogue.fullText(), who: NSF.debug.game.order().customer }));
-          assert.equal(said.line, await page.evaluate(w => NSF.strings.t(NSF.story.stayed[w]), said.who));
+          assert.equal(said.line, await page.evaluate(w => NSF.strings.t(NSF.story.tonight.stayed[w]), said.who));
         }
         const order = await playOrder(page, [first, last], name).catch(async error => {
           await page.screenshot({ path: path.join(artifacts, `${name}-failure.png`) });

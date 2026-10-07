@@ -13,7 +13,7 @@
     if (!game || game.state.phase === 'title' || game.state.phase === 'signin') return [];
     const { state, orders } = game;
     const left = index => state.eventIndex > index || (state.eventIndex === index && state.bagged);
-    return story.found.filter(item => {
+    return story.tonight.found.filter(item => {
       if (item.at !== undefined) return state.eventIndex >= item.at;
       const index = orders.findIndex(o => o.customer === item.after);
       return index >= 0 && left(index);

@@ -4,20 +4,21 @@
 // from its seed, so a replay drifts the same way.
 (function (root) {
   'use strict';
-  const { time, audio, night, engine, outside } = root.NSF;
+  const { time, audio, night, engine, outside, story } = root.NSF;
   let game = null;
   let plan = { skips: [], ghost: -1, borrow: -1 };
   const seen = { skipped: new Set(), ghosted: new Set() };
   let ghostUntil = 0;
 
-  // Two of the later ordinary orders lose ten minutes on the wall clock once the first
-  // item is scanned; one flashes a count the register never had; order 6 leaves with
-  // Nell's last words.
+  // Per night (story.tonight.drift): some later ordinary orders lose ten minutes on the
+  // wall clock once the first item is scanned; one flashes a count the register never
+  // had; one leaves with the previous customer's words (order 6: Nell's).
   function makePlan(seed) {
     const rng = engine.random(seed + ':drift');
-    const later = [3, 5, 6];
-    const skips = later.splice(Math.floor(rng() * later.length), 1).concat(later.splice(Math.floor(rng() * later.length), 1));
-    return { skips, ghost: rng() < 0.5 ? 5 : 6, borrow: 5 };
+    const { skipFrom, skips, ghost, borrow } = story.tonight.drift;
+    const pool = [...skipFrom], chosen = [];
+    while (chosen.length < skips && pool.length) chosen.push(pool.splice(Math.floor(rng() * pool.length), 1)[0]);
+    return { skips: chosen, ghost: ghost[Math.floor(rng() * ghost.length)], borrow };
   }
 
   const shifted = (clock, minutes) => {

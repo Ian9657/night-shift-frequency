@@ -20,7 +20,7 @@ How the code is organised and why. For what changed when, see
 
 | Layer | Files | Owns |
 | --- | --- | --- |
-| Content | `js/content/` | The store in metres and its camera (`space.js`), screen positions derived from it (`layout.js`), customer poses, strings, colour ramps, customer looks, story and radio script. Data only, plus small pure helpers. |
+| Content | `js/content/` | The store in metres and its camera (`space.js`), screen positions derived from it (`layout.js`), customer poses, strings, colour ramps, customer looks, story and radio script. Data only, plus small pure helpers. Everything that changes from night to night is one entry of `story.nights` (date, clocks, Night Ferry's segments, the frequencies, texts, who stayed, lost and found, drift); the build plays `story.tonight`, the first. |
 | Engine | `js/engine/shift.js` | The shift's domain: order generation from a seed, re-scan checks, record decisions, settlement, the report and the ending key. No DOM, audio or time. |
 | Core | `js/core/time.js` | The single game clock: `wait`, `after`, stepped `path` motion. Tests speed it up. `paused` stops it while the phone is open; `uiNow` keeps running for what animates over it. |
 | Game | `js/game/` | Interaction: `checkout.js` (current-order state, scene model, player actions), `dialogue.js`, `radio.js` (the player), `broadcast.js` (what is on air), `records.js` (the POS record view), `phone.js` (the flip phone: menu, texts and settings), `messages.js` (texts received and sent, the call to Night Ferry), `audio.js` (synthesised sound), `night.js` (the clock of the night, dawn and the colours outside), `signin.js` (the sign-in sheet and the clerk's name), `outside.js` (cars, the ferry, rain and the tower's light, as functions of the game clock), `drift.js` (what the readings show as the night wears on, planned from the seed), `company.js` (what the clerk has heard on the radio and who notices), `found.js` (the lost-and-found box, derived from who has been in). |
@@ -163,7 +163,7 @@ phone, the night's clock, drift, texts and the view outside follow this pattern.
 | --- | --- | --- |
 | ES modules / a bundler | Would break opening `index.html` from disk | The game needs online hosting with a build step |
 | Compressing the sprite bundle | ~740 KB is fine for a one-shot download | It grows past a few MB (run-length encoding would shrink it a lot) |
-| Saving | One shift per session by design (only the phone's settings persist) | The game spans several nights |
+| Saving | One shift per session by design (only the phone's settings persist); per-night content is already in `story.nights` | A second night is written |
 | Keyboard control of counter actions | Pointer-first pixel game | Accessibility becomes a goal |
 | Phone-size UI text | Requires a scalable UI layout | The radio dial and phone UI are built |
 | One declaration for drawing and clicking world objects | Low risk today; the radio's dial is a UI panel, not world parts | More world objects become interactive |

@@ -6,20 +6,21 @@
   const { story, time, sprites } = root.NSF;
   const minutes = clock => { const [h, m] = clock.split(':').map(Number); return h * 60 + m; };
   const format = total => `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
-  const START = minutes(story.night.start), CLOSING = minutes(story.night.closing), DAWN = minutes(story.night.dawn);
+  const T = story.tonight.times;
+  const START = minutes(T.start), CLOSING = minutes(T.closing), DAWN = minutes(T.dawn);
   let game = null;
   const dawn = { from: 0, span: 1 };
 
   function clock() {
     const { phase } = game.state;
-    if (phase === 'title' || phase === 'signin') return story.night.start;
+    if (phase === 'title' || phase === 'signin') return T.start;
     if (phase === 'shift') return game.order().clock;
-    if (phase === 'report') return story.night.closing;
+    if (phase === 'report') return T.closing;
     if (phase === 'ending') {
       const f = Math.min(1, Math.max(0, (time.now - dawn.from) / dawn.span));
       return format(CLOSING + Math.floor((DAWN - CLOSING) * f));
     }
-    return story.night.dawn;
+    return T.dawn;
   }
 
   // 0 at sign-in, 1 at dawn.
