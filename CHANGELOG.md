@@ -5,6 +5,15 @@ verified and what was not.
 
 ## Unreleased
 
+### Fixed — the CASH label fits its tape
+
+- The drawer's CASH tape was as wide as the word, so the last letter ran off its edge.
+  The tape is now 19 px wide with the word centred, two pixels clear on each side.
+
+### Verified (CASH label)
+
+- All five checks pass. The closed drawer was reviewed close up.
+
 ### Changed — caption at the top, machines in depth order, a finished cash drawer
 
 - The radio caption sits at the top left, over the shelves, so the counter, the bags and

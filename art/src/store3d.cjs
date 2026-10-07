@@ -692,8 +692,8 @@ function sprites() {
     p.vline(0, 0, 22, 'steel5').vline(103, 0, 22, 'steel2');
     for (const [x, y] of [[3, 3], [100, 3], [3, 18], [100, 18]]) p.px(x, y, 'steel1').px(x - 1, y - 1, 'steel6');   // screws
     p.rect(30, 5, 44, 5, 'steel2').hline(30, 73, 5, 'steel1').rect(32, 7, 40, 2, 'ink').hline(30, 73, 10, 'steel6');   // check slot
-    p.rect(8, 6, 15, 7, 'white').hline(8, 22, 12, 'paper2');                                    // label tape
-    text(p, 9, 7, 'CASH', 'ink');
+    p.rect(6, 6, 19, 7, 'white').hline(6, 24, 12, 'paper2');                                    // label tape, two pixels round the word
+    text(p, 8, 7, 'CASH', 'ink');
     p.rect(42, 13, 20, 4, 'steel2').hline(43, 60, 14, 'steel4').hline(43, 56, 15, 'steel3');       // maker's plate
     p.ellipse(91, 11, 4, 4, 'steel6').ellipse(91, 11, 3, 3, 'steel3').vline(91, 9, 13, 'ink').px(90, 9, 'steel7');   // key lock
     for (const [x, y, len] of [[14, 17, 6], [36, 18, 3], [66, 18, 7], [80, 17, 5]]) p.hline(x, x + len, y, 'steel4');   // knee scuffs
