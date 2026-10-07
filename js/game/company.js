@@ -4,11 +4,13 @@
 // Listening changes what people say, never a record.
 (function (root) {
   'use strict';
-  const { story, radio } = root.NSF;
+  const { story, radio, outside } = root.NSF;
   const heard = new Set();                 // people ('walt') and songs ('song:slowTide') heard
   let hummed = false;
 
   radio.setListener(view => {
+    // June reading the clerk's text: the window across the bay answers.
+    if (story.messages.presets.some(p => p.onAir === view.key)) outside.answer();
     if (view.song) heard.add('song:' + view.song);
     if (view.kind === 'signal' && view.key !== 'radio.static') {
       const signal = story.radio.signals.find(s => s.freq === view.freq);

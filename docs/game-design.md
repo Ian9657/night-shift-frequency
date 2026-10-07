@@ -77,6 +77,9 @@ SIGN OUT writes 05:00 on tonight's line.
 Outside, cars pass on the wet street now and then, fewer in the small hours. The rain
 eases from half past three. After three the ferry, suspended according to June, crosses
 the bay anyway. While the echo speaks on 87.7, the tower's light blinks with the voice.
+The town's windows across the bay go out one by one through the night. One stays on, like
+the store's: after two it blinks twice when the store's tubes flicker or when June reads
+the clerk's text, and it goes out when Night Ferry signs off.
 
 Ordinary orders (2, 3, 4, 6, 7) are generated from the shift seed under hard
 constraints: one catalogue for products, prices and heatability; payment types that

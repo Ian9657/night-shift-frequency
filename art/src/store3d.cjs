@@ -30,13 +30,10 @@ function outside(p, x0, y0, x1, y1) {
   p.bands(x0, y0, W, H - y0, ['night0', 'night1', 'night1', 'night2', 'night2']);
   p.dither(x0, H - 18, W, 3, 'night3', (x, y) => (x + 2 * y) % 5 === 0);
   p.dither(x0, H - 7, W, 4, 'night3', (x, y) => (x * 3 + y) % 7 === 0);
-  // Far shore and town lights
+  // The far shore; its lit windows are drawn by the runtime, which puts them out one by
+  // one through the night (js/game/outside.js).
   p.poly([[x0, H - 2], [x0 + 30, H - 6], [x0 + 70, H - 4], [x0 + 112, H - 9], [x0 + 152, H - 5], [x1, H - 7], [x1, H + 3], [x0, H + 3]], 'night2');
   p.poly([[x0, H + 1], [x0 + 40, H - 2], [x0 + 92, H], [x0 + 140, H - 3], [x1, H - 1], [x1, H + 4], [x0, H + 4]], 'night1');
-  for (let i = 0; i < 26; i++) {
-    const lx = x0 + Math.floor(hash(i, 3) * W), ly = H - 4 + Math.floor(hash(i, 4) * 7);
-    p.px(lx, ly, hash(i, 5) < 0.3 ? 'lamp3' : 'lamp2');
-  }
   // The relay tower on the far shore; its light is blinked by the runtime.
   const tx = Math.round(x0 + W * 0.78), top = H - 34;
   p.line(tx - 6, H + 1, tx - 1, top + 4, 'void').line(tx + 6, H + 1, tx + 1, top + 4, 'void');

@@ -4,7 +4,7 @@
 // from its seed, so a replay drifts the same way.
 (function (root) {
   'use strict';
-  const { time, audio, night, engine } = root.NSF;
+  const { time, audio, night, engine, outside } = root.NSF;
   let game = null;
   let plan = { skips: [], ghost: -1, borrow: -1 };
   const seen = { skipped: new Set(), ghosted: new Set() };
@@ -62,6 +62,7 @@
         const mood = level > 0.5 && Math.random() < level * 0.3 ? 'echo' : 'dim';
         scene.mood = mood;
         audio.tubeFlicker();
+        outside.answer();
         time.after(mood === 'echo' ? 110 : 70, () => { if (scene.mood === mood) scene.mood = 'normal'; });
       }
       scheduleFlicker();

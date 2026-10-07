@@ -5,6 +5,21 @@ verified and what was not.
 
 ## Unreleased
 
+### Added — the other window across the bay
+
+- The far shore's lit windows are drawn at runtime (taken out of `store-back`) and go
+  out one by one through the night. One window stays on all night: after two it blinks
+  back twice when the store's tubes flicker or when June reads the clerk's text, and it
+  goes out when Night Ferry signs off. Its light breaks up on the water like the tower's.
+
+### Verified (window)
+
+- All five checks pass. A desktop close-up of the bay at 01:14 was reviewed.
+
+### Not verified (window)
+
+- Whether players notice the window answering was not tried with anyone.
+
 ### Added — company: songs on Night Ferry, and people who know you listened
 
 - Night Ferry plays three short synthesised songs (`playSong` in `audio.js`, notes in

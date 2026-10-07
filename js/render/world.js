@@ -94,6 +94,21 @@
     ctx.fillRect(back - (dir < 0 ? 1 : 0), base - 5, 2, 2);
   }
 
+  // The town's lit windows on the far shore, and the one that stays on, with its
+  // reflection broken up on the water.
+  function shore(ctx, g) {
+    for (const light of outside.town()) {
+      ctx.fillStyle = light.bright ? '#fbe7a6' : '#e0b363';
+      ctx.fillRect(g.gx + Math.floor(light.u * g.gw), g.horizon - 4 + light.dy, 1, 1);
+    }
+    if (!outside.otherWindow()) return;
+    const x = g.gx + Math.round(g.gw * 0.36), y = g.horizon - 6;
+    ctx.fillStyle = '#fbe7a6';
+    ctx.fillRect(x, y, 2, 2);
+    ctx.fillStyle = 'rgba(224,179,99,0.35)';
+    for (let k = 8; k < 24; k += 2) ctx.fillRect(x - (k % 4 ? 0 : 1), y + k, k % 4 ? 2 : 3, 1);
+  }
+
   // The ferry, lit, out on the bay, and its lights broken up in the water.
   function ferry(ctx, g) {
     const f = outside.ferry();
@@ -199,6 +214,7 @@
     placed(ctx, 'store-back', { mood, slots: night.sky() });
     const g = glass();
     clipGlass(ctx, g);
+    shore(ctx, g);
     ferry(ctx, g);
     car(ctx, g);
     rain(ctx, g);
