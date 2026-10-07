@@ -5,6 +5,27 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — readable neon and unobscured calendar · 2026-10-07
+
+- The double-sided window sign reads OPEN 24H from the counter, with brighter
+  pink lettering and a space between the words.
+- Moved the calendar into the exposed wall below the clock and made its sheet
+  narrower, with OCT and 2005 on separate lines. Shelving and equipment no longer
+  hide its date grid.
+
+### Verified (sign and calendar)
+
+- Rebuilt 251 sprites; all five AGENTS.md checks pass. Browser tests used the
+  bundled Playwright via PLAYWRIGHT_MODULE and installed Chrome.
+- Reviewed desktop card-contact and 844×390 phone landscape screenshots: sign
+  reads forward and the calendar header and date grid are visible.
+- Reviewed affected art code and callers; no unused sprite variants added.
+
+### Not verified (sign and calendar)
+
+- Physical phone display readability and portrait-phone layout were not reviewed.
+
+
 ### Changed — denser shelf packs and price strips
 
 - Reworked the left-wall shelf stock into smaller, denser package groups and

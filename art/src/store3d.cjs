@@ -93,16 +93,16 @@ function outside(p, x0, y0, x1, y1) {
 }
 
 function calendar(p, x, y) {
-  p.rect(x + 1, y + 3, 30, 23, 'paper2').hline(x + 1, x + 30, y + 25, 'paper0').vline(x + 30, y + 3, y + 25, 'paper1');
-  p.rect(x + 1, y + 3, 30, 7, 'red2').hline(x + 1, x + 30, y + 3, 'red3').hline(x + 1, x + 30, y + 9, 'red1');
-  sign(p, x + 3, y + 4, 'OCT', 'white');
-  sign(p, x + 15, y + 4, '2005', 'paper3');
-  for (const rx of [6, 13, 19, 26]) p.rect(x + rx, y + 1, 1, 4, 'steel5').px(x + rx, y, 'steel6');
-  // Every day crossed out, a gap between days; today (the last box) circled, not crossed.
+  // Compact sheet fitted to the exposed wall between shelving and window.
+  p.rect(x, y + 2, 24, 25, 'paper2').hline(x, x + 23, y + 26, 'paper0');
+  p.rect(x, y + 2, 24, 12, 'red2').hline(x, x + 23, y + 2, 'red3');
+  sign(p, x + 6, y + 3, 'OCT', 'white');
+  sign(p, x + 4, y + 9, '2005', 'paper3');
+  for (const rx of [4, 19]) p.vline(x + rx, y, y + 2, 'steel6');
   for (let row = 0; row < 3; row++) for (let col = 0; col < 7; col++) {
-    const cx = x + 3 + col * 4, cy = y + 12 + row * 4;
-    if (row === 2 && col === 6) { p.frame(cx - 1, cy - 1, 5, 5, 'blue2'); continue; }
-    p.px(cx, cy, 'red2').px(cx + 2, cy, 'red2').px(cx + 1, cy + 1, 'red2').px(cx, cy + 2, 'red1').px(cx + 2, cy + 2, 'red1');
+    const cx = x + 2 + col * 3, cy = y + 16 + row * 3;
+    if (row === 2 && col === 6) p.frame(cx - 1, cy - 1, 4, 4, 'blue2');
+    else p.px(cx, cy, 'red2').px(cx + 1, cy + 1, 'red1');
   }
 }
 
@@ -115,12 +115,12 @@ function back() {
   const [gx0, gy0] = at(-1.0, 2.45), [gx1, gy1] = at(1.0, 0.75);
   const glass = { x: gx0, y: Math.max(0, gy0), w: gx1 - gx0, h: gy1 - Math.max(0, gy0) };
   const { tower } = outside(p, glass.x, glass.y, gx1, gy1);
-  // OPEN 24H neon hung in the right pane, seen mirrored from inside.
+  // Double-sided OPEN 24H sign: the inward face reads from the counter.
   const nx = Math.round(glass.x + glass.w * 0.62), ny = glass.y + 6;
   p.vline(nx + 4, 0, ny - 3, 'steel3').vline(nx + 26, 0, ny - 3, 'steel3');
   p.rect(nx - 3, ny - 3, 36, 11, 'void').frame(nx - 3, ny - 3, 36, 11, 'steel1');
   const neon = new Pix(480, 270);
-  sign(neon, nx, ny, 'OPEN24H', 'pink2', true);
+  sign(neon, nx, ny, 'OPEN 24H', 'pink3');
   neon.outline('pink0');
   p.blit(neon, 0, 0);
   // Aluminium frame and the door mullion
@@ -138,7 +138,7 @@ function back() {
     const a = i * Math.PI / 6;
     for (let rr = i % 3 ? r - 4 : r - 6; rr <= r - 3; rr++) p.px(Math.round(cx + Math.sin(a) * rr), Math.round(cy - Math.cos(a) * rr), i % 3 ? 'steel4' : 'steel1');
   }
-  const [kx, ky] = at(-1.36, 1.62);
+  const [kx, ky] = at(-1.32, 1.83);
   calendar(p, kx, ky);
   const [tx0, ty0] = at(-1.3, 1.25);
   p.rect(tx0 + 1, ty0 + 1, 22, 30, 'wall2').rect(tx0, ty0, 22, 30, 'paper2').hline(tx0, tx0 + 21, ty0 + 29, 'paper0');
