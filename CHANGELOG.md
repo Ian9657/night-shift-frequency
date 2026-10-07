@@ -5,6 +5,27 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — buffered counter flow and unified overlays
+
+- Tapping the next counter action during a machine animation now queues one action
+  for the current order, with an audible acknowledgement; tapping the scanner with
+  no selected product takes the next item and scans it automatically during normal
+  orders. Deliberate mismatch rescans remain manual.
+- Phone, lost-and-found, POS records and the radio dial now share one modal pause
+  owner. Only one overlay can be open, and WebAudio suspends with the game clock.
+- Starting a new order replaces unfinished Night Ferry queue content, so each order's
+  segment starts on time. Radio songs are capped at 15 seconds.
+
+### Verified (counter flow)
+
+- `shift-engine`, `content`, `art`, `browser-flow` and `visual` all pass after the
+  change; desktop and narrow landscape screenshots were captured by the visual flow.
+
+### Not verified (counter flow)
+
+- Audio pause and the new click acknowledgement were exercised in headless Chrome,
+  but not listened to on physical speakers.
+
 ### Changed — louder, and a ringtone for texts
 
 - Everything was quiet against other audio on the same device (measured in Chrome:
