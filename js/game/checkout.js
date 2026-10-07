@@ -12,7 +12,7 @@
   const state = {
     phase: 'title', // title -> signin -> shift -> report -> ending -> clockout -> end
     eventIndex: 0, selectedId: null, takenIds: [], scannedIds: [], paid: false, bagged: false, heatedIds: [],
-    reportShown: false, busy: false, modeOverride: null, reactionCounts: {}, dialogueFlags: new Set(),
+    reportShown: false, busy: false, queuedAction: null, modeOverride: null, reactionCounts: {}, dialogueFlags: new Set(),
   };
 
   const F = layout.fixtures;
@@ -185,10 +185,19 @@
   async function scan() {
     const o = order();
     if (blocked()) return;
-    if (state.busy || !state.selectedId || state.paid) {
+    if (state.busy || state.paid) {
       if (!state.busy && state.paid) reactToBlocked('scanAfterPay');
       return;
     }
+    // A scanner tap is also a convenient "next item" command during the normal
+    // flow.  Keep mismatch rescans manual so the verification step remains
+    // deliberate and visible to the player.
+    if (!state.selectedId && rescans(o) === 0) {
+      const waiting = o.items.find(item => !isScanned(item) && !inBasket(item));
+      if (waiting) state.selectedId = waiting.id;
+      else await takeOut();
+    }
+    if (!state.selectedId) return;
     const item = o.items.find(entry => entry.id === state.selectedId);
     if (item && isScanned(item) && (!o.mismatch || hasSavedRecord())) {
       reactToBlocked('redundantScan');
@@ -465,7 +474,7 @@
     time.cancel(waitTimer);
     state.eventIndex = Math.min(state.eventIndex + 1, orders.length - 1);
     Object.assign(state, {
-      selectedId: null, takenIds: [], scannedIds: [], paid: false, bagged: false, heatedIds: [], busy: true,
+      selectedId: null, takenIds: [], scannedIds: [], paid: false, bagged: false, heatedIds: [], busy: true, queuedAction: null,
       modeOverride: null, reactionCounts: {}, dialogueFlags: new Set(),
     });
     scene.extras = [];
@@ -564,6 +573,11 @@
   }
 
   function update() {
+    if (state.queuedAction && !state.busy && state.queuedAction.eventIndex === state.eventIndex) {
+      const queued = state.queuedAction;
+      state.queuedAction = null;
+      activate(queued.name);
+    }
     placeProducts();
     const targets = cueTargets();
     const signature = targets.slice().sort().join('|');
@@ -616,6 +630,11 @@
   }
 
   function activate(name) {
+    const buffered = new Set(['scanner', 'terminal', 'drawer', 'microwave', 'bags', 'basket', 'printer']);
+    if (state.busy && buffered.has(name)) {
+      state.queuedAction = { name, eventIndex: state.eventIndex };
+      return;
+    }
     if (name.startsWith('item:')) return guarded(() => selectItem(name.slice(5)));
     const actions = {
       scanner: scan, terminal: () => pay('terminal'), drawer, microwave: heat, bags: bag, basket: takeOut,
