@@ -5,6 +5,19 @@ verified and what was not.
 
 ## Unreleased
 
+### Removed — the security monitor
+
+- The CAM1 monitor on the microwave is gone (its data, sprite and decor entry); the
+  shelves behind now show above the microwave.
+
+### Verified (monitor)
+
+- All five checks pass. The desktop card-sale screenshot was reviewed.
+
+### Not verified (monitor)
+
+- Phone screenshots were not looked at.
+
 ### Changed — the sign-in clipboard leans with some life
 
 - The board is turned a little so one corner rests on the printer, with visible

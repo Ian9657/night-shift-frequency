@@ -492,19 +492,6 @@ function sprites() {
   result['store-microwave'] = micro(false);
   result['store-microwave-heating'] = micro(true);
 
-  // Security monitor on the microwave: a grey top-down view of the aisles, the
-  // camera's name, a recording light, scan lines.
-  result['store-cctv'] = fixture([space.decor.cctv], [RAMP.dark], [panel('front', 50, 40, p => {
-    p.rect(2, 2, 46, 32, 'steel2').frame(2, 2, 46, 32, 'ink');
-    for (let y = 4; y < 33; y++) for (let x = 4; x < 47; x++) p.px(x, y, (y % 2) ? 'steel1' : 'steel2');
-    for (const x of [9, 20, 31]) p.rect(x, 11, 6, 13, 'steel3').vline(x, 11, 23, 'steel4');      // aisles
-    p.rect(6, 27, 37, 4, 'steel4').hline(6, 42, 27, 'steel5');                                 // the counter
-    p.rect(24, 24, 2, 2, 'steel6');                                                             // someone at it
-    text(p, 4, 4, 'CAM1', 'steel6');
-    p.rect(43, 4, 2, 2, 'red3');
-    p.rect(6, 36, 3, 2, 'steel4').rect(41, 36, 3, 2, 'steel4');
-  })]);
-
   // Register: a beige CRT with the green-screen sale, brand badge and power light;
   // a cash-register keypad in front of it, not a typing keyboard: department keys
   // with coloured caps, a number pad, and the tall TOTAL and CLEAR keys.

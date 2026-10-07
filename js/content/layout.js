@@ -42,9 +42,9 @@
       phone: { sprite: 'store-phone' },
       printer: { sprite: 'store-printer', slot: point(printer.x, counter.y + printer.h, printer.z + printer.d * 0.16) },
     }),
-    // Drawn with the machines but not clicked: the security monitor, the clerk's
-    // half-finished can of coffee and the receipt spike.
-    decor: Object.freeze(['store-cctv', 'store-can', 'store-spike']),
+    // Drawn with the machines but not clicked: the clerk's half-finished can of coffee
+    // and the receipt spike.
+    decor: Object.freeze(['store-can', 'store-spike']),
     // Goods wait at the far side of the lane and come forward once scanned.
     lane: { x: laneLeft.x, width: laneRight.x - laneLeft.x, incomingFoot: laneLeft.y, scannedFoot: point(0, counter.y, lane.scannedZ).y, gap: 4 },
     microwaveCavity: point(microwave.x - 0.05, counter.y + 0.13, microwave.z - microwave.d / 2 + 0.06),
