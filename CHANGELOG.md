@@ -5,6 +5,15 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — a lower PIN pad, further right
+
+- The PIN pad's pole is 4 cm instead of 7.5 cm, and the pad stands 5 cm further right;
+  the change tray moves 4 cm right to keep clear of its base.
+
+### Verified (lower PIN pad)
+
+- All five checks pass. Idle, card-in and approved states were reviewed close up.
+
 ### Changed — the card terminal is a PIN pad on a swivel pole
 
 - The card terminal was an upright black box with the card lying on top. It is now a

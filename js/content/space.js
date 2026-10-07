@@ -37,7 +37,7 @@
     scanner: [{ x: -0.21, z: 0.95, w: 0.09, h: 0.19, d: 0.12 }],
     // The chip-and-PIN terminal's round base; the pad on its pole is turned (yaw) to
     // face the customer.
-    terminal: [{ x: 0.33, z: 0.95, w: 0.1, h: 0.012, d: 0.1, yaw: -0.38 }],
+    terminal: [{ x: 0.38, z: 0.95, w: 0.1, h: 0.012, d: 0.1, yaw: -0.38 }],
     // Carrier bags stand folded in a steel pocket rack (S, M, L) hung under the counter
     // on the clerk's side, like the cash drawer; their tops show above the pockets.
     bags: [{ x: 0.48, z: 0.505, w: 0.27, h: 0.095, d: 0.02, y: counter.y - counter.thick - 0.1 }],
@@ -61,7 +61,7 @@
     // change are left.
     candyRack: { x: 0.54, z: 1.1, w: 0.22, h: 0.02, d: 0.06 },
 
-    tray: { x: 0.46, z: 0.98, w: 0.13, h: 0.012, d: 0.09 },
+    tray: { x: 0.5, z: 0.98, w: 0.13, h: 0.012, d: 0.09 },
     // On the end-cap at the fridge's end: the charity box on the top shelf, clear of the
     // radio, and a tray of lighters on the bottom one, just above the counter.
     donation: { x: 1.34, z: 0.99, w: 0.11, h: 0.12, d: 0.08, y: 1.512 },

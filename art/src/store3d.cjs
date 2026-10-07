@@ -719,7 +719,7 @@ function sprites() {
   // the customer's card stands half out of the slot in the top edge; the lights go amber,
   // then green as the screen's light spills onto the base.
   const [cradle] = F.terminal;
-  const TILT = 1.05, PAD = [0.04, 0.085, 0.016], POLE = 0.075;
+  const TILT = 1.05, PAD = [0.04, 0.085, 0.016], POLE = 0.04;
   const toward = [Math.sin(cradle.yaw), 0, Math.cos(cradle.yaw)], sideways = [Math.cos(cradle.yaw), 0, -Math.sin(cradle.yaw)];
   const lengthwise = vec.add(vec.mul([0, 1, 0], Math.sin(TILT)), vec.mul(toward, -Math.cos(TILT)));
   const facing = vec.add(vec.mul([0, 1, 0], Math.cos(TILT)), vec.mul(toward, Math.sin(TILT)));
