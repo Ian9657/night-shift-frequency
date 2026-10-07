@@ -739,17 +739,22 @@ function sprites() {
     s.outline();
     return s.sprite();
   })();
-  // Only the recessed bundle's handles and mouth are visible below the fascia.
-  // The full bag is a separate bag-open sprite used after the player pulls one out.
-  result['store-bags'] = fixture(F.bags, [RAMP.paper], [panel('front', 72, 24, p => {
-    p.rect(0, 0, 72, 7, 'top2');                                                               // fascia shadow behind the handles
-    for (const hx of [17, 54]) {
-      p.ellipse(hx, 7, 8, 6, 'paper1').ellipse(hx, 7, 7, 5, 'white').ellipse(hx, 8, 5, 4, 'paper1').ellipse(hx, 8, 4, 3, 'top2'); // handle loop
-      p.hline(hx - 6, hx + 6, 2, 'paper2');                                                     // rear handle
-      p.rect(hx - 1, 0, 3, 2, 'steel3').px(hx, 0, 'steel6');                                   // hook
-    }
-    p.hline(4, 68, 14, 'paper2').hline(8, 64, 16, 'white');                                    // folded bag mouth
-    p.hline(13, 59, 20, 'paper1');                                                              // small underside shadow
+  // Carrier bags in a steel pocket rack under the counter: three pockets with S, M and
+  // L label tapes, each holding a stack of folded white bags whose tops and handle
+  // loops stand above the rim; the middle stack shows the brand buoy.
+  result['store-bags'] = fixture(F.bags, [RAMP.steel], [panel('front', 72, 26, p => {
+    p.rect(0, 0, 72, 26, 'steel2').hline(0, 71, 25, 'ink').vline(0, 0, 25, 'steel4').vline(71, 0, 25, 'steel1');
+    [['S', 2], ['M', 26], ['L', 50]].forEach(([size, x], i) => {
+      const h = [5, 7, 9][i];                                                                   // bigger bags stand taller
+      for (let k = 0; k < 4; k++) p.hline(x + 1 + (k % 2), x + 19 - (k % 2), 11 - h + k * 2, k % 2 ? 'paper2' : 'white');   // folded tops
+      p.rect(x + 1, 12 - h, 19, h, 'paper3');
+      for (let k = 0; k < 4; k++) p.hline(x + 1 + (k % 2), x + 19 - (k % 2), 12 - h + k * 2, k % 2 ? 'paper2' : 'white');
+      for (const hx of [x + 5, x + 15]) p.ellipse(hx, 11 - h, 3, 2, 'white').ellipse(hx, 11 - h, 2, 1, 'steel2');   // handle loops
+      if (i === 1) p.ellipse(x + 10, 9 - h + 4, 2, 2, 'buoy2').px(x + 10, 9 - h + 4, 'navy2');
+      p.rect(x, 12, 21, 13, 'steel4').hline(x, x + 20, 12, 'steel6').vline(x, 12, 24, 'steel5').vline(x + 20, 12, 24, 'steel2');   // the pocket
+      p.rect(x + 6, 16, 9, 7, 'white').hline(x + 6, x + 14, 22, 'paper2');                      // size tape
+      text(p, x + 9, 17, size, 'ink');
+    });
   })]);
 
   // Receipt printer, a two-tone thermal printer: a charcoal base with a FEED button,

@@ -38,10 +38,9 @@
     // The chip-and-PIN terminal is turned on its stand to face the customer.
     terminal: [{ x: 0.33, z: 0.95, w: 0.085, h: 0.15, d: 0.07, yaw: Math.PI - 0.45, y: counter.y + 0.02 },
       { x: 0.33, z: 0.95, w: 0.12, h: 0.02, d: 0.12 }],
-    // Carrier bags sit in a recessed bundle on the clerk's side of the counter.
-    // The near fascia hides the bag bodies; only the handles and upper lip peek
-    // below the edge until one is pulled out for packing.
-    bags: [{ x: 0.42, z: 0.58, w: 0.17, h: 0.09, d: 0.01, y: counter.y - 0.09 }],
+    // Carrier bags stand folded in a steel pocket rack (S, M, L) hung under the counter
+    // on the clerk's side, like the cash drawer; their tops show above the pockets.
+    bags: [{ x: 0.48, z: 0.505, w: 0.27, h: 0.095, d: 0.02, y: counter.y - counter.thick - 0.1 }],
     // The radio is the clerk's, at their right hand; the small receipt printer sits at
     // their left, in front of the register's keyboard, its paper leaving the lid top.
     radio: [{ x: 0.95, z: 0.7, w: 0.24, h: 0.14, d: 0.09 }],

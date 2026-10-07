@@ -5,6 +5,24 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — carrier bags in a pocket rack under the counter
+
+- The recessed bag bundle sat behind the counter's fascia, where the clerk cannot see,
+  yet was drawn over the counter's edge as a beige block. The bags now stand folded in
+  a steel pocket rack hung under the counter on the clerk's side, beside the cash
+  drawer's plane: three pockets with S, M and L tapes, bigger bags standing taller, their
+  tops and handle loops above the rims, the brand buoy on the middle stack. A bag is
+  still pulled from the rack's top to the packing place.
+
+### Verified (bag rack)
+
+- All five checks pass. Desktop card-sale and phone-landscape screenshots were reviewed.
+
+### Not verified (bag rack)
+
+- The moment a bag is pulled out was not looked at frame by frame. The rack's lower edge
+  meets the bottom of the screen.
+
 ### Fixed — carrier bag static silhouette · 2026-10-07
 
 - Removed the full bag body from the idle `store-bags` sprite. The recessed
