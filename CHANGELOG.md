@@ -5,6 +5,27 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — safe touch gestures and panel isolation
+
+- Touch interactions now commit on release. Holding a world object shows its label
+  without activating it; moving away, cancelling, losing focus or using a second
+  finger cancels the gesture.
+- Touch hit testing tries exact pixels first, then chooses a unique nearest target;
+  ties are rejected to avoid activating a neighbouring machine.
+- The radio dial now has an explicit close helper and a full-screen outside-click
+  target. Counter targets are excluded while the dial is open, and non-left mouse
+  buttons cannot activate world actions.
+
+### Verified (touch gestures)
+
+- Full verification list passes, including the interaction test's short-tap and
+  long-press cases, four browser paths and visual screenshots.
+
+### Not verified (touch gestures)
+
+- Physical phone hardware, stylus input and two-finger gestures were simulated in
+  Chromium only.
+
 ### Fixed — review of the interaction pass
 
 - The radio's dial paused the shift and suspended all sound, so nothing could be heard

@@ -8,6 +8,20 @@ const { chromium, URL_BASE, signIn, idle, click } = require('./browser-helpers.c
     await page.evaluate(() => { NSF.time.speed = 4; });
     await signIn(page, 'JO');
     await idle(page);
+    const touchTarget = await page.evaluate(() => NSF.debug.targets().basket);
+    const touch = async (type, id, x, y) => page.evaluate(({ type, id, x, y }) => {
+      const event = new PointerEvent(type, { bubbles: true, cancelable: true, pointerId: id,
+        pointerType: 'touch', clientX: x, clientY: y, button: 0, buttons: type === 'pointerup' ? 0 : 1 });
+      document.querySelector('[data-game]').dispatchEvent(event);
+    }, { type, id, x, y });
+    const beforeHold = await page.evaluate(() => NSF.game.state.takenIds.length);
+    await touch('pointerdown', 11, touchTarget.x, touchTarget.y);
+    await page.waitForTimeout(180);
+    await touch('pointerup', 11, touchTarget.x, touchTarget.y);
+    assert.equal(await page.evaluate(() => NSF.game.state.takenIds.length), beforeHold, 'long press inspects without activating');
+    await touch('pointerdown', 12, touchTarget.x, touchTarget.y);
+    await touch('pointerup', 12, touchTarget.x, touchTarget.y);
+    await page.waitForFunction(() => NSF.game.state.takenIds.length === 1 && !NSF.game.state.busy);
     await click(page, 'bags');
     assert.equal(await page.evaluate(() => NSF.game.state.feedback.kind), 'payFirst');
     await page.evaluate(() => {

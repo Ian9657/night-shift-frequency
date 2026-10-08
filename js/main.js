@@ -35,14 +35,23 @@
   // slack: goods first, then machines from the nearest-drawn back, since machines
   // overlap in the first-person view.
   function worldTarget(point, slop = 1) {
-    if (game.state.phase !== 'shift' || records.view.open || phone.view.open || found.view.open) return null;
+    if (game.state.phase !== 'shift' || records.view.open || phone.view.open || found.view.open || radio.view.dialOpen) return null;
     const x = Math.floor(point.x / K), y = Math.floor(point.y / K);
     const list = game.targets();
-    const offsets = [[0, 0]];
-    for (let i = 1; i <= slop; i++) offsets.push([i, 0], [-i, 0], [0, i], [0, -i]);
-    const hit = target => offsets
-      .some(([dx, dy]) => sprites.opaqueAt(target.sprite, x - target.x + dx, y - target.y + dy));
-    return list.filter(t => t.product).reverse().find(hit) || list.filter(t => !t.product).reverse().find(hit) || null;
+    const ordered = [...list.filter(t => t.product).reverse(), ...list.filter(t => !t.product).reverse()];
+    const exact = ordered.find(t => sprites.opaqueAt(t.sprite, x - t.x, y - t.y));
+    if (exact) return exact;
+    // Expand only after exact hits; choose the closest visible pixel and reject ties.
+    const candidates = ordered.map(target => {
+      let distance = Infinity;
+      for (let dx = -slop; dx <= slop; dx++) for (let dy = -slop; dy <= slop; dy++) {
+        const d = dx * dx + dy * dy;
+        if (d <= slop * slop && d < distance && sprites.opaqueAt(target.sprite, x - target.x + dx, y - target.y + dy)) distance = d;
+      }
+      return { target, distance };
+    }).filter(c => Number.isFinite(c.distance)).sort((a, b) => a.distance - b.distance);
+    if (!candidates.length || (candidates[1] && candidates[0].distance === candidates[1].distance)) return null;
+    return candidates[0].target;
   }
 
   function targetAt(point, slop = 1) {
@@ -52,48 +61,81 @@
     return target ? { world: target } : null;
   }
 
-  // A UI region with `drag` (the radio's dial) follows the pointer while it is held.
-  let dragging = null;
-  let press = null;
-  let touchHoverUntil = 0;
+  // Touch commits on release. Holding world objects inspects them without acting.
+  let dragging = null, press = null, touchHoverUntil = 0;
+  const touches = new Set();
+  function cancelGesture() {
+    press = null; dragging = null; touchHoverUntil = 0; game.setHover(null);
+  }
+  function dispatch(hit, point) {
+    if (hit?.ui) hit.ui.action(point);
+    else if (hit?.world) game.activate(hit.world.name);
+    else if (game.state.phase === 'shift' && !root.NSF.overlay.view.active) game.tap(null);
+  }
+  const identity = hit => hit?.world?.name || hit?.ui?.name;
   canvas.addEventListener('pointerdown', event => {
+    if (event.pointerType !== 'touch' && event.button !== 0) return;
     event.preventDefault();
-    render(); // hit regions must reflect the current state, not the last frame
-    const point = toScreen(event);
-    const hit = targetAt(point, event.pointerType === 'touch' ? 3 : 1);
-    if (hit?.world) {
-      game.setHover(hit.world.name);
-      touchHoverUntil = event.pointerType === 'touch' ? time.uiNow + 1600 : 0;
-      press = event.pointerType === 'touch' ? { name: hit.world.name, until: time.uiNow + 450 } : null;
-    } else press = null;
-    if (hit?.ui) {
-      hit.ui.action(point);
-      if (hit.ui.drag) { dragging = hit.ui; canvas.setPointerCapture?.(event.pointerId); }
-    } else if (hit?.world) game.activate(hit.world.name);
-    else if (game.state.phase === 'shift' && !phone.view.open && !found.view.open && !records.view.open) game.tap(null);
+    if (event.pointerType === 'touch') {
+      touches.add(event.pointerId);
+      if (touches.size > 1) { cancelGesture(); return; }
+    }
+    render();
+    const point = toScreen(event), hit = targetAt(point, event.pointerType === 'touch' ? 3 : 1);
+    if (event.pointerType === 'touch') {
+      press = { id: event.pointerId, hit, x: event.clientX, y: event.clientY,
+        until: time.uiNow + 450, held: false, order: game.state.eventIndex, phase: game.state.phase };
+      canvas.setPointerCapture?.(event.pointerId);
+      touchHoverUntil = 0;
+    }
+    if (hit?.ui?.drag) {
+      dragging = { id: event.pointerId, drag: hit.ui.drag };
+      canvas.setPointerCapture?.(event.pointerId);
+      dispatch(hit, point);
+    } else if (event.pointerType !== 'touch') dispatch(hit, point);
   });
   canvas.addEventListener('pointermove', event => {
-    const point = toScreen(event);
-    if (dragging) { dragging.drag(point); return; }
-    const hit = targetAt(point, event.pointerType === 'touch' ? 3 : 1);
-    game.setHover(hit?.world?.name || hit?.ui?.name || null);
+    if (dragging?.id === event.pointerId) { dragging.drag(toScreen(event)); return; }
+    if (event.pointerType === 'touch') {
+      if (press?.id === event.pointerId && Math.hypot(event.clientX - press.x, event.clientY - press.y) > 10) cancelGesture();
+      return;
+    }
+    const hit = targetAt(toScreen(event));
+    game.setHover(identity(hit) || null);
     canvas.style.cursor = hit ? 'pointer' : 'default';
   });
+  canvas.addEventListener('pointerup', event => {
+    touches.delete(event.pointerId);
+    if (dragging?.id === event.pointerId) { dragging = null; press = null; return; }
+    if (press?.id !== event.pointerId) return;
+    const pending = press; press = null;
+    if (pending.order !== game.state.eventIndex || pending.phase !== game.state.phase) return;
+    const point = toScreen(event), hit = targetAt(point, 3);
+    const moved = Math.hypot(event.clientX - pending.x, event.clientY - pending.y) > 10;
+    const held = pending.held || (pending.hit?.world && time.uiNow >= pending.until);
+    if (!moved && !held && identity(hit) === identity(pending.hit)) dispatch(hit, point);
+    if (!moved && pending.hit?.world) {
+      game.setHover(pending.hit.world.name);
+      touchHoverUntil = time.uiNow + (held ? 1600 : 450);
+    }
+  });
+  canvas.addEventListener('pointercancel', event => { touches.delete(event.pointerId); cancelGesture(); });
+  canvas.addEventListener('lostpointercapture', event => {
+    if (press?.id === event.pointerId || dragging?.id === event.pointerId) cancelGesture();
+  });
+  canvas.addEventListener('pointerleave', event => {
+    if (event.pointerType !== 'touch') { game.setHover(null); canvas.style.cursor = 'default'; }
+  });
+  root.addEventListener('blur', () => { touches.clear(); cancelGesture(); });
   canvas.addEventListener('contextmenu', event => {
     event.preventDefault();
+    if (touches.size) return;
+    cancelGesture();
     if (phone.view.open) phone.close();
     else if (found.view.open) found.close();
     else if (records.view.open) records.close();
     else if (radio.view.dialOpen) radio.closeDial();
   });
-  const release = () => {
-    dragging = null;
-    if (press && time.uiNow < press.until) game.setHover(null);
-    press = null;
-  };
-  canvas.addEventListener('pointerup', release);
-  canvas.addEventListener('pointercancel', release);
-  canvas.addEventListener('pointerleave', () => { game.setHover(null); canvas.style.cursor = 'default'; });
   root.addEventListener('keydown', event => {
     if (signin.key(event.key) || found.key(event.key) || phone.key(event.key) || records.key(event.key) || radio.key(event.key)) { event.preventDefault(); return; }
     if ((event.key === 'Enter' || event.key === ' ') && game.state.phase === 'title') game.startShift();
@@ -116,9 +158,9 @@
 
   function frame(timestamp) {
     time.tick(timestamp);
-    if (press && time.uiNow >= press.until) {
-      touchHoverUntil = time.uiNow + 1600;
-      press = null;
+    if (press?.hit?.world && !press.held && time.uiNow >= press.until) {
+      press.held = true;
+      game.setHover(press.hit.world.name);
     }
     if (touchHoverUntil && time.uiNow >= touchHoverUntil) {
       touchHoverUntil = 0;

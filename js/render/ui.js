@@ -213,6 +213,7 @@
   function dial(ctx, game) {
     if (!radio.view.dialOpen || game.state.phase === 'title' || game.state.phase === 'signin') return;
     const { low, high } = radio.band;
+    hit(0, 0, SW, SH, () => radio.closeDial(), 'dial-away');
     const x = 540, y = 204, w = 408, h = 84;
     box(ctx, x, y, w, h, '#2c353d', '#14191e', 3);
     hit(x, y, w, h, () => {}, null);

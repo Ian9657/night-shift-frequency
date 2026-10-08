@@ -160,6 +160,8 @@
     other();
   }
 
+  function closeDial() { view.dialOpen = false; overlay.close('radio'); }
+
   root.NSF.radio = {
     view, band: BAND, label, play, beginOrder, hold, release, tune, setFrequency, skip, signOff,
     step(direction) { setFrequency(view.freq + direction * BAND.step); },
@@ -169,7 +171,7 @@
       view.dialOpen = true;
       audio.phoneKey();
     },
-    closeDial() { view.dialOpen = false; overlay.close('radio'); },
+    closeDial,
     // Arrow keys tune while the dial is open; Escape puts it away.
     key(name) {
       if (!view.dialOpen) return false;
