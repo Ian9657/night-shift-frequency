@@ -68,7 +68,7 @@ from; only the click priority (UI, then products, then fixtures) is defined sepa
 | Orders (immutable input), checks, decisions, transactions | `shift.js` | Domain facts. Raw readings are never overwritten by saved labels; record origin is kept separate from verification method; eligibility derives from history. |
 | Current order progress: selection, scanned, paid, heated, bagged, busy, phase | `checkout.js` `state` | Reset per order. |
 | What is on screen: product positions, customer pose, fixtures, extras, mood, cues | `checkout.js` `scene` | Presentation only. Cues are recomputed every frame. |
-| Speech bubble text and input lock | `dialogue.js` | |
+| Speech bubble text, its queue and input lock | `dialogue.js` | Lines queue; `remaining()` is how long until everything waiting has been typed and read. |
 | Frequency, dial open, caption, queue | `radio.js` | Plays what it is given; frequencies are hundredths of a MHz. |
 | What plays when; what 87.7 and the signals between say | `broadcast.js` | Reads game state through `attach(controller)`. |
 | Record view open/draft/focus | `records.js` | Its model is derived from the engine on every draw. |

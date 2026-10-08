@@ -109,7 +109,29 @@ const { chromium, URL_BASE, signIn, idle, click } = require('./browser-helpers.c
     assert.equal(await page.evaluate(() => [NSF.time.paused, NSF.radio.view.song]).then(v => v.join()), 'true,');
     await page.evaluate(() => NSF.found.close());
     await page.waitForFunction(() => NSF.radio.view.song === 'slowTide', null, { timeout: 5000 });
+    // Speech is queued: a line being typed is never cut off by the next, the same line
+    // twice in a row is said once, and `remaining` covers everything waiting.
+    const said = await page.evaluate(async () => {
+      const d = NSF.dialogue, t = NSF.strings.t, seen = [];
+      d.clear();
+      d.say(['say.rain1', 'say.rain2']);
+      d.say(['say.cash', 'say.cash']);
+      const waitMs = d.remaining();
+      let cut = false, last = '';
+      await new Promise(resolve => {
+        const id = setInterval(() => {
+          const full = d.fullText();
+          if (full !== last) { if (last && seen.at(-1)?.shown < last.length) cut = true; seen.push({ full, shown: 0 }); last = full; }
+          if (seen.length) seen.at(-1).shown = d.visibleText().length;
+          if (d.remaining() <= 0) { clearInterval(id); resolve(); }
+        }, 5);
+      });
+      return { lines: seen.map(s => s.full), cut, waitMs, expected: ['say.rain1', 'say.rain2', 'say.cash'].map(k => t(k)) };
+    });
+    assert.deepEqual(said.lines, said.expected);
+    assert.equal(said.cut, false, 'no line gives way before it is typed out');
+    assert.ok(said.waitMs > 2000);
     assert.deepEqual(errors, []);
-    console.log('PASS: keyboard forward/reverse focus, Enter, Escape and live announcement; premature bagging reason, queue deduplication, modal pause, automatic scan, stale order, invalid queued action, live dial, echo across orders, a call kept on air, radio held and resumed.');
+    console.log('PASS: queued speech (no line cut or swallowed); keyboard forward/reverse focus, Enter, Escape and live announcement; premature bagging reason, queue deduplication, modal pause, automatic scan, stale order, invalid queued action, live dial, echo across orders, a call kept on air, radio held and resumed.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

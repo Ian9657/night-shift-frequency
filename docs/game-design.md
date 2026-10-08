@@ -61,6 +61,11 @@ First-time guidance: in the POS's status field, in amber, the next step the firs
 it comes up: TAKE AN ITEM and SCAN THE ITEM in order 1, then CARD: TERMINAL, CASH:
 DRAWER, HEAT IT FIRST and PACK THE ORDER at the first sale that needs each.
 
+Speech: what a customer says is queued. A line, once it starts, is always typed out and
+left up to read before the next replaces it (1.35 s, or 0.8 s when more is waiting); a
+line the same as the one before it is said once. Nothing said is dropped, and a
+customer finishes speaking before they turn to go.
+
 Guidance: from order 3, next-action outlines appear after a 780 ms delay. During a
 record conflict all outlines disappear; the POS screen itself blinks for attention and,
 once the item has been re-scanned, the record key on the register's keypad flashes.

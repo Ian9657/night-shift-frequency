@@ -366,15 +366,9 @@
     state.modeOverride = null;
     const heat = pendingHeat(o);
     if (heat.length === 1) state.selectedId = heat[0].id;
-    let line = null;
     if (heat.length) sayReaction('heatRequest');
-    else line = sayReaction('pay');
+    else sayReaction('pay');
     if (!needsBag(o) && !heat.length) {
-      if (line) {
-        state.busy = true;
-        await time.wait(dialogue.readTime(line));
-        state.busy = false;
-      }
       await finishOrder('products');
     } else if (needsBag(o) && !heat.length) {
       scheduleWait('waitAtBag', 5200, () => state.paid && !state.bagged && !pendingHeat().length);
@@ -415,9 +409,8 @@
     const home = homes().get(item.id);
     await move(product, home.x, home.y, 155);
     state.busy = false;
-    const line = sayReaction('heatDone');
+    sayReaction('heatDone');
     if (!needsBag(o) && !pendingHeat(o).length) {
-      await time.wait(dialogue.readTime(line));
       await finishOrder('products');
     } else if (!pendingHeat(o).length) {
       scheduleWait('waitAtBag', 5200, () => state.paid && !state.bagged);
@@ -453,8 +446,8 @@
       product.hidden = true;
       await time.wait(35);
     }
-    const line = sayReaction('bag');
-    await time.wait(Math.max(360, dialogue.readTime(line)));
+    sayReaction('bag');
+    await time.wait(360);
     bagSprite.sprite = 'bag-full';
     bagSprite.x = packing.x - Math.floor(full.w / 2);
     bagSprite.y = packing.y - full.h;
@@ -469,10 +462,7 @@
     state.busy = true;
     if (handoff === 'products' && o.reactions?.handoff) {
       const reaction = takeReaction('handoff');
-      if (reaction.text) {
-        dialogue.say([reaction.text], { lock: reaction.lock });
-        await time.wait(dialogue.readTime(reaction.text));
-      }
+      if (reaction.text) dialogue.say([reaction.text], { lock: reaction.lock });
     }
     const exit = drift.exitLine(o);
     dialogue.say(exit ? [exit] : []);
@@ -497,7 +487,8 @@
       state.busy = false;
       return;
     }
-    await time.wait(210);
+    // The customer finishes what they are saying before they turn to go.
+    await time.wait(Math.max(210, dialogue.remaining()));
     dialogue.clear();
     scene.fixtures.basket = null;                                   // the empty basket goes back on the stack
     await walk(0, layout.customer.walk, 1100);

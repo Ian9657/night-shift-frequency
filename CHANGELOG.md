@@ -5,6 +5,33 @@ verified and what was not.
 
 ## Unreleased
 
+### Fixed — customers' lines cut off or never shown
+
+- `dialogue.say` replaced whatever was on screen and threw away lines still waiting. With
+  buffered clicks and the scanner taking items itself, a brisk player lost about ten
+  lines a shift: Nell's "I'll leave the key at the shop. Just come get it." and the other
+  Nell's "She said she left it here." in every shift tried, "No bag." and "Cash."
+  often, lines broken off mid-sentence by a scan reaction, and parting lines cleared one
+  character short.
+- Speech is now a queue: a started line is always typed out and held to be read before
+  the next (1.35 s, 0.8 s when more is waiting); a line repeating the one before it is
+  said once; `clear()` only between customers and at the ending. The customer finishes
+  speaking before leaving (`finishOrder` waits for `dialogue.remaining()`), replacing
+  the per-line waits after paying, heating and handing over.
+
+### Verified (speech)
+
+- All six checks pass; the interaction test checks a queued sequence shows every line
+  in order, uncut, with the repeat said once. A probe playing whole shifts at a brisk
+  pace and watching the bubble found 39 cut or swallowed lines in four shifts before
+  and none after (the same probe, same seeds). A shift at that pace takes 72–78 s of
+  game time instead of 59 s, since customers now finish speaking; the longest a line
+  waited to appear was 4.6 s.
+
+### Not verified (speech)
+
+- How the slower, complete conversations feel to a human player at natural speed.
+
 ### Fixed — review of touch, guidance and keyboard
 
 - With keyboard focus on an object every frame threw (`update()` called `targets()` while
