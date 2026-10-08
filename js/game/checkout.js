@@ -2,7 +2,7 @@
 // model the renderer draws. Cross-order history lives in the shift engine.
 (function (root) {
   'use strict';
-  const { time, audio, dialogue, radio, records, broadcast, engine, story, customers, layout, sprites, phone, night, signin, drift, messages, company, found } = root.NSF;
+  const { time, audio, dialogue, radio, records, broadcast, engine, story, customers, layout, sprites, phone, night, signin, drift, messages, company, found, overlay } = root.NSF;
 
   const params = new URLSearchParams(root.location?.search || '');
   const shift = engine.createShift(params.get('seed') || String(Date.now()));
@@ -164,7 +164,7 @@
   }
 
   function guidance() {
-    if (!started() || state.busy || dialogue.locked || root.NSF.overlay.view.active) return null;
+    if (!started() || state.busy || dialogue.locked || overlay.view.active) return null;
     const o = order(), first = state.eventIndex === 0;
     if (first && !state.takenIds.length) return 'take';
     if (first && scannedItems(o).length < o.items.length) return 'scan';
@@ -175,7 +175,7 @@
   }
 
   function focusTarget(direction = 1) {
-    if (!started() || dialogue.locked || root.NSF.overlay.view.active) return null;
+    if (!started() || dialogue.locked || overlay.view.active) return null;
     const names = targets().map(target => target.name);
     if (!names.length) return null;
     const index = names.indexOf(state.focusTarget);
@@ -624,19 +624,19 @@
     if (state.flash && time.uiNow >= state.flash.until) state.flash = null;
     const queued = state.queuedActions[0];
     if (queued && queued.eventIndex !== state.eventIndex) state.queuedActions.shift();
-    else if (queued && !state.busy && !dialogue.locked && !root.NSF.overlay.view.active) {
+    else if (queued && !state.busy && !dialogue.locked && !overlay.view.active) {
       state.queuedActions.shift();
+      // A click that no longer applies (the extra tap of a double tap) is dropped quietly.
       if (actionStillRelevant(queued.name)) activate(queued.name);
-      else notify('stale');
     }
     placeProducts();
-    const targets = cueTargets();
-    const signature = targets.slice().sort().join('|');
+    const cued = cueTargets();
+    const signature = cued.slice().sort().join('|');
     if (signature !== cueSignature) {
       cueSignature = signature;
       cueReadyAt = time.now + (state.eventIndex >= CUE_DELAY_START ? CUE_DELAY_MS : 0);
     }
-    scene.cues = new Set(time.now >= cueReadyAt ? targets : []);
+    scene.cues = new Set(time.now >= cueReadyAt ? cued : []);
   }
 
   function actionStillRelevant(name) {
@@ -692,8 +692,10 @@
     }
   }
 
+  // Every click on an object flashes its outline; only a click the machine can't take
+  // yet (queued) also ticks, since an action that runs makes its own sound.
   function activate(name) {
-    tap(name);
+    state.flash = { name, until: time.uiNow + 240 };
     const buffered = new Set(['scanner', 'terminal', 'drawer', 'microwave', 'bags', 'basket', 'printer']);
     if (state.busy && buffered.has(name)) {
       if (!state.queuedActions.some(action => action.name === name && action.eventIndex === state.eventIndex)) {
@@ -715,9 +717,11 @@
     submitDecision, hasSavedRecord, recordPending, scannedItems, notify, tap, guidance, focusTarget,
     cancelSelection,
     activateFocused() {
-      if (!root.NSF.overlay.view.active && targets().some(target => target.name === state.focusTarget)) return activate(state.focusTarget);
+      if (!overlay.view.active && targets().some(target => target.name === state.focusTarget)) return activate(state.focusTarget);
     },
     setHover(name) { state.hoverTarget = name || null; },
+    // A pointer takes over from keyboard focus.
+    clearFocus() { state.focusTarget = null; },
     canOpenRecords: () => (state.phase === 'shift' || state.phase === 'report') && !state.busy,
   };
   records.attach(controller);

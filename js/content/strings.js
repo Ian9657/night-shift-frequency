@@ -123,7 +123,6 @@
     'ui.feedback.payFirst': 'PAY FIRST',
     'ui.feedback.heatFirst': 'HEAT IT FIRST',
     'ui.feedback.blocked': 'NOT YET',
-    'ui.feedback.stale': 'SKIPPED',
     'ui.target.scanner': 'SCANNER · SCAN ITEM',
     'ui.target.terminal': 'TERMINAL · CARD PAYMENT',
     'ui.target.drawer': 'DRAWER · CASH PAYMENT',
@@ -135,11 +134,11 @@
     'ui.target.lostFound': 'BOX · LOST AND FOUND',
     'ui.guide.take': 'TAKE AN ITEM',
     'ui.guide.scan': 'SCAN THE ITEM',
-    'ui.guide.cash': 'USE CASH DRAWER',
-    'ui.guide.card': 'USE CARD TERMINAL',
+    'ui.guide.cash': 'CASH: DRAWER',
+    'ui.guide.card': 'CARD: TERMINAL',
     'ui.target.recordKey': 'REC · CHECK RECORD',
     'ui.target.printer': 'PRINTER · SHIFT REPORT',
-    'ui.guide.heat': 'HEAT THE ITEM FIRST',
+    'ui.guide.heat': 'HEAT IT FIRST',
     'ui.guide.bag': 'PACK THE ORDER',
 
     // Record panel on the POS

@@ -29,6 +29,9 @@ sign-in sheet (type it, or use the letter keys) and sign in.
 - Click the flip phone on the counter to read your texts, text or call *Night Ferry*, or
   change the volume, radio, sounds and silent mode. The shift waits while it is open. A
   landscape window works best.
+- On a touch screen, tap to use things and hold one to see its name.
+- With a keyboard, Tab moves between the things on the counter, Enter uses one and
+  Escape lets go.
 
 `index.html?seed=review-01` replays the same shift. The current shift's seed is shown
 on the closing card and printed to the browser console. Reloading starts a new shift;

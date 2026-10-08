@@ -17,6 +17,11 @@
       image-rendering: pixelated;
       image-rendering: crisp-edges;
       touch-action: none;
+      /* A long press inspects an object: no iOS callout, magnifier or text selection. */
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
     .sr-only {
       position: absolute;

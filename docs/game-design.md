@@ -43,13 +43,23 @@ scan every item → take payment → heat if asked (after payment) → bag or ha
 - No-bag orders are handed over directly.
 - Early or wrong actions get a short reaction ("These first.", "Not yet.", "Hot first.")
   and, for a moment, the reason in the POS's status field (PAY FIRST, CASH: DRAWER...).
-- Every click is answered. A click on a machine while another is still moving is kept
-  (up to three, one per machine, only for this sale) and done when it is free, unless it
-  no longer applies (SKIPPED); the machine's outline flashes and a soft tick sounds. A
-  click on nothing just ticks.
-- The object under the pointer is outlined and named in a small label; on a touch screen,
-  holding it does the same. Right-click (or the phone's back key) closes whichever panel
-  is open.
+- Every click is answered: the object's outline flashes, and the machine's own sound
+  plays. A click on a machine while another is still moving is kept (up to three, one per
+  machine, only for this sale) with a soft tick and done when it is free; one that no
+  longer applies by then (the extra tap of a double tap) is dropped quietly. A click on
+  nothing just ticks.
+- The object under the pointer is outlined and named in a small label. On a touch screen
+  a tap acts when the finger lifts; holding an object for half a second names it
+  without acting, and sliding the finger away cancels. Near a gap between two objects a
+  touch picks the nearer one, or neither if they are equally near. Right-click closes
+  whichever panel is open.
+- Keyboard: Tab / Shift+Tab (or the arrow keys) move a focus outline between the objects
+  on the counter, Enter or Space uses it, Escape lets go. The screen-reader live region
+  reads the focused object, the guidance or the last reason, the speech and the radio.
+
+First-time guidance: in the POS's status field, in amber, the next step the first time
+it comes up: TAKE AN ITEM and SCAN THE ITEM in order 1, then CARD: TERMINAL, CASH:
+DRAWER, HEAT IT FIRST and PACK THE ORDER at the first sale that needs each.
 
 Guidance: from order 3, next-action outlines appear after a 780 ms delay. During a
 record conflict all outlines disappear; the POS screen itself blinks for attention and,
@@ -145,7 +155,8 @@ The four combinations lead to four letters read by *Night Ferry* after the shift
 
 - Clicking the radio opens its dial over it: a scale from 87.5 to 88.1 in steps of 0.05.
   Drag or click the needle, use the step keys, or the arrow keys; × or Escape puts it
-  away. The counter stays live while it is open.
+  away, as does a click anywhere outside it (which does nothing else). The shift keeps
+  running and the radio keeps playing while it is open.
 - 87.6 *Night Ferry*: an intro and one segment per order. A new order's segment replaces
   any of the last one still waiting (or playing), except the clerk's own moments: their
   text read out and its song, and their call. A line or song interrupted by tuning away

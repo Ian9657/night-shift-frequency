@@ -5,6 +5,39 @@ verified and what was not.
 
 ## Unreleased
 
+### Fixed — review of touch, guidance and keyboard
+
+- With keyboard focus on an object every frame threw (`update()` called `targets()` while
+  a later `const targets` in the same function shadowed it), stopping animations such as
+  the phone shutting. The local is renamed; the interaction test checks frames run
+  without errors while an object has focus.
+- The extra tap of a fast double tap on the scanner showed SKIPPED once there was
+  nothing left to scan; a queued click that no longer applies is now dropped quietly.
+- First-time guidance was cut off on phones (USE CARD TERMI). It now uses the same short
+  words as the feedback (CARD: TERMINAL, CASH: DRAWER, HEAT IT FIRST); the content test
+  checks every guidance and feedback string fits the POS status field at the phone's
+  text scale.
+- Every click played the UI tick on top of the machine's own sound. A click now flashes
+  the object's outline; the tick is only for clicks with no other sound (queued, empty,
+  refused).
+- The phone vanished when put away; it flips shut again before it is put away.
+- The canvas blocks iOS's long-press callout, magnifier and text selection, so holding
+  an object to read its name isn't interrupted.
+- `main.js` no longer writes checkout's focus state directly (`clearFocus`), and both
+  read `overlay` from the namespace at load.
+- Docs: touch, keyboard, first-time guidance and the dial's click-outside behaviour in
+  `game-design.md` and `README.md`; the input path in `architecture.md`; keyboard control
+  is no longer listed as not done.
+
+### Verified (review)
+
+- All six checks pass. An emulated landscape phone (real touch events) tapped the
+  counter, double-tapped the scanner, held the radio and dragged the dial without errors.
+
+### Not verified (review)
+
+- Not tried on a physical iPhone or Android phone, including the long-press callout.
+
 ### Changed — first shift guidance and keyboard focus
 
 - The first order now shows the next counter instruction on the POS: take, scan,

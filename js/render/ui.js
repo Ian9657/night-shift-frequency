@@ -27,7 +27,7 @@
     paid: 'ui.feedback.paid',
     alreadyScanned: 'ui.feedback.alreadyScanned', scanFirst: 'ui.feedback.scanFirst', useCash: 'ui.feedback.useCash', useCard: 'ui.feedback.useCard', selectItem: 'ui.feedback.selectItem', recordFirst: 'ui.feedback.recordFirst',
     paidFirst: 'ui.feedback.paidFirst', noHeat: 'ui.feedback.noHeat', payFirst: 'ui.feedback.payFirst',
-    heatFirst: 'ui.feedback.heatFirst', blocked: 'ui.feedback.blocked', stale: 'ui.feedback.stale',
+    heatFirst: 'ui.feedback.heatFirst', blocked: 'ui.feedback.blocked',
   };
   const TARGET_LABELS = {
     scanner: 'ui.target.scanner', terminal: 'ui.target.terminal', drawer: 'ui.target.drawer', microwave: 'ui.target.microwave',

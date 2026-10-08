@@ -55,6 +55,14 @@ for (const key of Object.keys(strings)) {
   assert.ok(used, 'unused string ' + key);
 }
 
+// What appears in the POS's status field fits it at the phone's larger text scale.
+const layout = require('../js/content/layout.js');
+const room = layout.fixtures.pos.screen.w * layout.screen.scale - 10;
+const textWidth = value => [...value].reduce((sum, ch) => sum + glyphs[ch][0], 0);
+for (const [key, value] of Object.entries(strings)) {
+  if (/^ui\.(guide|feedback)\./.test(key)) assert.ok(textWidth(value) * 1.15 <= room, `${key} is too wide for the POS status field`);
+}
+
 // '@key' variables are looked up themselves.
 assert.equal(t('radio.echoRecord', { time: '02:41', label: '@item.spareKey' }), 'REG#02. 02:41. SPARE KEY, one.');
 console.log(`PASS: ${Object.keys(strings).length} strings, references, no orphans, story keys and font coverage.`);

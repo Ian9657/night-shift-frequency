@@ -13,6 +13,8 @@ const { chromium, URL_BASE, signIn, idle, click } = require('./browser-helpers.c
     const names = await page.evaluate(() => NSF.game.targets().map(t => t.name));
     await page.keyboard.press('Tab');
     assert.equal(await page.evaluate(() => NSF.game.state.focusTarget), names[0]);
+    await page.waitForTimeout(150);
+    assert.deepEqual(errors, [], 'frames keep running with keyboard focus');
     await page.keyboard.press('Shift+Tab');
     assert.equal(await page.evaluate(() => NSF.game.state.focusTarget), names.at(-1));
     await page.keyboard.press('Escape');
@@ -67,10 +69,11 @@ const { chromium, URL_BASE, signIn, idle, click } = require('./browser-helpers.c
     assert.equal(await page.evaluate(() => NSF.game.state.queuedActions.length), 0);
     await page.evaluate(() => {
       const g = NSF.game;
+      g.state.feedback = null;                 // earlier steps' feedback may still be showing
       g.state.queuedActions.push({name: 'bags', eventIndex: g.state.eventIndex});
       g.update();
     });
-    assert.equal(await page.evaluate(() => NSF.game.state.feedback.kind), 'stale');
+    assert.equal(await page.evaluate(() => NSF.game.state.feedback), null, 'a stale queued click is dropped quietly');
     assert.equal(await page.evaluate(() => NSF.game.state.bagged), false);
 
     // The radio's dial is exclusive but live: the shift keeps running and lines advance.

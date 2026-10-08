@@ -50,7 +50,7 @@
   }
   function close() {
     if (!view.open || view.closing) return;
-    Object.assign(view, { open: false, closing: false, since: time.uiNow });
+    Object.assign(view, { closing: true, since: time.uiNow });           // it flips shut, then is put away (frame())
     overlay.close('phone');
     audio.phoneFlip(false);
   }

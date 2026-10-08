@@ -1,7 +1,7 @@
 // Boot: canvas scaling, the frame loop and input routing.
 (function (root) {
   'use strict';
-  const { time, layout, world, ui, game, records, sprites, dialogue, radio, phone, signin, outside, drift, messages, found } = root.NSF;
+  const { time, layout, world, ui, game, records, sprites, dialogue, radio, phone, signin, outside, drift, messages, found, overlay } = root.NSF;
   const canvas = document.querySelector('[data-game]');
   const ctx = canvas.getContext('2d');
   const live = document.querySelector('[data-live]');
@@ -70,7 +70,7 @@
   function dispatch(hit, point) {
     if (hit?.ui) hit.ui.action(point);
     else if (hit?.world) game.activate(hit.world.name);
-    else if (game.state.phase === 'shift' && !root.NSF.overlay.view.active) game.tap(null);
+    else if (game.state.phase === 'shift' && !overlay.view.active) game.tap(null);
   }
   function capture(event) { try { if (event.isTrusted) canvas.setPointerCapture?.(event.pointerId); } catch (_) { /* synthetic tests and cancelled pointers */ } }
   const identity = hit => hit?.world?.name || hit?.ui?.name;
@@ -81,7 +81,7 @@
       touches.add(event.pointerId);
       if (touches.size > 1) { cancelGesture(); return; }
     }
-    game.state.focusTarget = null;
+    game.clearFocus();
     render();
     const point = toScreen(event), hit = targetAt(point, event.pointerType === 'touch' ? 3 : 1);
     if (event.pointerType === 'touch') {
@@ -140,7 +140,7 @@
   });
   root.addEventListener('keydown', event => {
     if (signin.key(event.key) || found.key(event.key) || phone.key(event.key) || records.key(event.key) || radio.key(event.key)) { event.preventDefault(); return; }
-    if (game.state.phase === 'shift' && !root.NSF.overlay.view.active) {
+    if (game.state.phase === 'shift' && !overlay.view.active) {
       if (event.key === 'Tab' || event.key === 'ArrowRight' || event.key === 'ArrowDown') {
         event.preventDefault(); game.focusTarget(event.key === 'Tab' && event.shiftKey ? -1 : 1); return;
       }

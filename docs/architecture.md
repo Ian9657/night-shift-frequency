@@ -40,11 +40,19 @@ requestAnimationFrame
 ## Input
 
 ```text
-pointerdown → redraw (so click regions match the current state)
+mouse: pointerdown / touch: pointerup (if the finger neither moved 10 px nor held 450 ms)
+  → redraw (so click regions match the current state)
   → ui.hitTest()      topmost UI region, if any
-  → otherwise world targets from game.targets(): products, then fixtures, by opaque pixel in reverse draw order
-  → game.activate(name) → the action, wrapped in guarded()
+  → otherwise world targets from game.targets(): products, then fixtures, by opaque pixel
+    in reverse draw order; failing an exact hit, the nearest within 1 px (mouse) or 3 px
+    (touch), none if two are equally near
+  → game.activate(name) → queued if a machine is busy, else the action in guarded()
+keyboard: Tab / arrows move game focus over game.targets(); Enter or Space activates it
 ```
+
+A touch held on a world object only names it (hover label); a second finger, a move or
+losing the window cancels the gesture. A UI region with `drag` (the dial) acts on
+pointerdown and follows the pointer.
 
 `guarded()` catches any error thrown by an action, logs it, drops in-flight motion
 and releases input, so a failure can never lock the counter.
@@ -168,7 +176,6 @@ phone, the night's clock, drift, texts and the view outside follow this pattern.
 | ES modules / a bundler | Would break opening `index.html` from disk | The game needs online hosting with a build step |
 | Compressing the sprite bundle | ~740 KB is fine for a one-shot download | It grows past a few MB (run-length encoding would shrink it a lot) |
 | Saving | One shift per session by design (only the phone's settings persist); per-night content is already in `story.nights` | A second night is written |
-| Keyboard control of counter actions | Pointer-first pixel game | Accessibility becomes a goal |
 | Phone-size UI text | Requires a scalable UI layout | The radio dial and phone UI are built |
 | One declaration for drawing and clicking world objects | Low risk today; the radio's dial is a UI panel, not world parts | More world objects become interactive |
 
