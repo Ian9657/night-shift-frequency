@@ -204,7 +204,7 @@
     // At the top left, over the shelves, so the counter, the bags and the open drawer
     // stay in view; only as wide as the line.
     const y = 6;
-    const width = 16 + chipWidth + Math.max(...lines.map(line => text.width(line))) + 10 - 8;
+    const width = 16 + chipWidth + Math.ceil(Math.max(...lines.map(line => text.width(line))) * ts) + 10 - 8;
     ctx.fillStyle = 'rgba(7,9,15,0.8)';
     ctx.fillRect(8, y, width, height);
     ctx.fillStyle = tone;

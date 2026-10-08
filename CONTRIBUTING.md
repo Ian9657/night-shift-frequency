@@ -87,3 +87,10 @@ in `tests/artifacts/` when the presentation changes.
   the rules of play changed.
 - Story changes must agree with [docs/worldview.md](docs/worldview.md).
 - Keep only the current version. Old versions live in git history, not in copies.
+
+For changes to Night Ferry's pacing, also run the optional
+`node tests/radio-pacing.cjs` with the same Playwright setup. It plays the first
+order at normal speed, checks the second order's hint, introduction and song in
+sequence, and finds the taxi signal using the dial's keyboard controls. It saves
+desktop and landscape-phone hint screenshots under `tests/artifacts/`.
+This is a short pacing probe, not a full-night normal-speed playthrough.

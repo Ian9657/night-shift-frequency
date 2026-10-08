@@ -49,7 +49,7 @@ scanned is still selected). Scanned items stay on the
   machine, only for this sale) with a soft tick and done when it is free; one that no
   longer applies by then (the extra tap of a double tap) is dropped quietly. A click on
   nothing just ticks.
-- The object under the pointer is outlined and named in a small label. On a touch screen
+- The object under the pointer is outlined and named in a small label; labels name objects rather than repeat instructions. On a touch screen
   a tap acts when the finger lifts; holding an object for half a second names it
   without acting, and sliding the finger away cancels. Near a gap between two objects a
   touch picks the nearer one, or neither if they are equally near. Right-click closes
@@ -67,7 +67,10 @@ left up to read before the next replaces it (1.35 s, or 0.8 s when more is waiti
 line the same as the one before it is said once. Nothing said is dropped, and a
 customer finishes speaking before they turn to go.
 
-Guidance: from order 3, next-action outlines appear after a 780 ms delay. During a
+Guidance: from order 3, next-action outlines appear after a 780 ms delay.
+Automatic next-action outlines wait while a first-time POS instruction, an error
+message or an inspection panel is visible. Hover, keyboard focus and selected-item
+feedback remain available. During a
 record conflict all outlines disappear; the POS screen itself blinks for attention and,
 once the item has been re-scanned, the record key on the register's keypad flashes.
 A few lines lock input until read (the first order's opening, the first re-scan

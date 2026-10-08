@@ -594,7 +594,7 @@
   function cueTargets() {
     const o = order();
     const targets = [];
-    if (!started() || state.busy || dialogue.locked || records.view.open) return targets;
+    if (!started() || state.busy || dialogue.locked || overlay.view.active || guidance() || state.feedback) return targets;
     const awaitingRecord = o.mismatch && scannedItems(o).length === o.items.length && !hasSavedRecord();
     const selected = o.items.find(item => item.id === state.selectedId);
     const ready = isPaymentReady();

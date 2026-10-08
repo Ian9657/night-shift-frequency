@@ -5,6 +5,26 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — quieter guidance and normal-speed radio checks
+
+- Hover and keyboard labels now name objects without repeating action instructions.
+- Automatic next-action outlines pause while a POS introduction, error message or
+  inspection panel is visible. Pointer, selection and activation feedback remain.
+- Corrected the radio caption background width for scaled narrow-screen text.
+- Added optional `tests/radio-pacing.cjs`: it plays order 1 at normal speed, follows
+  order 2's hint, introduction and song, and reaches taxi dispatch with keyboard
+  tuning within three seconds.
+
+### Verified (guidance and pacing)
+
+- All six standard checks passed; the optional normal-speed probe passed.
+- Reviewed desktop and landscape-phone discovery captures.
+
+### Not verified (guidance and pacing)
+
+- A full night at normal speed, physical phones and speaker listening remain unverified.
+
+
 ### Changed — radio discovery cue
 
 - Before the second order's requested song, June now gives a short in-world hint to

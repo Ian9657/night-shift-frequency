@@ -29,6 +29,9 @@ const { chromium, URL_BASE, signIn, idle, click } = require('./browser-helpers.c
     await page.waitForFunction(() => !NSF.phone.view.open);
     await page.keyboard.press('Escape');
     assert.equal(await page.evaluate(() => NSF.game.guidance()), 'take');
+    assert.equal(await page.evaluate(() => { NSF.game.update(); return NSF.game.scene.cues.size; }), 0,
+      'a POS instruction suppresses automatic cue outlines');
+
     await page.keyboard.press('Tab');
     assert.equal(await page.evaluate(() => NSF.ui.interactionAnnouncement(NSF.game).includes('MICROWAVE')), true);
     await page.keyboard.press('Escape');
