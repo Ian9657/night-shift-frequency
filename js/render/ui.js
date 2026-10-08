@@ -31,9 +31,9 @@
   };
   const TARGET_LABELS = {
     scanner: 'ui.target.scanner', terminal: 'ui.target.terminal', drawer: 'ui.target.drawer', microwave: 'ui.target.microwave',
-    basket: 'ui.target.basket', bags: 'ui.target.bags', radio: 'ui.target.radio', phone: 'ui.target.phone', lostFound: 'ui.target.lostFound',
+    basket: 'ui.target.basket', bags: 'ui.target.bags', radio: 'ui.target.radio', phone: 'ui.target.phone', lostFound: 'ui.target.lostFound', recordKey: 'ui.target.recordKey', printer: 'ui.target.printer',
   };
-  const GUIDE_LABELS = { take: 'ui.guide.take', scan: 'ui.guide.scan', pay: 'ui.guide.pay', heat: 'ui.guide.heat', bag: 'ui.guide.bag' };
+  const GUIDE_LABELS = { take: 'ui.guide.take', scan: 'ui.guide.scan', cash: 'ui.guide.cash', card: 'ui.guide.card', heat: 'ui.guide.heat', bag: 'ui.guide.bag' };
 
   // `action` gets the screen-grid point clicked; `drag`, if given, also follows the
   // pointer while it is held down.
@@ -84,14 +84,15 @@
     const grouped = engine.groupItems(shift.displayedItems(o.id).filter(item => state.scannedIds.includes(item.id)));
     // The status field: why the last click did nothing (amber, briefly), or the mode.
     const feedback = state.feedback && t(FEEDBACK_LABELS[state.feedback.kind]);
-    const mode = feedback || (state.modeOverride ? t(state.modeOverride) : state.paid ? t('pos.' + o.paymentType) : t('pos.ready'));
+    const guide = game.guidance();
+    const mode = feedback || (guide && t(GUIDE_LABELS[guide])) || (state.modeOverride ? t(state.modeOverride) : state.paid ? t('pos.' + o.paymentType) : t('pos.ready'));
     const total = scanned.reduce((sum, item) => sum + item.price, 0);
     const rows = grouped.length ? grouped.map(item => [label(item.pos), C.phosphor, 'x' + item.quantity])
       : [[t('pos.waiting'), C.phosphorDim]];
     while (rows.length < 3) rows.push(['', C.phosphor]);
     const last = o.finalReport && state.bagged ? [t('pos.printReport'), time.now % 900 < 600 ? C.amber : C.panel]
       : [t('pos.total', { amount: money(total) }), C.phosphor];
-    return [[mode, feedback ? C.amber : C.phosphorDim, t('pos.items', { count: drift.posCount(scanned.length) })], ...rows.slice(0, 3), last];
+    return [[mode, feedback || guide ? C.amber : C.phosphorDim, feedback || guide ? null : t('pos.items', { count: drift.posCount(scanned.length) })], ...rows.slice(0, 3), last];
   }
 
   // The green screen: a status bar (register, shift clock), the sale's lines with a
@@ -129,17 +130,23 @@
     }
     ctx.fillStyle = 'rgba(241,245,230,0.07)';
     for (let i = 0; i < 26; i += 2) ctx.fillRect(x + 6 + i * 2, y + 30 - i, 14, 2);
-    const guide = game.guidance?.();
-    if (guide && GUIDE_LABELS[guide]) {
-      ctx.fillStyle = C.amber;
-      text.draw(ctx, t(GUIDE_LABELS[guide]), x + w / 2, y + h + 5, C.amber, { align: 'center', scale: ts });
-    }
+
+  }
+
+  function interactionAnnouncement(game) {
+    if (game.state.phase !== 'shift' || overlay.view.active) return '';
+    const name = game.state.focusTarget;
+    const item = game.order().items.find(entry => 'item:' + entry.id === name);
+    const focused = item ? label(item.real || item.pos) : TARGET_LABELS[name] ? t(TARGET_LABELS[name]) : '';
+    const guide = game.guidance();
+    const feedback = game.state.feedback;
+    return [focused, feedback ? t(FEEDBACK_LABELS[feedback.kind]) : guide ? t(GUIDE_LABELS[guide]) : ''].filter(Boolean).join(' / ');
   }
 
   // The name of the counter object under the pointer (or held on a touch screen), in a
   // small label over it; the outline itself is drawn with the object (world.js).
   function hoverLabel(ctx, game) {
-    const name = game.state.hoverTarget;
+    const name = game.state.focusTarget || game.state.hoverTarget;
     if (!name || game.state.phase !== 'shift' || overlay.view.active) return;
     const target = game.targets().find(item => item.name === name);
     if (!target) return;
@@ -664,5 +671,5 @@
     return null;
   }
 
-  root.NSF.ui = { draw, hitTest, get targets() { return targets.slice(); } };
+  root.NSF.ui = { draw, hitTest, interactionAnnouncement, get targets() { return targets.slice(); } };
 })(globalThis);

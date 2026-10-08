@@ -4,10 +4,32 @@ const { chromium, URL_BASE, signIn, idle, click } = require('./browser-helpers.c
   const browser = await chromium.launch({ headless: true, channel: 'chrome' });
   try {
     const page = await browser.newPage();
+    const errors = [];
+    page.on('pageerror', error => errors.push(error.message));
     await page.goto(URL_BASE + '?seed=interaction');
     await page.evaluate(() => { NSF.time.speed = 4; });
     await signIn(page, 'JO');
     await idle(page);
+    const names = await page.evaluate(() => NSF.game.targets().map(t => t.name));
+    await page.keyboard.press('Tab');
+    assert.equal(await page.evaluate(() => NSF.game.state.focusTarget), names[0]);
+    await page.keyboard.press('Shift+Tab');
+    assert.equal(await page.evaluate(() => NSF.game.state.focusTarget), names.at(-1));
+    await page.keyboard.press('Escape');
+    assert.equal(await page.evaluate(() => NSF.game.state.focusTarget), null);
+    await page.keyboard.press('Shift+Tab');
+    assert.equal(await page.evaluate(() => NSF.game.state.focusTarget), names.at(-1));
+    await page.keyboard.press('Escape');
+    for (let i = 0; i <= names.indexOf('phone'); i++) await page.keyboard.press('Tab');
+    await page.keyboard.press('Enter');
+    assert.equal(await page.evaluate(() => NSF.phone.view.open), true);
+    await page.keyboard.press('Escape');
+    await page.waitForFunction(() => !NSF.phone.view.open);
+    await page.keyboard.press('Escape');
+    assert.equal(await page.evaluate(() => NSF.game.guidance()), 'take');
+    await page.keyboard.press('Tab');
+    assert.equal(await page.evaluate(() => NSF.ui.interactionAnnouncement(NSF.game).includes('MICROWAVE')), true);
+    await page.keyboard.press('Escape');
     const touchTarget = await page.evaluate(() => NSF.debug.targets().basket);
     const touch = async (type, id, x, y) => page.evaluate(({ type, id, x, y }) => {
       const event = new PointerEvent(type, { bubbles: true, cancelable: true, pointerId: id,
@@ -84,6 +106,7 @@ const { chromium, URL_BASE, signIn, idle, click } = require('./browser-helpers.c
     assert.equal(await page.evaluate(() => [NSF.time.paused, NSF.radio.view.song]).then(v => v.join()), 'true,');
     await page.evaluate(() => NSF.found.close());
     await page.waitForFunction(() => NSF.radio.view.song === 'slowTide', null, { timeout: 5000 });
-    console.log('PASS: premature bagging reason, queue deduplication, modal pause, automatic scan, stale order, invalid queued action, live dial, echo across orders, a call kept on air, radio held and resumed.');
+    assert.deepEqual(errors, []);
+    console.log('PASS: keyboard forward/reverse focus, Enter, Escape and live announcement; premature bagging reason, queue deduplication, modal pause, automatic scan, stale order, invalid queued action, live dial, echo across orders, a call kept on air, radio held and resumed.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

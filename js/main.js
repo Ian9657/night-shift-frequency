@@ -72,6 +72,7 @@
     else if (hit?.world) game.activate(hit.world.name);
     else if (game.state.phase === 'shift' && !root.NSF.overlay.view.active) game.tap(null);
   }
+  function capture(event) { try { if (event.isTrusted) canvas.setPointerCapture?.(event.pointerId); } catch (_) { /* synthetic tests and cancelled pointers */ } }
   const identity = hit => hit?.world?.name || hit?.ui?.name;
   canvas.addEventListener('pointerdown', event => {
     if (event.pointerType !== 'touch' && event.button !== 0) return;
@@ -80,17 +81,18 @@
       touches.add(event.pointerId);
       if (touches.size > 1) { cancelGesture(); return; }
     }
+    game.state.focusTarget = null;
     render();
     const point = toScreen(event), hit = targetAt(point, event.pointerType === 'touch' ? 3 : 1);
     if (event.pointerType === 'touch') {
       press = { id: event.pointerId, hit, x: event.clientX, y: event.clientY,
         until: time.uiNow + 450, held: false, order: game.state.eventIndex, phase: game.state.phase };
-      canvas.setPointerCapture?.(event.pointerId);
+      capture(event);
       touchHoverUntil = 0;
     }
     if (hit?.ui?.drag) {
       dragging = { id: event.pointerId, drag: hit.ui.drag };
-      canvas.setPointerCapture?.(event.pointerId);
+      capture(event);
       dispatch(hit, point);
     } else if (event.pointerType !== 'touch') dispatch(hit, point);
   });
@@ -140,13 +142,14 @@
     if (signin.key(event.key) || found.key(event.key) || phone.key(event.key) || records.key(event.key) || radio.key(event.key)) { event.preventDefault(); return; }
     if (game.state.phase === 'shift' && !root.NSF.overlay.view.active) {
       if (event.key === 'Tab' || event.key === 'ArrowRight' || event.key === 'ArrowDown') {
-        event.preventDefault(); game.focusTarget(1); return;
+        event.preventDefault(); game.focusTarget(event.key === 'Tab' && event.shiftKey ? -1 : 1); return;
       }
       if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
         event.preventDefault(); game.focusTarget(-1); return;
       }
-      if (event.key === 'Enter' && game.state.focusTarget) {
-        event.preventDefault(); game.activateFocused(); return;
+      if (event.key === 'Escape') { event.preventDefault(); game.cancelSelection(); return; }
+      if ((event.key === 'Enter' || event.key === ' ') && game.state.focusTarget) {
+        event.preventDefault(); if (!event.repeat) game.activateFocused(); return;
       }
     }
     if ((event.key === 'Enter' || event.key === ' ') && game.state.phase === 'title') game.startShift();
@@ -155,7 +158,7 @@
   // Mirror speech and radio into a live region for screen readers.
   let lastLive = '';
   function announce() {
-    const value = [dialogue.fullText(), radio.caption()].filter(Boolean).join(' / ');
+    const value = [ui.interactionAnnouncement(game), dialogue.fullText(), radio.caption()].filter(Boolean).join(' / ');
     if (value !== lastLive) { lastLive = value; live.textContent = value; }
   }
 

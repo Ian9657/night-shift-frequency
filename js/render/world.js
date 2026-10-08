@@ -186,7 +186,7 @@
 
   const blinking = (period = 800, on = 520) => time.now % period < on;
   // Under the pointer (or held on a touch screen), or just tapped.
-  const pointed = (state, name) => state.phase === 'shift' && (state.hoverTarget === name || state.flash?.name === name);
+  const pointed = (state, name) => state.phase === 'shift' && (state.focusTarget === name || state.hoverTarget === name || state.flash?.name === name);
 
   // Soft contact shadow under something standing on the counter.
   function shadow(ctx, x, w, foot) {

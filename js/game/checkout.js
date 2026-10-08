@@ -164,25 +164,30 @@
   }
 
   function guidance() {
-    if (!started() || state.eventIndex !== 0 || state.busy || dialogue.locked) return null;
-    const o = order();
-    if (!state.takenIds.length) return 'take';
-    if (scannedItems(o).length < o.items.length) return 'scan';
-    if (!state.paid) return 'pay';
-    if (pendingHeat(o).length) return 'heat';
-    if (!state.bagged && needsBag(o)) return 'bag';
+    if (!started() || state.busy || dialogue.locked || root.NSF.overlay.view.active) return null;
+    const o = order(), first = state.eventIndex === 0;
+    if (first && !state.takenIds.length) return 'take';
+    if (first && scannedItems(o).length < o.items.length) return 'scan';
+    if (isPaymentReady() && orders.findIndex(entry => entry.paymentType === o.paymentType) === state.eventIndex) return o.paymentType;
+    if (state.paid && pendingHeat(o).length && orders.findIndex(entry => entry.items.some(item => item.heat)) === state.eventIndex) return 'heat';
+    if (state.paid && !state.bagged && needsBag(o) && orders.findIndex(needsBag) === state.eventIndex) return 'bag';
     return null;
   }
 
   function focusTarget(direction = 1) {
-    if (!started() || dialogue.locked || records.view.open || phone.view.open || found.view.open || radio.view.dialOpen) return null;
+    if (!started() || dialogue.locked || root.NSF.overlay.view.active) return null;
     const names = targets().map(target => target.name);
     if (!names.length) return null;
     const index = names.indexOf(state.focusTarget);
-    state.focusTarget = names[(index + direction + names.length) % names.length];
-    setHover(state.focusTarget);
-    tap(state.focusTarget);
+    state.focusTarget = names[index < 0 ? (direction > 0 ? 0 : names.length - 1) : (index + direction + names.length) % names.length];
+    state.hoverTarget = null;
     return state.focusTarget;
+  }
+
+  function cancelSelection() {
+    state.focusTarget = null;
+    state.hoverTarget = null;
+    state.selectedId = null;
   }
 
   let waitTimer = null;
@@ -515,7 +520,7 @@
     time.cancel(waitTimer);
     state.eventIndex = Math.min(state.eventIndex + 1, orders.length - 1);
     Object.assign(state, {
-      selectedId: null, takenIds: [], scannedIds: [], paid: false, bagged: false, heatedIds: [], busy: true, queuedActions: [], feedback: null,
+      selectedId: null, takenIds: [], scannedIds: [], paid: false, bagged: false, heatedIds: [], busy: true, queuedActions: [], feedback: null, focusTarget: null, hoverTarget: null,
       modeOverride: null, reactionCounts: {}, dialogueFlags: new Set(),
     });
     scene.extras = [];
@@ -614,6 +619,7 @@
   }
 
   function update() {
+    if (state.focusTarget && !targets().some(target => target.name === state.focusTarget)) state.focusTarget = null;
     if (state.feedback && time.uiNow >= state.feedback.until) state.feedback = null;
     if (state.flash && time.uiNow >= state.flash.until) state.flash = null;
     const queued = state.queuedActions[0];
@@ -707,7 +713,10 @@
   const controller = {
     shift, orders, state, scene, order, update, targets, activate, startShift, startEnding: () => guarded(startEnding),
     submitDecision, hasSavedRecord, recordPending, scannedItems, notify, tap, guidance, focusTarget,
-    activateFocused() { if (state.focusTarget) activate(state.focusTarget); },
+    cancelSelection,
+    activateFocused() {
+      if (!root.NSF.overlay.view.active && targets().some(target => target.name === state.focusTarget)) return activate(state.focusTarget);
+    },
     setHover(name) { state.hoverTarget = name || null; },
     canOpenRecords: () => (state.phase === 'shift' || state.phase === 'report') && !state.busy,
   };
