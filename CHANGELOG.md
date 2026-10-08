@@ -5,6 +5,26 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — first shift guidance and keyboard focus
+
+- The first order now shows the next counter instruction on the POS: take, scan,
+  pay, heat or pack. It is derived from the live order state and does not add a
+  second gameplay state machine.
+- Tab, arrow keys and Enter can focus and activate visible counter targets. Focus
+  uses the same target list and action validation as pointer input.
+- Existing click flashes now also mark keyboard activation, making device presses
+  readable without a pointer.
+
+### Verified (guidance)
+
+- The full verification list passes, including the browser flow, interaction
+  regression test and visual screenshots.
+
+### Not verified (guidance)
+
+- Keyboard navigation was exercised in browser automation; physical keyboard and
+  assistive technology testing remain unverified.
+
 ### Changed — safe touch gestures and panel isolation
 
 - Touch interactions now commit on release. Holding a world object shows its label

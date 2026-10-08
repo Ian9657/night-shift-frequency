@@ -33,6 +33,7 @@
     scanner: 'ui.target.scanner', terminal: 'ui.target.terminal', drawer: 'ui.target.drawer', microwave: 'ui.target.microwave',
     basket: 'ui.target.basket', bags: 'ui.target.bags', radio: 'ui.target.radio', phone: 'ui.target.phone', lostFound: 'ui.target.lostFound',
   };
+  const GUIDE_LABELS = { take: 'ui.guide.take', scan: 'ui.guide.scan', pay: 'ui.guide.pay', heat: 'ui.guide.heat', bag: 'ui.guide.bag' };
 
   // `action` gets the screen-grid point clicked; `drag`, if given, also follows the
   // pointer while it is held down.
@@ -128,6 +129,11 @@
     }
     ctx.fillStyle = 'rgba(241,245,230,0.07)';
     for (let i = 0; i < 26; i += 2) ctx.fillRect(x + 6 + i * 2, y + 30 - i, 14, 2);
+    const guide = game.guidance?.();
+    if (guide && GUIDE_LABELS[guide]) {
+      ctx.fillStyle = C.amber;
+      text.draw(ctx, t(GUIDE_LABELS[guide]), x + w / 2, y + h + 5, C.amber, { align: 'center', scale: ts });
+    }
   }
 
   // The name of the counter object under the pointer (or held on a touch screen), in a

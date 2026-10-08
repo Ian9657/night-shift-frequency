@@ -138,6 +138,17 @@
   });
   root.addEventListener('keydown', event => {
     if (signin.key(event.key) || found.key(event.key) || phone.key(event.key) || records.key(event.key) || radio.key(event.key)) { event.preventDefault(); return; }
+    if (game.state.phase === 'shift' && !root.NSF.overlay.view.active) {
+      if (event.key === 'Tab' || event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+        event.preventDefault(); game.focusTarget(1); return;
+      }
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+        event.preventDefault(); game.focusTarget(-1); return;
+      }
+      if (event.key === 'Enter' && game.state.focusTarget) {
+        event.preventDefault(); game.activateFocused(); return;
+      }
+    }
     if ((event.key === 'Enter' || event.key === ' ') && game.state.phase === 'title') game.startShift();
   });
 

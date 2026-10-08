@@ -12,7 +12,7 @@
   const state = {
     phase: 'title', // title -> signin -> shift -> report -> ending -> clockout -> end
     eventIndex: 0, selectedId: null, takenIds: [], scannedIds: [], paid: false, bagged: false, heatedIds: [],
-    reportShown: false, busy: false, queuedActions: [], feedback: null, flash: null, hoverTarget: null, modeOverride: null, reactionCounts: {}, dialogueFlags: new Set(),
+    reportShown: false, busy: false, queuedActions: [], feedback: null, flash: null, hoverTarget: null, focusTarget: null, modeOverride: null, reactionCounts: {}, dialogueFlags: new Set(),
   };
 
   const F = layout.fixtures;
@@ -161,6 +161,28 @@
   function tap(name) {
     if (name) state.flash = { name, until: time.uiNow + 240 };
     audio.uiClick();
+  }
+
+  function guidance() {
+    if (!started() || state.eventIndex !== 0 || state.busy || dialogue.locked) return null;
+    const o = order();
+    if (!state.takenIds.length) return 'take';
+    if (scannedItems(o).length < o.items.length) return 'scan';
+    if (!state.paid) return 'pay';
+    if (pendingHeat(o).length) return 'heat';
+    if (!state.bagged && needsBag(o)) return 'bag';
+    return null;
+  }
+
+  function focusTarget(direction = 1) {
+    if (!started() || dialogue.locked || records.view.open || phone.view.open || found.view.open || radio.view.dialOpen) return null;
+    const names = targets().map(target => target.name);
+    if (!names.length) return null;
+    const index = names.indexOf(state.focusTarget);
+    state.focusTarget = names[(index + direction + names.length) % names.length];
+    setHover(state.focusTarget);
+    tap(state.focusTarget);
+    return state.focusTarget;
   }
 
   let waitTimer = null;
@@ -665,12 +687,12 @@
   }
 
   function activate(name) {
+    tap(name);
     const buffered = new Set(['scanner', 'terminal', 'drawer', 'microwave', 'bags', 'basket', 'printer']);
     if (state.busy && buffered.has(name)) {
       if (!state.queuedActions.some(action => action.name === name && action.eventIndex === state.eventIndex)) {
         if (state.queuedActions.length < 3) state.queuedActions.push({ name, eventIndex: state.eventIndex });
       }
-      tap(name);
       return;
     }
     if (name.startsWith('item:')) return guarded(() => selectItem(name.slice(5)));
@@ -684,7 +706,8 @@
   resetProducts();
   const controller = {
     shift, orders, state, scene, order, update, targets, activate, startShift, startEnding: () => guarded(startEnding),
-    submitDecision, hasSavedRecord, recordPending, scannedItems, notify, tap,
+    submitDecision, hasSavedRecord, recordPending, scannedItems, notify, tap, guidance, focusTarget,
+    activateFocused() { if (state.focusTarget) activate(state.focusTarget); },
     setHover(name) { state.hoverTarget = name || null; },
     canOpenRecords: () => (state.phase === 'shift' || state.phase === 'report') && !state.busy,
   };

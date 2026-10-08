@@ -133,6 +133,11 @@
     'ui.target.radio': 'RADIO · TUNE',
     'ui.target.phone': 'PHONE · MESSAGES',
     'ui.target.lostFound': 'BOX · LOST AND FOUND',
+    'ui.guide.take': 'TAKE ITEM FROM BASKET',
+    'ui.guide.scan': 'SCAN THE ITEM',
+    'ui.guide.pay': 'USE THE CUSTOMER PAYMENT',
+    'ui.guide.heat': 'HEAT THE ITEM FIRST',
+    'ui.guide.bag': 'PACK THE ORDER',
 
     // Record panel on the POS
     'rec.title': 'REG#02 / TRANSACTION RECORD',
