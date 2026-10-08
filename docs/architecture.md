@@ -140,7 +140,8 @@ All sound is synthesised with Web Audio: room tone, the fridge's compressor, mac
 the door chime, cars outside, the phone, dialogue ticks, the radio bed and voice, Night
 Ferry's songs (sequenced from the notes in `story.js`), and gulls at dawn. There are no audio files. Everything plays through a `sounds` or a
 `radio` bus into `master`; the phone's settings set their levels. `master` feeds a +6 dB
-output gain and a limiter. Ambient drift uses real timers on
+output gain and a limiter. The room and the radio bed are built the first time sound is
+available after the shift asks for them (so also when silent mode is turned off). Ambient drift uses real timers on
 purpose; it is texture, not game state. Everything else waits on `NSF.time`.
 
 ## Randomness

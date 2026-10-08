@@ -9,7 +9,10 @@
   const SFX_GAIN = 2.65;
   const DIALOGUE_TICK_GAIN = 2.85;
   let context = null;
-  let ambienceStarted = false;
+  // The room and the radio bed are built once, the first time sound is available after
+  // the shift has asked for them, so a shift begun in silent mode gets them when silent
+  // mode is turned off.
+  let ambienceWanted = false, ambienceStarted = false;
   let microwaveHum = null;
   let radioBed = null;
   let tickStep = 0;
@@ -148,6 +151,7 @@
   }
 
   function startAmbience() {
+    ambienceWanted = true;
     const ctx = audio();
     if (!ctx || ambienceStarted) return;
     ambienceStarted = true;
@@ -177,16 +181,23 @@
     master.connect(bus.radio);
     const hiss = loop(ctx, master, { filterType: 'bandpass', frequency: 3100, gain: 0.0026, duration: 1.7, drift: false });
     const hum = loop(ctx, master, { filterType: 'lowpass', frequency: 180, gain: 0.0018, duration: 2.1, drift: false });
-    radioBed = { master, hiss, hum, station: 'ferry' };
+    radioBed = { master, hiss, hum };
+    tuneBed();
   }
 
   // What the dial is on: 'ferry' (Night Ferry, clean), 'echo' (hissing), 'signal'
   // (someone's frequency, mostly hiss) or 'static'.
   // `clarity` (0–1) thins the echo's hiss as the night goes on.
+  // The last station asked for is kept even before the bed exists, so a bed built late
+  // matches the dial.
+  const station = { kind: 'ferry', clarity: 0 };
   function radioStation(kind, clarity = 0) {
+    Object.assign(station, { kind, clarity });
+    tuneBed();
+  }
+  function tuneBed() {
     if (!radioBed || !context) return;
-    const now = context.currentTime;
-    radioBed.station = kind;
+    const now = context.currentTime, { kind, clarity } = station;
     const hiss = { ferry: 0.0026, echo: 0.014 - 0.009 * clarity, signal: 0.015 }[kind] ?? 0.02;
     radioBed.hiss.volume.gain.setTargetAtTime(hiss, now, 0.08);
     radioBed.hiss.filter.frequency.setTargetAtTime(kind === 'ferry' ? 3100 : 1800, now, 0.08);
@@ -500,7 +511,14 @@
     setLevel(name, value) { levels[name] = Math.max(0, Math.min(5, Math.round(value))); applyLevels(); },
     // While the shift is paused the radio is silent; the room keeps its sound.
     set radioHeld(value) { radioHeld = Boolean(value); applyLevels(); },
-    set muted(value) { muted = Boolean(value); if (muted && context) context.suspend(); else if (context) context.resume(); },
+    // Turning silent mode off is a click, so the context may be created or resumed here;
+    // the room and radio bed come up if the shift asked for them while silent.
+    set muted(value) {
+      muted = Boolean(value);
+      if (muted) { context?.suspend().catch(() => {}); return; }
+      context?.resume().catch(() => {});
+      if (ambienceWanted) startAmbience();
+    },
     get muted() { return muted; },
   };
 })(globalThis);

@@ -5,6 +5,28 @@ verified and what was not.
 
 ## Unreleased
 
+### Fixed — no room sound after a shift begun in silent mode (#1)
+
+- With silent mode on at START SHIFT (it is remembered between visits), `audio()` had no
+  context to give `startAmbience()`, which returned before building anything; turning
+  silent mode off only resumed a context. The room tone, rain, ambient incidents, the
+  fridge and the radio bed never came, and tuning stopped changing the background. The
+  ambience is now built the first time sound is available after the shift asked for
+  it, including when silent mode is turned off. The radio bed remembers the last station
+  asked for, so one built late matches the dial. `suspend()` and `resume()` no longer
+  leave unhandled rejections. Reported, with the root cause, by GeniusLv2006.
+
+### Verified (#1)
+
+- All six checks pass. The interaction test starts one shift with sound and one in
+  silent mode, tunes the second to 87.7 and turns silent mode off: both start the same
+  number of looping sources (6; 0 before the fix, checked against the previous
+  `audio.js`), and the late radio bed takes the echo's hiss.
+
+### Not verified (#1)
+
+- Not listened to.
+
 ### Fixed — customers' lines cut off or never shown
 
 - `dialogue.say` replaced whatever was on screen and threw away lines still waiting. With

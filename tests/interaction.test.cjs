@@ -132,6 +132,35 @@ const { chromium, URL_BASE, signIn, idle, click } = require('./browser-helpers.c
     assert.equal(said.cut, false, 'no line gives way before it is typed out');
     assert.ok(said.waitMs > 2000);
     assert.deepEqual(errors, []);
-    console.log('PASS: queued speech (no line cut or swallowed); keyboard forward/reverse focus, Enter, Escape and live announcement; premature bagging reason, queue deduplication, modal pause, automatic scan, stale order, invalid queued action, live dial, echo across orders, a call kept on air, radio held and resumed.');
+
+    // Issue #1: a shift begun in silent mode gets the room and the radio bed once silent
+    // mode is turned off, and the bed matches the dial at that moment.
+    const ambience = async silent => {
+      const p = await browser.newPage();
+      await p.addInitScript(silent => {
+        localStorage.setItem('nsf.settings', JSON.stringify({ master: 5, radio: 5, sounds: 5, silent }));
+        globalThis.__loops = 0;
+        globalThis.__bedTunedTo = [];
+        const start = AudioBufferSourceNode.prototype.start;
+        AudioBufferSourceNode.prototype.start = function (...a) { if (this.loop) globalThis.__loops++; return start.apply(this, a); };
+        const target = AudioParam.prototype.setTargetAtTime;
+        AudioParam.prototype.setTargetAtTime = function (value, ...a) { globalThis.__bedTunedTo.push(value); return target.call(this, value, ...a); };
+      }, silent);
+      await p.goto(URL_BASE + '?seed=interaction');
+      await signIn(p);
+      if (silent) {
+        await p.evaluate(() => { NSF.radio.setFrequency(8770); NSF.phone.toggleSilent(); });
+      }
+      await p.waitForTimeout(300);
+      const result = await p.evaluate(() => ({ muted: NSF.audio.muted, loops: __loops, echoBed: __bedTunedTo.includes(1800) }));
+      await p.close();
+      return result;
+    };
+    const withSound = await ambience(false), unmuted = await ambience(true);
+    assert.equal(unmuted.muted, false);
+    assert.equal(unmuted.loops, withSound.loops, 'room and radio bed loops after unmuting');
+    assert.ok(withSound.loops >= 6);
+    assert.equal(unmuted.echoBed, true, "the late radio bed takes the echo's hiss");
+    console.log('PASS: ambience after a silent start (issue #1); queued speech (no line cut or swallowed); keyboard forward/reverse focus, Enter, Escape and live announcement; premature bagging reason, queue deduplication, modal pause, automatic scan, stale order, invalid queued action, live dial, echo across orders, a call kept on air, radio held and resumed.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });
