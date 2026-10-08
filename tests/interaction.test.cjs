@@ -156,11 +156,28 @@ const { chromium, URL_BASE, signIn, idle, click } = require('./browser-helpers.c
       await p.close();
       return result;
     };
+    // A scanned item still selected (clicked again) doesn't stop the scanner taking the next.
+    {
+      const p = await browser.newPage();
+      await p.goto(URL_BASE + '?seed=interaction');
+      await p.evaluate(() => { NSF.time.speed = 4; });
+      await signIn(p);
+      await idle(p);
+      await click(p, 'scanner');
+      await idle(p);
+      const first = await p.evaluate(() => NSF.game.state.scannedIds[0]);
+      await click(p, 'item:' + first);
+      await click(p, 'scanner');
+      await idle(p);
+      assert.equal(await p.evaluate(() => NSF.game.state.scannedIds.length), 2, 'the scanner takes the next item');
+      await p.close();
+    }
+
     const withSound = await ambience(false), unmuted = await ambience(true);
     assert.equal(unmuted.muted, false);
     assert.equal(unmuted.loops, withSound.loops, 'room and radio bed loops after unmuting');
     assert.ok(withSound.loops >= 6);
     assert.equal(unmuted.echoBed, true, "the late radio bed takes the echo's hiss");
-    console.log('PASS: ambience after a silent start (issue #1); queued speech (no line cut or swallowed); keyboard forward/reverse focus, Enter, Escape and live announcement; premature bagging reason, queue deduplication, modal pause, automatic scan, stale order, invalid queued action, live dial, echo across orders, a call kept on air, radio held and resumed.');
+    console.log('PASS: scanner past a selected scanned item; ambience after a silent start (issue #1); queued speech (no line cut or swallowed); keyboard forward/reverse focus, Enter, Escape and live announcement; premature bagging reason, queue deduplication, modal pause, automatic scan, stale order, invalid queued action, live dial, echo across orders, a call kept on air, radio held and resumed.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

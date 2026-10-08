@@ -9,7 +9,7 @@
   const T = story.tonight.times;
   const START = minutes(T.start), CLOSING = minutes(T.closing), DAWN = minutes(T.dawn);
   let game = null;
-  const dawn = { from: 0, span: 1 };
+  const dawn = { fromMinutes: CLOSING, from: Infinity, span: 1 };   // not begun: the sky holds at closing
 
   function clock() {
     const { phase } = game.state;
@@ -18,7 +18,7 @@
     if (phase === 'report') return T.closing;
     if (phase === 'ending') {
       const f = Math.min(1, Math.max(0, (time.now - dawn.from) / dawn.span));
-      return format(CLOSING + Math.floor((DAWN - CLOSING) * f));
+      return format(dawn.fromMinutes + Math.floor((DAWN - dawn.fromMinutes) * f));
     }
     return T.dawn;
   }
@@ -70,6 +70,9 @@
     attach(controller) { game = controller; },
     clock, progress, sky, minutes,
     // The ending's dawn: from the report's closing time to five over `ms` of game time.
-    beginDawn(ms) { dawn.from = time.now; dawn.span = Math.max(1, ms); },
+    beginDawn(ms) { Object.assign(dawn, { fromMinutes: CLOSING, from: time.now, span: Math.max(1, ms) }); },
+    // The rest of the way to five over `ms`, from wherever the sky has got to (the closing
+    // broadcast was clicked through).
+    finishDawn(ms) { Object.assign(dawn, { fromMinutes: minutes(clock()), from: time.now, span: Math.max(1, ms) }); },
   };
 })(globalThis);

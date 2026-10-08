@@ -16,7 +16,7 @@
   let microwaveHum = null;
   let radioBed = null;
   let tickStep = 0;
-  let muted = false;
+  let muted = false, away = false;
   let bus = null;
   const levels = { master: 5, radio: 5, sounds: 5 };
   let radioHeld = false;
@@ -37,7 +37,7 @@
       bus = { master, sounds, radio };
       applyLevels();
     }
-    if (context.state === 'suspended') context.resume().catch(() => {});
+    if (context.state === 'suspended' && !away) context.resume().catch(() => {});
     return context;
   }
 
@@ -520,5 +520,12 @@
       if (ambienceWanted) startAmbience();
     },
     get muted() { return muted; },
+    // While the tab is hidden the game's clock stops (no frames), so the sound waits too.
+    // Background timers (the fridge, incidents) still fire, but don't wake it.
+    set away(value) {
+      away = Boolean(value);
+      if (!context || muted) return;
+      (away ? context.suspend() : context.resume()).catch(() => {});
+    },
   };
 })(globalThis);

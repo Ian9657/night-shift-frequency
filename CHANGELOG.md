@@ -5,6 +5,33 @@ verified and what was not.
 
 ## Unreleased
 
+### Fixed — found by a chaos run and a review of edge cases
+
+- With a scanned item still selected (clicked again by mistake), the scanner said
+  SCANNED instead of taking the next item from the basket; it now takes the next one.
+  Re-scans in the record orders are unchanged.
+- For the first 0.6 s of the ending the clock read 05:00, so the sky flashed dawn and
+  went back to night; the sky now holds at 04:44 until the dawn begins.
+- Clicking through the closing letter ended the dawn early and the sky jumped to five
+  at sign-out; whatever is left now runs over the 2.3 s before the sheet comes back
+  (`night.finishDawn`).
+- In a hidden tab the game gets no frames and stops, but sound played on: a song could
+  finish unheard while its caption stayed. Sound now suspends while the tab is hidden
+  (`audio.away`), and background timers no longer wake it.
+
+### Verified (edge cases)
+
+- All six checks pass. New: the interaction test re-taps the scanner with a scanned item
+  selected; the browser flow checks the clock never goes back between 04:44 and 05:00,
+  heard out on two paths and clicked through on two. A chaos script (random clicks,
+  keys, right-clicks, dial drags and panels, then a plain bot finishing each order) ran
+  nine whole nights to the closing card with no page error; the speech probe still finds
+  nothing cut. The hidden-tab suspend was checked by counting context suspend/resume.
+
+### Not verified (edge cases)
+
+- Switching tabs by hand in a real browser.
+
 ### Fixed — no room sound after a shift begun in silent mode (#1)
 
 - With silent mode on at START SHIFT (it is remembered between visits), `audio()` had no

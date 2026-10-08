@@ -236,7 +236,11 @@
     }
     // A scanner tap is also a convenient "next item" command during the normal
     // flow.  Keep mismatch rescans manual so the verification step remains
-    // deliberate and visible to the player.
+    // deliberate and visible to the player.  An item already scanned that is still
+    // selected (clicked by mistake) doesn't stand in the way of the next one.
+    const picked = o.items.find(entry => entry.id === state.selectedId);
+    const rescanAllowed = o.mismatch && !hasSavedRecord();
+    if (picked && isScanned(picked) && !rescanAllowed && o.items.some(entry => !isScanned(entry))) state.selectedId = null;
     if (!state.selectedId && rescans(o) === 0) {
       const waiting = o.items.find(item => !isScanned(item) && !inBasket(item));
       if (waiting) state.selectedId = waiting.id;
@@ -556,6 +560,7 @@
     const closing = broadcast.shiftClosed(shift.ending());
     night.beginDawn(closing.duration);
     await closing.done;
+    night.finishDawn(2300);                                         // whatever is left, if the letter was clicked through
     await leaving;
     broadcast.offAir();
     await time.wait(900);

@@ -31,7 +31,8 @@ scan every item → take payment → heat if asked (after payment) → bag or ha
 
 - The customer sets a basket down on the far side of the counter and waits. Click the
   basket to take the next item out (it is selected), then click the scanner; or click
-  the scanner straight away and it takes the next item itself. Scanned items stay on the
+  the scanner straight away and it takes the next item itself (also when an item already
+scanned is still selected). Scanned items stay on the
   counter and can be selected again for a re-scan, which is always done by hand.
   Identical items scan one by one and group as quantities on the POS and receipt.
 - Payment matches what the customer says: their card stands in the terminal's slot, or

@@ -1,7 +1,7 @@
 // Boot: canvas scaling, the frame loop and input routing.
 (function (root) {
   'use strict';
-  const { time, layout, world, ui, game, records, sprites, dialogue, radio, phone, signin, outside, drift, messages, found, overlay } = root.NSF;
+  const { time, layout, world, ui, game, records, sprites, dialogue, radio, phone, signin, outside, drift, messages, found, overlay, audio } = root.NSF;
   const canvas = document.querySelector('[data-game]');
   const ctx = canvas.getContext('2d');
   const live = document.querySelector('[data-live]');
@@ -154,6 +154,10 @@
     }
     if ((event.key === 'Enter' || event.key === ' ') && game.state.phase === 'title') game.startShift();
   });
+
+  // A hidden tab gets no frames, so the game stops; its sound stops with it, or a song
+  // would play on while Night Ferry's clock stood still.
+  document.addEventListener('visibilitychange', () => { audio.away = document.hidden; });
 
   // Mirror speech and radio into a live region for screen readers.
   let lastLive = '';

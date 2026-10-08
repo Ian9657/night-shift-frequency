@@ -82,7 +82,16 @@ const { chromium, artifacts, URL_BASE, idle, click, playOrder, signIn, signOut }
       await click(page, 'printer');
       await page.waitForFunction(() => NSF.debug.game.state.phase === 'report');
       await page.screenshot({ path: path.join(artifacts, `${name}-report.png`) });
+      // The sky only moves forward from the report's 04:44 to five, whether the letter is
+      // heard out or clicked through.
+      await page.evaluate(() => { window.__clocks = []; window.__clockTimer = setInterval(() => __clocks.push(NSF.night.clock()), 15); });
       await click(page, 'ui:report');
+      if (name.startsWith('correct')) for (let i = 0; i < 4; i++) { await page.waitForTimeout(300); await page.evaluate(() => NSF.debug.radio.skip()); }
+      await page.waitForFunction(() => NSF.debug.game.state.phase === 'clockout', null, { timeout: 60000 });
+      const clocks = await page.evaluate(() => { clearInterval(__clockTimer); return __clocks; });
+      assert.equal(clocks[0], '04:44');
+      assert.ok(clocks.every((c, i) => !i || c >= clocks[i - 1]), 'the clock never goes back: ' + [...new Set(clocks)].join(' '));
+      assert.equal(clocks.at(-1), '05:00');
       await signOut(page, path.join(artifacts, `${name}-clockout.png`));
       await page.screenshot({ path: path.join(artifacts, `${name}-end.png`) });
       const result = await page.evaluate(() => ({
