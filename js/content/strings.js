@@ -234,6 +234,7 @@
     'radio.intro1': "This is FM 87.6, Night Ferry. I'm June.",
     'radio.intro2': 'One a.m. Good evening to everyone still awake.',
     'radio.o1': "Rain until dawn. The ferry's suspended — hang in there, dock crew.",
+    'radio.tuningHint': "Taxi dispatch sometimes comes through just above us. Turn slowly. You might find someone else still awake.",
     'radio.o2': 'A listener requested an old song for the night clerk at the corner store.',
     'radio.o3a': 'The old relay tower across the bay has been dead for twelve years.',
     'radio.o3b': 'But on rainy nights, people swear they hear it transmitting.',

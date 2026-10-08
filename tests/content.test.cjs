@@ -66,3 +66,10 @@ for (const [key, value] of Object.entries(strings)) {
 // '@key' variables are looked up themselves.
 assert.equal(t('radio.echoRecord', { time: '02:41', label: '@item.spareKey' }), 'REG#02. 02:41. SPARE KEY, one.');
 console.log(`PASS: ${Object.keys(strings).length} strings, references, no orphans, story keys and font coverage.`);
+
+// Discovery is offered when the taxi frequency unlocks, before the song.
+const taxi = story.tonight.signals.find(signal => signal.person === 'walt');
+const discovery = story.tonight.segments[taxi.from];
+assert.equal(discovery[0], 'radio.tuningHint');
+assert.ok(discovery.findIndex(line => line.song) > discovery.indexOf('radio.tuningHint'));
+assert.equal(story.tonight.segments.flat().filter(line => line === 'radio.tuningHint').length, 1);

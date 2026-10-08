@@ -119,7 +119,7 @@
     times: { start: '01:00', closing: '04:44', dawn: '05:00' },
     clocks: ['01:14', '01:42', '02:09', '02:27', '02:41', '03:23', '03:58', '04:31'],
     // Night Ferry's segment for each order: lines, and songs from radio.songs.
-    segments: [['radio.o1'], ['radio.o2', { song: 'slowTide' }], ['radio.o3a', 'radio.o3b'], ['radio.o4'],
+    segments: [['radio.o1'], ['radio.tuningHint', 'radio.o2', { song: 'slowTide' }], ['radio.o3a', 'radio.o3b'], ['radio.o4'],
       ['radio.o5a', 'radio.o5b', 'radio.o5c'], ['radio.o6a', 'radio.o6b', 'radio.linesOpen'], ['radio.o7', { song: 'harbourLights' }], ['radio.o8a', 'radio.o8b']],
     // Faint signals between the stations that belong to people who stayed, audible from
     // the order `from` (an index) on, each cycling through its lines.

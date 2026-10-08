@@ -5,6 +5,22 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — radio discovery cue
+
+- Before the second order's requested song, June now gives a short in-world hint to
+  turn the dial slowly above Night Ferry. It points toward the first taxi signal
+  without naming the frequency or revealing who is speaking.
+- Content coverage verifies that the cue appears once and precedes the song.
+
+### Verified (radio discovery)
+
+- All six verification commands pass, including the content, interaction, browser
+  and visual suites.
+
+### Not verified (radio discovery)
+
+- The cue and song pacing were not listened to at normal speed on physical speakers.
+
 ### Fixed — found by a chaos run and a review of edge cases
 
 - With a scanned item still selected (clicked again by mistake), the scanner said
