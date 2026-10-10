@@ -172,6 +172,41 @@ const { chromium, URL_BASE, signIn, idle, click, playOrder } = require('./browse
     });
     assert.deepEqual(voiced, { spoke: true, stopped: true });
 
+    // A recorded line plays instead of the murmur and sets its time on air; a recording of
+    // older text is ignored. VOICE on the phone switches to reading aloud and is kept.
+    const { toRadioWav } = require('../art/tools/build-voice.cjs');
+    const tone = toRadioWav({ rate: 11025, samples: Float32Array.from({ length: 13230 }, (_, i) => Math.sin(i / 9)) });
+    const recorded = await page.evaluate(async ({ data, ms }) => {
+      const a = NSF.audio, r = NSF.radio, t = NSF.strings.strings, used = [];
+      const clip = a.playClip, synth = a.radioSpeech;
+      a.playClip = (key, ...rest) => { used.push('clip ' + key); return clip(key, ...rest); };
+      a.radioSpeech = (text, ...rest) => { used.push('synth'); return synth(text, ...rest); };
+      NSF.voiceData.clips['radio.o4'] = { text: t['radio.o4'], ms, data };
+      NSF.voiceData.clips['radio.o3a'] = { text: 'an older script', ms, data };
+      const wait = async key => { for (let i = 0; i < 100 && r.view.key !== key; i++) { if (r.view.key) r.skip(); await new Promise(go => setTimeout(go, 30)); } };
+      r.tune('87.6'); r.clearSegments();                    // nothing left over from the tests before
+      r.play(['radio.o4', 'radio.o3a']);
+      await wait('radio.o4');
+      const duration = r.view.duration;
+      await wait('radio.o3a');
+      a.playClip = clip; a.radioSpeech = synth;
+      delete NSF.voiceData.clips['radio.o4']; delete NSF.voiceData.clips['radio.o3a'];
+      return { used, duration };
+    }, { data: tone.wav.toString('base64'), ms: tone.ms });
+    assert.deepEqual(recorded.used, ['clip radio.o4', 'synth']);
+    assert.equal(recorded.duration, tone.ms + 900);
+    const aloud = await page.evaluate(() => {
+      const spoken = [], speak = speechSynthesis.speak.bind(speechSynthesis);
+      speechSynthesis.speak = u => { spoken.push(u.text); };
+      NSF.phone.toggleVoice();
+      const mode = NSF.voice.mode, kept = JSON.parse(localStorage.getItem('nsf.settings')).voice;
+      NSF.voice.speak('radio.o4', {}, 'ferry', 3000);
+      NSF.phone.toggleVoice();
+      speechSynthesis.speak = speak;
+      return { mode, kept, spoken, back: NSF.voice.mode };
+    });
+    assert.deepEqual(aloud, { mode: 'browser', kept: 'browser', spoken: [await page.evaluate(() => NSF.strings.t('radio.o4'))], back: 'radio' });
+
     // Speech is queued: a line being typed is never cut off by the next, the same line
     // twice in a row is said once, and `remaining` covers everything waiting.
     const said = await page.evaluate(async () => {
@@ -281,6 +316,6 @@ const { chromium, URL_BASE, signIn, idle, click, playOrder } = require('./browse
     assert.equal(unmuted.loops, withSound.loops, 'room and radio bed loops after unmuting');
     assert.ok(withSound.loops >= 6);
     assert.equal(unmuted.echoBed, true, "the late radio bed takes the echo's hiss");
-    console.log('PASS: a click during the changeover carries to the next customer; the tuning nudge only when nothing was found; scanner past a selected scanned item; ambience after a silent start (issue #1); queued speech (no line cut or swallowed); keyboard forward/reverse focus, Enter, Escape and live announcement; premature bagging reason, queue deduplication, modal pause, automatic scan, stale order, invalid queued action, live dial, echo across orders, a call kept on air, radio held and resumed, Night Ferry carried across orders, reception off centre.');
+    console.log('PASS: a click during the changeover carries to the next customer; the tuning nudge only when nothing was found; scanner past a selected scanned item; ambience after a silent start (issue #1); queued speech (no line cut or swallowed); keyboard forward/reverse focus, Enter, Escape and live announcement; premature bagging reason, queue deduplication, modal pause, automatic scan, stale order, invalid queued action, live dial, echo across orders, a call kept on air, radio held and resumed, Night Ferry carried across orders, reception off centre, voices: recorded, murmured and read aloud.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

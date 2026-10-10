@@ -1,0 +1,110 @@
+#!/usr/bin/env node
+// Builds assets/voice-data.js from recordings of radio lines: art/voice/<string key>.wav
+// (PCM or float WAV, any rate, mono or stereo). Each is mixed to mono, resampled to
+// 11025 Hz, normalised and stored as 8-bit WAV, base64, which suits a small radio
+// speaker and keeps the bundle small (about 11 KB a second). The game plays a recording
+// instead of the synthesised voice for its line.
+//
+// art/voice/lines.json records the text each recording was made of. A new recording is
+// entered with the line's current text. If a line's text later changes, the build stops
+// until it is recorded again and accepted:
+//   node art/tools/build-voice.cjs --accept radio.o4
+// `--check` fails if assets/voice-data.js is out of date (the content test uses build()).
+'use strict';
+const fs = require('node:fs');
+const path = require('node:path');
+const { strings } = require('../../js/content/strings.js');
+
+const ROOT = path.resolve(__dirname, '../..');
+const SOURCES = path.join(ROOT, 'art/voice');
+const MANIFEST = path.join(SOURCES, 'lines.json');
+const OUT = path.join(ROOT, 'assets/voice-data.js');
+const RATE = 11025;
+
+// WAV → { rate, samples: Float32Array (mono, −1..1) }.
+function readWav(buffer) {
+  if (buffer.toString('ascii', 0, 4) !== 'RIFF' || buffer.toString('ascii', 8, 12) !== 'WAVE') throw new Error('not a WAV file');
+  let format = null, data = null;
+  for (let at = 12; at + 8 <= buffer.length;) {
+    const id = buffer.toString('ascii', at, at + 4), size = buffer.readUInt32LE(at + 4);
+    if (id === 'fmt ') format = { code: buffer.readUInt16LE(at + 8), channels: buffer.readUInt16LE(at + 10), rate: buffer.readUInt32LE(at + 12), bits: buffer.readUInt16LE(at + 22) };
+    if (id === 'data') data = buffer.subarray(at + 8, at + 8 + size);
+    at += 8 + size + (size % 2);
+  }
+  if (!format || !data) throw new Error('WAV without fmt or data');
+  const { code, channels, bits } = format, bytes = bits / 8, frames = Math.floor(data.length / (bytes * channels));
+  const read = offset => {
+    if (code === 3 && bits === 32) return data.readFloatLE(offset);
+    if (bits === 8) return (data[offset] - 128) / 128;
+    if (bits === 16) return data.readInt16LE(offset) / 32768;
+    if (bits === 24) return data.readIntLE(offset, 3) / 8388608;
+    if (bits === 32) return data.readInt32LE(offset) / 2147483648;
+    throw new Error(`unsupported WAV: ${bits}-bit`);
+  };
+  const samples = new Float32Array(frames);
+  for (let f = 0; f < frames; f++) {
+    let sum = 0;
+    for (let c = 0; c < channels; c++) sum += read((f * channels + c) * bytes);
+    samples[f] = sum / channels;
+  }
+  return { rate: format.rate, samples };
+}
+
+// Mono samples at any rate → an 8-bit mono WAV at RATE, peak-normalised.
+function toRadioWav({ rate, samples }) {
+  const count = Math.max(1, Math.floor(samples.length * RATE / rate));
+  const out = new Float32Array(count);
+  for (let i = 0; i < count; i++) {
+    const at = i * rate / RATE, j = Math.floor(at), f = at - j;
+    out[i] = (samples[j] || 0) * (1 - f) + (samples[j + 1] || 0) * f;
+  }
+  const peak = out.reduce((m, v) => Math.max(m, Math.abs(v)), 0) || 1;
+  const wav = Buffer.alloc(44 + count);
+  wav.write('RIFF', 0, 'ascii'); wav.writeUInt32LE(36 + count, 4); wav.write('WAVE', 8, 'ascii');
+  wav.write('fmt ', 12, 'ascii'); wav.writeUInt32LE(16, 16); wav.writeUInt16LE(1, 20); wav.writeUInt16LE(1, 22);
+  wav.writeUInt32LE(RATE, 24); wav.writeUInt32LE(RATE, 28); wav.writeUInt16LE(1, 32); wav.writeUInt16LE(8, 34);
+  wav.write('data', 36, 'ascii'); wav.writeUInt32LE(count, 40);
+  for (let i = 0; i < count; i++) wav[44 + i] = Math.max(0, Math.min(255, Math.round(128 + (out[i] / peak) * 0.9 * 127)));
+  return { wav, ms: Math.round(count / RATE * 1000) };
+}
+
+function readManifest() {
+  return fs.existsSync(MANIFEST) ? JSON.parse(fs.readFileSync(MANIFEST, 'utf8')) : {};
+}
+
+// The contents of assets/voice-data.js, and the manifest it was built against.
+function build({ accept = [] } = {}) {
+  const manifest = readManifest();
+  const files = fs.existsSync(SOURCES) ? fs.readdirSync(SOURCES).filter(f => f.endsWith('.wav')).sort() : [];
+  const clips = {}, stale = [];
+  for (const file of files) {
+    const key = file.slice(0, -4), text = strings[key];
+    if (text === undefined) throw new Error(`${file}: no string ${key} in js/content/strings.js`);
+    if (/\{\w+\}/.test(text)) throw new Error(`${file}: ${key} has a {variable}, so it can't be recorded`);
+    if (manifest[key] === undefined || accept.includes(key)) manifest[key] = text;
+    if (manifest[key] !== text) { stale.push(key); continue; }
+    const { wav, ms } = toRadioWav(readWav(fs.readFileSync(path.join(SOURCES, file))));
+    clips[key] = { text, ms, data: wav.toString('base64') };
+  }
+  if (stale.length) throw new Error(`The text changed since these were recorded; record them again, then --accept them: ${stale.join(', ')}`);
+  const content = '// Generated by art/tools/build-voice.cjs from art/voice/*.wav. Do not edit.\n'
+    + '(globalThis.NSF = globalThis.NSF || {}).voiceData = ' + JSON.stringify({ rate: RATE, clips }) + ';\n';
+  return { content, manifest, count: Object.keys(clips).length };
+}
+
+if (require.main === module) {
+  const args = process.argv.slice(2);
+  const accept = args.flatMap((a, i) => (a === '--accept' ? [args[i + 1]] : []));
+  const { content, manifest, count } = build({ accept });
+  if (args.includes('--check')) {
+    const current = fs.existsSync(OUT) ? fs.readFileSync(OUT, 'utf8') : '';
+    if (current !== content) { console.error('assets/voice-data.js is out of date: run node art/tools/build-voice.cjs'); process.exit(1); }
+    console.log('voice data up to date');
+  } else {
+    fs.writeFileSync(OUT, content);
+    if (Object.keys(manifest).length) fs.writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2) + '\n');
+    console.log(`built ${count} recorded lines`);
+  }
+}
+
+module.exports = { build, readWav, toRadioWav, RATE };

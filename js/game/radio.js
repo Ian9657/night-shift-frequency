@@ -40,7 +40,11 @@
   // Queue entries are copies: a song entry notes once its `intro` line has been said.
   const entry = line => (typeof line === 'string' ? { key: line, vars: {} } : { ...line });
 
+  // A recorded line lasts as long as its recording, plus a beat; otherwise long enough to
+  // read the caption.
   function lineDuration(key, vars) {
+    const recorded = voice.length(key);
+    if (recorded) return recorded + 900;
     return Math.max(2600, strings.t(key, vars).length * 52 + 1200);
   }
 

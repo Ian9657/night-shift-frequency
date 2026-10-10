@@ -27,7 +27,8 @@ sign-in sheet (type it, or use the letter keys) and sign in.
   else, and there is more between them.
 - The box under the counter is lost and found. Click it to see what has been left.
 - Click the flip phone on the counter to read your texts, text or call *Night Ferry*, or
-  change the volume, radio, sounds and silent mode. The shift waits while it is open. A
+  change the volume, radio, sounds, voice (READ ALOUD has your browser read the radio's
+  lines) and silent mode. The shift waits while it is open. A
   landscape window works best.
 - On a touch screen, tap to use things and hold one to see its name.
 - With a keyboard, Tab moves between the things on the counter, Enter uses one and

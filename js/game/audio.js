@@ -249,6 +249,7 @@
   function stopSpeech() {
     if (!speech || !context) return;
     const now = context.currentTime;
+    if (!speech.out) { speech = null; return; }                       // a clip still being decoded
     speech.out.gain.cancelScheduledValues(now);
     speech.out.gain.setValueAtTime(speech.out.gain.value, now);
     speech.out.gain.linearRampToValueAtTime(0.0001, now + 0.06);
@@ -312,6 +313,36 @@
     source.start(start); breathSource.start(start);
     source.stop(t + 0.3); breathSource.stop(t + 0.3);
     speech = { out, nodes: [source, breathSource] };
+  }
+
+  // A recorded line (base64 WAV from assets/voice-data.js), decoded once, played through
+  // the radio's speaker: June clear, the echo duller and further off, the people between
+  // the stations narrower.
+  const clipBuffers = new Map();
+  function playClip(key, data, profileName = 'ferry', delay = 0) {
+    const ctx = audio();
+    if (!ctx) return;
+    stopSpeech();
+    const token = {};
+    speech = { out: null, nodes: [], token };
+    if (!clipBuffers.has(key)) {
+      const bytes = Uint8Array.from(root.atob(data), ch => ch.charCodeAt(0));
+      clipBuffers.set(key, ctx.decodeAudioData(bytes.buffer));
+    }
+    const at = ctx.currentTime + 0.05 + delay / 1000;
+    clipBuffers.get(key).then(buffer => {
+      if (speech?.token !== token) return;                          // stopped while decoding
+      const source = ctx.createBufferSource(), speaker = ctx.createBiquadFilter(), out = ctx.createGain();
+      source.buffer = buffer;
+      speaker.type = 'bandpass';
+      speaker.frequency.value = { ferry: 1300, echo: 900, signal: 1600 }[profileName] || 1300;
+      speaker.Q.value = { ferry: 0.55, echo: 0.9, signal: 1.2 }[profileName] || 0.55;
+      out.gain.value = profileName === 'echo' ? 0.7 : 1;
+      source.connect(speaker); speaker.connect(out); out.connect(bus.signal);
+      source.start(Math.max(at, ctx.currentTime));
+      speech.out = out;
+      speech.nodes = [source];
+    }).catch(() => { /* an undecodable clip stays silent; the caption still shows */ });
   }
 
   // Night Ferry's own sounds. A sting before a segment: the station's three-note ident,
@@ -652,7 +683,7 @@
   root.NSF.audio = {
     unlock: audio, startAmbience, scan, payment, anomaly, cashPaper, cashDrawer, microwaveStart, microwaveDone,
     stopMicrowave, receipt, bag, dialogueTick, resetTicks() { tickStep = 0; },
-    radioStation, radioTune, radioSpeech, stopSpeech, radioSting, stationBed, phoneKey, uiClick, phoneFlip, pen, stamp, carPass, clockSkip, tubeFlicker, phoneBuzz, phoneRing, phoneSent, doorChime, gulls, playSong, stopSong, boxDrop,
+    radioStation, radioTune, radioSpeech, stopSpeech, playClip, radioSting, stationBed, phoneKey, uiClick, phoneFlip, pen, stamp, carPass, clockSkip, tubeFlicker, phoneBuzz, phoneRing, phoneSent, doorChime, gulls, playSong, stopSong, boxDrop,
     // Levels 0–5 for 'master', 'radio' and 'sounds'.
     level(name) { return levels[name]; },
     setLevel(name, value) { levels[name] = Math.max(0, Math.min(5, Math.round(value))); applyLevels(); },

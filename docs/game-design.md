@@ -172,8 +172,9 @@ The four combinations lead to four letters read by *Night Ferry* after the shift
   the clock has passed the hour since the last order (and at 01:00), with the time signal
   (five pips and a long one). A quiet bed of held chords runs under June's talk and
   between items, stepping aside for songs.
-- Voices are murmured, not spoken: each line's syllables, pauses and sentence pitch are
-  synthesised through the radio's speaker (June, the echo lower and further off, the
+- Voices are murmured, not spoken (unless a line has been recorded, or VOICE is set to
+  READ ALOUD): each line's syllables, pauses and sentence pitch are synthesised through
+  the radio's speaker (June, the echo lower and further off, the
   people between the stations rougher and breaking up); the caption carries the words.
   A voice stops the moment the dial leaves its line or a panel pauses the shift.
 - Reception is continuous. Each transmitter (Night Ferry, the echo, the three frequencies
@@ -239,8 +240,9 @@ Listening changes what people say, never a record (`js/game/company.js`):
   call in once (CALL NIGHT FERRY) and say one of three things; once the phone is put
   down, Night Ferry carries what they said and June's reply.
 - If the clerk texted or called, June thanks them by name before signing off.
-- SETTINGS: VOLUME, RADIO and SOUNDS levels (0–5) and SILENT MODE. The browser
-  remembers them.
+- SETTINGS: VOLUME, RADIO and SOUNDS levels (0–5), VOICE and SILENT MODE. The browser
+  remembers them. VOICE is RADIO (the radio's own voices) or READ ALOUD, where the
+  browser reads each line in its own voice, clear of the radio's speaker and hiss.
 
 ## Record contract
 

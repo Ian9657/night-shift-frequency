@@ -4,7 +4,7 @@
 // clickable region drawn here is registered for the input router.
 (function (root) {
   'use strict';
-  const { text, strings, dialogue, radio, records, layout, time, audio, engine, space, customers, sprites, phone, night, signin, story, drift, messages, found, world, overlay } = root.NSF;
+  const { text, strings, dialogue, radio, records, layout, time, audio, engine, space, customers, sprites, phone, night, signin, story, drift, messages, found, world, overlay, voice } = root.NSF;
   const t = strings.t;
   const C = {
     ink: '#101517', paper: '#ece8d0', paperShade: '#b4ae94', phosphor: '#aef08c', phosphorDim: '#55b066',
@@ -270,7 +270,7 @@
   // text read, a text to Night Ferry, or the settings (levels drawn as signal-style
   // bars, silent mode). The left soft key is OK (SEND), the right one and the red key go
   // back. Click a row, a bar or a key; a click outside puts the phone away.
-  const PHONE_ROWS = { master: 'phone.master', radio: 'phone.radio', sounds: 'phone.sounds', silent: 'phone.silent' };
+  const PHONE_ROWS = { master: 'phone.master', radio: 'phone.radio', sounds: 'phone.sounds', voice: 'phone.voice', silent: 'phone.silent' };
   const LCD = { back: '#d6e6ec', ink: '#14223a', bar: '#223e6b', dim: '#9fb4c0', select: '#223e6b', light: '#f3f6ea' };
   function phoneView(ctx, game) {
     if (!phone.view.open) return;
@@ -354,22 +354,27 @@
       }
     } else if (screen === 'settings') {
       rows.forEach((id, i) => {
-        const ry = y0 + 40 + i * 22, selected = phone.view.row === i;
-        if (selected) { ctx.fillStyle = LCD.select; ctx.fillRect(x0 + 2, ry - 2, w - 4, 19); }
+        const ry = y0 + 38 + i * 20, selected = phone.view.row === i;          // five rows: a little tighter
+        if (selected) { ctx.fillStyle = LCD.select; ctx.fillRect(x0 + 2, ry - 2, w - 4, 18); }
         const ink = selected ? LCD.light : LCD.ink;
         text.draw(ctx, t(PHONE_ROWS[id]), x0 + 5, ry, ink);
-        if (id === 'silent') {
-          text.draw(ctx, t(audio.muted ? 'phone.on' : 'phone.off'), x1 - 5, ry, ink, { align: 'right' });
-          hit(x0, ry - 3, w, 22, () => { phone.select(i); phone.toggleSilent(); }, 'phone-silent');
+        if (id === 'voice') {
+          text.draw(ctx, t(voice.mode === 'browser' ? 'phone.voiceAloud' : 'phone.voiceRadio'), x1 - 5, ry, voice.canReadAloud ? ink : LCD.dim, { align: 'right' });
+          hit(x0, ry - 2, w, 20, () => { phone.select(i); phone.toggleVoice(); }, 'phone-voice');
           return;
         }
-        hit(x0, ry - 3, w - 44, 22, () => phone.select(i), 'phone-row-' + id);
+        if (id === 'silent') {
+          text.draw(ctx, t(audio.muted ? 'phone.on' : 'phone.off'), x1 - 5, ry, ink, { align: 'right' });
+          hit(x0, ry - 2, w, 20, () => { phone.select(i); phone.toggleSilent(); }, 'phone-silent');
+          return;
+        }
+        hit(x0, ry - 2, w - 44, 20, () => phone.select(i), 'phone-row-' + id);
         const level = audio.level(id);
         for (let b = 0; b < 5; b++) {
           const bx = x1 - 42 + b * 8, bh = 4 + b * 2;
           ctx.fillStyle = b < level ? ink : (selected ? '#5a7397' : LCD.dim);
           ctx.fillRect(bx, ry + 14 - bh, 6, bh);
-          hit(bx - 1, ry - 3, 10, 22, () => { phone.select(i); phone.setLevel(id, level === b + 1 ? b : b + 1); }, `phone-${id}-${b + 1}`);
+          hit(bx - 1, ry - 2, 10, 20, () => { phone.select(i); phone.setLevel(id, level === b + 1 ? b : b + 1); }, `phone-${id}-${b + 1}`);
         }
       });
     }

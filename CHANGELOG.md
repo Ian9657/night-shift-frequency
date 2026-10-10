@@ -5,6 +5,35 @@ verified and what was not.
 
 ## Unreleased
 
+### Added — ways to voice the radio: read aloud, and recordings
+
+- `voice.js` now picks the radio's voice per line: a recording of the line if there is one
+  for its current text, otherwise the synthesised murmur, or, with the new phone setting
+  VOICE: READ ALOUD, the browser's speech synthesis (it can't pass through the radio's
+  speaker, so it is plain; a reading aid). The setting is remembered; settings rows are a
+  little tighter to fit five.
+- Recordings: `art/voice/<string key>.wav` → `node art/tools/build-voice.cjs` →
+  `assets/voice-data.js` (8-bit mono 11025 Hz WAV, base64, with lengths; no external
+  tools). Embedded because the game opens from disk. A recorded line plays through the
+  radio's speaker per profile (`audio.playClip`) and its length sets its time on air.
+  `art/voice/lines.json` remembers what text each was recorded from; if the text
+  changes the build stops until it is re-recorded and `--accept`ed. Lines with variables
+  can't be recorded. None are recorded yet: the bundle is empty.
+- LICENSE: recordings and the built voice bundle are under "all rights reserved".
+
+### Verified (voice paths)
+
+- All six checks and the radio pacing probe pass. The content test checks the voice
+  bundle matches its sources and converts a 44.1 kHz stereo WAV to an 8-bit mono 11025 Hz
+  one of the right length. The interaction test injects a recording and checks it plays
+  instead of the murmur and sets the line's time, that a recording of older text is
+  ignored, and that VOICE switches to reading aloud, is saved, and switches back.
+
+### Not verified (voice paths)
+
+- Reading aloud was checked by intercepting the browser's speech call, not listened to;
+  which voice a browser offers varies. No real recording has been through the pipeline.
+
 ### Added — Night Ferry sounds like a station
 
 - Each segment's first line comes after the station's three-note ident; when the order's

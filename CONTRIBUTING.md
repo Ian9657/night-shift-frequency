@@ -63,6 +63,23 @@ python3 art/tools/build-font.py
 
 The build stops if a character is missing from the font subset in `art/font/`.
 
+## Recording radio lines
+
+Night Ferry's lines are voiced by a synthesiser until someone records them. To record a
+line, save it as `art/voice/<string key>.wav` (for example `art/voice/radio.o4.wav`; any
+PCM or float WAV, any rate, mono or stereo) and rebuild:
+
+```sh
+node art/tools/build-voice.cjs
+```
+
+The build converts each recording to 8-bit mono at 11025 Hz and bundles it into
+`assets/voice-data.js`; the game then plays it instead of the synthesised voice, for as
+long as it lasts. `art/voice/lines.json` remembers the text each recording was made of.
+If a recorded line's text changes, the build stops until it is recorded again and
+accepted with `--accept <key>`. Lines with a `{variable}` (June reading the clerk's
+name) can't be recorded. The content test fails if the bundle is out of date.
+
 ## Running the tests
 
 ```sh

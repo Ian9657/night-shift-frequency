@@ -109,7 +109,20 @@ art/overrides/<name>.png replaces a generated sprite (palette colours only).
 js/content/strings.js + art/font/*.ttf
   → python3 art/tools/build-font.py
   → assets/font-data.js (only the glyphs the strings use)
+
+art/voice/<string key>.wav (+ art/voice/lines.json: the text each was recorded from)
+  → node art/tools/build-voice.cjs
+  → assets/voice-data.js (8-bit mono 11025 Hz WAVs, base64, with their lengths)
 ```
+
+Recordings are embedded rather than loaded as files because the game is opened from
+disk, where scripts may not read local files; base64 in a script is the one way in.
+
+The radio's voice is chosen in `voice.js`: a recorded clip of the line if one matches its
+current text (`audio.playClip`, through the radio's speaker), otherwise the formant
+murmur (`audio.radioSpeech`), or the browser's speech synthesis if the player picks READ
+ALOUD (it can't be routed through Web Audio, so it skips the radio's sound). A recorded
+line's length sets its time on air.
 
 `assets/` is build output that is committed so players need no build. Tests rebuild it
 and fail if the committed copy is stale.

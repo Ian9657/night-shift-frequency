@@ -72,6 +72,22 @@ for (const label of ['item.cola', 'item.spareKey']) {
   }
 }
 
+// Recorded radio lines: the bundle matches its sources, and the conversion makes the
+// small radio WAV the game expects (8-bit mono at 11025 Hz) at the recording's length.
+const voiceBuild = require('../art/tools/build-voice.cjs');
+assert.equal(voiceBuild.build().content, fs.readFileSync(path.join(ROOT, 'assets/voice-data.js'), 'utf8'),
+  'assets/voice-data.js is out of date: run node art/tools/build-voice.cjs');
+{
+  const rate = 44100, frames = rate / 4, source = Buffer.alloc(44 + frames * 4);
+  source.write('RIFF', 0, 'ascii'); source.writeUInt32LE(36 + frames * 4, 4); source.write('WAVE', 8, 'ascii');
+  source.write('fmt ', 12, 'ascii'); source.writeUInt32LE(16, 16); source.writeUInt16LE(1, 20); source.writeUInt16LE(2, 22);
+  source.writeUInt32LE(rate, 24); source.writeUInt32LE(rate * 4, 28); source.writeUInt16LE(4, 32); source.writeUInt16LE(16, 34);
+  source.write('data', 36, 'ascii'); source.writeUInt32LE(frames * 4, 40);
+  for (let i = 0; i < frames; i++) for (const c of [0, 1]) source.writeInt16LE(Math.round(Math.sin(i / 20) * 12000), 44 + i * 4 + c * 2);
+  const { wav, ms } = voiceBuild.toRadioWav(voiceBuild.readWav(source));
+  assert.deepEqual([wav.readUInt16LE(22), wav.readUInt32LE(24), wav.readUInt16LE(34), ms], [1, 11025, 8, 250]);
+}
+
 // '@key' variables are looked up themselves.
 assert.equal(t('radio.echoRecord', { time: '02:41', label: '@item.spareKey' }), 'REG#02. 02:41. SPARE KEY, one.');
 console.log(`PASS: ${Object.keys(strings).length} strings, references, no orphans, story keys and font coverage.`);

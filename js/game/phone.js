@@ -4,9 +4,9 @@
 // mode, a per-browser convenience kept in localStorage.
 (function (root) {
   'use strict';
-  const { time, audio, messages, signin, overlay } = root.NSF;
+  const { time, audio, messages, signin, overlay, voice } = root.NSF;
   const FRAME_MS = 70;                                      // closed → half → open
-  const SETTINGS = ['master', 'radio', 'sounds', 'silent'];
+  const SETTINGS = ['master', 'radio', 'sounds', 'voice', 'silent'];
   const HOME = ['inbox', 'compose', 'call', 'settings'];
   const STORE = 'nsf.settings';
   // screen: 'home', 'inbox', 'read' (a text, `reading` its id), 'compose', 'call' or
@@ -15,7 +15,7 @@
 
   function save() {
     try {
-      root.localStorage.setItem(STORE, JSON.stringify({ ...Object.fromEntries(SETTINGS.slice(0, 3).map(r => [r, audio.level(r)])), silent: audio.muted }));
+      root.localStorage.setItem(STORE, JSON.stringify({ ...Object.fromEntries(SETTINGS.slice(0, 3).map(r => [r, audio.level(r)])), voice: voice.mode, silent: audio.muted }));
     } catch (_) { /* storage unavailable: settings last for this visit */ }
   }
   function load() {
@@ -24,6 +24,7 @@
       if (!saved) return;
       for (const r of SETTINGS.slice(0, 3)) if (Number.isFinite(saved[r])) audio.setLevel(r, saved[r]);
       audio.muted = Boolean(saved.silent);
+      if (saved.voice) voice.mode = saved.voice;
     } catch (_) { /* unreadable: keep defaults */ }
   }
 
@@ -74,8 +75,16 @@
     audio.phoneKey();
     save();
   }
+  // VOICE: the radio's own voices, or the browser reading lines aloud.
+  function toggleVoice() {
+    voice.mode = voice.mode === 'radio' ? 'browser' : 'radio';
+    voice.stop();
+    audio.phoneKey();
+    save();
+  }
   function change(row, delta) {
     if (row === 'silent') toggleSilent();
+    else if (row === 'voice') toggleVoice();
     else setLevel(row, audio.level(row) + delta);
   }
 
@@ -89,6 +98,7 @@
     else if (view.screen === 'compose') { if (messages.send(row)) view.row = 0; }
     else if (view.screen === 'call') { if (messages.callIn(row, signin.name)) view.row = 0; }
     else if (view.screen === 'settings' && row === 'silent') toggleSilent();
+    else if (view.screen === 'settings' && row === 'voice') toggleVoice();
   }
   function back() {
     if (view.screen === 'home') close();
@@ -116,7 +126,7 @@
 
   load();
   root.NSF.phone = {
-    view, rows, open, close, frame, press, key, choose, setLevel, toggleSilent,
+    view, rows, open, close, frame, press, key, choose, setLevel, toggleSilent, toggleVoice,
     select(index) { view.row = index; },
   };
 })(globalThis);
