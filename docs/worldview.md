@@ -214,26 +214,39 @@ or arbitrary sprite rotation. New views and poses must preserve the quiet, tired
 
 ## Current build vs. this document
 
-Implemented now: Lowtide, Harbor Mart, the window view and tower; the 01:00–05:00 night
-in eight orders, from naming the clerk on the sign-in sheet to signing out at dawn after
-the radio signs off; *Night Ferry* on 87.6 with June, and the echo on 87.7, and three faint frequencies between them on a dial the player tunes; texts on the flip
-phone, including one to Night Ferry and one from the clerk's own number; the spare-key
-story in orders 5 and 8 with the four letters; the cast's English names; the "records may
-not lie" rule.
+Implemented now:
+
+- Lowtide and Harbor Mart from behind the counter, with the window view: the street lamp,
+  wet road, seawall, the bay, the far shore's windows going out one by one through the
+  night, one window that stays lit, the tower and its blinking light. Cars pass; after
+  three the suspended ferry crosses anyway; the rain eases and the sky greys toward five.
+- One night, 01:00–05:00, in eight orders: the clerk names themself on the sign-in sheet
+  and signs out on it at dawn, after Night Ferry signs off.
+- *Night Ferry* on 87.6 with June: her segments, the station's ident and time signal, a
+  music bed, three short songs, the clerk's text read out and their call answered, and
+  June's thanks by name. The echo on 87.7. Three people who stayed between them on the
+  dial (Walt's taxi dispatch, Ana's ward, Hal's crossing report), found by tuning; two of
+  them come to the counter after three and know if the clerk was listening.
+- The flip phone: texts arriving (two from no number, one from the clerk's own), one text
+  to Night Ferry and one call.
+- Lost and found: the left rain boot, something from each person who stayed, the right
+  boot nobody brought in.
+- The spare-key story in orders 5 and 8, with the four letters; the "records may not lie"
+  rule.
+- Some drift: the wall clock skipping ten minutes, a POS count that flickers, one
+  borrowed line, tube flickers that grow with the night, the sign-in sheet at dawn.
+- The cast's English names. Voices on the radio are murmured from each line (the words
+  are in the captions); recorded voices can be added, but none are recorded yet.
 
 Not implemented yet:
 
-- Tuning across the whole band. The dial covers 87.5–88.1 with three people's
-  frequencies (Walt, Ana, Hal's crossing report). Listening to them changes what they say
-  when they come in after three, not how a sale can be recorded.
-- Texting freely and to 87.7. The phone sends Night Ferry one preset text a night and
-  receives three texts (two from no number, one from the clerk's own). Night Ferry's
-  music is three short synthesised songs.
-- Most of the drift. The build has the wall clock skipping ten minutes, a POS count
-  that flickers, one borrowed line, tube flickers that grow with the night and the
-  sign-in sheet at dawn; the rota, receipts, magazine and sticky note don't change, and
-  no customer thinks it's daytime.
-- More than one night. The week is the target; the content for each night has a place
+- Tuning across the whole band: the dial covers 87.5–88.1.
+- Listening changing a record: hearing someone's frequency changes what they say at the
+  counter, not how their sale can be recorded.
+- Texting freely, and texting to 87.7.
+- Most of the drift: the rota, receipts, magazine and sticky note don't change, and no
+  customer thinks it's daytime.
+- More than one night. The week is the target; each night's content has a place
   (`story.nights`), but only the first night exists and nothing is saved between nights.
-- Customers who stayed becoming more frequent as the night goes on (orders 6 and 7 are
-  two of them; nobody else who stayed comes in).
+- Customers who stayed becoming more frequent as the night goes on: only orders 6 and 7
+  are people who stayed.

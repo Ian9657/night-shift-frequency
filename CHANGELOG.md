@@ -5,6 +5,30 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — documentation brought up to date
+
+- `CHANGELOG.md`: the Unreleased section had grown to about 1,500 lines of 76 entries
+  since 2026-10-06. They are now in six dated sections by theme, each with its commit
+  range, in the existing format; no entry's text changed (three headings lost a
+  redundant date).
+- `docs/worldview.md`: "Current build vs. this document" listed what was built several
+  rounds ago. It now covers the window view, the night and sign-out, Night Ferry's
+  station sounds, songs, texts and calls, the three frequencies and the people who know
+  they were listened to, lost and found, the drift, and murmured voices; and what is
+  still missing.
+- `docs/architecture.md`: the tests table describes what each test covers now and lists
+  the optional `radio-pacing.cjs`; "not covered" names a whole night at normal speed and
+  how voices sound. "Deliberately not done" had a sprite bundle of ~740 KB (it is about
+  1.1 MB) and phone text waiting on a dial and phone UI that exist; both rows corrected.
+
+### Verified (documentation)
+
+- The changelog split was checked line by line: every line of the old section is in the
+  new ones, in order. The content, engine and art checks pass. Statements in the docs
+  were checked against the code and tests.
+
+## 2026-10-10 · Radio voices and reception (`50e8e97`…`2443659`)
+
 ### Added — ways to voice the radio: read aloud, and recordings
 
 - `voice.js` now picks the radio's voice per line: a recording of the line if there is one
@@ -152,6 +176,8 @@ Measured at normal speed with a scripted practised player (orders take 7–14 s)
 
 - Whether players actually go looking after hearing it.
 
+## 2026-10-08 · Touch, keyboard, queued speech and fixes (`9f34d76`…`4f72bdc`)
+
 ### Changed — quieter guidance and normal-speed radio checks
 
 - Hover and keyboard labels now name objects without repeating action instructions.
@@ -170,7 +196,6 @@ Measured at normal speed with a scripted practised player (orders take 7–14 s)
 ### Not verified (guidance and pacing)
 
 - A full night at normal speed, physical phones and speaker listening remain unverified.
-
 
 ### Changed — radio discovery cue
 
@@ -338,6 +363,8 @@ Measured at normal speed with a scripted practised player (orders take 7–14 s)
 - Physical phone hardware, stylus input and two-finger gestures were simulated in
   Chromium only.
 
+## 2026-10-07 · Interaction pass and a louder mix (`4440278`…`3183723`)
+
 ### Fixed — review of the interaction pass
 
 - The radio's dial paused the shift and suspended all sound, so nothing could be heard
@@ -400,7 +427,6 @@ Measured at normal speed with a scripted practised player (orders take 7–14 s)
 - Physical phone use and speaker listening were not verified. Touch long-press labels
   are not implemented in this update.
 
-
 ### Changed — interaction feedback and input resilience
 
 - Added a derived POS phase hint for scanning, record checks, heating, packing and
@@ -462,6 +488,8 @@ Measured at normal speed with a scripted practised player (orders take 7–14 s)
 
 - Not listened to: how loud it feels on speakers and headphones, and whether the
   ringtone is pleasant.
+
+## 2026-10-07 · The night, the radio and company (`38b0e0c`…`c44f6a3`)
 
 ### Changed — each night's content in one place
 
@@ -700,6 +728,8 @@ Measured at normal speed with a scripted practised player (orders take 7–14 s)
 - Phone screenshots of the sheet were not looked at. Natural-speed timing of the dawn
   against the radio was not watched.
 
+## 2026-10-07 · Store detail: register, devices and counter zones (`fc0b3f6`…`112bff6`)
+
 ### Changed — a pool of light over the checkout mat
 
 - The counter and everything on and under it are lit brightest over the checkout mat
@@ -863,7 +893,7 @@ Measured at normal speed with a scripted practised player (orders take 7–14 s)
 - The moment a bag is pulled out was not looked at frame by frame. The rack's lower edge
   meets the bottom of the screen.
 
-### Fixed — carrier bag static silhouette · 2026-10-07
+### Fixed — carrier bag static silhouette
 
 - Removed the full bag body from the idle `store-bags` sprite. The recessed
   counter fixture now renders only two handles, the folded mouth and a short
@@ -874,7 +904,7 @@ Measured at normal speed with a scripted practised player (orders take 7–14 s)
 - Rebuilt 252 sprites; all five checks pass with bundled Playwright and Chrome.
 - Reviewed the native-pixel preview and browser visual screenshots.
 
-### Changed — recessed carrier bag bundle · 2026-10-07
+### Changed — recessed carrier bag bundle
 
 - Moved the carrier bag bundle behind the clerk-side counter fascia, reduced its
   footprint, and left only a small handle and bag-mouth detail visible below the
@@ -889,7 +919,7 @@ Measured at normal speed with a scripted practised player (orders take 7–14 s)
 
 - No physical-device view was available; the 844×390 landscape browser check passed.
 
-### Changed — narrow-screen text readability · 2026-10-07
+### Changed — narrow-screen text readability
 
 - Added a narrow-viewport text pass for the POS, customer speech bubble and
   radio caption. Bitmap text scales to 1.15–1.2× below 900 CSS pixels, with
@@ -1217,6 +1247,8 @@ Measured at normal speed with a scripted practised player (orders take 7–14 s)
 ### Not verified (sign and calendar)
 
 - Physical phone display readability and portrait-phone layout were not reviewed.
+
+## 2026-10-06 · Store detail, phone settings and dress (`bf3f814`…`f37b3dd`)
 
 ### Changed — denser shelf packs and price strips
 

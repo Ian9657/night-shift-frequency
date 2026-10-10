@@ -171,13 +171,14 @@ card.
 | Test | Covers |
 | --- | --- |
 | `shift-engine.test.cjs` | Generation across 500 seeds, the four record branches, immutability, idempotent settlement |
-| `content.test.cjs` | Every referenced string exists, no orphaned strings, story keys, endings, glyph coverage |
+| `content.test.cjs` | Every referenced string exists, no orphaned strings, story keys, endings, glyph coverage; songs and frequencies the night refers to exist; the dial hint and its repeat come when the frequencies can be heard; guidance, feedback and the record-conflict lines fit the POS; the voice bundle matches its recordings and the WAV conversion is right |
 | `art.test.cjs` | The bundle matches its sources, palette bounds, PNG round-trip, every sprite used, layout and anchors |
-| `browser-flow.cjs` | Real pointer input through all eight orders on all four branches, report, ending, audio smoke, recovery from a failing action, seed, narrow viewport |
-| `interaction.test.cjs` | Feedback for blocked clicks, the action queue (dedupe, stale, paused), the live dial, other frequencies across an order change, the clerk's call kept on air, the radio held and resumed by a pausing panel |
+| `browser-flow.cjs` | Real pointer input through the whole night on all four branches: sign-in with a typed or default name, eight orders, a text and a call to Night Ferry, listening to all three frequencies and being recognised, lost and found, the report, the dawn clock only moving forward, sign-out; audio smoke for every sound; recovery from a failing action; dragging the dial; the phone's settings; seed; narrow viewport |
+| `interaction.test.cjs` | Keyboard focus, Enter, Escape and the live announcement; touch tap and hold; refused clicks and their reasons; the action queue (dedupe, stale, paused, carried to the next customer); first-sale guidance with its outline; panels and pausing; the live dial; reception off a station's centre; Night Ferry carried across orders, on-time segments, songs let go, the story kept at the closing; the clerk's call kept on air; voices: murmured, recorded, read aloud, stopped on tuning away; queued speech never cut or swallowed; the tuning nudge only when nothing was found; ambience after a silent start (#1); the scanner past a selected scanned item |
 | `visual.cjs` | Screenshots of key moments for human review |
+| `radio-pacing.cjs` (optional) | The first order at normal speed: the second order's dial hint, introduction and song in sequence, and the taxi found with the dial's keys |
 
-Not covered: natural-speed pacing, audio mix, accessibility beyond the record view.
+Not covered: a whole night at normal speed, the audio mix and how voices sound (no test listens), accessibility beyond keyboard focus and the live region.
 
 ## Where new systems go
 
@@ -190,9 +191,9 @@ phone, the night's clock, drift, texts and the view outside follow this pattern.
 | Not done | Why | Revisit when |
 | --- | --- | --- |
 | ES modules / a bundler | Would break opening `index.html` from disk | The game needs online hosting with a build step |
-| Compressing the sprite bundle | ~740 KB is fine for a one-shot download | It grows past a few MB (run-length encoding would shrink it a lot) |
+| Compressing the sprite bundle | About 1.1 MB is fine for a one-shot download | It grows past a few MB (run-length encoding would shrink it a lot) |
 | Saving | One shift per session by design (only the phone's settings persist); per-night content is already in `story.nights` | A second night is written |
-| Phone-size UI text | Requires a scalable UI layout | The radio dial and phone UI are built |
+| Phone-size UI text | Dense panels use a 1.15–1.2× text scale on narrow screens; a layout that scales properly would mean reworking every panel, and the desktop comes first for now | Phones become a target again |
 | One declaration for drawing and clicking world objects | Low risk today; the radio's dial is a UI panel, not world parts | More world objects become interactive |
 
 ## Counter input feedback
