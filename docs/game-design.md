@@ -178,8 +178,8 @@ The four combinations lead to four letters read by *Night Ferry* after the shift
   5 is decided it reads the record the player did **not** save.
 - Between them, unmarked, three people who stayed, each from a point in the night:
   a taxi dispatch calling Walt's car (87.85, from order 2), a ward calling Ana
-  (87.95, from order 4) and a crossing report for the suspended ferry (88.05, from
-  order 6). Their lines repeat in turn. Everything else is static.
+  (87.95, from order 3) and a crossing report for the suspended ferry (88.05, from
+  order 4). Their lines repeat in turn. Everything else is static.
 - June mentions them once, with no numbers: in order 2 she apologises that the signal
   keeps bumping into the taxi dispatch "just up the dial" ("Sorry, car six."). If the
   clerk hasn't found any frequency by order 4, she brings it up again after that
