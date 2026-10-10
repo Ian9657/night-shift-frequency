@@ -157,12 +157,13 @@ const { chromium, URL_BASE, signIn, idle, click, playOrder } = require('./browse
     assert.deepEqual(reception, { off: { same: true, clarity: 0.33, lost: true }, out: 'static', detent: '87.65' });
 
     // The voice speaks the line on air, and stops the moment the dial leaves it.
-    const voiced = await page.evaluate(() => {
-      const a = NSF.audio, calls = [], speak = a.radioSpeech, stop = a.stopSpeech;
+    const voiced = await page.evaluate(async () => {
+      const a = NSF.audio, r = NSF.radio, calls = [], speak = a.radioSpeech, stop = a.stopSpeech;
       a.radioSpeech = (text, ms, profile) => { calls.push('speak ' + profile + ': ' + text); return speak(text, ms, profile); };
       a.stopSpeech = () => { calls.push('stop'); return stop(); };
-      NSF.radio.tune('87.6'); NSF.radio.play(['radio.o4']);
-      NSF.radio.skip();
+      r.tune('87.6'); r.play(['radio.o4']);
+      // Skip whatever is ahead of it until it is on air.
+      for (let i = 0; i < 100 && r.view.key !== 'radio.o4'; i++) { if (r.view.key) r.skip(); await new Promise(go => setTimeout(go, 30)); }
       const spoke = calls.some(c => c === 'speak ferry: ' + NSF.strings.t('radio.o4'));
       calls.length = 0;
       NSF.radio.setFrequency(8700, { fine: true });
