@@ -180,6 +180,10 @@ The four combinations lead to four letters read by *Night Ferry* after the shift
   a taxi dispatch calling Walt's car (87.85, from order 2), a ward calling Ana
   (87.95, from order 4) and a crossing report for the suspended ferry (88.05, from
   order 6). Their lines repeat in turn. Everything else is static.
+- June mentions them once, with no numbers: in order 2 she apologises that the signal
+  keeps bumping into the taxi dispatch "just up the dial" ("Sorry, car six."). If the
+  clerk hasn't found any frequency by order 4, she brings it up again after that
+  segment, adding the hospital's pager a little further on.
 - Night Ferry plays songs: one after order 2's request for the night clerk, one after
   the rain eases in order 7, and one after a text asking for a song. A song tuned away
   from starts again on tuning back.

@@ -73,3 +73,7 @@ const discovery = story.tonight.segments[taxi.from];
 assert.equal(discovery[0], 'radio.tuningHint');
 assert.ok(discovery.findIndex(line => line.song) > discovery.indexOf('radio.tuningHint'));
 assert.equal(story.tonight.segments.flat().filter(line => line === 'radio.tuningHint').length, 1);
+// The second mention comes later, once the next frequency (the ward) can be heard.
+const ward = story.tonight.signals.find(signal => signal.person === 'ana');
+assert.ok(story.tonight.tuningNudge.at > taxi.from && story.tonight.tuningNudge.at >= ward.from);
+assert.ok(strings[story.tonight.tuningNudge.line]);

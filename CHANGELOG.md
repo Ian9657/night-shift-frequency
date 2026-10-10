@@ -5,6 +5,27 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — June's hint about the dial, and a second one if it's missed
+
+- Order 2's tuning hint now reads as a small on-air apology: "A few of you say our signal
+  keeps bumping into the taxi dispatch, just up the dial. Sorry, car six. We'll share."
+  Car six is the car the dispatch at 87.85 is calling.
+- If no frequency between the stations has been found by order 4, June mentions the
+  taxis again after that segment and points a little further on, to the hospital's pager
+  (`tuningNudge` in the night's entry). A clerk who has listened isn't told twice.
+
+### Verified (dial hint)
+
+- All six checks and the real-time radio pacing probe pass. The content test checks the
+  nudge comes after the taxi and ward frequencies can be heard; the interaction test
+  checks it is added when nothing was found and left out once the taxi was heard
+  (reached through play, not by setting the order). The hint fits one caption line on
+  desktop.
+
+### Not verified (dial hint)
+
+- Whether players actually go looking after hearing it.
+
 ### Changed — quieter guidance and normal-speed radio checks
 
 - Hover and keyboard labels now name objects without repeating action instructions.

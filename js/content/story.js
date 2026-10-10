@@ -136,6 +136,9 @@
     ],
     // June opens the phone lines with this order's segment.
     linesOpen: 5,
+    // If the clerk hasn't found any frequency between the stations by this order, June
+    // mentions them again after its segment.
+    tuningNudge: { at: 3, line: 'radio.tuningNudge' },
     // The people who stayed who may come to the counter after three (orders 6 and 7),
     // and what they say first if the clerk has been listening to their frequency.
     stayed: { walt: 'say.heardWalt', ana: 'say.heardAna', hal: 'say.heardHal' },

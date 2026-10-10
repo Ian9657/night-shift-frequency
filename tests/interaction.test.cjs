@@ -1,5 +1,5 @@
 const assert = require('node:assert/strict');
-const { chromium, URL_BASE, signIn, idle, click } = require('./browser-helpers.cjs');
+const { chromium, URL_BASE, signIn, idle, click, playOrder } = require('./browser-helpers.cjs');
 (async () => {
   const browser = await chromium.launch({ headless: true, channel: 'chrome' });
   try {
@@ -176,11 +176,33 @@ const { chromium, URL_BASE, signIn, idle, click } = require('./browser-helpers.c
       await p.close();
     }
 
+    // June mentions the frequencies again at order 4 only if none has been found.
+    {
+      const p = await browser.newPage();
+      await p.goto(URL_BASE + '?seed=interaction');
+      await p.evaluate(() => { NSF.time.speed = 4; });
+      await signIn(p);
+      const segment = () => p.evaluate(() => {
+        let lines = null;
+        const begin = NSF.radio.beginOrder;
+        NSF.radio.beginOrder = l => { lines = l; };
+        NSF.broadcast.orderStarted(NSF.story.tonight.tuningNudge.at);
+        NSF.radio.beginOrder = begin;
+        return lines;
+      });
+      assert.equal((await segment()).at(-1), 'radio.tuningNudge', 'nudged when nothing was found');
+      await playOrder(p, ['keep', 'linked'], 'nudge');                       // the taxi can be heard from order 2
+      await p.evaluate(() => NSF.radio.setFrequency(8785));
+      await p.waitForFunction(() => NSF.company.heard('walt'), null, { timeout: 10000 });
+      assert.ok(!(await segment()).includes('radio.tuningNudge'), 'not nudged once a frequency was found');
+      await p.close();
+    }
+
     const withSound = await ambience(false), unmuted = await ambience(true);
     assert.equal(unmuted.muted, false);
     assert.equal(unmuted.loops, withSound.loops, 'room and radio bed loops after unmuting');
     assert.ok(withSound.loops >= 6);
     assert.equal(unmuted.echoBed, true, "the late radio bed takes the echo's hiss");
-    console.log('PASS: scanner past a selected scanned item; ambience after a silent start (issue #1); queued speech (no line cut or swallowed); keyboard forward/reverse focus, Enter, Escape and live announcement; premature bagging reason, queue deduplication, modal pause, automatic scan, stale order, invalid queued action, live dial, echo across orders, a call kept on air, radio held and resumed.');
+    console.log('PASS: the tuning nudge only when nothing was found; scanner past a selected scanned item; ambience after a silent start (issue #1); queued speech (no line cut or swallowed); keyboard forward/reverse focus, Enter, Escape and live announcement; premature bagging reason, queue deduplication, modal pause, automatic scan, stale order, invalid queued action, live dial, echo across orders, a call kept on air, radio held and resumed.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

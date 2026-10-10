@@ -3,7 +3,7 @@
 // progress; this module decides what is on air.
 (function (root) {
   'use strict';
-  const { radio, story, messages, signin } = root.NSF;
+  const { radio, story, messages, signin, company } = root.NSF;
   let game = null;
 
   // 87.7 reads the register's records back from the other side.
@@ -40,7 +40,12 @@
     },
     shiftStarted() { radio.play([...story.radio.intro, ...story.tonight.segments[0]]); },
     // A text the clerk sent is read before the segment.
-    orderStarted(index) { radio.beginOrder([...messages.takeOnAir(index, signin.name), ...story.tonight.segments[index]]); },
+    // June mentions the frequencies again if the clerk hasn't found any yet.
+    orderStarted(index) {
+      const { tuningNudge, signals } = story.tonight;
+      const nudge = index === tuningNudge.at && !signals.some(s => company.heard(s.person)) ? [tuningNudge.line] : [];
+      radio.beginOrder([...messages.takeOnAir(index, signin.name), ...story.tonight.segments[index], ...nudge]);
+    },
     // The closing letter and sign-off on 87.6: `done` resolves once they have been
     // heard; `duration` is how long they take on air.
     shiftClosed(ending) {
