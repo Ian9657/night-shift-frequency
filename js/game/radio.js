@@ -8,6 +8,9 @@
   const { time, audio, strings, story, night, overlay, voice } = root.NSF;
   const BAND = story.radio.band;
   const label = freq => (freq % 10 ? (freq / 100).toFixed(2) : (freq / 100).toFixed(1));
+  // Night Ferry's stings before a segment's first line: the ident, or on the hour the
+  // time signal. The line waits for them.
+  const STING_MS = { ident: 900, pips: 5600 };
   // A transmitter comes in over a window either side of its frequency: clear on it,
   // fainter and noisier a step or two off, gone three hundredths away.
   const WINDOW = 3;
@@ -43,18 +46,27 @@
 
   // What is heard now: a line, a song (`song` its id) or nothing. Everything heard is
   // reported to the listener (js/game/company.js).
-  function show(key, vars = {}, song = null) {
+  function show(key, vars = {}, song = null, sting = null) {
     if (view.song && !song) audio.stopSong();
     voice.stop();
+    const delay = sting ? STING_MS[sting] : 0;
+    if (sting) audio.radioSting(sting);
     view.key = key;
     view.vars = vars;
     view.song = song;
     view.echo = view.kind === 'echo';
     view.startedAt = time.now;
-    view.duration = song ? songLength(song) : key ? lineDuration(key, vars) : 0;
+    view.duration = song ? songLength(song) : key ? lineDuration(key, vars) + delay : 0;
     if (song) audio.playSong(story.radio.songs[song]);
-    else if (key && key !== 'radio.static') voice.speak(key, vars, view.kind, view.duration - 600);
+    else if (key && key !== 'radio.static') voice.speak(key, vars, view.kind, view.duration - delay - 600, delay);
     if (key) listener(view);
+    bed();
+  }
+
+  // Night Ferry's music bed: under June's talk and between items, not under songs, and
+  // not while the shift is paused or the station is off the air.
+  function bed() {
+    audio.stationBed(view.kind === 'ferry' && !view.offAir && !view.song && !held && (Boolean(view.key) || queue.length > 0));
   }
 
   // The background hiss and hum for what the dial is on and how cleanly.
@@ -88,7 +100,7 @@
       queue.unshift(next);
       show(next.intro, {});
     } else if (next.song) show('radio.song', { title: '@' + story.radio.songs[next.song].title }, next.song);
-    else show(next.key, next.vars);
+    else show(next.key, next.vars, null, next.pips ? 'pips' : next.ident ? 'ident' : null);
     lineTimer = time.after(view.duration, advance);
   }
 
@@ -107,10 +119,13 @@
   // thing let go, each with its intro. An `onTime` segment (the record orders) goes ahead
   // of the carried lines, right after what is on air. On another frequency the queue just
   // waits for the clerk to tune back.
-  function beginOrder(lines, { onTime = false } = {}) {
+  // The segment's first line gets the station's ident, or `pips` on the hour.
+  function beginOrder(lines, { onTime = false, pips = false } = {}) {
     const kept = queue.filter(line => line.keep), carried = queue.filter(line => !line.keep && !line.song);
     // An on-time segment carries the story (the key's message): it is never let go.
     const fresh = lines.map(line => ({ ...entry(line), ...(onTime ? { story: true } : {}) }));
+    const first = fresh.find(line => line.key);
+    if (first) first[pips ? 'pips' : 'ident'] = true;
     queue = onTime ? [...kept, ...fresh, ...carried] : [...kept, ...carried, ...fresh];
     if (view.kind !== 'ferry' || view.offAir || current?.keep) return;
     if (view.key) return;                                          // let what is on air finish
@@ -134,6 +149,7 @@
     held = true;
     audio.radioHeld = true;
     voice.stop();
+    bed();
     if (view.song) {
       if (current?.keep) queue.unshift(current);
       time.cancel(lineTimer);
@@ -145,6 +161,7 @@
     if (!held) return;
     held = false;
     audio.radioHeld = false;
+    bed();
     if (!lineTimer) advance();
     // A line interrupted by the pause goes on speaking for the time it has left.
     else if (view.key && !view.song && view.key !== 'radio.static') voice.speak(view.key, view.vars, view.kind, view.duration - (time.now - view.startedAt) - 600);

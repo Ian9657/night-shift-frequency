@@ -5,9 +5,10 @@
   'use strict';
   const { audio, strings } = root.NSF;
 
-  // `profile`: 'ferry' (June), 'echo' or 'signal'; `ms`: how long the line is on air.
-  function speak(key, vars, profile, ms) {
-    audio.radioSpeech(strings.t(key, vars), Math.max(400, ms), profile);
+  // `profile`: 'ferry' (June), 'echo' or 'signal'; `ms`: how long the line is on air;
+  // `delay`: ms before speaking (after a sting).
+  function speak(key, vars, profile, ms, delay = 0) {
+    audio.radioSpeech(strings.t(key, vars), Math.max(400, ms), profile, delay);
   }
 
   root.NSF.voice = { speak, stop: () => audio.stopSpeech() };

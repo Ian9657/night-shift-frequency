@@ -255,13 +255,13 @@
     speech.nodes.forEach(node => { try { node.stop(now + 0.08); } catch (_) { /* already stopped */ } });
     speech = null;
   }
-  function radioSpeech(text, ms, profileName = 'ferry') {
+  function radioSpeech(text, ms, profileName = 'ferry', delay = 0) {
     const ctx = audio();
     if (!ctx) return;
     stopSpeech();
     const profile = PROFILES[profileName] || PROFILES.ferry;
     const { units, unit } = syllables(text, ms);
-    const start = ctx.currentTime + 0.05;
+    const start = ctx.currentTime + 0.05 + delay / 1000;
     const out = ctx.createGain(), speaker = ctx.createBiquadFilter(), voiced = ctx.createGain();
     out.gain.value = 1;
     speaker.type = 'bandpass'; speaker.frequency.value = 1300; speaker.Q.value = 0.55;
@@ -312,6 +312,71 @@
     source.start(start); breathSource.start(start);
     source.stop(t + 0.3); breathSource.stop(t + 0.3);
     speech = { out, nodes: [source, breathSource] };
+  }
+
+  // Night Ferry's own sounds. A sting before a segment: the station's three-note ident,
+  // or on the hour the time signal (five short pips and a long one). Returns its length.
+  function radioSting(kind) {
+    const ctx = audio();
+    if (!ctx) return 0;
+    const at = ctx.currentTime + 0.03, out = ctx.createGain();
+    out.gain.value = 1;
+    out.connect(bus.signal);
+    const beep = (frequency, t, length, gain, type = 'sine') => {
+      const osc = ctx.createOscillator(), volume = ctx.createGain();
+      osc.type = type; osc.frequency.value = frequency;
+      volume.gain.setValueAtTime(0.0001, at + t);
+      volume.gain.exponentialRampToValueAtTime(gain, at + t + 0.01);
+      volume.gain.setValueAtTime(gain, at + t + length - 0.02);
+      volume.gain.exponentialRampToValueAtTime(0.0001, at + t + length);
+      osc.connect(volume); volume.connect(out);
+      osc.start(at + t); osc.stop(at + t + length + 0.02);
+    };
+    if (kind === 'pips') {
+      for (let i = 0; i < 5; i++) beep(1000, i, 0.1, 0.05);
+      beep(1000, 5, 0.5, 0.05);
+      return 5600;
+    }
+    [[72, 0], [76, 0.18], [79, 0.36]].forEach(([note, t]) => beep(440 * 2 ** ((note - 69) / 12), t, 0.5, 0.035, 'triangle'));
+    return 900;
+  }
+
+  // Under June's talk and between items, a quiet bed of held chords, so the station is
+  // never dead air. It moves through a chord every four seconds and steps aside for songs.
+  let talkBed = null;
+  const BED = [[57, 60, 64], [53, 57, 60], [48, 52, 55], [55, 59, 62]];
+  function stationBed(on) {
+    const ctx = on ? audio() : context;
+    if (!ctx || Boolean(talkBed) === Boolean(on)) return;
+    if (!on) {
+      const now = ctx.currentTime;
+      talkBed.out.gain.setTargetAtTime(0.0001, now, 0.3);
+      const { nodes, timer } = talkBed;
+      root.clearTimeout(timer);
+      root.setTimeout(() => nodes.forEach(n => { try { n.stop(); } catch (_) { /* stopped */ } }), 1500);
+      talkBed = null;
+      return;
+    }
+    const out = ctx.createGain(), soft = ctx.createBiquadFilter();
+    out.gain.setValueAtTime(0.0001, ctx.currentTime);
+    out.gain.setTargetAtTime(1, ctx.currentTime, 0.8);
+    soft.type = 'lowpass'; soft.frequency.value = 900;
+    out.connect(soft); soft.connect(bus.signal);
+    const voices = [0, 1, 2].map(() => {
+      const osc = ctx.createOscillator(), volume = ctx.createGain();
+      osc.type = 'triangle'; volume.gain.value = 0.0045;
+      osc.connect(volume); volume.connect(out); osc.start();
+      return osc;
+    });
+    let n = 0;
+    const next = () => {
+      if (!talkBed) return;
+      const now = context.currentTime;
+      BED[n++ % BED.length].forEach((note, i) => voices[i].frequency.setTargetAtTime(440 * 2 ** ((note - 69) / 12), now, 0.6));
+      talkBed.timer = root.setTimeout(next, 4000);
+    };
+    talkBed = { out, nodes: voices, timer: null };
+    next();
   }
 
   // A song on Night Ferry, through the radio's small speaker: a soft square lead, a
@@ -587,7 +652,7 @@
   root.NSF.audio = {
     unlock: audio, startAmbience, scan, payment, anomaly, cashPaper, cashDrawer, microwaveStart, microwaveDone,
     stopMicrowave, receipt, bag, dialogueTick, resetTicks() { tickStep = 0; },
-    radioStation, radioTune, radioSpeech, stopSpeech, phoneKey, uiClick, phoneFlip, pen, stamp, carPass, clockSkip, tubeFlicker, phoneBuzz, phoneRing, phoneSent, doorChime, gulls, playSong, stopSong, boxDrop,
+    radioStation, radioTune, radioSpeech, stopSpeech, radioSting, stationBed, phoneKey, uiClick, phoneFlip, pen, stamp, carPass, clockSkip, tubeFlicker, phoneBuzz, phoneRing, phoneSent, doorChime, gulls, playSong, stopSong, boxDrop,
     // Levels 0–5 for 'master', 'radio' and 'sounds'.
     level(name) { return levels[name]; },
     setLevel(name, value) { levels[name] = Math.max(0, Math.min(5, Math.round(value))); applyLevels(); },

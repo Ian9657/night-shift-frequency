@@ -168,6 +168,10 @@ The four combinations lead to four letters read by *Night Ferry* after the shift
   arrow keys move between detents 0.05 apart; dragging or clicking the needle tunes to the
   hundredth. × or Escape puts it away, as does a click anywhere outside it (which does
   nothing else). The shift keeps running and the radio keeps playing while it is open.
+- Night Ferry sounds like a station: each segment opens with its three-note ident, or, when
+  the clock has passed the hour since the last order (and at 01:00), with the time signal
+  (five pips and a long one). A quiet bed of held chords runs under June's talk and
+  between items, stepping aside for songs.
 - Voices are murmured, not spoken: each line's syllables, pauses and sentence pitch are
   synthesised through the radio's speaker (June, the echo lower and further off, the
   people between the stations rougher and breaking up); the caption carries the words.

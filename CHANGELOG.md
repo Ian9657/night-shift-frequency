@@ -5,6 +5,25 @@ verified and what was not.
 
 ## Unreleased
 
+### Added — Night Ferry sounds like a station
+
+- Each segment's first line comes after the station's three-note ident; when the order's
+  clock has passed the hour since the last (and at 01:00) it is the time signal instead,
+  five pips and a long one (`radioSting`). The line and its timer wait for the sting.
+- A quiet bed of held chords (`stationBed`) runs under June's talk and between items on
+  87.6, off for songs, panels that pause the shift, other frequencies and after the
+  sign-off. It goes through the signal path, so it fades off-centre like the voice.
+
+### Verified (station)
+
+- All six checks and the radio pacing probe pass. At normal speed every Night Ferry line
+  was still heard in full. The opening (time signal, June, the bed) was recorded from the
+  game's output, peaking at −15.5 dBFS.
+
+### Not verified (station)
+
+- Not listened to by a person.
+
 ### Changed — voices on the radio that sound like speaking
 
 - The radio's voices were bursts of filtered noise. They are now synthesised from each

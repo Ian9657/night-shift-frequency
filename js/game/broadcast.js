@@ -38,14 +38,20 @@
       radio.setEchoProvider(echo);
       radio.setSignalProvider(signal);
     },
-    shiftStarted() { radio.play([...story.radio.intro, ...story.tonight.segments[0]]); },
+    // At 01:00 Night Ferry opens with the time signal.
+    shiftStarted() {
+      const [first, ...rest] = story.radio.intro;
+      radio.play([{ key: first, vars: {}, pips: true }, ...rest, ...story.tonight.segments[0]]);
+    },
     // A text the clerk sent is read before the segment.
     // June mentions the frequencies again if the clerk hasn't found any yet.
     orderStarted(index) {
       const { tuningNudge, signals } = story.tonight;
       const nudge = index === tuningNudge.at && !signals.some(s => company.heard(s.person)) ? [tuningNudge.line] : [];
+      // The time signal when the clock has passed the hour since the last order.
+      const hour = i => Number(game.orders[i].clock.slice(0, 2));
       radio.beginOrder([...messages.takeOnAir(index, signin.name), ...story.tonight.segments[index], ...nudge],
-        { onTime: story.tonight.onTime.includes(index) });
+        { onTime: story.tonight.onTime.includes(index), pips: index > 0 && hour(index) > hour(index - 1) });
     },
     // The closing letter and sign-off on 87.6: `done` resolves once they have been
     // heard; `duration` is how long they take on air.
