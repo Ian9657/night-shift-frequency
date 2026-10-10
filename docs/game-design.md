@@ -168,6 +168,10 @@ The four combinations lead to four letters read by *Night Ferry* after the shift
   arrow keys move between detents 0.05 apart; dragging or clicking the needle tunes to the
   hundredth. × or Escape puts it away, as does a click anywhere outside it (which does
   nothing else). The shift keeps running and the radio keeps playing while it is open.
+- Voices are murmured, not spoken: each line's syllables, pauses and sentence pitch are
+  synthesised through the radio's speaker (June, the echo lower and further off, the
+  people between the stations rougher and breaking up); the caption carries the words.
+  A voice stops the moment the dial leaves its line or a panel pauses the shift.
 - Reception is continuous. Each transmitter (Night Ferry, the echo, the three frequencies
   between them) comes in over three hundredths either side: clear on its frequency,
   fainter and hissier off it, with letters of the caption lost to the noise (·), and gone

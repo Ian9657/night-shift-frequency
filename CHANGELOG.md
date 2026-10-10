@@ -5,6 +5,29 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — voices on the radio that sound like speaking
+
+- The radio's voices were bursts of filtered noise. They are now synthesised from each
+  line (`radioSpeech` in `audio.js`): a buzzing source through three formant filters that
+  move to each syllable's vowel, a breath of noise for consonants, pauses at punctuation,
+  pitch falling through a sentence and rising for a question. Profiles for June, the echo
+  (lower, further off) and the people between the stations (rougher, dropping out).
+- `js/game/voice.js` gives the line on air its voice, so other ways of voicing lines can
+  be added there.
+- A voice used to keep murmuring for a few seconds after tuning away; it now stops when
+  the line leaves the air (tuning, a pausing panel), and a line paused mid-way resumes
+  speaking for its remaining time.
+
+### Verified (voices)
+
+- All six checks and the radio pacing probe pass; the interaction test checks the line on
+  air is spoken with its profile and speech stops on tuning away. Samples were recorded
+  from the game's output (June, the echo, the taxi dispatch; peaks about −20 dBFS).
+
+### Not verified (voices)
+
+- Not listened to by a person.
+
 ### Changed — reception you tune into
 
 - The dial tunes to the hundredth when the needle is dragged (the step and arrow keys still

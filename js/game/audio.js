@@ -217,28 +217,101 @@
     noise({ duration: 0.22, gain: 0.012, frequency: 2000 });
   }
 
-  // A muffled voice through a small speaker: syllable-rate bursts of filtered noise.
-  function radioVoice(ms, echo = false) {
+  // A voice through the radio's small speaker, murmured from the shape of the line: one
+  // buzzing source (the vocal folds) through three resonances (the mouth's formants) that
+  // move to each syllable's vowel, a breath of noise for consonants, pauses at commas and
+  // full stops, pitch falling across a sentence and rising for a question. The words
+  // aren't there; the speaking is. Profiles: June on Night Ferry, the echo (lower,
+  // further off) and the people between the stations (rougher, breaking up).
+  const VOWELS = { a: [760, 1250, 2550], e: [520, 1850, 2550], i: [320, 2250, 2950], o: [520, 900, 2450], u: [360, 850, 2350] };
+  const PROFILES = {
+    ferry: { pitch: 205, formant: 1.1, gain: 0.16, breath: 0.012, dropouts: 0 },
+    echo: { pitch: 150, formant: 0.92, gain: 0.12, breath: 0.006, dropouts: 0 },
+    signal: { pitch: 118, formant: 0.95, gain: 0.13, breath: 0.016, dropouts: 0.25 },
+  };
+  // The line as a timeline of syllables and pauses, scaled to fill `ms`.
+  function syllables(text, ms) {
+    const units = [];
+    for (const token of text.toLowerCase().match(/[a-z']+|[.!?]+|[,;:—-]+|\(|\)/g) || []) {
+      if (/^[.!?]/.test(token)) units.push({ pause: token.includes('?') ? 0.75 : 0.9, rise: token.includes('?') });
+      else if (/^[,;:—-]/.test(token)) units.push({ pause: 0.45 });
+      else if (/[a-z]/.test(token)) {
+        const groups = token.match(/[aeiouy]+[^aeiouy]*/g) || [token];
+        groups.forEach((g, k) => units.push({ vowel: (g.match(/[aeiou]/) || ['e'])[0], onset: k === 0 && /^[^aeiouy]/.test(token) ? token[0] : null, stress: k === 0 }));
+      }
+    }
+    const weight = units.reduce((sum, u) => sum + (u.pause || 1), 0) || 1;
+    const unit = Math.min(0.24, Math.max(0.09, ms / 1000 / weight));
+    return { units, unit };
+  }
+
+  let speech = null;
+  function stopSpeech() {
+    if (!speech || !context) return;
+    const now = context.currentTime;
+    speech.out.gain.cancelScheduledValues(now);
+    speech.out.gain.setValueAtTime(speech.out.gain.value, now);
+    speech.out.gain.linearRampToValueAtTime(0.0001, now + 0.06);
+    speech.nodes.forEach(node => { try { node.stop(now + 0.08); } catch (_) { /* already stopped */ } });
+    speech = null;
+  }
+  function radioSpeech(text, ms, profileName = 'ferry') {
     const ctx = audio();
     if (!ctx) return;
-    let t = ctx.currentTime;
-    const end = t + ms / 1000;
-    while (t < end) {
-      const syllable = between(0.09, 0.17);
-      const source = ctx.createBufferSource(), band = ctx.createBiquadFilter(), low = ctx.createBiquadFilter(), volume = ctx.createGain();
-      source.buffer = noiseBuffer(ctx, syllable, 0.5);
-      band.type = 'bandpass';
-      band.frequency.value = echo ? between(500, 700) : between(650, 1100);
-      band.Q.value = 3.2;
-      low.type = 'lowpass';
-      low.frequency.value = 1500;
-      volume.gain.setValueAtTime(0.0001, t);
-      volume.gain.exponentialRampToValueAtTime((echo ? 0.08 : 0.11) * between(0.6, 1), t + syllable * 0.3);
-      volume.gain.exponentialRampToValueAtTime(0.0001, t + syllable);
-      source.connect(band); band.connect(low); low.connect(volume); volume.connect(bus.signal);
-      source.start(t); source.stop(t + syllable);
-      t += syllable + (Math.random() < 0.18 ? between(0.12, 0.28) : between(0.01, 0.05));
+    stopSpeech();
+    const profile = PROFILES[profileName] || PROFILES.ferry;
+    const { units, unit } = syllables(text, ms);
+    const start = ctx.currentTime + 0.05;
+    const out = ctx.createGain(), speaker = ctx.createBiquadFilter(), voiced = ctx.createGain();
+    out.gain.value = 1;
+    speaker.type = 'bandpass'; speaker.frequency.value = 1300; speaker.Q.value = 0.55;
+    out.connect(speaker); speaker.connect(bus.signal);
+    const source = ctx.createOscillator();
+    source.type = 'sawtooth';
+    const formants = [0, 1, 2].map(n => {
+      const f = ctx.createBiquadFilter(), g = ctx.createGain();
+      f.type = 'bandpass'; f.Q.value = [7, 10, 12][n]; g.gain.value = [1, 0.55, 0.25][n];
+      source.connect(f); f.connect(g); g.connect(voiced);
+      return f;
+    });
+    voiced.connect(out);
+    voiced.gain.setValueAtTime(0.0001, start);
+    const breathSource = ctx.createBufferSource(), breathFilter = ctx.createBiquadFilter(), breath = ctx.createGain();
+    breathSource.buffer = noiseBuffer(ctx, ms / 1000 + 1.5);           // as long as the line, not a loop
+    breathFilter.type = 'bandpass'; breathFilter.frequency.value = 4200; breathFilter.Q.value = 0.8;
+    breath.gain.setValueAtTime(0.0001, start);
+    breathSource.connect(breathFilter); breathFilter.connect(breath); breath.connect(out);
+    let t = start, sentence = 0;
+    for (const u of units) {
+      if (u.pause) {
+        voiced.gain.setTargetAtTime(0.0001, t, 0.02);
+        t += u.pause * unit;
+        sentence = 0;
+        continue;
+      }
+      const length = unit * (u.stress ? 1.15 : 0.9) * between(0.85, 1.15);
+      // Pitch drifts down through a sentence; a stressed syllable lifts a little.
+      const pitch = profile.pitch * (1 + (u.stress ? 0.08 : 0) - Math.min(0.18, sentence * 0.02)) * between(0.96, 1.04);
+      source.frequency.setTargetAtTime(pitch, t, 0.03);
+      VOWELS[u.vowel].forEach((hz, n) => formants[n].frequency.setTargetAtTime(hz * profile.formant, t, 0.025));
+      if (u.onset) {
+        const hiss = /[sfzhx]/.test(u.onset) ? 2.2 : 1;
+        breath.gain.setTargetAtTime(profile.breath * hiss, t, 0.005);
+        breath.gain.setTargetAtTime(0.0001, t + 0.04 * hiss, 0.01);
+      }
+      // A signal from further off drops out now and then.
+      const level = Math.random() < profile.dropouts ? 0.0001 : profile.gain * (u.stress ? 1 : 0.8);
+      voiced.gain.setTargetAtTime(level, t + 0.02, 0.015);
+      voiced.gain.setTargetAtTime(level * 0.35, t + length * 0.75, 0.03);
+      t += length;
+      sentence += 1;
     }
+    // A question rises at its end.
+    if (units.length && units[units.length - 1].rise) source.frequency.setTargetAtTime(profile.pitch * 1.25, t - unit, 0.08);
+    voiced.gain.setTargetAtTime(0.0001, t, 0.03);
+    source.start(start); breathSource.start(start);
+    source.stop(t + 0.3); breathSource.stop(t + 0.3);
+    speech = { out, nodes: [source, breathSource] };
   }
 
   // A song on Night Ferry, through the radio's small speaker: a soft square lead, a
@@ -514,7 +587,7 @@
   root.NSF.audio = {
     unlock: audio, startAmbience, scan, payment, anomaly, cashPaper, cashDrawer, microwaveStart, microwaveDone,
     stopMicrowave, receipt, bag, dialogueTick, resetTicks() { tickStep = 0; },
-    radioStation, radioTune, radioVoice, phoneKey, uiClick, phoneFlip, pen, stamp, carPass, clockSkip, tubeFlicker, phoneBuzz, phoneRing, phoneSent, doorChime, gulls, playSong, stopSong, boxDrop,
+    radioStation, radioTune, radioSpeech, stopSpeech, phoneKey, uiClick, phoneFlip, pen, stamp, carPass, clockSkip, tubeFlicker, phoneBuzz, phoneRing, phoneSent, doorChime, gulls, playSong, stopSong, boxDrop,
     // Levels 0–5 for 'master', 'radio' and 'sounds'.
     level(name) { return levels[name]; },
     setLevel(name, value) { levels[name] = Math.max(0, Math.min(5, Math.round(value))); applyLevels(); },

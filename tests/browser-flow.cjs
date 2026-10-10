@@ -129,7 +129,7 @@ const { chromium, artifacts, URL_BASE, idle, click, playOrder, signIn, signOut }
     const failures = await page.evaluate(() => {
       const a = NSF.audio, failed = [];
       const calls = [['scan'], ['payment', 'card'], ['anomaly'], ['cashPaper'], ['cashDrawer'], ['microwaveStart'],
-        ['microwaveDone'], ['receipt'], ['bag'], ['dialogueTick', 'a'], ['radioTune'], ['radioVoice', 800, true], ['radioStation', 'echo'],
+        ['microwaveDone'], ['receipt'], ['bag'], ['dialogueTick', 'a'], ['radioTune'], ['radioSpeech', 'Is anyone else still up?', 1500, 'echo'], ['stopSpeech'], ['radioStation', 'echo'],
         ['pen'], ['stamp'], ['carPass', true], ['clockSkip'], ['tubeFlicker'], ['phoneBuzz'], ['phoneRing'], ['phoneSent'], ['doorChime'], ['gulls'], ['playSong', NSF.story.radio.songs.slowTide], ['stopSong'], ['boxDrop']];
       for (const [name, ...args] of calls) {
         try { a[name](...args); } catch (error) { failed.push(name + ': ' + error.message); }

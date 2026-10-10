@@ -5,7 +5,7 @@
 // string keys resolved at draw time.
 (function (root) {
   'use strict';
-  const { time, audio, strings, story, night, overlay } = root.NSF;
+  const { time, audio, strings, story, night, overlay, voice } = root.NSF;
   const BAND = story.radio.band;
   const label = freq => (freq % 10 ? (freq / 100).toFixed(2) : (freq / 100).toFixed(1));
   // A transmitter comes in over a window either side of its frequency: clear on it,
@@ -45,6 +45,7 @@
   // reported to the listener (js/game/company.js).
   function show(key, vars = {}, song = null) {
     if (view.song && !song) audio.stopSong();
+    voice.stop();
     view.key = key;
     view.vars = vars;
     view.song = song;
@@ -52,7 +53,7 @@
     view.startedAt = time.now;
     view.duration = song ? songLength(song) : key ? lineDuration(key, vars) : 0;
     if (song) audio.playSong(story.radio.songs[song]);
-    else if (key && key !== 'radio.static') audio.radioVoice(Math.min(view.duration - 600, 5200), view.kind !== 'ferry');
+    else if (key && key !== 'radio.static') voice.speak(key, vars, view.kind, view.duration - 600);
     if (key) listener(view);
   }
 
@@ -132,6 +133,7 @@
     if (held) return;
     held = true;
     audio.radioHeld = true;
+    voice.stop();
     if (view.song) {
       if (current?.keep) queue.unshift(current);
       time.cancel(lineTimer);
@@ -144,6 +146,8 @@
     held = false;
     audio.radioHeld = false;
     if (!lineTimer) advance();
+    // A line interrupted by the pause goes on speaking for the time it has left.
+    else if (view.key && !view.song && view.key !== 'radio.static') voice.speak(view.key, view.vars, view.kind, view.duration - (time.now - view.startedAt) - 600);
   }
 
   // What the dial picks up at `freq`: the nearest transmitter within the window.

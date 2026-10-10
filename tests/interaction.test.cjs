@@ -156,6 +156,21 @@ const { chromium, URL_BASE, signIn, idle, click, playOrder } = require('./browse
     });
     assert.deepEqual(reception, { off: { same: true, clarity: 0.33, lost: true }, out: 'static', detent: '87.65' });
 
+    // The voice speaks the line on air, and stops the moment the dial leaves it.
+    const voiced = await page.evaluate(() => {
+      const a = NSF.audio, calls = [], speak = a.radioSpeech, stop = a.stopSpeech;
+      a.radioSpeech = (text, ms, profile) => { calls.push('speak ' + profile + ': ' + text); return speak(text, ms, profile); };
+      a.stopSpeech = () => { calls.push('stop'); return stop(); };
+      NSF.radio.tune('87.6'); NSF.radio.play(['radio.o4']);
+      NSF.radio.skip();
+      const spoke = calls.some(c => c === 'speak ferry: ' + NSF.strings.t('radio.o4'));
+      calls.length = 0;
+      NSF.radio.setFrequency(8700, { fine: true });
+      a.radioSpeech = speak; a.stopSpeech = stop;
+      return { spoke, stopped: calls[0] === 'stop' };
+    });
+    assert.deepEqual(voiced, { spoke: true, stopped: true });
+
     // Speech is queued: a line being typed is never cut off by the next, the same line
     // twice in a row is said once, and `remaining` covers everything waiting.
     const said = await page.evaluate(async () => {
