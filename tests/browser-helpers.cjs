@@ -94,4 +94,42 @@ async function signOut(page, shot) {
   await page.waitForFunction(() => NSF.debug.game.state.phase === 'end', null, { timeout: 15000 });
 }
 
-module.exports = { chromium, artifacts, URL_BASE, idle, click, playOrder, signIn, signOut };
+// Runs browser test cases, each in a fresh page so no case inherits another's radio,
+// queue or feedback. `cases` is [name, async (page, browser) => {...}]; a case's page is
+// signed in (unless `signIn: false`) with the clock at `speed`. Page errors fail the
+// case. Every case runs; the process exits non-zero if any failed.
+async function suite(title, cases, { speed = 4, seed = 'interaction' } = {}) {
+  const browser = await chromium.launch({ headless: true, channel: 'chrome' });
+  const failed = [];
+  try {
+    for (const [name, run, options = {}] of cases) {
+      const page = await browser.newPage(options.viewport ? { viewport: options.viewport } : {});
+      const errors = [];
+      page.on('pageerror', error => errors.push(error.message));
+      try {
+        if (options.before) await page.addInitScript(...options.before);
+        await page.goto(URL_BASE + '?seed=' + (options.seed || seed));
+        if (options.signIn !== false) {
+          await page.evaluate(v => { NSF.time.speed = v; }, speed);
+          await signIn(page, options.name || '');
+        }
+        await run(page, browser);
+        assert.deepEqual(errors, [], 'page errors');
+        console.log('  ok   ' + name);
+      } catch (error) {
+        failed.push(name);
+        console.log('  FAIL ' + name + '\n       ' + String(error.stack || error).split('\n').slice(0, 6).join('\n       '));
+      } finally {
+        await page.close();
+      }
+    }
+  } finally {
+    await browser.close();
+  }
+  if (failed.length) {
+    console.log(`FAIL: ${title}: ${failed.length} of ${cases.length} failed`);
+    process.exitCode = 1;
+  } else console.log(`PASS: ${title}: ${cases.length} cases`);
+}
+
+module.exports = { chromium, artifacts, URL_BASE, idle, click, playOrder, signIn, signOut, suite };

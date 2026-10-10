@@ -83,17 +83,27 @@ name) can't be recorded. The content test fails if the bundle is out of date.
 ## Running the tests
 
 ```sh
+node tests/run-all.cjs             # everything below, judged by exit code; --pacing adds the radio probe
+node tests/run-all.cjs radio       # only checks whose name contains "radio"
+
 node tests/shift-engine.test.cjs   # 500 seeds, four record branches, immutable ledger
-node tests/content.test.cjs        # string references, no orphans, endings, glyph coverage
+node tests/content.test.cjs        # string references, no orphans, endings, glyph coverage, voice bundle
 node tests/art.test.cjs            # bundle matches sources, palette, references, layout, anchors
-node tests/browser-flow.cjs        # real clicks through all four branches, audio smoke, recovery, seed
-node tests/interaction.test.cjs    # buffered clicks, panels and pausing, the radio across orders
+node tests/counter.test.cjs        # keyboard, touch, guidance, refusals, the action queue, customer speech
+node tests/radio.test.cjs          # the dial, reception, Night Ferry across orders, calls, pausing
+node tests/audio.test.cjs          # which voice a line gets and when it stops; ambience after silent mode
+node tests/browser-flow.cjs        # real clicks through the whole night on all four branches
 node tests/visual.cjs              # key frames for review: card, cash, heating, echo radio, phone
 ```
 
 If Playwright isn't installed locally, set `PLAYWRIGHT_MODULE` to its absolute path.
-Run all five after any change to interaction, art or text, and look at the screenshots
+Run them all after any change to interaction, art or text, and look at the screenshots
 in `tests/artifacts/` when the presentation changes.
+
+The counter, radio and audio checks are suites (`suite()` in `tests/browser-helpers.cjs`):
+each case gets a fresh, signed-in page, so no case inherits another's radio queue or
+feedback; a failing case is named and the others still run. Add a case to the suite it
+belongs to rather than continuing an earlier case's page.
 
 ## Recording a change
 

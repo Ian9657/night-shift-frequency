@@ -59,12 +59,20 @@
 
 ## Verification
 
+Run them all with `node tests/run-all.cjs`, which judges each by its exit code (add
+`--pacing` for the optional real-time radio probe). The list:
+
 - `node tests/shift-engine.test.cjs`
 - `node tests/content.test.cjs`
 - `node tests/art.test.cjs`
+- `node tests/counter.test.cjs`
+- `node tests/radio.test.cjs`
+- `node tests/audio.test.cjs`
 - `node tests/browser-flow.cjs`
-- `node tests/interaction.test.cjs`
 - `node tests/visual.cjs`
+
+Judge a check by its exit code, not by its printed output: piping it through other
+commands hides the code.
 
 Browser tests require Chrome and Playwright; set PLAYWRIGHT_MODULE to an absolute
 module path when Playwright is not installed locally.

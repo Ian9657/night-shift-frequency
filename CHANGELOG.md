@@ -5,6 +5,28 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — tests split by theme, and one way to run them all
+
+- `tests/interaction.test.cjs` had grown to nineteen checks sharing one page, so a case
+  could inherit the radio queue, timers or feedback of the cases before it; three times
+  a test failed for that reason, not the game's. It is replaced by three suites,
+  `counter.test.cjs`, `radio.test.cjs` and `audio.test.cjs`, run by `suite()` in
+  `tests/browser-helpers.cjs`: each case gets a fresh, signed-in page, page errors fail
+  the case, a failing case is named and the rest still run. Same nineteen checks. The
+  recording check now records which voice each line actually got (an earlier version
+  could not fail).
+- `node tests/run-all.cjs` runs the verification list (`--pacing` adds the radio probe,
+  a word filters by name), judges each check by its exit code, prints the end of a
+  failing check's output, and exits non-zero if any failed. A check's result once went
+  unnoticed because a pipe hid its exit code; AGENTS.md now says to judge by the code.
+- AGENTS.md, CONTRIBUTING.md and the architecture's tests table list the new checks.
+
+### Verified (tests)
+
+- `node tests/run-all.cjs --pacing`: all nine checks pass (counter 8 cases, radio 6, audio
+  5). Run without Playwright, run-all reports the browser check as FAIL with its error
+  and exits 1.
+
 ### Changed — documentation brought up to date
 
 - `CHANGELOG.md`: the Unreleased section had grown to about 1,500 lines of 76 entries

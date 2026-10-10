@@ -168,13 +168,19 @@ card.
 
 ## Tests
 
+`node tests/run-all.cjs` runs the list and judges each by its exit code. The counter, radio
+and audio checks are suites of cases, each in a fresh page (`suite()` in
+`tests/browser-helpers.cjs`).
+
 | Test | Covers |
 | --- | --- |
 | `shift-engine.test.cjs` | Generation across 500 seeds, the four record branches, immutability, idempotent settlement |
 | `content.test.cjs` | Every referenced string exists, no orphaned strings, story keys, endings, glyph coverage; songs and frequencies the night refers to exist; the dial hint and its repeat come when the frequencies can be heard; guidance, feedback and the record-conflict lines fit the POS; the voice bundle matches its recordings and the WAV conversion is right |
 | `art.test.cjs` | The bundle matches its sources, palette bounds, PNG round-trip, every sprite used, layout and anchors |
 | `browser-flow.cjs` | Real pointer input through the whole night on all four branches: sign-in with a typed or default name, eight orders, a text and a call to Night Ferry, listening to all three frequencies and being recognised, lost and found, the report, the dawn clock only moving forward, sign-out; audio smoke for every sound; recovery from a failing action; dragging the dial; the phone's settings; seed; narrow viewport |
-| `interaction.test.cjs` | Keyboard focus, Enter, Escape and the live announcement; touch tap and hold; refused clicks and their reasons; the action queue (dedupe, stale, paused, carried to the next customer); first-sale guidance with its outline; panels and pausing; the live dial; reception off a station's centre; Night Ferry carried across orders, on-time segments, songs let go, the story kept at the closing; the clerk's call kept on air; voices: murmured, recorded, read aloud, stopped on tuning away; queued speech never cut or swallowed; the tuning nudge only when nothing was found; ambience after a silent start (#1); the scanner past a selected scanned item |
+| `counter.test.cjs` | Keyboard focus, Enter, Escape and the live announcement; touch tap and hold; first-sale guidance with its outline; refused clicks and their reasons; the action queue (dedupe, held by a panel, stale dropped quietly, carried to the next customer); the scanner past a selected scanned item; customers' speech queued, never cut or swallowed |
+| `radio.test.cjs` | The live dial and another frequency across an order change; reception off a station's centre; the clerk's call kept on air; a pausing panel holding the radio; Night Ferry carried across orders, unstarted songs let go, on-time segments first, the story kept at the closing; the tuning nudge only when nothing was found |
+| `audio.test.cjs` | Which voice a line gets (murmured, recorded, a stale recording ignored, read aloud and the setting saved) and that it stops on tuning away; the room and radio bed after a silent start (#1) |
 | `visual.cjs` | Screenshots of key moments for human review |
 | `radio-pacing.cjs` (optional) | The first order at normal speed: the second order's dial hint, introduction and song in sequence, and the taxi found with the dial's keys |
 
