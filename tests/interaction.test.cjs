@@ -138,6 +138,24 @@ const { chromium, URL_BASE, signIn, idle, click, playOrder } = require('./browse
     assert.deepEqual(onAir[0], ['radio.o3a', 'radio.o4'], 'a carried line plays; a song not started goes with its intro');
     assert.notEqual(onAir[1], 'lastFerry', 'a filler song is let go by a pause');
     assert.deepEqual(onAir[2], ['radio.o1', 'radio.o5a', 'radio.o5b'], 'on time after the line on air; the story survives the closing');
+
+    // Reception: just off a transmitter the same line goes on, fainter, with letters lost;
+    // out of its window there is only static. The step keys move between detents.
+    const reception = await page.evaluate(() => {
+      const r = NSF.radio, v = r.view;
+      r.tune('87.6'); r.play(['radio.o3a']);
+      const key = v.key, at = v.startedAt;
+      r.setFrequency(8762, { fine: true });
+      const off = { same: v.key === key && v.startedAt === at, clarity: +v.clarity.toFixed(2), lost: r.caption().includes('·') };
+      r.setFrequency(8764, { fine: true });
+      const out = v.kind;
+      r.setFrequency(8763, { fine: true }); r.step(1);
+      const detent = v.station;
+      r.tune('87.6');
+      return { off, out, detent };
+    });
+    assert.deepEqual(reception, { off: { same: true, clarity: 0.33, lost: true }, out: 'static', detent: '87.65' });
+
     // Speech is queued: a line being typed is never cut off by the next, the same line
     // twice in a row is said once, and `remaining` covers everything waiting.
     const said = await page.evaluate(async () => {
@@ -247,6 +265,6 @@ const { chromium, URL_BASE, signIn, idle, click, playOrder } = require('./browse
     assert.equal(unmuted.loops, withSound.loops, 'room and radio bed loops after unmuting');
     assert.ok(withSound.loops >= 6);
     assert.equal(unmuted.echoBed, true, "the late radio bed takes the echo's hiss");
-    console.log('PASS: a click during the changeover carries to the next customer; the tuning nudge only when nothing was found; scanner past a selected scanned item; ambience after a silent start (issue #1); queued speech (no line cut or swallowed); keyboard forward/reverse focus, Enter, Escape and live announcement; premature bagging reason, queue deduplication, modal pause, automatic scan, stale order, invalid queued action, live dial, echo across orders, a call kept on air, radio held and resumed, Night Ferry carried across orders.');
+    console.log('PASS: a click during the changeover carries to the next customer; the tuning nudge only when nothing was found; scanner past a selected scanned item; ambience after a silent start (issue #1); queued speech (no line cut or swallowed); keyboard forward/reverse focus, Enter, Escape and live announcement; premature bagging reason, queue deduplication, modal pause, automatic scan, stale order, invalid queued action, live dial, echo across orders, a call kept on air, radio held and resumed, Night Ferry carried across orders, reception off centre.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

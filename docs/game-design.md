@@ -164,10 +164,15 @@ The four combinations lead to four letters read by *Night Ferry* after the shift
 
 ## The radio
 
-- Clicking the radio opens its dial over it: a scale from 87.5 to 88.1 in steps of 0.05.
-  Drag or click the needle, use the step keys, or the arrow keys; × or Escape puts it
-  away, as does a click anywhere outside it (which does nothing else). The shift keeps
-  running and the radio keeps playing while it is open.
+- Clicking the radio opens its dial over it: a scale from 87.5 to 88.1. The step keys and
+  arrow keys move between detents 0.05 apart; dragging or clicking the needle tunes to the
+  hundredth. × or Escape puts it away, as does a click anywhere outside it (which does
+  nothing else). The shift keeps running and the radio keeps playing while it is open.
+- Reception is continuous. Each transmitter (Night Ferry, the echo, the three frequencies
+  between them) comes in over three hundredths either side: clear on its frequency,
+  fainter and hissier off it, with letters of the caption lost to the noise (·), and gone
+  beyond. Moving the needle within one transmitter's range doesn't interrupt what it is
+  saying. The dial's meter shows how cleanly it comes in.
 - 87.6 *Night Ferry*: an intro and one segment per order. Nothing June says is lost to a
   quick clerk: what is left of one segment carries into the next order, and whatever is
   on air finishes. The record orders' segments (5 and 8) go ahead of anything carried,

@@ -5,6 +5,26 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — reception you tune into
+
+- The dial tunes to the hundredth when the needle is dragged (the step and arrow keys still
+  jump 0.05 between detents). Each transmitter comes in over three hundredths either
+  side, by `reception()` in `radio.js`: on its frequency it is clear; a step or two off,
+  the hiss rises, its voice and music fade (`bus.signal` in `audio.js`) and the caption
+  loses letters to the noise, the same letters each time; beyond, static. Moving within a
+  transmitter's range only changes how cleanly it comes in, with a faint tick, and
+  doesn't restart what is on. The dial's meter shows the reception.
+
+### Verified (reception)
+
+- All six checks and the radio pacing probe pass. The interaction test checks a line
+  continues uninterrupted at 87.62 with letters lost, static at 87.64 and the detent step
+  from 87.63 to 87.65; a probe printed the caption from 87.60 to 87.62 and back.
+
+### Not verified (reception)
+
+- Not listened to: how the fade and hiss sound as the needle moves.
+
 ### Changed — a quick clerk hears all of Night Ferry; guidance for three sales
 
 Measured at normal speed with a scripted practised player (orders take 7–14 s):

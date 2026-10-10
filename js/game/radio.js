@@ -8,10 +8,14 @@
   const { time, audio, strings, story, night, overlay } = root.NSF;
   const BAND = story.radio.band;
   const label = freq => (freq % 10 ? (freq / 100).toFixed(2) : (freq / 100).toFixed(1));
+  // A transmitter comes in over a window either side of its frequency: clear on it,
+  // fainter and noisier a step or two off, gone three hundredths away.
+  const WINDOW = 3;
 
   // `kind`: 'ferry' (87.6), 'echo' (87.7), 'signal' (someone's frequency) or 'static'.
+  // `target` is the transmitter in range and `clarity` (0–1) how cleanly it comes in.
   const view = {
-    freq: BAND.ferry, station: label(BAND.ferry), kind: 'ferry', song: null,
+    freq: BAND.ferry, station: label(BAND.ferry), kind: 'ferry', target: BAND.ferry, clarity: 1, song: null,
     key: null, vars: {}, startedAt: 0, duration: 0, echo: false, offAir: false, dialOpen: false,
   };
   // Queued Night Ferry entries: { key, vars } or { song }; `keep` marks the clerk's own
@@ -52,9 +56,14 @@
     if (key) listener(view);
   }
 
+  // The background hiss and hum for what the dial is on and how cleanly.
+  function tuneBed() {
+    audio.radioStation(view.offAir && view.kind === 'ferry' ? 'static' : view.kind, night.progress(), view.clarity);
+  }
+
   // Off Night Ferry, a provider says what is on this frequency now; static repeats.
   function other() {
-    const line = view.kind === 'echo' ? echoProvider() : view.kind === 'signal' ? signalProvider(view.freq) : null;
+    const line = view.kind === 'echo' ? echoProvider() : view.kind === 'signal' ? signalProvider(view.target) : null;
     show(line?.key || 'radio.static', line?.vars);
     lineTimer = time.after(view.duration + (line ? 2400 : 1500), advance);
   }
@@ -137,27 +146,40 @@
     if (!lineTimer) advance();
   }
 
-  function kindOf(freq) {
-    if (freq === BAND.ferry) return 'ferry';
-    if (freq === BAND.echo) return 'echo';
-    return story.tonight.signals.some(s => s.freq === freq) ? 'signal' : 'static';
+  // What the dial picks up at `freq`: the nearest transmitter within the window.
+  function reception(freq) {
+    const transmitters = [[BAND.ferry, 'ferry'], [BAND.echo, 'echo'], ...story.tonight.signals.map(s => [s.freq, 'signal'])];
+    let best = { kind: 'static', target: null, clarity: 0 };
+    for (const [at, kind] of transmitters) {
+      const clarity = 1 - Math.abs(freq - at) / WINDOW;
+      if (clarity > best.clarity) best = { kind, target: at, clarity };
+    }
+    return best;
   }
 
-  // Turn the dial to `freq` (snapped to the band's steps).
-  function setFrequency(freq) {
-    const next = Math.max(BAND.low, Math.min(BAND.high, Math.round(freq / BAND.step) * BAND.step));
+  // Turn the dial to `freq`: to the band's steps (the step keys), or, `fine`, to the
+  // hundredth (dragging the needle). Moving within the same transmitter's window only
+  // changes how cleanly it comes in; crossing to another starts what is on there.
+  function setFrequency(freq, { fine = false } = {}) {
+    const grain = fine ? 1 : BAND.step;
+    const next = Math.max(BAND.low, Math.min(BAND.high, Math.round(freq / grain) * grain));
     if (next === view.freq) return;
+    const heard = reception(next);
+    if (heard.kind === view.kind && heard.target === view.target) {
+      Object.assign(view, { freq: next, station: label(next), clarity: heard.clarity });
+      audio.radioTune(true);
+      tuneBed();
+      return;
+    }
     // The current Night Ferry line (or song, from the top) is replayed when the player
     // tunes back.
     // (A song cut during its intro is announced again.)
     if (view.kind === 'ferry' && view.key && !view.offAir) {
       queue.unshift(current ? { ...current, introSaid: Boolean(current.song && view.song) } : (view.song ? { song: view.song } : { key: view.key, vars: view.vars }));
     }
-    view.freq = next;
-    view.station = label(next);
-    view.kind = kindOf(next);
+    Object.assign(view, { freq: next, station: label(next), kind: heard.kind, target: heard.target, clarity: heard.clarity });
     audio.radioTune();
-    audio.radioStation(view.offAir && view.kind === 'ferry' ? 'static' : view.kind, night.progress());
+    tuneBed();
     show(null);
     time.cancel(lineTimer);
     lineTimer = time.after(300, advance);
@@ -177,16 +199,22 @@
   function signOff() {
     view.offAir = true;
     if (view.kind !== 'ferry') return;
-    audio.radioStation('static');
+    tuneBed();
     time.cancel(lineTimer);
     other();
+  }
+
+  // The step keys move to the next detent of the band (from 87.63, up is 87.65).
+  function step(direction) {
+    const detent = direction > 0 ? Math.floor(view.freq / BAND.step) + 1 : Math.ceil(view.freq / BAND.step) - 1;
+    setFrequency(detent * BAND.step);
   }
 
   function closeDial() { view.dialOpen = false; overlay.close('radio'); }
 
   root.NSF.radio = {
     view, band: BAND, label, play, beginOrder, clearSegments, hold, release, tune, setFrequency, skip, signOff,
-    step(direction) { setFrequency(view.freq + direction * BAND.step); },
+    step,
     openDial() {
       if (view.dialOpen) return closeDial();
       if (!overlay.open('radio', { pause: false })) return;
@@ -197,7 +225,7 @@
     // Arrow keys tune while the dial is open; Escape puts it away.
     key(name) {
       if (!view.dialOpen) return false;
-      if (name === 'ArrowLeft' || name === 'ArrowRight') setFrequency(view.freq + (name === 'ArrowLeft' ? -1 : 1) * BAND.step);
+      if (name === 'ArrowLeft' || name === 'ArrowRight') step(name === 'ArrowLeft' ? -1 : 1);
       else if (name === 'Escape') closeDial();
       else return false;
       return true;
@@ -208,9 +236,14 @@
     // How long a run of Night Ferry lines takes on air.
     duration: lines => lines.reduce((sum, line) => sum + (typeof line === 'string' ? lineDuration(line)
       : line.song ? songLength(line.song) + (line.intro ? lineDuration(line.intro) : 0) : lineDuration(line.key, line.vars)), 0),
+    // Off the centre of a transmitter, some of what is said is lost in the noise: the
+    // same letters each time for a line and a clarity, so it doesn't shimmer.
     caption() {
       if (!view.key) return '';
-      return strings.t(view.key, view.vars);
+      const text = strings.t(view.key, view.vars);
+      if (view.clarity >= 1 || view.key === 'radio.static') return text;
+      const lost = (1 - view.clarity) * 0.85;
+      return [...text].map((ch, i) => (ch !== ' ' && ((i * 2654435761 + view.key.length * 97) >>> 0) % 1000 / 1000 < lost ? '·' : ch)).join('');
     },
     // Fraction of the caption revealed, for a slow typewriter; a song's title shows at once.
     progress() {

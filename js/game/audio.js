@@ -33,8 +33,12 @@
       output.gain.value = OUTPUT_GAIN;
       limiter.threshold.value = -3; limiter.knee.value = 0; limiter.ratio.value = 20;
       limiter.attack.value = 0.002; limiter.release.value = 0.12;
+      // What a station transmits (voices, songs) reaches the radio through `signal`, which
+      // fades as the needle moves off it; the set's own hiss and hum don't.
+      const signal = context.createGain();
+      signal.connect(radio);
       sounds.connect(master); radio.connect(master); master.connect(output); output.connect(limiter); limiter.connect(context.destination);
-      bus = { master, sounds, radio };
+      bus = { master, sounds, radio, signal };
       applyLevels();
     }
     if (context.state === 'suspended' && !away) context.resume().catch(() => {});
@@ -186,24 +190,29 @@
   }
 
   // What the dial is on: 'ferry' (Night Ferry, clean), 'echo' (hissing), 'signal'
-  // (someone's frequency, mostly hiss) or 'static'.
-  // `clarity` (0–1) thins the echo's hiss as the night goes on.
+  // (someone's frequency, mostly hiss) or 'static'. `night` (0–1) thins the echo's hiss
+  // as the night goes on; `reception` (0–1) is how close the needle is to the
+  // transmitter: off centre the hiss rises and what it carries fades.
   // The last station asked for is kept even before the bed exists, so a bed built late
   // matches the dial.
-  const station = { kind: 'ferry', clarity: 0 };
-  function radioStation(kind, clarity = 0) {
-    Object.assign(station, { kind, clarity });
+  const station = { kind: 'ferry', night: 0, reception: 1 };
+  function radioStation(kind, night = 0, reception = 1) {
+    Object.assign(station, { kind, night, reception });
     tuneBed();
   }
   function tuneBed() {
-    if (!radioBed || !context) return;
-    const now = context.currentTime, { kind, clarity } = station;
-    const hiss = { ferry: 0.0026, echo: 0.014 - 0.009 * clarity, signal: 0.015 }[kind] ?? 0.02;
-    radioBed.hiss.volume.gain.setTargetAtTime(hiss, now, 0.08);
-    radioBed.hiss.filter.frequency.setTargetAtTime(kind === 'ferry' ? 3100 : 1800, now, 0.08);
+    if (!context || !bus) return;
+    const now = context.currentTime, { kind, night, reception } = station;
+    bus.signal.gain.setTargetAtTime(kind === 'static' ? 0 : reception ** 1.4, now, 0.06);
+    if (!radioBed) return;
+    const hiss = ({ ferry: 0.0026, echo: 0.014 - 0.009 * night, signal: 0.015 }[kind] ?? 0.02) + (1 - reception) * 0.016;
+    radioBed.hiss.volume.gain.setTargetAtTime(Math.min(0.022, hiss), now, 0.08);
+    radioBed.hiss.filter.frequency.setTargetAtTime(kind === 'ferry' && reception > 0.9 ? 3100 : 1800, now, 0.08);
   }
 
-  function radioTune() {
+  // Tuning: a sweep and a burst of noise onto a new transmitter, a faint tick within one.
+  function radioTune(fine = false) {
+    if (fine) { noise({ duration: 0.03, gain: 0.004, frequency: 2400 }); return; }
     tone({ frequency: 900, endFrequency: 2600, duration: 0.18, type: 'sine', gain: 0.004, lowpass: 3000 });
     noise({ duration: 0.22, gain: 0.012, frequency: 2000 });
   }
@@ -226,7 +235,7 @@
       volume.gain.setValueAtTime(0.0001, t);
       volume.gain.exponentialRampToValueAtTime((echo ? 0.08 : 0.11) * between(0.6, 1), t + syllable * 0.3);
       volume.gain.exponentialRampToValueAtTime(0.0001, t + syllable);
-      source.connect(band); band.connect(low); low.connect(volume); volume.connect(bus.radio);
+      source.connect(band); band.connect(low); low.connect(volume); volume.connect(bus.signal);
       source.start(t); source.stop(t + syllable);
       t += syllable + (Math.random() < 0.18 ? between(0.12, 0.28) : between(0.01, 0.05));
     }
@@ -254,7 +263,7 @@
     const out = ctx.createGain(), speaker = ctx.createBiquadFilter(), wow = ctx.createOscillator(), depth = ctx.createGain();
     out.gain.value = 1;
     speaker.type = 'lowpass'; speaker.frequency.value = 2300;
-    out.connect(speaker); speaker.connect(bus.radio);
+    out.connect(speaker); speaker.connect(bus.signal);
     wow.frequency.value = 0.55; depth.gain.value = 9;
     wow.connect(depth); wow.start(start); nodes.push(wow);
     const note = (frequency, at, length, type, gain, attack = 0.02) => {

@@ -248,12 +248,14 @@
     }
     ctx.fillStyle = '#c8403a';
     ctx.fillRect(at(radio.view.freq) - 1, wy, 2, wh);
-    const tuneTo = point => radio.setFrequency(low + (point.x - wx - 20) / (ww - 40) * (high - low));
+    const tuneTo = point => radio.setFrequency(low + (point.x - wx - 20) / (ww - 40) * (high - low), { fine: true });
     hit(wx, wy, ww, wh, tuneTo, 'dial', tuneTo);
     button(ctx, x + 8, y + 18, 26, '<', () => radio.step(-1), { name: 'dial-down' });
     button(ctx, x + w - 34, y + 18, 26, '>', () => radio.step(1), { name: 'dial-up' });
     const readout = text.draw(ctx, t('radio.dial', { freq: radio.view.station }), wx, y + 58, C.phosphor);
-    const strength = { ferry: radio.view.offAir ? 0 : 4, echo: 4, signal: radio.caption() && radio.caption() !== t('radio.static') ? 2 : 0 }[radio.view.kind] || 0;
+    // Bars for how cleanly something comes in; none for static or a dead frequency.
+    const live = radio.view.key && radio.view.key !== 'radio.static' && !(radio.view.kind === 'ferry' && radio.view.offAir);
+    const strength = live || radio.view.kind === 'ferry' && !radio.view.offAir ? Math.max(1, Math.round(radio.view.clarity * 4)) : 0;
     for (let b = 0; b < 4; b++) {
       ctx.fillStyle = b < strength ? C.phosphor : '#3f4b54';
       ctx.fillRect(readout + 10 + b * 7, y + 70 - b * 3, 5, 4 + b * 3);
