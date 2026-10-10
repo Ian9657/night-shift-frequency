@@ -44,12 +44,14 @@
     orderStarted(index) {
       const { tuningNudge, signals } = story.tonight;
       const nudge = index === tuningNudge.at && !signals.some(s => company.heard(s.person)) ? [tuningNudge.line] : [];
-      radio.beginOrder([...messages.takeOnAir(index, signin.name), ...story.tonight.segments[index], ...nudge]);
+      radio.beginOrder([...messages.takeOnAir(index, signin.name), ...story.tonight.segments[index], ...nudge],
+        { onTime: story.tonight.onTime.includes(index) });
     },
     // The closing letter and sign-off on 87.6: `done` resolves once they have been
     // heard; `duration` is how long they take on air.
     shiftClosed(ending) {
       if (radio.view.kind !== 'ferry') radio.tune('87.6');
+      radio.clearSegments();
       const lines = [...messages.takeOnAir(game.state.eventIndex, signin.name), ...story.radio.endings[ending],
         ...messages.thanks(signin.name), story.radio.signoff];
       return { done: radio.play(lines), duration: radio.duration(lines) };

@@ -33,7 +33,7 @@
     scanner: 'ui.target.scanner', terminal: 'ui.target.terminal', drawer: 'ui.target.drawer', microwave: 'ui.target.microwave',
     basket: 'ui.target.basket', bags: 'ui.target.bags', radio: 'ui.target.radio', phone: 'ui.target.phone', lostFound: 'ui.target.lostFound', recordKey: 'ui.target.recordKey', printer: 'ui.target.printer',
   };
-  const GUIDE_LABELS = { take: 'ui.guide.take', scan: 'ui.guide.scan', cash: 'ui.guide.cash', card: 'ui.guide.card', heat: 'ui.guide.heat', bag: 'ui.guide.bag' };
+  const GUIDE_LABELS = { scan: 'ui.guide.scan', cash: 'ui.guide.cash', card: 'ui.guide.card', heat: 'ui.guide.heat', bag: 'ui.guide.bag' };
 
   // `action` gets the screen-grid point clicked; `drag`, if given, also follows the
   // pointer while it is held down.
@@ -78,7 +78,7 @@
       const decision = shift.decisionFor(o.id);
       return [[head, C.red],
         [`${t('rec.item')} ${label(o.items[0].real)}`, C.phosphor],
-        [`${t('rec.register')} ${label(decision ? decision.finalRecordedLabel : o.items[0].pos)}`, decision ? C.phosphor : C.red],
+        [`${t('pos.reg')} ${label(decision ? decision.finalRecordedLabel : o.items[0].pos)}`, decision ? C.phosphor : C.red],
         [status, saved || time.now % 900 < 600 ? C.amber : C.panel]];
     }
     const grouped = engine.groupItems(shift.displayedItems(o.id).filter(item => state.scannedIds.includes(item.id)));

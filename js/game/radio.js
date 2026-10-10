@@ -30,7 +30,8 @@
     const song = story.radio.songs[id], bar = 4 * 60000 / song.tempo;
     return Math.min(song.chords.length, Math.max(1, Math.floor(15000 / bar))) * bar;
   };
-  const entry = line => (typeof line === 'string' ? { key: line, vars: {} } : line);
+  // Queue entries are copies: a song entry notes once its `intro` line has been said.
+  const entry = line => (typeof line === 'string' ? { key: line, vars: {} } : { ...line });
 
   function lineDuration(key, vars) {
     return Math.max(2600, strings.t(key, vars).length * 52 + 1200);
@@ -71,7 +72,12 @@
       callbacks.forEach(fn => fn());
       return;
     }
-    if (next.song) show('radio.song', { title: '@' + story.radio.songs[next.song].title }, next.song);
+    // A song with an `intro` is announced first; the two go (or are dropped) together.
+    if (next.song && next.intro && !next.introSaid) {
+      next.introSaid = true;
+      queue.unshift(next);
+      show(next.intro, {});
+    } else if (next.song) show('radio.song', { title: '@' + story.radio.songs[next.song].title }, next.song);
     else show(next.key, next.vars);
     lineTimer = time.after(view.duration, advance);
   }
@@ -85,27 +91,40 @@
     return done;
   }
 
-  // A new order's segment replaces whatever ordinary lines of the last one are still
-  // waiting, but not the clerk's own moments on air. A line already on 87.6 is cut
-  // unless it is one of those; on another frequency, that keeps playing and the new
-  // segment waits for the clerk to tune back.
-  function beginOrder(lines) {
-    queue = [...queue.filter(line => line.keep), ...lines.map(entry)];
+  // A new order's segment follows whatever of the last one is still to come, so a quick
+  // clerk misses nothing June says: lines carry over, and whatever is on air (a line or
+  // a song) finishes. Songs that haven't started and aren't the clerk's own are the one
+  // thing let go, each with its intro. An `onTime` segment (the record orders) goes ahead
+  // of the carried lines, right after what is on air. On another frequency the queue just
+  // waits for the clerk to tune back.
+  function beginOrder(lines, { onTime = false } = {}) {
+    const kept = queue.filter(line => line.keep), carried = queue.filter(line => !line.keep && !line.song);
+    // An on-time segment carries the story (the key's message): it is never let go.
+    const fresh = lines.map(line => ({ ...entry(line), ...(onTime ? { story: true } : {}) }));
+    queue = onTime ? [...kept, ...fresh, ...carried] : [...kept, ...carried, ...fresh];
     if (view.kind !== 'ferry' || view.offAir || current?.keep) return;
+    if (view.key) return;                                          // let what is on air finish
     time.cancel(lineTimer);
     lineTimer = null;
     advance();
   }
 
+  // Before the closing letter: what is left of the night's segments is let go, except the
+  // clerk's own moments and the story's lines, which come first.
+  function clearSegments() {
+    queue = queue.filter(line => line.keep || line.story);
+  }
+
   // While the phone, records or lost and found are open the shift is paused: Night
-  // Ferry goes quiet, and a song in progress starts again from the top afterwards.
+  // Ferry goes quiet. A song in progress is let go, unless the clerk asked for it, in
+  // which case it starts again from the top afterwards.
   let held = false;
   function hold() {
     if (held) return;
     held = true;
     audio.radioHeld = true;
     if (view.song) {
-      queue.unshift(current || { song: view.song });
+      if (current?.keep) queue.unshift(current);
       time.cancel(lineTimer);
       lineTimer = null;
       show(null);
@@ -130,7 +149,10 @@
     if (next === view.freq) return;
     // The current Night Ferry line (or song, from the top) is replayed when the player
     // tunes back.
-    if (view.kind === 'ferry' && view.key && !view.offAir) queue.unshift(current || (view.song ? { song: view.song } : { key: view.key, vars: view.vars }));
+    // (A song cut during its intro is announced again.)
+    if (view.kind === 'ferry' && view.key && !view.offAir) {
+      queue.unshift(current ? { ...current, introSaid: Boolean(current.song && view.song) } : (view.song ? { song: view.song } : { key: view.key, vars: view.vars }));
+    }
     view.freq = next;
     view.station = label(next);
     view.kind = kindOf(next);
@@ -163,7 +185,7 @@
   function closeDial() { view.dialOpen = false; overlay.close('radio'); }
 
   root.NSF.radio = {
-    view, band: BAND, label, play, beginOrder, hold, release, tune, setFrequency, skip, signOff,
+    view, band: BAND, label, play, beginOrder, clearSegments, hold, release, tune, setFrequency, skip, signOff,
     step(direction) { setFrequency(view.freq + direction * BAND.step); },
     openDial() {
       if (view.dialOpen) return closeDial();
@@ -185,7 +207,7 @@
     setListener(fn) { listener = fn; },
     // How long a run of Night Ferry lines takes on air.
     duration: lines => lines.reduce((sum, line) => sum + (typeof line === 'string' ? lineDuration(line)
-      : line.song ? songLength(line.song) : lineDuration(line.key, line.vars)), 0),
+      : line.song ? songLength(line.song) + (line.intro ? lineDuration(line.intro) : 0) : lineDuration(line.key, line.vars)), 0),
     caption() {
       if (!view.key) return '';
       return strings.t(view.key, view.vars);

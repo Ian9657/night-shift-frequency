@@ -7,7 +7,9 @@
   const params = new URLSearchParams(root.location?.search || '');
   const shift = engine.createShift(params.get('seed') || String(Date.now()));
   const orders = shift.orders;
-  const CUE_DELAY_START = 2, CUE_DELAY_MS = 780;
+  // The first three sales are guided: the next step's object is outlined, and the first
+  // time a step comes up the POS says it too. After that the clerk is on their own.
+  const GUIDED_ORDERS = 3;
 
   const state = {
     phase: 'title', // title -> signin -> shift -> report -> ending -> clockout -> end
@@ -28,7 +30,6 @@
     mood: 'normal',
     cues: new Set(),
   };
-  let cueSignature = '', cueReadyAt = 0;
 
   const order = () => orders[state.eventIndex];
   const started = () => state.phase === 'shift';
@@ -166,7 +167,6 @@
   function guidance() {
     if (!started() || state.busy || dialogue.locked || overlay.view.active) return null;
     const o = order(), first = state.eventIndex === 0;
-    if (first && !state.takenIds.length) return 'take';
     if (first && scannedItems(o).length < o.items.length) return 'scan';
     if (isPaymentReady() && orders.findIndex(entry => entry.paymentType === o.paymentType) === state.eventIndex) return o.paymentType;
     if (state.paid && pendingHeat(o).length && orders.findIndex(entry => entry.items.some(item => item.heat)) === state.eventIndex) return 'heat';
@@ -515,13 +515,13 @@
     time.cancel(waitTimer);
     state.eventIndex = Math.min(state.eventIndex + 1, orders.length - 1);
     Object.assign(state, {
-      selectedId: null, takenIds: [], scannedIds: [], paid: false, bagged: false, heatedIds: [], busy: true, queuedActions: [], feedback: null, focusTarget: null, hoverTarget: null,
+      selectedId: null, takenIds: [], scannedIds: [], paid: false, bagged: false, heatedIds: [], busy: true,
+      queuedActions: state.queuedActions.filter(action => action.eventIndex === state.eventIndex), feedback: null, focusTarget: null, hoverTarget: null,
       modeOverride: null, reactionCounts: {}, dialogueFlags: new Set(),
     });
     scene.extras = [];
     scene.fixtures = { ...fixtureDefault, paper: 0 };
     scene.customer = { id: order().customer, dx: layout.customer.walk, dy: 0, visible: true };
-    cueSignature = '';
     resetProducts();
   }
 
@@ -594,7 +594,7 @@
   function cueTargets() {
     const o = order();
     const targets = [];
-    if (!started() || state.busy || dialogue.locked || overlay.view.active || guidance() || state.feedback) return targets;
+    if (!started() || state.eventIndex >= GUIDED_ORDERS || state.busy || dialogue.locked || overlay.view.active || state.feedback) return targets;
     const awaitingRecord = o.mismatch && scannedItems(o).length === o.items.length && !hasSavedRecord();
     const selected = o.items.find(item => item.id === state.selectedId);
     const ready = isPaymentReady();
@@ -607,7 +607,7 @@
     if (o.finalReport && state.bagged && !state.reportShown) targets.push('printer');
     if (!state.bagged) {
       const waiting = o.items.filter(item => !inBasket(item) && !isScanned(item));
-      if (!state.paid && !waiting.length && o.items.some(inBasket)) targets.push('basket');
+      if (!state.paid && !waiting.length && o.items.some(inBasket) && !targets.includes('scanner')) targets.push('scanner');   // it takes the next item itself
       const candidates = state.paid ? pendingHeat(o) : waiting;
       for (const item of candidates) if (item.id !== state.selectedId) targets.push('item:' + item.id);
     }
@@ -618,21 +618,16 @@
     if (state.focusTarget && !targets().some(target => target.name === state.focusTarget)) state.focusTarget = null;
     if (state.feedback && time.uiNow >= state.feedback.until) state.feedback = null;
     if (state.flash && time.uiNow >= state.flash.until) state.flash = null;
+    // Queued clicks for an earlier sale are dropped; one for the next customer waits.
     const queued = state.queuedActions[0];
-    if (queued && queued.eventIndex !== state.eventIndex) state.queuedActions.shift();
-    else if (queued && !state.busy && !dialogue.locked && !overlay.view.active) {
+    if (queued && queued.eventIndex < state.eventIndex) state.queuedActions.shift();
+    else if (queued && queued.eventIndex === state.eventIndex && !state.busy && !dialogue.locked && !overlay.view.active) {
       state.queuedActions.shift();
       // A click that no longer applies (the extra tap of a double tap) is dropped quietly.
       if (actionStillRelevant(queued.name)) activate(queued.name);
     }
     placeProducts();
-    const cued = cueTargets();
-    const signature = cued.slice().sort().join('|');
-    if (signature !== cueSignature) {
-      cueSignature = signature;
-      cueReadyAt = time.now + (state.eventIndex >= CUE_DELAY_START ? CUE_DELAY_MS : 0);
-    }
-    scene.cues = new Set(time.now >= cueReadyAt ? cued : []);
+    scene.cues = new Set(cueTargets());
   }
 
   function actionStillRelevant(name) {
@@ -694,9 +689,14 @@
     state.flash = { name, until: time.uiNow + 240 };
     const buffered = new Set(['scanner', 'terminal', 'drawer', 'microwave', 'bags', 'basket', 'printer']);
     if (state.busy && buffered.has(name)) {
-      if (!state.queuedActions.some(action => action.name === name && action.eventIndex === state.eventIndex)) {
-        if (state.queuedActions.length < 3) state.queuedActions.push({ name, eventIndex: state.eventIndex });
+      // While a finished customer is leaving, the scanner and basket mean the next
+      // customer's first item.
+      const next = state.bagged && !order().finalReport && (name === 'scanner' || name === 'basket');
+      const eventIndex = state.eventIndex + (next ? 1 : 0);
+      if (!state.queuedActions.some(action => action.name === name && action.eventIndex === eventIndex)) {
+        if (state.queuedActions.length < 3) state.queuedActions.push({ name, eventIndex });
       }
+      audio.uiClick();
       return;
     }
     if (name.startsWith('item:')) return guarded(() => selectItem(name.slice(5)));

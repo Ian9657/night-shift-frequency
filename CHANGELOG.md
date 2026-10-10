@@ -5,6 +5,41 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — a quick clerk hears all of Night Ferry; guidance for three sales
+
+Measured at normal speed with a scripted practised player (orders take 7–14 s):
+
+- Night Ferry's segments were cut when the next order began: the night-clerk song and its
+  introduction never played, the phone lines opening reached 42%, the tuning nudge 72%,
+  the late song 33%. Now what is left of a segment carries into the next order and what
+  is on air finishes; the record orders' segments (`onTime`) go ahead of anything
+  carried. Only songs that haven't started when the next order begins are dropped, with
+  the line introducing them (a song entry may carry its `intro`). A pause lets a filler
+  song go rather than restarting it; the clerk's requested song still restarts. Before
+  the closing letter, leftovers are dropped except the record orders' lines. Measured
+  after: every line heard in full.
+- During a record conflict the POS read REGISTER SPARE KE: the line was 124 px in a
+  118 px screen. It reads REG SPARE KEY; the content test checks both conflict lines fit.
+- A scanner or basket click while a finished customer was leaving was dropped as stale;
+  it now carries to the next customer's first item. Queued clicks tick again (the tick
+  had gone missing).
+- Guidance is for the first three sales only, and the two kinds now agree: the next
+  step's object is outlined at once while the POS says the step the first time. TAKE AN
+  ITEM is gone (the scanner takes items itself, so the scanner is what is outlined). From
+  order 4 there are no automatic outlines. The unused cue-delay state is removed.
+
+### Verified (pacing)
+
+- All six checks and the real-time radio pacing probe pass. New interaction tests: lines
+  carried across orders, a song not started dropped with its intro, a filler song let go
+  by a pause, an on-time segment ahead of carried lines, the story's lines kept at the
+  closing, and a changeover click scanning the next customer's first item. Desktop
+  screenshots of order 1's guidance and order 5's conflict were reviewed.
+
+### Not verified (pacing)
+
+- How the carried lines feel to a person; the probe only shows they are all heard.
+
 ### Changed — June's hint about the dial, and a second one if it's missed
 
 - Order 2's tuning hint now reads as a small on-air apology: "A few of you say our signal

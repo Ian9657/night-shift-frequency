@@ -28,9 +28,9 @@ const { chromium, URL_BASE, signIn, idle, click, playOrder } = require('./browse
     await page.keyboard.press('Escape');
     await page.waitForFunction(() => !NSF.phone.view.open);
     await page.keyboard.press('Escape');
-    assert.equal(await page.evaluate(() => NSF.game.guidance()), 'take');
-    assert.equal(await page.evaluate(() => { NSF.game.update(); return NSF.game.scene.cues.size; }), 0,
-      'a POS instruction suppresses automatic cue outlines');
+    assert.equal(await page.evaluate(() => NSF.game.guidance()), 'scan');
+    assert.deepEqual(await page.evaluate(() => { NSF.game.update(); return [...NSF.game.scene.cues]; }), ['scanner'],
+      'in the first sales the POS instruction and the outline point at the same thing');
 
     await page.keyboard.press('Tab');
     assert.equal(await page.evaluate(() => NSF.ui.interactionAnnouncement(NSF.game).includes('MICROWAVE')), true);
@@ -105,13 +105,39 @@ const { chromium, URL_BASE, signIn, idle, click, playOrder } = require('./browse
       await page.waitForTimeout(25);
     }
     assert.ok(heard.indexOf('radio.replyHello') >= 0 && heard.indexOf('radio.replyHello') < heard.indexOf('radio.o7'), 'reply before the next segment: ' + heard);
-    // A pausing overlay holds the radio, and a song in progress starts again afterwards.
-    await page.evaluate(() => { NSF.radio.play([{ song: 'slowTide' }]); });
+    // A pausing overlay holds the radio; a song the clerk asked for starts again afterwards.
+    await page.evaluate(() => { NSF.radio.play([{ song: 'slowTide', keep: true }]); });
     await page.waitForFunction(() => NSF.radio.view.song, null, { timeout: 20000 });
     await page.evaluate(() => NSF.found.open());
     assert.equal(await page.evaluate(() => [NSF.time.paused, NSF.radio.view.song]).then(v => v.join()), 'true,');
     await page.evaluate(() => NSF.found.close());
     await page.waitForFunction(() => NSF.radio.view.song === 'slowTide', null, { timeout: 5000 });
+
+    // Night Ferry across orders, at a quick clerk's pace. Read the queue the radio will play
+    // by stepping it, without waiting on air time.
+    const onAir = await page.evaluate(() => {
+      const r = NSF.radio, order = [];
+      const drain = () => { const seen = []; for (let i = 0; i < 12 && (r.view.key || r.view.song); i++) { seen.push(r.view.song ? 'song:' + r.view.song : r.view.key); r.skip(); } return seen; };
+      r.tune('87.6'); drain();
+      // A segment whose song never got going: its line carries, the song goes with its intro.
+      r.beginOrder(['radio.o3a', { song: 'harbourLights', intro: 'radio.o7' }]);
+      r.beginOrder(['radio.o4']);
+      order.push(drain());
+      // A filler song playing when a pause comes is let go.
+      r.beginOrder([{ song: 'lastFerry' }]);
+      NSF.found.open(); NSF.found.close();
+      order.push(r.view.song || null);
+      // An on-time segment goes ahead of carried lines; the closing clears segments but
+      // keeps the story's lines.
+      r.beginOrder(['radio.o1', 'radio.o3b']);
+      r.beginOrder(['radio.o5a', 'radio.o5b'], { onTime: true });
+      r.clearSegments();
+      order.push(drain());
+      return order;
+    });
+    assert.deepEqual(onAir[0], ['radio.o3a', 'radio.o4'], 'a carried line plays; a song not started goes with its intro');
+    assert.notEqual(onAir[1], 'lastFerry', 'a filler song is let go by a pause');
+    assert.deepEqual(onAir[2], ['radio.o1', 'radio.o5a', 'radio.o5b'], 'on time after the line on air; the story survives the closing');
     // Speech is queued: a line being typed is never cut off by the next, the same line
     // twice in a row is said once, and `remaining` covers everything waiting.
     const said = await page.evaluate(async () => {
@@ -198,11 +224,29 @@ const { chromium, URL_BASE, signIn, idle, click, playOrder } = require('./browse
       await p.close();
     }
 
+    // A scanner click while a finished customer is leaving scans the next customer's first item.
+    {
+      const p = await browser.newPage();
+      await p.goto(URL_BASE + '?seed=interaction');
+      await p.evaluate(() => { NSF.time.speed = 4; });
+      await signIn(p);
+      const first = await p.evaluate(() => NSF.game.order());
+      for (const _ of first.items) { await idle(p); await click(p, 'scanner'); }
+      await idle(p);
+      await click(p, first.paymentType === 'cash' ? 'drawer' : 'terminal');
+      await idle(p);
+      await click(p, 'bags');
+      await p.waitForFunction(() => NSF.game.state.bagged && NSF.game.state.busy);
+      await click(p, 'scanner');
+      await p.waitForFunction(() => NSF.game.state.eventIndex === 1 && NSF.game.state.scannedIds.length === 1, null, { timeout: 20000 });
+      await p.close();
+    }
+
     const withSound = await ambience(false), unmuted = await ambience(true);
     assert.equal(unmuted.muted, false);
     assert.equal(unmuted.loops, withSound.loops, 'room and radio bed loops after unmuting');
     assert.ok(withSound.loops >= 6);
     assert.equal(unmuted.echoBed, true, "the late radio bed takes the echo's hiss");
-    console.log('PASS: the tuning nudge only when nothing was found; scanner past a selected scanned item; ambience after a silent start (issue #1); queued speech (no line cut or swallowed); keyboard forward/reverse focus, Enter, Escape and live announcement; premature bagging reason, queue deduplication, modal pause, automatic scan, stale order, invalid queued action, live dial, echo across orders, a call kept on air, radio held and resumed.');
+    console.log('PASS: a click during the changeover carries to the next customer; the tuning nudge only when nothing was found; scanner past a selected scanned item; ambience after a silent start (issue #1); queued speech (no line cut or swallowed); keyboard forward/reverse focus, Enter, Escape and live announcement; premature bagging reason, queue deduplication, modal pause, automatic scan, stale order, invalid queued action, live dial, echo across orders, a call kept on air, radio held and resumed, Night Ferry carried across orders.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

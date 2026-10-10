@@ -25,7 +25,7 @@ for (let seed = 0; seed < 200; seed++) {
     keys.forEach(key => assert.ok(strings[key], `seed ${seed}: missing ${key}`));
   }
 }
-const storyKeys = [...story.radio.intro, ...story.tonight.segments.flat().filter(line => typeof line === 'string'), ...Object.values(story.radio.endings).flat(), story.radio.signoff,
+const storyKeys = [...story.radio.intro, ...story.tonight.segments.flat().map(line => (typeof line === 'string' ? line : line.intro)).filter(Boolean), ...Object.values(story.radio.endings).flat(), story.radio.signoff,
   ...Object.values(story.radio.songs).map(song => song.title), ...Object.values(story.tonight.stayed), ...story.tonight.found.map(item => item.tag),
   ...Object.values(story.records).flatMap(r => [...r.lines, r.exit, ...Object.values(r.afterDecision)])];
 storyKeys.forEach(key => assert.ok(strings[key], 'missing story key ' + key));
@@ -61,6 +61,15 @@ const room = layout.fixtures.pos.screen.w * layout.screen.scale - 10;
 const textWidth = value => [...value].reduce((sum, ch) => sum + glyphs[ch][0], 0);
 for (const [key, value] of Object.entries(strings)) {
   if (/^ui\.(guide|feedback)\./.test(key)) assert.ok(textWidth(value) * 1.15 <= room, `${key} is too wide for the POS status field`);
+}
+
+// During a record conflict the POS shows what the item is and what the register read;
+// both lines fit the screen, so SPARE KEY is never cut short.
+for (const label of ['item.cola', 'item.spareKey']) {
+  for (const prefix of ['rec.item', 'pos.reg']) {
+    const line = t(prefix) + ' ' + t(label);
+    assert.ok(textWidth(line) <= room, `"${line}" is too wide for the POS`);
+  }
 }
 
 // '@key' variables are looked up themselves.

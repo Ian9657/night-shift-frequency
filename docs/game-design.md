@@ -47,7 +47,9 @@ scanned is still selected). Scanned items stay on the
 - Every click is answered: the object's outline flashes, and the machine's own sound
   plays. A click on a machine while another is still moving is kept (up to three, one per
   machine, only for this sale) with a soft tick and done when it is free; one that no
-  longer applies by then (the extra tap of a double tap) is dropped quietly. A click on
+  longer applies by then (the extra tap of a double tap) is dropped quietly. While a
+  finished customer is leaving, a click on the scanner or basket is kept for the next
+  customer's first item. A click on
   nothing just ticks.
 - The object under the pointer is outlined and named in a small label; labels name objects rather than repeat instructions. On a touch screen
   a tap acts when the finger lifts; holding an object for half a second names it
@@ -58,21 +60,21 @@ scanned is still selected). Scanned items stay on the
   on the counter, Enter or Space uses it, Escape lets go. The screen-reader live region
   reads the focused object, the guidance or the last reason, the speech and the radio.
 
-First-time guidance: in the POS's status field, in amber, the next step the first time
-it comes up: TAKE AN ITEM and SCAN THE ITEM in order 1, then CARD: TERMINAL, CASH:
-DRAWER, HEAT IT FIRST and PACK THE ORDER at the first sale that needs each.
+Guidance, in the first three sales only: the object for the next step is outlined at
+once, and the first time a step comes up the POS's status field says it in amber (SCAN
+THE ITEM in order 1, then CARD: TERMINAL, CASH: DRAWER, HEAT IT FIRST and PACK THE ORDER
+at the first sale that needs each). From order 4 the clerk is on their own; refusals
+still give their reason, and record conflicts still light the record key.
 
 Speech: what a customer says is queued. A line, once it starts, is always typed out and
 left up to read before the next replaces it (1.35 s, or 0.8 s when more is waiting); a
 line the same as the one before it is said once. Nothing said is dropped, and a
 customer finishes speaking before they turn to go.
 
-Guidance: from order 3, next-action outlines appear after a 780 ms delay.
-Automatic next-action outlines wait while a first-time POS instruction, an error
-message or an inspection panel is visible. Hover, keyboard focus and selected-item
-feedback remain available. During a
-record conflict all outlines disappear; the POS screen itself blinks for attention and,
-once the item has been re-scanned, the record key on the register's keypad flashes.
+Outlines wait while a refusal is shown or a panel is open. Hover, keyboard focus and
+the selected item stay outlined. During a record conflict there are no outlines; the
+POS screen itself blinks for attention and, once the item has been re-scanned, the
+record key on the register's keypad flashes.
 A few lines lock input until read (the first order's opening, the first re-scan
 reaction in a record order).
 
@@ -166,14 +168,18 @@ The four combinations lead to four letters read by *Night Ferry* after the shift
   Drag or click the needle, use the step keys, or the arrow keys; × or Escape puts it
   away, as does a click anywhere outside it (which does nothing else). The shift keeps
   running and the radio keeps playing while it is open.
-- 87.6 *Night Ferry*: an intro and one segment per order. A new order's segment replaces
-  any of the last one still waiting (or playing), except the clerk's own moments: their
-  text read out and its song, and their call. A line or song interrupted by tuning away
-  is replayed (a song from the top) on tuning back. Songs run as many whole bars as fit
-  in 15 s. After the sign-off it is static.
+- 87.6 *Night Ferry*: an intro and one segment per order. Nothing June says is lost to a
+  quick clerk: what is left of one segment carries into the next order, and whatever is
+  on air finishes. The record orders' segments (5 and 8) go ahead of anything carried,
+  right after the line on air. The one thing let go is a song that hasn't started when
+  the next order begins, together with the line introducing it. The clerk's own moments
+  (their text read out and its song, their call) are always kept. Before the closing
+  letter, leftover segment lines are dropped except the record orders'. A line or song
+  interrupted by tuning away is replayed (a song from the top) on tuning back. Songs run
+  as many whole bars as fit in 15 s. After the sign-off it is static.
 - The phone, the records and lost and found pause the shift: the clock stops and Night
-  Ferry goes quiet (a song starts again afterwards); the room keeps its sound. Only one
-  panel is open at a time.
+  Ferry goes quiet (a song playing is let go, unless the clerk asked for it, which
+  starts again afterwards); the room keeps its sound. Only one panel is open at a time.
 - 87.7, the echo: static early; from order 5 it reads register records, and after order
   5 is decided it reads the record the player did **not** save.
 - Between them, unmarked, three people who stayed, each from a point in the night:
