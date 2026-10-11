@@ -5,6 +5,26 @@ verified and what was not.
 
 ## Unreleased
 
+### Added — probes for what the checks can't see
+
+- `tests/probes/`, optional tools kept from this week's reviews: `pacing.cjs` (a practised
+  player at normal speed through the whole night: waiting time, Night Ferry heard line by
+  line, how long actions keep the counter busy), `speech.cjs` (any customer line cut off or
+  never shown fails it), `chaos.cjs` (random input before each order; page errors or a stuck
+  order fail it), `record.cjs` (records the game's output to a file to listen to) and
+  `levels.cjs` (peak and RMS of the main sounds). They share `common.cjs`: a player who knows
+  the counter, and `BASE=<folder>` to run against another copy of the game.
+- CONTRIBUTING.md says what each is for and when to run it.
+
+### Verified (probes)
+
+- Each probe ran on the current game. Against copies of earlier commits (`git archive`),
+  `speech.cjs` reports the eight cut lines of the version before the speech queue and
+  exits 1, and `chaos.cjs` gets stuck in order 7 on the version before the scanner fix
+  and exits 1; on the current game both pass.
+- `pacing.cjs` found that, since the time signal and ident were added, a practised player
+  never hears order 6's "phone lines are open" or order 7's line; that is fixed separately.
+
 ### Changed — tests split by theme, and one way to run them all
 
 - `tests/interaction.test.cjs` had grown to nineteen checks sharing one page, so a case

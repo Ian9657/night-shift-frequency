@@ -184,7 +184,11 @@ and audio checks are suites of cases, each in a fresh page (`suite()` in
 | `visual.cjs` | Screenshots of key moments for human review |
 | `radio-pacing.cjs` (optional) | The first order at normal speed: the second order's dial hint, introduction and song in sequence, and the taxi found with the dial's keys |
 
-Not covered: a whole night at normal speed, the audio mix and how voices sound (no test listens), accessibility beyond keyboard focus and the live region.
+Optional probes in `tests/probes/` (a whole night at normal speed, speech, chaos,
+recordings and levels) share a player who knows the counter (`common.cjs`); see
+CONTRIBUTING.md.
+
+Not covered by the checks: a whole night at normal speed, the audio mix and how voices sound (no test listens), accessibility beyond keyboard focus and the live region.
 
 ## Where new systems go
 

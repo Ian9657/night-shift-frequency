@@ -121,3 +121,27 @@ order at normal speed, checks the second order's hint, introduction and song in
 sequence, and finds the taxi signal using the dial's keyboard controls. It saves
 desktop and landscape-phone hint screenshots under `tests/artifacts/`.
 This is a short pacing probe, not a full-night normal-speed playthrough.
+
+## Probes
+
+`tests/probes/` holds optional tools for looking at the game the way a person would,
+for what the checks can't see. They are not in the verification list. Set
+`BASE=<folder>` to point one at a copy of the game, for example a previous version from
+`git archive <commit> | tar -x -C <folder>`, to compare before and after a change.
+
+```sh
+node tests/probes/pacing.cjs [seed]       # a practised player at normal speed, the whole night:
+                                          #   time spent waiting, Night Ferry heard line by line,
+                                          #   how long each action keeps the counter busy (~1.5 min)
+node tests/probes/speech.cjs [seed ...]   # whole nights at a quick pace; any customer line cut
+                                          #   off or never shown fails it
+node tests/probes/chaos.cjs [seed ...]    # random input before each order, then a player finishes
+                                          #   it; page errors or a stuck order fail it
+node tests/probes/record.cjs june         # record what the game plays to tests/artifacts/june.webm
+                                          #   (presets: june, voices, opening, song)
+node tests/probes/levels.cjs              # peak and RMS of the main sounds at the output
+```
+
+Run `pacing` after changing Night Ferry or the counter's timing, `speech` after changing
+how customers talk, `chaos` after changing input or panels, and `record` / `levels`
+after changing a sound, then listen.
