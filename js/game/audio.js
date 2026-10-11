@@ -682,7 +682,7 @@
 
   root.NSF.audio = {
     unlock: audio, startAmbience, scan, payment, anomaly, cashPaper, cashDrawer, microwaveStart, microwaveDone,
-    stopMicrowave, receipt, bag, dialogueTick, resetTicks() { tickStep = 0; },
+    receipt, bag, dialogueTick, resetTicks() { tickStep = 0; },
     radioStation, radioTune, radioSpeech, stopSpeech, playClip, radioSting, stationBed, phoneKey, uiClick, phoneFlip, pen, stamp, carPass, clockSkip, tubeFlicker, phoneBuzz, phoneRing, phoneSent, doorChime, gulls, playSong, stopSong, boxDrop,
     // Levels 0–5 for 'master', 'radio' and 'sounds'.
     level(name) { return levels[name]; },

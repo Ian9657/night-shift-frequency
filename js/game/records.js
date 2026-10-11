@@ -62,7 +62,7 @@
   }
 
   root.NSF.records = {
-    view, model, controls, open, close, choose, activate, key,
+    view, model, controls, open, close, choose, key,
     attach(controller) { game = controller; },
   };
 })(globalThis);

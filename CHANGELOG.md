@@ -5,6 +5,19 @@ verified and what was not.
 
 ## Unreleased
 
+### Removed — exports nothing used, and code paths in the design notes
+
+- `audio.stopMicrowave`, `records.activate` and `voice.modes` were exported but only used
+  inside their own modules; they are no longer exported. `NSF.debug` no longer carries
+  `phone`, `drift` and `found`, which no test read (tests use `NSF.phone` and the rest).
+- `docs/game-design.md` named three code files; it describes rules, and the modules are
+  listed in `docs/architecture.md`, so the paths are gone from it.
+- `tests/artifacts/` was cleared (116 disposable files).
+
+### Verified (cleanup)
+
+- All eight checks pass. Each removed export was searched for in `js/` and `tests/`.
+
 ### Fixed — the phone lines' opening was never heard by a quick clerk
 
 - Found with `tests/probes/pacing.cjs`. Since the time signal and ident were added, Night

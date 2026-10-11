@@ -59,7 +59,7 @@
   }
 
   root.NSF.voice = {
-    speak, stop, modes: MODES,
+    speak, stop,
     // A recorded line's own length (ms), or null when it is synthesised.
     length: key => clipFor(key)?.ms ?? null,
     get mode() { return mode; },

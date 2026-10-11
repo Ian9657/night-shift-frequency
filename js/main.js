@@ -197,7 +197,7 @@
   // Test hooks: client-space centres of every clickable target.
   console.info(`Night Shift Frequency · seed ${game.shift.seed} · replay with ?seed=${encodeURIComponent(game.shift.seed)}`);
   root.NSF.debug = {
-    game, time, records, radio, dialogue, phone, signin, drift, messages, found, seed: game.shift.seed,
+    game, time, records, radio, dialogue, signin, messages, seed: game.shift.seed,
     targets() {
       render();
       const rect = canvas.getBoundingClientRect();
