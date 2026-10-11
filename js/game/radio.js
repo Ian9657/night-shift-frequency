@@ -10,7 +10,7 @@
   const label = freq => (freq % 10 ? (freq / 100).toFixed(2) : (freq / 100).toFixed(1));
   // Night Ferry's stings before a segment's first line: the ident, or on the hour the
   // time signal. The line waits for them.
-  const STING_MS = { ident: 900, pips: 5600 };
+  const STING_MS = { ident: 900, pips: 3600 };
   // A transmitter comes in over a window either side of its frequency: clear on it,
   // fainter and noisier a step or two off, gone three hundredths away.
   const WINDOW = 3;
@@ -117,20 +117,29 @@
     return done;
   }
 
-  // A new order's segment follows whatever of the last one is still to come, so a quick
-  // clerk misses nothing June says: lines carry over, and whatever is on air (a line or
-  // a song) finishes. Songs that haven't started and aren't the clerk's own are the one
-  // thing let go, each with its intro. An `onTime` segment (the record orders) goes ahead
-  // of the carried lines, right after what is on air. On another frequency the queue just
-  // waits for the clerk to tune back.
+  // A new order's segment follows what is left of the last one, and whatever is on air
+  // (a line or a song) finishes, so the radio keeps up with the counter without cutting
+  // June off. Older leftovers are let go, and so are songs that haven't started, each with
+  // its intro; a night's segments run longer than a quick clerk's night. Never let go: the
+  // clerk's own moments (`keep`), the record orders' lines (`story`) and the lines that
+  // tell the clerk what they can do (the night's `mustHear`). They also go first, in that
+  // order, ahead of ordinary lines, right after what is on air; within a rank lines keep
+  // their order. On another frequency the queue just waits for the clerk to tune back.
   // The segment's first line gets the station's ident, or `pips` on the hour.
+  let segment = 0;
   function beginOrder(lines, { onTime = false, pips = false } = {}) {
-    const kept = queue.filter(line => line.keep), carried = queue.filter(line => !line.keep && !line.song);
+    segment += 1;
+    const kept = queue.filter(line => line.keep);
+    const carried = queue.filter(line => !line.keep && !line.song && (line.story || line.must || line.segment === segment - 1));
     // An on-time segment carries the story (the key's message): it is never let go.
-    const fresh = lines.map(line => ({ ...entry(line), ...(onTime ? { story: true } : {}) }));
+    const fresh = lines.map(line => {
+      const e = entry(line);
+      return { ...e, segment, ...(onTime ? { story: true } : {}), ...(story.tonight.mustHear.includes(e.key) ? { must: true } : {}) };
+    });
     const first = fresh.find(line => line.key);
     if (first) first[pips ? 'pips' : 'ident'] = true;
-    queue = onTime ? [...kept, ...fresh, ...carried] : [...kept, ...carried, ...fresh];
+    const rank = line => (line.keep ? 0 : line.story ? 1 : line.must ? 2 : 3);
+    queue = [...kept, ...carried, ...fresh].map((line, i) => [rank(line), i, line]).sort((a, b) => a[0] - b[0] || a[1] - b[1]).map(x => x[2]);
     if (view.kind !== 'ferry' || view.offAir || current?.keep) return;
     if (view.key) return;                                          // let what is on air finish
     time.cancel(lineTimer);
@@ -139,9 +148,9 @@
   }
 
   // Before the closing letter: what is left of the night's segments is let go, except the
-  // clerk's own moments and the story's lines, which come first.
+  // clerk's own moments, the story's lines and what the clerk must hear, which come first.
   function clearSegments() {
-    queue = queue.filter(line => line.keep || line.story);
+    queue = queue.filter(line => line.keep || line.story || line.must);
   }
 
   // While the phone, records or lost and found are open the shift is paused: Night

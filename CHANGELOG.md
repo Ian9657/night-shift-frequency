@@ -5,6 +5,34 @@ verified and what was not.
 
 ## Unreleased
 
+### Fixed — the phone lines' opening was never heard by a quick clerk
+
+- Found with `tests/probes/pacing.cjs`. Since the time signal and ident were added, Night
+  Ferry fell further behind a practised player: order 6's "phone lines are open" and
+  order 7's line were still waiting when order 8's segment went ahead, and the closing
+  dropped them. The earlier check missed it because it only listed lines heard partly,
+  not lines never heard.
+- A night's segments run longer than a quick clerk's night (about 106 s against 75 s), so
+  the radio now chooses: only the last order's leftovers carry over, older ones are let
+  go; and the queue is ranked: the clerk's own moments, the record orders' lines, then the
+  night's `mustHear` lines (the dial hint, its repeat, the phone lines opening), then the
+  rest. `mustHear` lines also survive the closing. The time signal is three pips and a
+  long one (3.6 s, was 5.6 s).
+- Measured after, at normal speed: the dial hint in order 2, its repeat in 4, the key's
+  message in 5 and the phone lines opening in 6; the weather, the second tower line and
+  the rain easing were let go, as were songs that hadn't started. A slower player hears
+  more.
+- The suites show sixteen lines of a failure instead of six (the diff was cut off).
+
+### Verified (radio priorities)
+
+- All nine checks pass, with a new radio case for older leftovers, ranking and the
+  closing. The pacing probe was run before and after.
+
+### Not verified (radio priorities)
+
+- Whether the radio now sounds too far from the order it belongs to, by ear.
+
 ### Added — probes for what the checks can't see
 
 - `tests/probes/`, optional tools kept from this week's reviews: `pacing.cjs` (a practised

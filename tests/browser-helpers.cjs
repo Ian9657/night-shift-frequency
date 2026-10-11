@@ -118,7 +118,7 @@ async function suite(title, cases, { speed = 4, seed = 'interaction' } = {}) {
         console.log('  ok   ' + name);
       } catch (error) {
         failed.push(name);
-        console.log('  FAIL ' + name + '\n       ' + String(error.stack || error).split('\n').slice(0, 6).join('\n       '));
+        console.log('  FAIL ' + name + '\n       ' + String(error.stack || error).split('\n').slice(0, 16).join('\n       '));
       } finally {
         await page.close();
       }

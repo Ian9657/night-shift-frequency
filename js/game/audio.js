@@ -346,7 +346,7 @@
   }
 
   // Night Ferry's own sounds. A sting before a segment: the station's three-note ident,
-  // or on the hour the time signal (five short pips and a long one). Returns its length.
+  // or on the hour the time signal (three short pips and a long one). Returns its length.
   function radioSting(kind) {
     const ctx = audio();
     if (!ctx) return 0;
@@ -364,9 +364,9 @@
       osc.start(at + t); osc.stop(at + t + length + 0.02);
     };
     if (kind === 'pips') {
-      for (let i = 0; i < 5; i++) beep(1000, i, 0.1, 0.05);
-      beep(1000, 5, 0.5, 0.05);
-      return 5600;
+      for (let i = 0; i < 3; i++) beep(1000, i, 0.1, 0.05);
+      beep(1000, 3, 0.5, 0.05);
+      return 3600;
     }
     [[72, 0], [76, 0.18], [79, 0.36]].forEach(([note, t]) => beep(440 * 2 ** ((note - 69) / 12), t, 0.5, 0.035, 'triangle'));
     return 900;

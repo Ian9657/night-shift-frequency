@@ -140,6 +140,9 @@
     onTime: [4, 7],
     // June opens the phone lines with this order's segment.
     linesOpen: 5,
+    // Lines June never lets go, however far behind the counter the radio falls: they
+    // tell the clerk what they can do.
+    mustHear: ['radio.tuningHint', 'radio.tuningNudge', 'radio.linesOpen'],
     // If the clerk hasn't found any frequency between the stations by this order, June
     // mentions them again after its segment.
     tuningNudge: { at: 3, line: 'radio.tuningNudge' },

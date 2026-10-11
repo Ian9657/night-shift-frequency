@@ -170,7 +170,7 @@ The four combinations lead to four letters read by *Night Ferry* after the shift
   nothing else). The shift keeps running and the radio keeps playing while it is open.
 - Night Ferry sounds like a station: each segment opens with its three-note ident, or, when
   the clock has passed the hour since the last order (and at 01:00), with the time signal
-  (five pips and a long one). A quiet bed of held chords runs under June's talk and
+  (three pips and a long one). A quiet bed of held chords runs under June's talk and
   between items, stepping aside for songs.
 - Voices are murmured, not spoken (unless a line has been recorded, or VOICE is set to
   READ ALOUD): each line's syllables, pauses and sentence pitch are synthesised through
@@ -182,15 +182,17 @@ The four combinations lead to four letters read by *Night Ferry* after the shift
   fainter and hissier off it, with letters of the caption lost to the noise (·), and gone
   beyond. Moving the needle within one transmitter's range doesn't interrupt what it is
   saying. The dial's meter shows how cleanly it comes in.
-- 87.6 *Night Ferry*: an intro and one segment per order. Nothing June says is lost to a
-  quick clerk: what is left of one segment carries into the next order, and whatever is
-  on air finishes. The record orders' segments (5 and 8) go ahead of anything carried,
-  right after the line on air. The one thing let go is a song that hasn't started when
-  the next order begins, together with the line introducing it. The clerk's own moments
-  (their text read out and its song, their call) are always kept. Before the closing
-  letter, leftover segment lines are dropped except the record orders'. A line or song
-  interrupted by tuning away is replayed (a song from the top) on tuning back. Songs run
-  as many whole bars as fit in 15 s. After the sign-off it is static.
+- 87.6 *Night Ferry*: an intro and one segment per order. A night's segments run longer
+  than a quick clerk's night, so the radio keeps up with the counter: whatever is on air
+  (a line or a song) finishes, what is left of the last order's segment carries into the
+  next, and older leftovers are let go, as is a song that hasn't started, with the line
+  introducing it. Never let go, and played first, in this order: the clerk's own moments
+  (their text read out and its song, their call), the record orders' lines (orders 5 and
+  8, which go on air as their order begins), and the lines that tell the clerk what they
+  can do (the dial hint and its repeat, the phone lines opening). Before the closing
+  letter, everything else left over is dropped. A line or song interrupted by tuning away
+  is replayed (a song from the top) on tuning back. Songs run as many whole bars as fit
+  in 15 s. After the sign-off it is static.
 - The phone, the records and lost and found pause the shift: the clock stops and Night
   Ferry goes quiet (a song playing is let go, unless the clerk asked for it, which
   starts again afterwards); the room keeps its sound. Only one panel is open at a time.

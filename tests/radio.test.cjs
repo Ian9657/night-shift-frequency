@@ -80,6 +80,24 @@ suite('radio', [
     assert.deepEqual(onAir[2], ['radio.o1', 'radio.o5a', 'radio.o5b'], 'on time after the line on air; the story survives the closing');
   }, { before: withDrain }],
 
+  ['behind the counter: older leftovers let go, lines the clerk must hear first and kept', async page => {
+    const onAir = await page.evaluate(() => {
+      const r = NSF.radio;
+      drain();
+      r.beginOrder(['radio.o1']);                                        // on air now
+      r.beginOrder(['radio.o3a', 'radio.o3b']);                          // waiting
+      r.beginOrder(['radio.o4']);                                        // o3a/o3b one order behind: kept
+      r.beginOrder(['radio.o6a', 'radio.linesOpen']);                    // now two behind: let go
+      const queued = drain();
+      r.beginOrder(['radio.o6a']);
+      r.beginOrder(['radio.o7', 'radio.linesOpen']);
+      r.clearSegments();                                                 // the closing
+      return { queued, closing: drain() };
+    });
+    assert.deepEqual(onAir.queued, ['radio.o1', 'radio.linesOpen', 'radio.o4', 'radio.o6a'], 'the must-hear line first; two-order-old lines let go');
+    assert.deepEqual(onAir.closing, ['radio.o6a', 'radio.linesOpen'], 'what must be heard survives the closing');
+  }, { before: withDrain }],
+
   ['June mentions the frequencies again at order 4 only if none has been found', async page => {
     const segment = () => page.evaluate(() => {
       let lines = null;
