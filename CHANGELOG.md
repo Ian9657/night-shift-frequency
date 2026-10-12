@@ -5,6 +5,11 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — repositioned the radio scan label
+
+- The RADIO label now sits below the radio with a downward connector, keeping it visually
+  attached to the object instead of floating over the shelves.
+
 ### Fixed — GitHub quick entry no longer speaks on refresh
 
 - The GitHub Pages direct-to-counter entry now holds the radio bus at zero until the

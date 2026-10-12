@@ -205,16 +205,23 @@
       const width = text.width(caption) + 14;
       const cx = Math.round((target.x + target.w / 2) * layout.screen.scale);
       const targetY = Math.round(target.y * layout.screen.scale);
-      const y = Math.max(36, targetY - 24);
+      const isRadio = target.name === 'radio';
+      const y = isRadio
+        ? Math.min(SH - 42, targetY + Math.round(target.h * layout.screen.scale) + 10)
+        : Math.max(36, targetY - 24);
       const x = Math.max(4, Math.min(SW - width - 4, cx - Math.round(width / 2)));
       const lineX = Math.max(x + 5, Math.min(x + width - 5, cx));
       const tone = index % 3 === 1 ? '#ff63c3' : '#aef08c';
       ctx.globalAlpha = labelAmount;
       ctx.strokeStyle = tone;
       ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(lineX, y + 16); ctx.lineTo(cx, targetY); ctx.stroke();
+      ctx.beginPath();
+      if (isRadio) { ctx.moveTo(lineX, y); ctx.lineTo(cx, targetY + Math.round(target.h * layout.screen.scale)); }
+      else { ctx.moveTo(lineX, y + 16); ctx.lineTo(cx, targetY); }
+      ctx.stroke();
       ctx.fillStyle = tone;
-      ctx.fillRect(cx - 2, targetY - 2, 4, 4);
+      const markerY = isRadio ? targetY + Math.round(target.h * layout.screen.scale) - 2 : targetY - 2;
+      ctx.fillRect(cx - 2, markerY, 4, 4);
       box(ctx, x, y, width, 16, 'rgba(7,9,15,0.84)', tone);
       text.draw(ctx, caption, x + width / 2, y + 3, tone, { align: 'center' });
       ctx.globalAlpha = 1;
