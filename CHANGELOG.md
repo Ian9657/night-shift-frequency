@@ -5,6 +5,13 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — clearer broadcaster delivery
+
+- Re-recorded the 43 bundled radio lines with Kokoro `af_bella` at 1.08x for a quicker,
+  more assured presenter cadence.
+- Widened the recorded-voice radio filter to keep consonants and vocal body while retaining
+  a modest speaker roll-off. Verified with the audio suite and a fresh June recording probe.
+
 ### Changed — softer radio voice
 
 - Reworked the synthesised radio murmur into a quieter, warmer harmonic voice with broad

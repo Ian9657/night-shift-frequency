@@ -335,13 +335,18 @@
     const at = ctx.currentTime + 0.05 + delay / 1000;
     clipBuffers.get(key).then(buffer => {
       if (speech?.token !== token) return;                          // stopped while decoding
-      const source = ctx.createBufferSource(), speaker = ctx.createBiquadFilter(), out = ctx.createGain();
+      const source = ctx.createBufferSource(), speaker = ctx.createBiquadFilter(), air = ctx.createBiquadFilter(), out = ctx.createGain();
       source.buffer = buffer;
-      speaker.type = 'bandpass';
-      speaker.frequency.value = { ferry: 1300, echo: 900, signal: 1600 }[profileName] || 1300;
-      speaker.Q.value = { ferry: 0.55, echo: 0.9, signal: 1.2 }[profileName] || 0.55;
+      // Keep the radio's limited speaker character without collapsing a natural voice
+      // into a narrow telephone band.
+      speaker.type = 'highpass';
+      speaker.frequency.value = { ferry: 140, echo: 220, signal: 300 }[profileName] || 140;
+      speaker.Q.value = 0.5;
+      air.type = 'lowpass';
+      air.frequency.value = { ferry: 3600, echo: 2600, signal: 3000 }[profileName] || 3600;
+      air.Q.value = 0.45;
       out.gain.value = profileName === 'echo' ? 0.7 : 1;
-      source.connect(speaker); speaker.connect(out); out.connect(bus.signal);
+      source.connect(speaker); speaker.connect(air); air.connect(out); out.connect(bus.signal);
       source.start(Math.max(at, ctx.currentTime));
       speech.out = out;
       speech.nodes = [source];
