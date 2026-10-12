@@ -13,7 +13,9 @@ or download it and open `index.html`. No install, no build.
 ## How to play
 
 Open `index.html` in a browser and click **START SHIFT**, then write your name on the
-sign-in sheet (type it, or use the letter keys) and sign in.
+sign-in sheet (type it, or use the letter keys) and sign in. The GitHub Pages build
+opens directly at the counter after a refresh for testing; add `?intro=1` to that URL
+to show the title and sign-in screens.
 
 - Click the customer's basket to take an item out, then the scanner (or just the scanner:
   it takes the next item itself). Hover over, or hold, anything to see what it is. When everything is

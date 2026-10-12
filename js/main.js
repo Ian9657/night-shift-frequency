@@ -217,4 +217,14 @@
       return result;
     },
   };
+
+  // GitHub Pages is the hands-on test build: refresh straight into the counter so
+  // repeated browser checks do not require the title and sign-in screens. Add
+  // `?intro=1` when reviewing the full opening flow.
+  const quickStart = location.hostname.endsWith('.github.io')
+    && !new URLSearchParams(location.search).has('intro');
+  if (quickStart) {
+    game.startShift();
+    signin.sign();
+  }
 })(globalThis);

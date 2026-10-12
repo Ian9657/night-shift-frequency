@@ -5,6 +5,12 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — faster GitHub Pages test entry
+
+- GitHub Pages now skips the title and sign-in screens after refresh and opens directly
+  at the counter. Use `?intro=1` to review the full opening flow; local `index.html`
+  keeps the normal opening by default.
+
 ### Fixed — resume now carries the audio offset
 
 - The first resume fix preserved the caption timing but restarted the decoded WAV at zero.
