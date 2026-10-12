@@ -5,6 +5,16 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — no name label under the mouse
+
+- The mouse now only outlines the object under it (with the pixel pointer); the amber
+  name label is gone from normal play. Names come from holding Shift, and in the first
+  two sales a quiet "Hold Shift to see names" sits at the bottom right on screens with a
+  mouse (it no longer repeats inside the scan itself). Keyboard focus and a touch-screen
+  hold still show the label (`state.hoverNamed` tells a touch hold from a mouse over it).
+- Verified: `node tests/run-all.cjs` (counter cases check a mouse over the scanner is not
+  named and a touch hold is) and a desktop screenshot of the basket under the mouse.
+
 ### Added — trackpad tuning, a pixel pointer, one-click phone menu, click to finish a line
 
 - Scrolling over the radio tunes it without opening the dial, built for a MacBook trackpad:

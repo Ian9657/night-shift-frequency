@@ -130,7 +130,7 @@
     const held = pending.held || (pending.hit?.world && time.uiNow >= pending.until);
     if (!moved && !held && identity(hit) === identity(pending.hit)) dispatch(hit, point);
     if (!moved && pending.hit?.world) {
-      game.setHover(pending.hit.world.name);
+      game.setHover(pending.hit.world.name, { named: true });
       touchHoverUntil = time.uiNow + (held ? 1600 : 450);
     }
   });
@@ -214,7 +214,7 @@
     time.tick(timestamp);
     if (press?.hit?.world && !press.held && time.uiNow >= press.until) {
       press.held = true;
-      game.setHover(press.hit.world.name);
+      game.setHover(press.hit.world.name, { named: true });
     }
     if (touchHoverUntil && time.uiNow >= touchHoverUntil) {
       touchHoverUntil = 0;

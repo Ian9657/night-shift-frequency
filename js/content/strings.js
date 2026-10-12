@@ -137,7 +137,7 @@
     'ui.target.phone': 'PHONE',
     'ui.target.lostFound': 'LOST AND FOUND',
     'ui.guide.scan': 'SCAN THE ITEM',
-    'ui.inspectHint': 'HOLD SHIFT TO INSPECT',
+    'ui.inspectHint': 'Hold Shift to see names',
     'ui.inspectTitle': 'COUNTER SCAN',
     'ui.guide.cash': 'CASH: DRAWER',
     'ui.guide.card': 'CARD: TERMINAL',

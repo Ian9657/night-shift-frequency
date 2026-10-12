@@ -53,7 +53,11 @@ scanned is still selected). Scanned items stay on the
   nothing just ticks.
 - The pointer is a pixel cursor: a pointing hand over anything usable, a closed hand while
   an item is held, a tuning knob over the radio, otherwise an arrow.
-- The object under the pointer is outlined and named in a small label; labels name objects rather than repeat instructions. On a touch screen
+- The object under the mouse is outlined; it is not named, since the outline and the
+  pointer say enough. Holding Shift on its own names every object (the counter scan), and
+  in the first two sales a quiet note at the bottom right says so. A small label names the
+  object focused from the keyboard or held on a touch screen; labels name objects rather
+  than repeat instructions. On a touch screen
   a tap acts when the finger lifts; holding an object for half a second names it
   without acting, and sliding the finger away cancels. Near a gap between two objects a
   touch picks the nearer one, or neither if they are equally near. Right-click closes

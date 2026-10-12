@@ -65,11 +65,12 @@ suite('counter', [
     assert.deepEqual(await page.evaluate(() => [NSF.dialogue.visibleText(), NSF.dialogue.fullText()].map(s => s.length)).then(([a, b]) => a === b && a > 0), true);
   }],
 
-  ['the pointer: a hand over a machine, the tuning knob over the radio, the arrow over nothing', async page => {
+  ['the pointer: a hand (and an outline, no name) over a machine, the tuning knob over the radio, the arrow over nothing', async page => {
     await idle(page);
     const shown = async at => { await page.mouse.move(at.x, at.y); await page.waitForTimeout(80); return page.evaluate(() => NSF.cursor.shown); };
     const targets = await page.evaluate(() => NSF.debug.targets());
     assert.equal(await shown(targets.scanner), 'hand');
+    assert.deepEqual(await page.evaluate(() => [NSF.game.state.hoverTarget, NSF.game.state.hoverNamed]), ['scanner', false], 'outlined, not named');
     assert.equal(await shown(targets.radio), 'tune');
     assert.equal(await shown({ x: 640, y: 60 }), 'arrow');
     assert.ok(await page.evaluate(() => document.querySelector('[data-game]').style.cursor.includes('url(')), 'drawn as a pixel cursor');
@@ -91,6 +92,7 @@ suite('counter', [
     await touch('pointerdown', 11);
     await page.waitForTimeout(180);                                     // 450 ms of game time at 4x
     await touch('pointerup', 11);
+    assert.equal(await page.evaluate(() => NSF.game.state.hoverNamed), true, 'a hold shows the name');
     assert.equal(await page.evaluate(() => NSF.game.state.takenIds.length), 0, 'a long press inspects without activating');
     await touch('pointerdown', 12);
     await touch('pointerup', 12);

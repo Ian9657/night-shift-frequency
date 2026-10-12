@@ -14,7 +14,7 @@
   const state = {
     phase: 'title', // title -> signin -> shift -> report -> ending -> clockout -> end
     eventIndex: 0, selectedId: null, takenIds: [], scannedIds: [], paid: false, bagged: false, heatedIds: [],
-    reportShown: false, busy: false, queuedActions: [], feedback: null, flash: null, hoverTarget: null, focusTarget: null, modeOverride: null, reactionCounts: {}, dialogueFlags: new Set(),
+    reportShown: false, busy: false, queuedActions: [], feedback: null, flash: null, hoverTarget: null, hoverNamed: false, focusTarget: null, modeOverride: null, reactionCounts: {}, dialogueFlags: new Set(),
   };
 
   const F = layout.fixtures;
@@ -715,7 +715,8 @@
     activateFocused() {
       if (!overlay.view.active && targets().some(target => target.name === state.focusTarget)) return activate(state.focusTarget);
     },
-    setHover(name) { state.hoverTarget = name || null; },
+    // `named`: a touch screen's hold, which shows the name; a mouse over it only outlines it.
+    setHover(name, { named = false } = {}) { state.hoverTarget = name || null; state.hoverNamed = Boolean(name && named); },
     // A pointer takes over from keyboard focus.
     clearFocus() { state.focusTarget = null; },
     canOpenRecords: () => (state.phase === 'shift' || state.phase === 'report') && !state.busy,

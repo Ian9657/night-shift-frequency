@@ -147,10 +147,11 @@
     return [focused, feedback ? t(FEEDBACK_LABELS[feedback.kind]) : guide ? t(GUIDE_LABELS[guide]) : ''].filter(Boolean).join(' / ');
   }
 
-  // The name of the counter object under the pointer (or held on a touch screen), in a
-  // small label over it; the outline itself is drawn with the object (world.js).
+  // The name of the counter object held on a touch screen or focused from the keyboard,
+  // in a small label over it. Under the mouse the outline (world.js) and the pointer say
+  // enough; holding Shift names everything.
   function hoverLabel(ctx, game) {
-    const name = game.state.focusTarget || game.state.hoverTarget;
+    const name = game.state.focusTarget || (game.state.hoverNamed && game.state.hoverTarget);
     if (!name || inspectMode || game.state.phase !== 'shift' || overlay.view.active) return;     // the scan names it instead
     const target = game.targets().find(item => item.name === name);
     if (!target) return;
@@ -240,8 +241,13 @@
       text.draw(ctx, shown, x + width / 2, y + 3, tone, { align: 'center' });
       ctx.globalAlpha = 1;
     }
-    text.draw(ctx, t('ui.inspectHint'), SW - 10, SH - 18, 'rgba(174,240,140,0.72)', { align: 'right' });
     ctx.globalAlpha = 1;
+  }
+
+  // In the first two sales, on a screen with a mouse, a quiet note that Shift names things.
+  function inspectHint(ctx, game) {
+    if (inspectMode || game.state.phase !== 'shift' || game.state.eventIndex > 1 || overlay.view.active || !root.matchMedia?.('(hover: hover)').matches) return;
+    text.draw(ctx, t('ui.inspectHint'), SW - 10, SH - 18, 'rgba(241,245,230,0.45)', { align: 'right' });
   }
 
   // ------------------------------------------------------------ speech bubble
@@ -743,6 +749,7 @@
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     pos(ctx, game);
     hoverLabel(ctx, game);
+    inspectHint(ctx, game);
     bubble(ctx, game);
     caption(ctx, game);
     dial(ctx, game);
