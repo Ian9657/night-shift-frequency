@@ -5,6 +5,13 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — pixel HUD scan pass
+
+- Replaced vector scan lines with hard pixel-grid brackets and orthogonal connector paths,
+  assigned cyan/green/magenta by interaction state, moved radio and phone callouts below
+  their objects, and added a short scan activation chirp.
+- Verified with content, art, audio and visual suites.
+
 ### Changed — repositioned the radio scan label
 
 - The RADIO label now sits below the radio with a downward connector, keeping it visually

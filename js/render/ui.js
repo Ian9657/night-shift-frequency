@@ -187,13 +187,7 @@
     ctx.fillRect(0, scanY, SW, 2);
     ctx.fillStyle = `rgba(255,99,195,${(0.04 + amount * 0.06).toFixed(3)})`;
     ctx.fillRect(0, scanY + 3, SW, 1);
-    // Four HUD corner brackets frame the scan without covering the store.
-    ctx.strokeStyle = `rgba(99,212,208,${(0.3 + amount * 0.5).toFixed(3)})`;
-    ctx.lineWidth = 2; ctx.beginPath();
-    for (const [x, y, sx, sy] of [[14, 30, 1, 1], [SW - 14, 30, -1, 1], [14, SH - 30, 1, -1], [SW - 14, SH - 30, -1, -1]]) {
-      ctx.moveTo(x, y + sy * 18); ctx.lineTo(x, y); ctx.lineTo(x + sx * 18, y);
-    }
-    ctx.stroke();
+    // Pixel HUD: no vector strokes. Every lock-on mark lands on the 2px screen grid.
     const title = t('ui.inspectTitle');
     const titleWidth = text.width(title) + 42;
     box(ctx, Math.round((SW - titleWidth) / 2), 8, titleWidth, 18, 'rgba(7,9,15,0.92)', C.cyan);
@@ -205,23 +199,32 @@
       const width = text.width(caption) + 14;
       const cx = Math.round((target.x + target.w / 2) * layout.screen.scale);
       const targetY = Math.round(target.y * layout.screen.scale);
-      const isRadio = target.name === 'radio';
-      const y = isRadio
+      const isLower = target.name === 'radio' || target.name === 'phone';
+      const y = isLower
         ? Math.min(SH - 42, targetY + Math.round(target.h * layout.screen.scale) + 10)
         : Math.max(36, targetY - 24);
       const x = Math.max(4, Math.min(SW - width - 4, cx - Math.round(width / 2)));
       const lineX = Math.max(x + 5, Math.min(x + width - 5, cx));
-      const tone = index % 3 === 1 ? '#ff63c3' : '#aef08c';
+      const cue = game.scene.cues.has(target.name);
+      const tone = cue ? '#aef08c' : target.name === 'radio' && radio.view.echo ? '#ff63c3' : '#63d4d0';
       ctx.globalAlpha = labelAmount;
-      ctx.strokeStyle = tone;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      if (isRadio) { ctx.moveTo(lineX, y); ctx.lineTo(cx, targetY + Math.round(target.h * layout.screen.scale)); }
-      else { ctx.moveTo(lineX, y + 16); ctx.lineTo(cx, targetY); }
-      ctx.stroke();
+      const objectBottom = targetY + Math.round(target.h * layout.screen.scale);
+      const lineTop = isLower ? objectBottom : y + 16;
+      const lineBottom = isLower ? y : targetY;
+      const elbowY = isLower ? lineBottom - 6 : lineBottom + 6;
       ctx.fillStyle = tone;
-      const markerY = isRadio ? targetY + Math.round(target.h * layout.screen.scale) - 2 : targetY - 2;
+      ctx.fillRect(lineX, Math.min(elbowY, lineTop), 2, Math.abs(lineTop - elbowY) + 2);
+      ctx.fillRect(Math.min(lineX, cx), elbowY, Math.abs(cx - lineX) + 2, 2);
+      ctx.fillStyle = tone;
+      const markerY = isLower ? objectBottom - 2 : targetY - 2;
       ctx.fillRect(cx - 2, markerY, 4, 4);
+      // Four small pixel brackets lock to the target's actual bounds.
+      const left = Math.round(target.x * layout.screen.scale) - 4, top = targetY - 4;
+      const right = Math.round((target.x + target.w) * layout.screen.scale) + 2, bottom = objectBottom + 2;
+      const arm = 6;
+      for (const [x0, y0, sx, sy] of [[left, top, 1, 1], [right, top, -1, 1], [left, bottom, 1, -1], [right, bottom, -1, -1]]) {
+        ctx.fillRect(x0, y0, arm * sx, 2); ctx.fillRect(x0 + (sx > 0 ? 0 : -2), y0, 2, arm * sy);
+      }
       box(ctx, x, y, width, 16, 'rgba(7,9,15,0.84)', tone);
       text.draw(ctx, caption, x + width / 2, y + 3, tone, { align: 'center' });
       ctx.globalAlpha = 1;
@@ -751,7 +754,7 @@
 
   root.NSF.ui = { draw, hitTest, interactionAnnouncement, setInspect(value) {
     const next = Boolean(value);
-    if (next && !inspectMode) inspectSince = time.uiNow;
+    if (next && !inspectMode) { inspectSince = time.uiNow; audio.inspectPing(); }
     if (!next && inspectMode) inspectClosing = time.uiNow;
     inspectMode = next;
   }, get targets() { return targets.slice(); } };
