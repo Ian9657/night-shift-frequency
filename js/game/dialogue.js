@@ -2,7 +2,7 @@
 // has started always finishes typing and stays up long enough to read before the next
 // one replaces it, so a reaction to the clerk's action never cuts off or swallows what
 // the customer was saying. Lines are string keys; `lock` holds input until a line has
-// been typed out.
+// been typed out. A click on the bubble shows the rest of a line at once.
 (function (root) {
   'use strict';
   const { time, audio, strings } = root.NSF;
@@ -82,6 +82,19 @@
     display(null);
   }
 
+  // Show the rest of the line being typed at once (a click on the bubble). It still
+  // stays up for its full hold before the next line, and a locked line lets go shortly.
+  function reveal() {
+    if (!current) return false;
+    const length = [...strings.t(current.text, current.vars)].length;
+    if (view.shown >= length) return false;
+    clearTimers();
+    view.shown = length;
+    current.typedAt = time.now;
+    next();
+    return true;
+  }
+
   // Game-time ms until everything queued has been typed out and read.
   function remaining() {
     if (!current) return 0;
@@ -91,7 +104,7 @@
   }
 
   root.NSF.dialogue = {
-    say, clear, remaining,
+    say, clear, remaining, reveal,
     // Input waits while a locked line is waiting or still being typed.
     get locked() {
       return queue.some(entry => entry.lock) || Boolean(current?.lock && time.now < current.typedAt + 180);

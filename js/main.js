@@ -1,7 +1,7 @@
 // Boot: canvas scaling, the frame loop and input routing.
 (function (root) {
   'use strict';
-  const { time, layout, world, ui, game, records, sprites, dialogue, radio, phone, signin, outside, drift, messages, found, overlay, audio } = root.NSF;
+  const { time, layout, world, ui, game, records, sprites, dialogue, radio, phone, signin, outside, drift, messages, found, overlay, audio, cursor } = root.NSF;
   const canvas = document.querySelector('[data-game]');
   const ctx = canvas.getContext('2d');
   const live = document.querySelector('[data-live]');
@@ -62,7 +62,8 @@
   }
 
   // Touch commits on release. Holding world objects inspects them without acting.
-  let dragging = null, press = null, touchHoverUntil = 0;
+  // `mouseAt` is where the mouse is over the canvas, for the cursor.
+  let dragging = null, press = null, touchHoverUntil = 0, mouseAt = null;
   const touches = new Set();
   function cancelGesture() {
     press = null; dragging = null; touchHoverUntil = 0; game.setHover(null);
@@ -103,9 +104,21 @@
       return;
     }
     const hit = targetAt(toScreen(event));
+    hit?.ui?.hover?.();
+    mouseAt = toScreen(event);
     game.setHover(identity(hit) || null);
-    canvas.style.cursor = hit ? 'pointer' : 'default';
   });
+  // Scrolling over the radio (or anywhere while its dial is open) tunes it. A pinch on a
+  // trackpad arrives as a wheel event with Ctrl held and is left to the browser. Up or
+  // right is up the band, which is how fingers move with natural scrolling.
+  canvas.addEventListener('wheel', event => {
+    if (event.ctrlKey || game.state.phase !== 'shift') return;
+    const overRadio = radio.view.dialOpen || (!overlay.view.active && worldTarget(toScreen(event))?.name === 'radio');
+    if (!overRadio) return;
+    event.preventDefault();
+    const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? 400 : 1;
+    radio.scroll((event.deltaY - event.deltaX) * unit);
+  }, { passive: false });
   canvas.addEventListener('pointerup', event => {
     touches.delete(event.pointerId);
     if (dragging?.id === event.pointerId) { dragging = null; press = null; return; }
@@ -126,7 +139,7 @@
     if (press?.id === event.pointerId || dragging?.id === event.pointerId) cancelGesture();
   });
   canvas.addEventListener('pointerleave', event => {
-    if (event.pointerType !== 'touch') { game.setHover(null); canvas.style.cursor = 'default'; }
+    if (event.pointerType !== 'touch') { game.setHover(null); mouseAt = null; }
   });
   root.addEventListener('blur', () => { touches.clear(); cancelGesture(); });
   canvas.addEventListener('contextmenu', event => {
@@ -185,6 +198,18 @@
     ui.draw(ctx, game);
   }
 
+  // The tuning knob over the radio and its dial, a closed hand while an item is held,
+  // a pointing hand over anything usable, otherwise the arrow. Looked up every frame, so
+  // it follows what opens and closes under a still mouse. Backdrops (a click outside a
+  // panel, a whole screen to click through) are not "usable".
+  const BACKDROP = /^(.*-away|panel|report|skip)$/;
+  function pointer() {
+    const hit = mouseAt && targetAt(mouseAt);
+    if (dragging || hit?.ui?.name === 'dial' || hit?.world?.name === 'radio') return 'tune';
+    if (game.state.phase === 'shift' && game.state.selectedId && !overlay.view.active) return 'grab';
+    return hit?.world || (hit?.ui?.name && !BACKDROP.test(hit.ui.name)) ? 'hand' : 'arrow';
+  }
+
   function frame(timestamp) {
     time.tick(timestamp);
     if (press?.hit?.world && !press.held && time.uiNow >= press.until) {
@@ -200,6 +225,7 @@
     messages.update();
     found.update();
     render();
+    cursor.set(canvas, pointer());
     announce();
     root.requestAnimationFrame(frame);
   }

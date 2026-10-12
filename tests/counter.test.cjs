@@ -1,4 +1,4 @@
-// The counter: keyboard and touch input, first-sale guidance, refused clicks, the action
+// The counter: keyboard, touch and pointer input, the phone menu, the speech bubble, first-sale guidance, refused clicks, the action
 // queue, the scanner, changing customers and the customers' queued speech. Each case
 // runs in a fresh page, signed in, the clock at 4x.
 const assert = require('node:assert/strict');
@@ -37,6 +37,42 @@ suite('counter', [
     assert.equal(await scanning(), false, 'not with Cmd held');
     await page.keyboard.up('Shift');
     await page.keyboard.up('Meta');
+  }],
+
+  ['the phone menu: a row is selected under the mouse and opened by one click; a text takes two', async page => {
+    await idle(page);
+    await click(page, 'phone');
+    await page.waitForFunction(() => NSF.phone.frame() === 2);
+    const row = await page.evaluate(() => NSF.debug.targets()['ui:phone-row-settings']);
+    await page.mouse.move(row.x, row.y);
+    assert.equal(await page.evaluate(() => NSF.phone.rows()[NSF.phone.view.row]), 'settings', 'hover selects');
+    await page.mouse.click(row.x, row.y);
+    assert.equal(await page.evaluate(() => NSF.phone.view.screen), 'settings');
+    await page.keyboard.press('Escape');
+    await click(page, 'ui:phone-row-compose');
+    assert.equal(await page.evaluate(() => NSF.phone.view.screen), 'compose');
+    const second = await page.evaluate(() => 'ui:phone-send-' + NSF.messages.presets[1].id);
+    await click(page, second);
+    assert.equal(await page.evaluate(() => Boolean(NSF.debug.messages.sent)), false, 'the first click only selects a text');
+    await click(page, second);
+    assert.equal(await page.evaluate(() => NSF.debug.messages.sent?.preset.id), await page.evaluate(() => NSF.messages.presets[1].id));
+  }],
+
+  ['a click on the speech bubble shows the rest of the line at once', async page => {
+    await idle(page);
+    await page.evaluate(() => { NSF.time.speed = 0.25; NSF.dialogue.clear(); NSF.dialogue.say([NSF.game.order().customerLines.at(-1)]); });
+    await click(page, 'ui:bubble');
+    assert.deepEqual(await page.evaluate(() => [NSF.dialogue.visibleText(), NSF.dialogue.fullText()].map(s => s.length)).then(([a, b]) => a === b && a > 0), true);
+  }],
+
+  ['the pointer: a hand over a machine, the tuning knob over the radio, the arrow over nothing', async page => {
+    await idle(page);
+    const shown = async at => { await page.mouse.move(at.x, at.y); await page.waitForTimeout(80); return page.evaluate(() => NSF.cursor.shown); };
+    const targets = await page.evaluate(() => NSF.debug.targets());
+    assert.equal(await shown(targets.scanner), 'hand');
+    assert.equal(await shown(targets.radio), 'tune');
+    assert.equal(await shown({ x: 640, y: 60 }), 'arrow');
+    assert.ok(await page.evaluate(() => document.querySelector('[data-game]').style.cursor.includes('url(')), 'drawn as a pixel cursor');
   }],
 
   ['in the first sale the POS instruction and the outline point at the scanner', async page => {

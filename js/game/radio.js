@@ -259,11 +259,34 @@
     setFrequency(detent * BAND.step);
   }
 
+  // Two fingers on a trackpad (or a mouse wheel) over the radio turn the dial: about
+  // SCROLL.step pixels of travel a hundredth, so a slow slide tunes finely and a swipe
+  // sweeps the band. Landing on a transmitter catches the dial there: the rest of that
+  // gesture (a trackpad's glide after the fingers lift) is absorbed, and leaving it takes a
+  // longer pull. A pause of SCROLL.idle ms ends a gesture.
+  const SCROLL = { step: 28, hold: 150, idle: 260 };
+  const scrolling = { travel: 0, at: -Infinity, caught: false };
+  function scroll(amount) {
+    if (time.uiNow - scrolling.at > SCROLL.idle) Object.assign(scrolling, { travel: 0, caught: false });
+    scrolling.at = time.uiNow;
+    if (scrolling.caught) return;
+    scrolling.travel += amount;
+    for (;;) {
+      const direction = Math.sign(scrolling.travel), need = reception(view.freq).clarity === 1 ? SCROLL.hold : SCROLL.step;
+      if (!direction || Math.abs(scrolling.travel) < need) return;
+      const before = view.freq;
+      scrolling.travel -= direction * need;
+      setFrequency(view.freq + direction, { fine: true });
+      if (view.freq === before) { scrolling.travel = 0; return; }            // the end of the band
+      if (reception(view.freq).clarity === 1) { scrolling.caught = true; scrolling.travel = 0; return; }
+    }
+  }
+
   function closeDial() { view.dialOpen = false; overlay.close('radio'); }
 
   root.NSF.radio = {
     view, band: BAND, label, play, beginOrder, clearSegments, hold, release, tune, setFrequency, skip, signOff,
-    step,
+    step, scroll,
     openDial() {
       if (view.dialOpen) return closeDial();
       if (!overlay.open('radio', { pause: false })) return;

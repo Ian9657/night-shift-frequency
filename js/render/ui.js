@@ -40,7 +40,8 @@
 
   // `action` gets the screen-grid point clicked; `drag`, if given, also follows the
   // pointer while it is held down.
-  function hit(x, y, w, h, action, name, drag) { targets.push({ x, y, w, h, action, name, drag }); }
+  // `drag(point)` follows a press across the screen; `hover()` runs when the mouse is over it.
+  function hit(x, y, w, h, action, name, { drag, hover } = {}) { targets.push({ x, y, w, h, action, name, drag, hover }); }
 
   function box(ctx, x, y, w, h, fill, border, notch = 2) {
     ctx.fillStyle = border;
@@ -267,6 +268,7 @@
     ctx.fillStyle = C.paper;
     for (let i = 0; i < 4; i++) ctx.fillRect(tx - i * 2 + 2, ty + i, i * 2, 1);
     shownLines.forEach((line, i) => text.draw(ctx, line, x + 10, y + 5 + i * 14 * ts, C.ink, { scale: ts }));
+    if (visible !== full) hit(x, y, width, height, () => dialogue.reveal(), 'bubble');   // a click shows the rest
   }
 
   // ------------------------------------------------------------ radio caption
@@ -332,7 +334,7 @@
     ctx.fillStyle = '#c8403a';
     ctx.fillRect(at(radio.view.freq) - 1, wy, 2, wh);
     const tuneTo = point => radio.setFrequency(low + (point.x - wx - 20) / (ww - 40) * (high - low), { fine: true });
-    hit(wx, wy, ww, wh, tuneTo, 'dial', tuneTo);
+    hit(wx, wy, ww, wh, tuneTo, 'dial', { drag: tuneTo });
     button(ctx, x + 8, y + 18, 26, '<', () => radio.step(-1), { name: 'dial-down' });
     button(ctx, x + w - 34, y + 18, 26, '>', () => radio.step(1), { name: 'dial-up' });
     const readout = text.draw(ctx, t('radio.dial', { freq: radio.view.station }), wx, y + 58, C.phosphor);
@@ -388,27 +390,29 @@
     const reading = screen === 'read' && messages.inbox().find(m => m.id === phone.view.reading);
     const heading = { home: t('phone.menu'), inbox: t('phone.inbox'), compose: t('phone.to'), call: t('phone.call'), settings: t('phone.title') }[screen] || sender(reading);
     text.draw(ctx, heading, x0 + w / 2, y0 + 20, LCD.ink, { align: 'center', clipWidth: w - 6 });
-    // A selectable row: highlighted when selected; a click on it selects it, a click on
-    // the selected row chooses it.
-    const row = (i, caption, name, right) => {
+    // A selectable row, highlighted when selected. A row that only leads somewhere (`go`)
+    // is selected by the mouse passing over it and chosen by one click; a row that sends
+    // something is selected by a click and chosen by a second, so nothing goes by accident.
+    const row = (i, caption, name, right, go = false) => {
       const ry = y0 + 40 + i * 22, selected = phone.view.row === i;
       if (selected) { ctx.fillStyle = LCD.select; ctx.fillRect(x0 + 2, ry - 2, w - 4, 19); }
       const ink = selected ? LCD.light : LCD.ink;
       const rightWidth = right ? text.width(right) + 6 : 0;
       text.draw(ctx, caption, x0 + 5, ry, ink, { clipWidth: w - 10 - rightWidth });
       if (right) text.draw(ctx, right, x1 - 5, ry, ink, { align: 'right' });
-      if (name) hit(x0, ry - 3, w, 22, () => (selected ? phone.choose(i) : phone.select(i)), name);
+      if (go) hit(x0, ry - 3, w, 22, () => phone.choose(i), name, { hover: () => phone.select(i) });
+      else if (name) hit(x0, ry - 3, w, 22, () => (selected ? phone.choose(i) : phone.select(i)), name);
       return { ry, ink, selected };
     };
     const wrapped = (value, y, color = LCD.ink) => text.wrap(value, w - 10).forEach((line, i) => text.draw(ctx, line, x0 + 5, y + i * 14, color));
     if (screen === 'home') {
       const unread = messages.unread();
       const caption = { inbox: unread ? t('phone.inboxNew', { count: unread }) : t('phone.inbox'), compose: t('phone.compose'), call: t('phone.call'), settings: t('phone.title') };
-      rows.forEach((id, i) => row(i, caption[id], 'phone-row-' + id));
+      rows.forEach((id, i) => row(i, caption[id], 'phone-row-' + id, null, true));
     } else if (screen === 'inbox') {
       if (!rows.length) text.draw(ctx, t('phone.empty'), x0 + w / 2, y0 + 44, LCD.dim, { align: 'center' });
       messages.inbox().slice(0, 5).forEach((m, i) => {
-        const r = row(i, sender(m), 'phone-msg-' + m.id, m.clock);
+        const r = row(i, sender(m), 'phone-msg-' + m.id, m.clock, true);
         if (!m.read && !r.selected) { ctx.fillStyle = LCD.bar; ctx.fillRect(x0 + 2, r.ry - 2, 2, 19); }
       });
     } else if (screen === 'read' && reading) {
@@ -443,21 +447,21 @@
         text.draw(ctx, t(PHONE_ROWS[id]), x0 + 5, ry, ink);
         if (id === 'voice') {
           text.draw(ctx, t(voice.mode === 'browser' ? 'phone.voiceAloud' : 'phone.voiceRadio'), x1 - 5, ry, voice.canReadAloud ? ink : LCD.dim, { align: 'right' });
-          hit(x0, ry - 2, w, 20, () => { phone.select(i); phone.toggleVoice(); }, 'phone-voice');
+          hit(x0, ry - 2, w, 20, () => { phone.select(i); phone.toggleVoice(); }, 'phone-voice', { hover: () => phone.select(i) });
           return;
         }
         if (id === 'silent') {
           text.draw(ctx, t(audio.muted ? 'phone.on' : 'phone.off'), x1 - 5, ry, ink, { align: 'right' });
-          hit(x0, ry - 2, w, 20, () => { phone.select(i); phone.toggleSilent(); }, 'phone-silent');
+          hit(x0, ry - 2, w, 20, () => { phone.select(i); phone.toggleSilent(); }, 'phone-silent', { hover: () => phone.select(i) });
           return;
         }
-        hit(x0, ry - 2, w - 44, 20, () => phone.select(i), 'phone-row-' + id);
+        hit(x0, ry - 2, w - 44, 20, () => phone.select(i), 'phone-row-' + id, { hover: () => phone.select(i) });
         const level = audio.level(id);
         for (let b = 0; b < 5; b++) {
           const bx = x1 - 42 + b * 8, bh = 4 + b * 2;
           ctx.fillStyle = b < level ? ink : (selected ? '#5a7397' : LCD.dim);
           ctx.fillRect(bx, ry + 14 - bh, 6, bh);
-          hit(bx - 1, ry - 2, 10, 20, () => { phone.select(i); phone.setLevel(id, level === b + 1 ? b : b + 1); }, `phone-${id}-${b + 1}`);
+          hit(bx - 1, ry - 2, 10, 20, () => { phone.select(i); phone.setLevel(id, level === b + 1 ? b : b + 1); }, `phone-${id}-${b + 1}`, { hover: () => phone.select(i) });
         }
       });
     }

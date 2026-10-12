@@ -25,13 +25,15 @@ to show the title and sign-in screens.
   counter to bag an order.
 - Press the yellow REC key on the register's keypad to see the transaction record. When the register and the
   item disagree, scan the item again at the counter before the record choices appear.
-- Click the radio to open its dial and tune it: 87.6 is *Night Ferry*, 87.7 something
-  else, and there is more between them.
+- Click the radio to open its dial and tune it, or just scroll over it (two fingers on a
+  trackpad, up or right goes up the band): 87.6 is *Night Ferry*, 87.7 something else, and
+  there is more between them. The dial catches on anything it finds.
 - The box under the counter is lost and found. Click it to see what has been left.
 - Click the flip phone on the counter to read your texts, text or call *Night Ferry*, or
   change the volume, radio, sounds, voice (READ ALOUD has your browser read the radio's
   lines) and silent mode. The shift waits while it is open. A
   landscape window works best.
+- Click a customer's speech bubble to see the rest of the line at once.
 - On a touch screen, tap to use things and hold one to see its name.
 - With a keyboard, Tab moves between the things on the counter, Enter uses one and
   Escape lets go.

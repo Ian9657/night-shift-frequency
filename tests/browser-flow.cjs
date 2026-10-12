@@ -23,7 +23,6 @@ const { launch, artifacts, URL_BASE, idle, click, playOrder, signIn, signOut } =
         await click(page, 'phone');
         await page.waitForFunction(() => NSF.phone.frame() === 2);
         await click(page, 'ui:phone-row-compose');
-        await click(page, 'ui:phone-row-compose');
         await click(page, 'ui:phone-send-anyone');
         await click(page, 'ui:phone-send-anyone');
         assert.equal(await page.evaluate(() => NSF.debug.messages.sent.preset.id), 'anyone');
@@ -48,7 +47,6 @@ const { launch, artifacts, URL_BASE, idle, click, playOrder, signIn, signOut } =
           await idle(page);
           await click(page, 'phone');
           await page.waitForFunction(() => NSF.phone.frame() === 2);
-          await click(page, 'ui:phone-row-call');
           await click(page, 'ui:phone-row-call');
           await click(page, 'ui:phone-say-hello');                 // the first row is already selected
           assert.equal(await page.evaluate(() => NSF.debug.messages.call.preset.id), 'hello');
@@ -179,7 +177,6 @@ const { launch, artifacts, URL_BASE, idle, click, playOrder, signIn, signOut } =
     const frozen = await page.evaluate(() => NSF.debug.time.now);
     await page.waitForTimeout(150);
     assert.equal(await page.evaluate(() => NSF.debug.time.now), frozen);
-    await click(page, 'ui:phone-row-settings');
     await click(page, 'ui:phone-row-settings');
     await click(page, 'ui:phone-silent');
     assert.equal(await page.evaluate(() => NSF.audio.muted), true);

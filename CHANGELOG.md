@@ -5,6 +5,27 @@ verified and what was not.
 
 ## Unreleased
 
+### Added — trackpad tuning, a pixel pointer, one-click phone menu, click to finish a line
+
+- Scrolling over the radio tunes it without opening the dial, built for a MacBook trackpad:
+  travel is accumulated (28 px a hundredth), up or right is up the band (natural
+  scrolling), each transmitter catches the dial and absorbs the rest of the gesture, a
+  longer pull (150 px) leaves it, and a pinch (Ctrl + wheel) is left to the browser. The
+  page no longer overscrolls, so a sideways swipe doesn't trigger the browser's back.
+- A pixel cursor (`art/src/cursors.cjs`, `js/render/cursor.js`): arrow, pointing hand over
+  anything usable, closed hand while an item is held, tuning knob over the radio. It is a
+  CSS cursor drawn crisp at the display's density, with the system cursor as fallback.
+- Phone menu, MESSAGES and SETTINGS: the row under the mouse is selected and one click
+  opens it. Texts and call lines still take two clicks, since each can be sent only once.
+- A click on the customer's speech bubble shows the rest of the line at once; it still
+  stays up for its full hold, so nothing is cut.
+- Verified: `node tests/run-all.cjs`, with new cases in `radio.test` (scroll steps, catch,
+  glide absorbed, wheel over the radio only, pinch ignored) and `counter.test` (phone
+  menu, bubble, cursor choice); cursor sprites reviewed enlarged on light and dark.
+  Not verified: the feel on a real trackpad (glide length, catch strength), the cursor's
+  hotspot and size on a real Retina screen (headless screenshots don't show the cursor),
+  and Safari.
+
 ### Changed — the counter scan opens only for Shift on its own
 
 - Shift used as a modifier no longer opens the scan or plays its chirp: Shift+Tab or a

@@ -1,4 +1,4 @@
-// The radio: the live dial, reception, Night Ferry carried across orders, on-time
+// The radio: the live dial, tuning by scrolling, reception, Night Ferry carried across orders, on-time
 // segments, the clerk's call kept on air, pausing panels, and June's second hint. Each
 // case runs in a fresh page, signed in, the clock at 4x.
 const assert = require('node:assert/strict');
@@ -48,6 +48,36 @@ suite('radio', [
     await page.evaluate(() => NSF.radio.beginOrder(['radio.o4']));
     await page.waitForTimeout(400);
     assert.ok(await page.evaluate(() => NSF.radio.view.key), 'the echo keeps playing');
+  }],
+
+  ['scrolling over the radio tunes it: fine steps, a catch on each transmitter, pinch left alone', async page => {
+    const steps = await page.evaluate(() => {
+      const r = NSF.radio, at = [];
+      r.scroll(100); at.push(r.view.freq);                             // on Night Ferry: a longer pull to leave
+      r.scroll(60); at.push(r.view.freq);
+      r.scroll(28 * 8); at.push(r.view.freq);                          // a hundredth each 28 px
+      r.scroll(28); at.push(r.view.freq);                              // the echo catches the dial
+      r.scroll(1000); at.push(r.view.freq);                            // and the glide that follows is absorbed
+      return at;
+    });
+    assert.deepEqual(steps, [8760, 8761, 8769, 8770, 8770]);
+    const radio = await page.evaluate(() => NSF.debug.targets().radio);
+    const freq = () => page.evaluate(() => NSF.radio.view.freq);
+    await page.waitForTimeout(150);                                    // a pause ends the gesture
+    await page.mouse.move(radio.x, radio.y);
+    await page.mouse.wheel(0, 300);
+    await page.waitForFunction(() => NSF.radio.view.freq > 8770, null, { timeout: 2000 });
+    const tuned = await freq();
+    await page.keyboard.down('Control');
+    await page.mouse.wheel(0, 300);
+    await page.keyboard.up('Control');
+    await page.waitForTimeout(100);
+    assert.equal(await freq(), tuned, 'a pinch (Ctrl + wheel) does not tune');
+    const basket = await page.evaluate(() => NSF.debug.targets().basket);
+    await page.mouse.move(basket.x, basket.y);
+    await page.mouse.wheel(0, 300);
+    await page.waitForTimeout(100);
+    assert.equal(await freq(), tuned, 'only over the radio');
   }],
 
   ['reception: off centre the line goes on with letters lost; out of range, static', async page => {

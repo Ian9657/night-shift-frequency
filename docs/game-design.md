@@ -51,6 +51,8 @@ scanned is still selected). Scanned items stay on the
   finished customer is leaving, a click on the scanner or basket is kept for the next
   customer's first item. A click on
   nothing just ticks.
+- The pointer is a pixel cursor: a pointing hand over anything usable, a closed hand while
+  an item is held, a tuning knob over the radio, otherwise an arrow.
 - The object under the pointer is outlined and named in a small label; labels name objects rather than repeat instructions. On a touch screen
   a tap acts when the finger lifts; holding an object for half a second names it
   without acting, and sliding the finger away cancels. Near a gap between two objects a
@@ -68,7 +70,8 @@ still give their reason, and record conflicts still light the record key.
 
 Speech: what a customer says is queued. A line, once it starts, is always typed out and
 left up to read before the next replaces it (1.35 s, or 0.8 s when more is waiting); a
-line the same as the one before it is said once. Nothing said is dropped, and a
+line the same as the one before it is said once. A click on the bubble shows the rest of
+the line being typed at once; it still stays up for its full hold. Nothing said is dropped, and a
 customer finishes speaking before they turn to go.
 
 Outlines wait while a refusal is shown or a panel is open. Hover, keyboard focus and
@@ -168,6 +171,11 @@ The four combinations lead to four letters read by *Night Ferry* after the shift
   arrow keys move between detents 0.05 apart; dragging or clicking the needle tunes to the
   hundredth. × or Escape puts it away, as does a click anywhere outside it (which does
   nothing else). The shift keeps running and the radio keeps playing while it is open.
+- Scrolling over the radio (or anywhere while the dial is open) tunes it without opening
+  the dial: 28 px of trackpad travel a hundredth, up or right going up the band. Landing on
+  a transmitter catches the dial: the rest of that gesture, a trackpad's glide included,
+  is absorbed, and leaving takes a longer pull (150 px). A pause of a quarter second
+  starts a new gesture. A pinch (Ctrl + wheel) is left to the browser's zoom.
 - Night Ferry sounds like a station: each segment opens with its three-note ident, or, when
   the clock has passed the hour since the last order (and at 01:00), with the time signal
   (three pips and a long one). A quiet bed of held chords runs under June's talk and
@@ -228,8 +236,10 @@ Listening changes what people say, never a record:
 - Clicking the clerk's flip phone on the counter flips it open close up and pauses the
   shift (the game clock stops; Night Ferry goes quiet). A click outside puts it away;
   BACK, the red key or Escape go back a screen, and from the menu put it away.
-- The menu: MESSAGES, TEXT NIGHT FERRY, CALL NIGHT FERRY, SETTINGS. Click a row to select it and again to
-  open it, or use the arrow keys and Enter.
+- The menu: MESSAGES, TEXT NIGHT FERRY, CALL NIGHT FERRY, SETTINGS. The row under the
+  mouse is selected and one click opens it (also in MESSAGES and SETTINGS); the texts
+  and the call lines, which can be sent only once, are selected by a click and sent by a
+  second. The arrow keys and Enter work throughout.
 - Texts arrive with orders 4 and 6 from no number ("your light's the only one on the
   front", "the ferry's running. don't tell june.") and with order 8 from the clerk's own
   number, shown as their name: "Door's unlocked. Come home when the radio stops." The
