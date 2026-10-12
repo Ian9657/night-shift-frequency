@@ -160,6 +160,27 @@
     text.draw(ctx, caption, lx + width / 2, ly + 3, C.amber, { align: 'center' });
   }
 
+  // A persistent, quiet callout makes the next physical action legible at a glance.
+  // The POS repeats the instruction; this points to the actual object so a new player
+  // does not have to infer which of the several machines is meant.
+  function actionCue(ctx, game) {
+    if (game.state.phase !== 'shift' || overlay.view.active || !game.scene.cues?.size) return;
+    const name = [...game.scene.cues][0];
+    const target = game.targets().find(item => item.name === name);
+    const guide = game.guidance();
+    if (!target || !guide || !GUIDE_LABELS[guide]) return;
+    const caption = 'NEXT: ' + t(GUIDE_LABELS[guide]);
+    const width = text.width(caption) + 16;
+    const cx = (target.x + target.w / 2) * layout.screen.scale;
+    const y = Math.max(28, target.y * layout.screen.scale - 28);
+    const x = Math.max(6, Math.min(SW - width - 6, Math.round(cx - width / 2)));
+    box(ctx, x, y, width, 18, 'rgba(7,9,15,0.9)', C.amber);
+    text.draw(ctx, caption, x + width / 2, y + 4, C.amber, { align: 'center' });
+    ctx.fillStyle = C.amber;
+    ctx.fillRect(Math.round(cx) - 1, y + 18, 3, 7);
+    ctx.fillRect(Math.round(cx) - 4, y + 23, 9, 2);
+  }
+
   // ------------------------------------------------------------ speech bubble
   function bubble(ctx, game) {
     const visible = dialogue.visibleText();
@@ -655,6 +676,7 @@
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     pos(ctx, game);
+    actionCue(ctx, game);
     hoverLabel(ctx, game);
     bubble(ctx, game);
     caption(ctx, game);

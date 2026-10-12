@@ -5,6 +5,13 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — first-look interaction guidance
+
+- Added a persistent `NEXT:` callout with an arrow to the currently useful object, keeping
+  the POS instruction and the world target in one visual path. It clears while panels,
+  dialogue or busy actions take control.
+- Verified with counter, content, art and visual suites.
+
 ### Changed — clearer shopping basket silhouette
 
 - Reduced the customer's basket footprint and height, opened up the side perforations,
