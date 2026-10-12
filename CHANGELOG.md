@@ -5,6 +5,14 @@ verified and what was not.
 
 ## Unreleased
 
+### Fixed — interrupted radio lines no longer restart
+
+- Tuning away from Night Ferry now stores the current line's remaining time and resumes
+  it when tuned back, instead of putting the sentence back at the queue's beginning.
+- Recorded lines interrupted by a phone or record panel resume from their audio offset.
+- Added a radio regression case for tuning away mid-line; radio, audio and content suites
+  pass.
+
 ### Changed — clearer broadcaster delivery
 
 - Re-recorded the 43 bundled radio lines with Kokoro `af_bella` at 1.08x for a quicker,

@@ -322,7 +322,7 @@
   // the radio's speaker: June clear, the echo duller and further off, the people between
   // the stations narrower.
   const clipBuffers = new Map();
-  function playClip(key, data, profileName = 'ferry', delay = 0) {
+  function playClip(key, data, profileName = 'ferry', delay = 0, offset = 0) {
     const ctx = audio();
     if (!ctx) return;
     stopSpeech();
@@ -347,7 +347,7 @@
       air.Q.value = 0.45;
       out.gain.value = profileName === 'echo' ? 0.7 : 1;
       source.connect(speaker); speaker.connect(air); air.connect(out); out.connect(bus.signal);
-      source.start(Math.max(at, ctx.currentTime));
+      source.start(Math.max(at, ctx.currentTime), Math.max(0, Math.min(offset, Math.max(0, buffer.duration - 0.02))));
       speech.out = out;
       speech.nodes = [source];
     }).catch(() => { /* an undecodable clip stays silent; the caption still shows */ });

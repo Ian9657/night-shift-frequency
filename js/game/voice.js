@@ -42,7 +42,7 @@
 
   // `profile`: 'ferry' (June), 'echo' or 'signal'; `ms`: how long the line is on air;
   // `delay`: ms before speaking (after a sting).
-  function speak(key, vars, profile, ms, delay = 0) {
+  function speak(key, vars, profile, ms, delay = 0, offset = 0) {
     const text = strings.t(key, vars);
     if (mode === 'browser' && speech) {
       if (delay) root.setTimeout(() => speakAloud(text, profile, ms), delay);     // speech runs on real time anyway
@@ -50,7 +50,7 @@
       return;
     }
     const clip = clipFor(key);
-    if (clip) audio.playClip(key, clip.data, profile, delay);
+    if (clip) audio.playClip(key, clip.data, profile, delay, offset);
     else if (speech) {
       if (delay) root.setTimeout(() => speakAloud(text, profile, ms), delay);
       else speakAloud(text, profile, ms);

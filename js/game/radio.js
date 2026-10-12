@@ -26,6 +26,9 @@
   // new order's segment never discards. `current` is the entry on air.
   let queue = [];
   let current = null;
+  // A line interrupted by tuning away resumes with its remaining time when the
+  // player returns to Night Ferry; it must not be queued as a fresh announcement.
+  let resumeLine = null;
   let lineTimer = null;
   let echoProvider = () => null;
   let signalProvider = () => null;
@@ -50,7 +53,7 @@
 
   // What is heard now: a line, a song (`song` its id) or nothing. Everything heard is
   // reported to the listener (js/game/company.js).
-  function show(key, vars = {}, song = null, sting = null) {
+  function show(key, vars = {}, song = null, sting = null, durationOverride = null) {
     if (view.song && !song) audio.stopSong();
     voice.stop();
     const delay = sting ? STING_MS[sting] : 0;
@@ -60,7 +63,7 @@
     view.song = song;
     view.echo = view.kind === 'echo';
     view.startedAt = time.now;
-    view.duration = song ? songLength(song) : key ? lineDuration(key, vars) + delay : 0;
+    view.duration = durationOverride ?? (song ? songLength(song) : key ? lineDuration(key, vars) + delay : 0);
     if (song) audio.playSong(story.radio.songs[song]);
     else if (key && key !== 'radio.static') voice.speak(key, vars, view.kind, view.duration - delay - 600, delay);
     if (key) listener(view);
@@ -89,7 +92,8 @@
     time.cancel(lineTimer);
     lineTimer = null;
     if (view.kind !== 'ferry' || view.offAir) return other();
-    const next = queue.shift();
+    const next = resumeLine || queue.shift();
+    resumeLine = null;
     current = next || null;
     if (!next) {
       show(null);
@@ -99,7 +103,10 @@
       return;
     }
     // A song with an `intro` is announced first; the two go (or are dropped) together.
-    if (next.song && next.intro && !next.introSaid) {
+    if (next.resume) {
+      current = next;
+      show(next.key, next.vars, null, null, next.remaining);
+    } else if (next.song && next.intro && !next.introSaid) {
       next.introSaid = true;
       queue.unshift(next);
       show(next.intro, {});
@@ -177,7 +184,10 @@
     bed();
     if (!lineTimer) advance();
     // A line interrupted by the pause goes on speaking for the time it has left.
-    else if (view.key && !view.song && view.key !== 'radio.static') voice.speak(view.key, view.vars, view.kind, view.duration - (time.now - view.startedAt) - 600);
+    else if (view.key && !view.song && view.key !== 'radio.static') {
+      const elapsed = time.now - view.startedAt;
+      voice.speak(view.key, view.vars, view.kind, view.duration - elapsed - 600, 0, elapsed / 1000);
+    }
   }
 
   // What the dial picks up at `freq`: the nearest transmitter within the window.
@@ -209,7 +219,11 @@
     // tunes back.
     // (A song cut during its intro is announced again.)
     if (view.kind === 'ferry' && view.key && !view.offAir) {
-      queue.unshift(current ? { ...current, introSaid: Boolean(current.song && view.song) } : (view.song ? { song: view.song } : { key: view.key, vars: view.vars }));
+      if (view.song) {
+        queue.unshift(current ? { ...current, introSaid: Boolean(current.song && view.song) } : { song: view.song });
+      } else {
+        resumeLine = { ...(current || {}), key: view.key, vars: view.vars, remaining: Math.max(0, view.duration - (time.now - view.startedAt)), resume: true };
+      }
     }
     Object.assign(view, { freq: next, station: label(next), kind: heard.kind, target: heard.target, clarity: heard.clarity });
     audio.radioTune();
