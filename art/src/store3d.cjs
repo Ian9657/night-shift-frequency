@@ -948,8 +948,8 @@ function sprites() {
     return s.sprite();
   })();
 
-  // The customer's shopping basket, red plastic: rows of holes in its sides, a white
-  // label on the front, a thicker rim, and the black handles folded down along the long
+  // The customer's shopping basket, red plastic: rows of open holes in its sides, a thicker
+  // rim and dark handles folded down along the long
   // sides. Full, goods fill its mouth and a few stand up out of it; empty, its gridded
   // floor.
   const basket = full => {
@@ -965,11 +965,10 @@ function sprites() {
         return (u * 14) % 1 < 0.3 || (t * 7) % 1 < 0.3 ? 'red0' : 'red1';                         // the floor's grid
       }
       if (t > 0.84) return 'red3';
-      if (f === 'front' && u > 0.38 && u < 0.62 && t > 0.5 && t < 0.76) return 'white';           // label
-      if (t > 0.12 && (u * 9) % 1 > 0.25 && (u * 9) % 1 < 0.75 && (t * 4) % 1 > 0.3 && (t * 4) % 1 < 0.75) return 'red0';   // holes
+      if (t > 0.08 && (u * 7) % 1 > 0.18 && (u * 7) % 1 < 0.82 && (t * 3) % 1 > 0.22 && (t * 3) % 1 < 0.8) return 'red0';   // larger holes
       return null;
     }, { name: 'basket' });
-    for (const dz of [-1, 1]) s.box({ x: b.x, z: b.z + dz * (b.d / 2 - 0.01), w: b.w * 0.7, h: 0.008, d: 0.014, y: top }, RAMP.dark, null, { name: 'handle' });
+    for (const dz of [-1, 1]) s.box({ x: b.x, z: b.z + dz * (b.d / 2 - 0.01), w: b.w * 0.7, h: 0.014, d: 0.014, y: top }, RAMP.dark, null, { name: 'handle' });
     // Full, a carton, a bottle and a snack bag stand up out of its mouth.
     if (full) {
       s.box({ x: b.x - 0.08, z: b.z + 0.03, w: 0.07, h: 0.07, d: 0.05, y: top - 0.04 }, RAMP.paper, (f, u, t) => (t > 0.55 && t < 0.75 ? 'blue2' : null), { name: 'carton' });

@@ -46,7 +46,8 @@
     radio: [{ x: 0.95, z: 0.7, w: 0.24, h: 0.14, d: 0.09 }],
     // The customer's shopping basket, set down on the far side right of the scanner;
     // the clerk takes the goods out one at a time.
-    basket: [{ x: 0.12, z: 1.02, w: 0.26, h: 0.15, d: 0.2 }],
+    // Keep the basket below the customer's hands so the goods and the handoff read first.
+    basket: [{ x: 0.12, z: 1.02, w: 0.22, h: 0.11, d: 0.17 }],
     // `exit`: where the paper leaves the lid, as a fraction of the depth from the front.
     printer: [{ x: -0.57, z: 0.64, w: 0.13, h: 0.075, d: 0.13, exit: 0.25 }],
     // Lost and found: an open cardboard box in a cubby in the cabinet, between the cash

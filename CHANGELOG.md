@@ -5,6 +5,12 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — clearer shopping basket silhouette
+
+- Reduced the customer's basket footprint and height, opened up the side perforations,
+  strengthened the handles and removed the bright front label so the goods and handoff read
+  before the container. Verified with the art/content suites and visual screenshots.
+
 ### Changed — faster GitHub Pages test entry
 
 - GitHub Pages now skips the title and sign-in screens after refresh and opens directly
