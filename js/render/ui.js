@@ -767,5 +767,5 @@
     if (next && !inspectMode) { inspectSince = time.uiNow; audio.inspectPing(); }
     if (!next && inspectMode) inspectClosing = time.uiNow;
     inspectMode = next;
-  }, get targets() { return targets.slice(); } };
+  }, get inspecting() { return inspectMode; }, get targets() { return targets.slice(); } };
 })(globalThis);

@@ -139,7 +139,13 @@
     else if (radio.view.dialOpen) radio.closeDial();
   });
   root.addEventListener('keydown', event => {
-    if (event.key === 'Shift') { ui.setInspect(true); event.preventDefault(); return; }
+    // The counter scan is Shift on its own. Shift as a modifier (Shift+Tab, a capital
+    // letter, a system shortcut such as Cmd+Shift+4) never opens it and closes it at once.
+    if (event.key === 'Shift') {
+      if (!event.repeat && !event.ctrlKey && !event.metaKey && !event.altKey && game.state.phase === 'shift' && !overlay.view.active) ui.setInspect(true);
+      event.preventDefault(); return;
+    }
+    if (event.shiftKey) ui.setInspect(false);
     if (signin.key(event.key) || found.key(event.key) || phone.key(event.key) || records.key(event.key) || radio.key(event.key)) { event.preventDefault(); return; }
     if (game.state.phase === 'shift' && !overlay.view.active) {
       if (event.key === 'Tab' || event.key === 'ArrowRight' || event.key === 'ArrowDown') {

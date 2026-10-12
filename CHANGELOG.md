@@ -5,6 +5,15 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — the counter scan opens only for Shift on its own
+
+- Shift used as a modifier no longer opens the scan or plays its chirp: Shift+Tab or a
+  capital letter closes it at once, and Shift pressed with Cmd, Ctrl or Alt held (such as
+  the macOS screenshot shortcut Cmd+Shift+4) never opens it. It also opens only during the
+  shift with no panel open, so typing a capital at sign-in makes no scan sound. `NSF.ui`
+  exposes `inspecting` for the new counter test.
+- Verified with `node tests/run-all.cjs`, including the new case in `counter.test`.
+
 ### Fixed — test browsers no longer talk through the speakers
 
 - Since unrecorded radio lines are read by the browser's speech synthesis, every test or

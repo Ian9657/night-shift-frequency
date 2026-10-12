@@ -25,6 +25,20 @@ suite('counter', [
     assert.ok(await page.evaluate(() => NSF.ui.interactionAnnouncement(NSF.game).includes('MICROWAVE')));
   }],
 
+  ['Shift on its own opens the counter scan; Shift as a modifier does not', async page => {
+    const scanning = () => page.evaluate(() => NSF.ui.inspecting);
+    await page.keyboard.down('Shift');
+    assert.equal(await scanning(), true, 'held alone');
+    await page.keyboard.press('Tab');
+    assert.equal(await scanning(), false, 'Shift+Tab closes it');
+    await page.keyboard.up('Shift');
+    await page.keyboard.down('Meta');
+    await page.keyboard.down('Shift');
+    assert.equal(await scanning(), false, 'not with Cmd held');
+    await page.keyboard.up('Shift');
+    await page.keyboard.up('Meta');
+  }],
+
   ['in the first sale the POS instruction and the outline point at the scanner', async page => {
     await idle(page);
     assert.equal(await page.evaluate(() => NSF.game.guidance()), 'scan');
