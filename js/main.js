@@ -139,6 +139,7 @@
     else if (radio.view.dialOpen) radio.closeDial();
   });
   root.addEventListener('keydown', event => {
+    if (event.key === 'Shift') { ui.setInspect(true); event.preventDefault(); return; }
     if (signin.key(event.key) || found.key(event.key) || phone.key(event.key) || records.key(event.key) || radio.key(event.key)) { event.preventDefault(); return; }
     if (game.state.phase === 'shift' && !overlay.view.active) {
       if (event.key === 'Tab' || event.key === 'ArrowRight' || event.key === 'ArrowDown') {
@@ -154,6 +155,10 @@
     }
     if ((event.key === 'Enter' || event.key === ' ') && game.state.phase === 'title') game.startShift();
   });
+  root.addEventListener('keyup', event => {
+    if (event.key === 'Shift') { ui.setInspect(false); event.preventDefault(); }
+  });
+  root.addEventListener('blur', () => ui.setInspect(false));
 
   // A hidden tab gets no frames, so the game stops; its sound stops with it, or a song
   // would play on while Night Ferry's clock stood still.

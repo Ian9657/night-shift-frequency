@@ -19,6 +19,7 @@
   // recompute their wrapping locally.
   const narrow = () => root.innerWidth < 900 || (root.visualViewport && root.visualViewport.width < 900);
   let targets = [];
+  let inspectMode = false;
 
   const money = value => (value / 100).toFixed(2);
   const label = key => t(key);
@@ -160,25 +161,31 @@
     text.draw(ctx, caption, lx + width / 2, ly + 3, C.amber, { align: 'center' });
   }
 
-  // A persistent, quiet callout makes the next physical action legible at a glance.
-  // The POS repeats the instruction; this points to the actual object so a new player
-  // does not have to infer which of the several machines is meant.
-  function actionCue(ctx, game) {
-    if (game.state.phase !== 'shift' || overlay.view.active || !game.scene.cues?.size) return;
-    const name = [...game.scene.cues][0];
-    const target = game.targets().find(item => item.name === name);
-    const guide = game.guidance();
-    if (!target || !guide || !GUIDE_LABELS[guide]) return;
-    const caption = 'NEXT: ' + t(GUIDE_LABELS[guide]);
-    const width = text.width(caption) + 16;
-    const cx = (target.x + target.w / 2) * layout.screen.scale;
-    const y = Math.max(28, target.y * layout.screen.scale - 28);
-    const x = Math.max(6, Math.min(SW - width - 6, Math.round(cx - width / 2)));
-    box(ctx, x, y, width, 18, 'rgba(7,9,15,0.9)', C.amber);
-    text.draw(ctx, caption, x + width / 2, y + 4, C.amber, { align: 'center' });
-    ctx.fillStyle = C.amber;
-    ctx.fillRect(Math.round(cx) - 1, y + 18, 3, 7);
-    ctx.fillRect(Math.round(cx) - 4, y + 23, 9, 2);
+  function inspectLabel(name, game) {
+    if (name.startsWith('item:')) {
+      const item = game.order().items.find(entry => entry.id === name.slice(5));
+      return item ? label(item.real || item.pos) : '';
+    }
+    return TARGET_LABELS[name] ? t(TARGET_LABELS[name]) : name.toUpperCase();
+  }
+
+  // Hold Shift to dim the scene and name every available object. This is deliberately
+  // transient: it helps a player learn the counter without leaving instruction panels
+  // over the normal composition.
+  function inspectView(ctx, game) {
+    if (!inspectMode || game.state.phase !== 'shift' || overlay.view.active) return;
+    ctx.fillStyle = 'rgba(3,5,9,0.76)';
+    ctx.fillRect(0, 0, SW, SH);
+    const named = game.targets().map(target => ({ target, caption: inspectLabel(target.name, game) })).filter(x => x.caption);
+    for (const { target, caption } of named) {
+      const width = text.width(caption) + 14;
+      const cx = Math.round((target.x + target.w / 2) * layout.screen.scale);
+      const y = Math.max(6, Math.round(target.y * layout.screen.scale - 19));
+      const x = Math.max(4, Math.min(SW - width - 4, cx - Math.round(width / 2)));
+      box(ctx, x, y, width, 16, 'rgba(7,9,15,0.95)', C.amber);
+      text.draw(ctx, caption, x + width / 2, y + 3, C.amber, { align: 'center' });
+    }
+    text.draw(ctx, t('ui.inspectHint'), SW - 10, SH - 18, C.amber, { align: 'right' });
   }
 
   // ------------------------------------------------------------ speech bubble
@@ -676,7 +683,6 @@
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     pos(ctx, game);
-    actionCue(ctx, game);
     hoverLabel(ctx, game);
     bubble(ctx, game);
     caption(ctx, game);
@@ -688,6 +694,7 @@
     sheet(ctx, game);
     foundView(ctx);
     phoneView(ctx, game);
+    inspectView(ctx, game);
     ctx.restore();
   }
 
@@ -700,5 +707,5 @@
     return null;
   }
 
-  root.NSF.ui = { draw, hitTest, interactionAnnouncement, get targets() { return targets.slice(); } };
+  root.NSF.ui = { draw, hitTest, interactionAnnouncement, setInspect(value) { inspectMode = Boolean(value); }, get targets() { return targets.slice(); } };
 })(globalThis);

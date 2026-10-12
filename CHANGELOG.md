@@ -5,6 +5,13 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — hold Shift to inspect the counter
+
+- Replaced the persistent next-action callout with a temporary inspection mode: holding
+  Shift dims the scene and labels every visible interactive object, then releasing Shift
+  restores the clean view. This keeps guidance available without covering the composition.
+- Verified with counter, content, art and visual suites.
+
 ### Changed — first-look interaction guidance
 
 - Added a persistent `NEXT:` callout with an arrow to the currently useful object, keeping
