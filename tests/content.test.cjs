@@ -1,5 +1,6 @@
 // Text and content invariants: every referenced key resolves, no string is
-// orphaned, the baked font covers every character, and branches have endings.
+// orphaned, the baked font covers every character, and branches have endings; and the
+// page's scripts all carry the current stamp.
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -8,6 +9,15 @@ const story = require('../js/content/story.js');
 const { generate } = require('../js/engine/shift.js');
 
 const ROOT = path.resolve(__dirname, '..');
+
+// Every local script the page loads carries the same, current stamp (art/tools/stamp-scripts.cjs).
+{
+  const { expected, SCRIPT } = require('../art/tools/stamp-scripts.cjs');
+  const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8'), { version } = expected(html);
+  for (const [tag] of html.matchAll(SCRIPT)) {
+    assert.ok(tag.includes('?v=' + version), `${tag} is not stamped ?v=${version}: run node art/tools/stamp-scripts.cjs`);
+  }
+}
 for (const [key, value] of Object.entries(strings)) {
   assert.ok(typeof value === 'string' && value.trim(), `${key} is empty`);
   assert.ok(/^[\x20-\x7e·…—“”‘’×↑↓]*$/.test(value), `${key} contains characters outside the English set`);

@@ -184,11 +184,13 @@ The four combinations lead to four letters read by *Night Ferry* after the shift
   the clock has passed the hour since the last order (and at 01:00), with the time signal
   (three pips and a long one). A quiet bed of held chords runs under June's talk and
   between items, stepping aside for songs.
-- Voices are murmured, not spoken (unless a line has been recorded, or VOICE is set to
-  READ ALOUD): each line's syllables, pauses and sentence pitch are synthesised through
-  the radio's speaker (June, the echo lower and further off, the
-  people between the stations rougher and breaking up); the caption carries the words.
-  A voice stops the moment the dial leaves its line or a panel pauses the shift.
+- Night Ferry's fixed lines are recorded voices played through the radio's speaker. A line
+  that changes with the night (June reading the clerk's name, the echo reading a record)
+  is spoken by the browser; where the browser can't speak, a murmur of the line's
+  syllables stands in (June, the echo lower and further off, the people between the
+  stations rougher). VOICE: READ ALOUD has the browser read every line instead. The
+  caption always carries the words. A voice stops the moment the dial leaves its line or a
+  panel pauses the shift, and a line tuned away from resumes where it stopped.
 - Reception is continuous. Each transmitter (Night Ferry, the echo, the three frequencies
   between them) comes in over three hundredths either side: clear on its frequency,
   fainter and hissier off it, with letters of the caption lost to the noise (·), and gone

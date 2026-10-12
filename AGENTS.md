@@ -48,6 +48,9 @@
   hand-edit `assets/sprite-data.js` or `assets/font-data.js`; `art/png/` is an
   untracked export (`build-art.cjs --png`). Rebuild
   with `node art/tools/build-art.cjs` / `python3 art/tools/build-font.py`.
+- After changing anything under `js/` or `assets/`, run `node art/tools/stamp-scripts.cjs`
+  so every script in `index.html` carries the same current `?v=` (GitHub Pages caches
+  scripts; the content test checks the stamp).
 - Customer variety comes from parts plus slot colours (`js/content/customers.js`),
   not copied sprites. Poses are authored parts; runtime code only switches parts
   and attaches props at hand anchors. It must not generate or interpolate limbs.

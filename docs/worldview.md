@@ -235,8 +235,8 @@ Implemented now:
   rule.
 - Some drift: the wall clock skipping ten minutes, a POS count that flickers, one
   borrowed line, tube flickers that grow with the night, the sign-in sheet at dawn.
-- The cast's English names. Voices on the radio are murmured from each line (the words
-  are in the captions); recorded voices can be added, but none are recorded yet.
+- The cast's English names. Night Ferry's fixed lines are recorded voices; lines that
+  change with the night are spoken by the browser. The words are always in the captions.
 
 Not implemented yet:
 

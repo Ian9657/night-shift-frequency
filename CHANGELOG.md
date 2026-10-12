@@ -5,15 +5,58 @@ verified and what was not.
 
 ## Unreleased
 
-### Changed — no name label under the mouse
+### Fixed — a cached page could run new and old scripts together
 
-- The mouse now only outlines the object under it (with the pixel pointer); the amber
-  name label is gone from normal play. Names come from holding Shift, and in the first
-  two sales a quiet "Hold Shift to see names" sits at the bottom right on screens with a
-  mouse (it no longer repeats inside the scan itself). Keyboard focus and a touch-screen
-  hold still show the label (`state.hoverNamed` tells a touch hold from a mouse over it).
-- Verified: `node tests/run-all.cjs` (counter cases check a mouse over the scanner is not
-  named and a touch hold is) and a desktop screenshot of the basket under the mouse.
+- Only `ui.js` and `main.js` carried a `?v=` stamp, bumped by hand, so for the ten minutes
+  GitHub Pages lets a browser keep a script, a page could run the new `main.js` beside an
+  old `radio.js` (scrolling over the radio would then have called a missing
+  `radio.scroll`). `art/tools/stamp-scripts.cjs` now stamps every local script with one
+  hash of their contents, and `tests/content.test.cjs` fails while the stamp is missing or
+  stale. CONTRIBUTING (Publishing), AGENTS and the architecture's pipeline say when to run it.
+
+### Changed — the record of the last two days, and the voices in the docs
+
+- The Unreleased section (30 entries) is now two dated sections, 2026-10-11 and
+  2026-10-12, with their commit ranges. The nine entries that rebuilt the counter scan one
+  after another the same day are one entry describing what it is now, with how it got
+  there; the other entries are unchanged.
+- `docs/game-design.md`, `docs/architecture.md`, `docs/worldview.md` and CONTRIBUTING still
+  said the radio's voices were murmured and none recorded. 43 of the 52 radio lines are
+  recordings; the nine that change with the night are spoken by the browser; the murmur
+  is only for browsers without speech. They now say so, and that the recordings were
+  generated offline with Kokoro-82M (Apache 2.0), also noted in LICENSE. Architecture no
+  longer says there are no audio files.
+- Checked: module exports are all used elsewhere; no unused strings or sprites (content
+  and art checks).
+- Verified: `node tests/run-all.cjs`. The content check was seen to fail with the old
+  stamps before restamping.
+
+## 2026-10-12 · Recorded voices, the counter scan and the pointer (`991c951`…`f3c629e`)
+
+### Added — hold Shift for the counter scan; the mouse only outlines
+
+- Holding Shift on its own dims the scene a little (to 0.48) and names every object on
+  the counter: each gets a faint pixel outline of its own sprite and a quiet frameless tag,
+  and one is locked, bright green with a leader: the one pointed at, else the next thing
+  the sale needs. A new lock closes in with split magenta/cyan ghosts; names decode from
+  scrambled letters of their own caption; a sweep line and a short chirp open it, and it
+  scans out on release. The radio's and phone's names sit below them (the radio's antenna
+  reaches into the shelf).
+- Shift as a modifier never opens it: Shift+Tab or a capital letter closes it at once, and
+  Shift with Cmd, Ctrl or Alt held (Cmd+Shift+4) never opens it. It opens only during the
+  shift with no panel open. `NSF.ui.inspecting` reports it.
+- Under the mouse an object is now only outlined; the amber name label shows only for
+  keyboard focus and a touch-screen hold (`state.hoverNamed`). In the first two sales a
+  quiet "Hold Shift to see names" sits at the bottom right on screens with a mouse.
+- How it got here, the same day: a persistent `NEXT:` callout with an arrow, replaced by
+  the hold-Shift view; a heavy overlay with yellow boxes, then a quieter scanline view,
+  then a cyberpunk scan-in with screen-corner brackets, then hard-pixel brackets around
+  every target's box. Those boxes include empty sprite space, so 44 corners crowded the
+  screen and the radio's landed on the shelves; the outlines replaced them.
+- Verified: `node tests/run-all.cjs`, with counter cases for Shift alone against Shift as a
+  modifier and for a mouse over the scanner not being named while a touch hold is; desktop
+  screenshots of the scan held, the lock moving to the radio and settled, and the basket
+  under the mouse. Not verified: the phone layout.
 
 ### Added — trackpad tuning, a pixel pointer, one-click phone menu, click to finish a line
 
@@ -36,15 +79,6 @@ verified and what was not.
   hotspot and size on a real Retina screen (headless screenshots don't show the cursor),
   and Safari.
 
-### Changed — the counter scan opens only for Shift on its own
-
-- Shift used as a modifier no longer opens the scan or plays its chirp: Shift+Tab or a
-  capital letter closes it at once, and Shift pressed with Cmd, Ctrl or Alt held (such as
-  the macOS screenshot shortcut Cmd+Shift+4) never opens it. It also opens only during the
-  shift with no panel open, so typing a capital at sign-in makes no scan sound. `NSF.ui`
-  exposes `inspecting` for the new counter test.
-- Verified with `node tests/run-all.cjs`, including the new case in `counter.test`.
-
 ### Fixed — test browsers no longer talk through the speakers
 
 - Since unrecorded radio lines are read by the browser's speech synthesis, every test or
@@ -56,65 +90,12 @@ verified and what was not.
   `node tests/run-all.cjs` passes. The `--pacing` probe and the optional probes were only
   syntax-checked, not run.
 
-### Changed — scan mode outlines the objects themselves
-
-- Hold-Shift scan no longer frames every target's bounding box (the boxes include empty
-  sprite space, such as the radio's antenna column, so brackets landed on the shelves and
-  44 corners crowded the screen). Each object now gets a faint pixel outline of its own
-  sprite and a quiet frameless name tag; one object is locked and drawn bright green with a
-  leader: the one pointed at, else the next thing the sale needs. A new lock closes in with
-  split magenta/cyan ghosts. Names decode from scrambled letters of the caption itself, so
-  no new glyphs are needed. The dimming is lighter (0.48 instead of 0.67) and the ordinary
-  hover label is hidden while scanning.
-- Verified with `node tests/run-all.cjs` and desktop screenshots (scan held, lock moving to
-  the radio, lock settled). Phone layout not checked.
-
-### Changed — pixel HUD scan pass
-
-- Replaced vector scan lines with hard pixel-grid brackets and orthogonal connector paths,
-  assigned cyan/green/magenta by interaction state, moved radio and phone callouts below
-  their objects, and added a short scan activation chirp.
-- Verified with content, art, audio and visual suites.
-
-### Changed — repositioned the radio scan label
-
-- The RADIO label now sits below the radio with a downward connector, keeping it visually
-  attached to the object instead of floating over the shelves.
-
 ### Fixed — GitHub quick entry no longer speaks on refresh
 
 - The GitHub Pages direct-to-counter entry now holds the radio bus at zero until the
   first real pointer or keyboard gesture, so an automatic refresh does not trigger
   June's opening line unexpectedly. The saved radio level is restored on that gesture.
 - Verified with content and browser-flow checks.
-
-### Changed — cyberpunk scan activation
-
-- Shift inspection now opens with a short scan-in animation: a sweep line, cyan/magenta
-  signal accents, HUD corner brackets and staggered label reveal. Releasing Shift performs
-  a quick scan-out instead of snapping off.
-- Verified with counter, content, art and visual suites.
-
-### Changed — counter scan mode has a quieter visual language
-
-- Reworked Shift inspection from a heavy black overlay and floating yellow boxes into a
-  restrained scan view: translucent dimming, a slow scanline, a small header, phosphor
-  labels and connector lines anchored to each object.
-- Verified with counter, content, art and visual suites.
-
-### Changed — hold Shift to inspect the counter
-
-- Replaced the persistent next-action callout with a temporary inspection mode: holding
-  Shift dims the scene and labels every visible interactive object, then releasing Shift
-  restores the clean view. This keeps guidance available without covering the composition.
-- Verified with counter, content, art and visual suites.
-
-### Changed — first-look interaction guidance
-
-- Added a persistent `NEXT:` callout with an arrow to the currently useful object, keeping
-  the POS instruction and the world target in one visual path. It clears while panels,
-  dialogue or busy actions take control.
-- Verified with counter, content, art and visual suites.
 
 ### Changed — clearer shopping basket silhouette
 
@@ -177,6 +158,8 @@ verified and what was not.
   They now use clear browser speech in RADIO mode when available, with the radio murmur
   retained only as a last-resort fallback on browsers without speech synthesis.
 - Verified with the audio suite and the radio suite.
+
+## 2026-10-11 · Radio pacing, probes, tests and cleanup (`bc2f7be`…`d5a6891`)
 
 ### Removed — exports nothing used, and code paths in the design notes
 

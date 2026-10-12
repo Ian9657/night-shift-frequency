@@ -41,7 +41,8 @@ licensed for reuse. This covers:
 
 - art/src/, art/overrides/, art/palette.cjs, art/palette.gpl
 - assets/sprite-data.js (the built artwork)
-- art/voice/ (recordings of radio lines) and assets/voice-data.js (built from them)
+- art/voice/ (recordings of radio lines, generated with the Kokoro-82M speech model,
+  itself Apache 2.0) and assets/voice-data.js (built from them)
 - js/content/strings.js, js/content/story.js, js/content/customers.js
 - docs/worldview.md, docs/game-design.md, docs/character-assets.md
 

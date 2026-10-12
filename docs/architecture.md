@@ -113,16 +113,20 @@ js/content/strings.js + art/font/*.ttf
 art/voice/<string key>.wav (+ art/voice/lines.json: the text each was recorded from)
   → node art/tools/build-voice.cjs
   → assets/voice-data.js (8-bit mono 11025 Hz WAVs, base64, with their lengths)
+
+index.html's scripts (js/, assets/)
+  → node art/tools/stamp-scripts.cjs
+  → one ?v=<hash of their contents> on every script, so a cached page never mixes versions
 ```
 
 Recordings are embedded rather than loaded as files because the game is opened from
 disk, where scripts may not read local files; base64 in a script is the one way in.
 
 The radio's voice is chosen in `voice.js`: a recorded clip of the line if one matches its
-current text (`audio.playClip`, through the radio's speaker), otherwise the formant
-murmur (`audio.radioSpeech`, a decaying harmonic source with broad formants and a
-1800 Hz low-pass filter), or clear browser speech for runtime-variable lines that cannot
-be pre-recorded. The browser's speech synthesis is also available through READ ALOUD
+current text (`audio.playClip`, through the radio's speaker, from an audio offset when a
+line resumes); otherwise clear browser speech, which is what runtime-variable lines get;
+and only on a browser without speech synthesis the formant murmur (`audio.radioSpeech`,
+a decaying harmonic source with broad formants and a 1800 Hz low-pass filter). The browser's speech synthesis is also available through READ ALOUD
 (it can't be routed through Web Audio, so it skips the radio's sound). A recorded line's
 length sets its time on air.
 
@@ -152,10 +156,10 @@ sprites carry their top-left as anchor `at`. Two renderers use it:
 ## Audio
 
 All sound is synthesised with Web Audio: room tone, the fridge's compressor, machines,
-the door chime, cars outside, the phone, dialogue ticks, the radio bed, the radio's voices
-(a formant synthesiser murmuring each line's syllables, `radioSpeech`), Night Ferry's ident,
+the door chime, cars outside, the phone, dialogue ticks, the radio bed, the fallback radio
+murmur (`radioSpeech`), Night Ferry's ident,
 time signal and music bed, Night
-Ferry's songs (sequenced from the notes in `story.js`), and gulls at dawn. There are no audio files. Everything plays through a `sounds` or a
+Ferry's songs (sequenced from the notes in `story.js`), and gulls at dawn. The one exception is the recorded radio lines, embedded in `assets/voice-data.js`. Everything plays through a `sounds` or a
 `radio` bus into `master`; the phone's settings set their levels. `master` feeds a +6 dB
 output gain and a limiter. The room and the radio bed are built the first time sound is
 available after the shift asks for them (so also when silent mode is turned off). Ambient drift uses real timers on

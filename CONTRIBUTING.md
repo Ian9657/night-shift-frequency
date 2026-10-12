@@ -65,8 +65,11 @@ The build stops if a character is missing from the font subset in `art/font/`.
 
 ## Recording radio lines
 
-Night Ferry's lines are voiced by a synthesiser until someone records them. To record a
-line, save it as `art/voice/<string key>.wav` (for example `art/voice/radio.o4.wav`; any
+Night Ferry's fixed lines are recorded. The current recordings were generated offline with
+Kokoro-82M (Apache 2.0; voice `af_bella`, speed 1.08); the game never loads a model. A
+line with no recording (one with a `{variable}`, such as June reading the clerk's name)
+is read by the browser's speech synthesis; the synthesised murmur stands in only where a
+browser has none. To record a line, save it as `art/voice/<string key>.wav` (for example `art/voice/radio.o4.wav`; any
 PCM or float WAV, any rate, mono or stereo) and rebuild:
 
 ```sh
@@ -80,6 +83,17 @@ If a recorded line's text changes, the build stops until it is recorded again an
 accepted with `--accept <key>`. Lines with a `{variable}` (June reading the clerk's
 name) can't be recorded. The content test fails if the bundle is out of date.
 
+## Publishing
+
+`main` is the live game on GitHub Pages; every push republishes it. Browsers may keep a
+script for ten minutes, so `index.html` loads every script with one stamp taken from their
+contents. After changing anything under `js/` or `assets/`, restamp (the content test fails
+until you do):
+
+```sh
+node art/tools/stamp-scripts.cjs
+```
+
 ## Running the tests
 
 ```sh
@@ -87,7 +101,7 @@ node tests/run-all.cjs             # everything below, judged by exit code; --pa
 node tests/run-all.cjs radio       # only checks whose name contains "radio"
 
 node tests/shift-engine.test.cjs   # 500 seeds, four record branches, immutable ledger
-node tests/content.test.cjs        # string references, no orphans, endings, glyph coverage, voice bundle
+node tests/content.test.cjs        # string references, no orphans, endings, glyph coverage, voice bundle, script stamp
 node tests/art.test.cjs            # bundle matches sources, palette, references, layout, anchors
 node tests/counter.test.cjs        # keyboard, touch, guidance, refusals, the action queue, customer speech
 node tests/radio.test.cjs          # the dial, reception, Night Ferry across orders, calls, pausing
