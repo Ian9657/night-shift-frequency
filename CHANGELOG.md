@@ -5,6 +5,17 @@ verified and what was not.
 
 ## Unreleased
 
+### Fixed — test browsers no longer talk through the speakers
+
+- Since unrecorded radio lines are read by the browser's speech synthesis, every test or
+  probe run on macOS spoke June's lines aloud through the system voice, even from a
+  headless browser. All browser checks and probes now start through one `launch()` in
+  `tests/browser-helpers.cjs`, which mutes Chrome's output and turns `speechSynthesis.speak`
+  into a no-op in every page (tests that check speech still replace it themselves).
+- Verified: a direct `speechSynthesis` utterance no longer starts in a test browser;
+  `node tests/run-all.cjs` passes. The `--pacing` probe and the optional probes were only
+  syntax-checked, not run.
+
 ### Changed — scan mode outlines the objects themselves
 
 - Hold-Shift scan no longer frames every target's bounding box (the boxes include empty

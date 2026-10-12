@@ -9,9 +9,6 @@ const helpers = require('../browser-helpers.cjs');
 // checked out elsewhere), to compare a probe's findings before and after a change.
 const URL_BASE = process.env.BASE ? pathToFileURL(path.resolve(process.env.BASE, 'index.html')).href : helpers.URL_BASE;
 
-function launch(args = []) {
-  return helpers.chromium.launch({ headless: true, channel: 'chrome', args });
-}
 
 // The counter as a player sees it, enough to decide what to do next.
 const counter = page => page.evaluate(() => {
@@ -56,4 +53,4 @@ async function playNight(page, { pause = () => 0, before } = {}) {
   }
 }
 
-module.exports = { ...helpers, URL_BASE, launch, counter, nextMove, playNight };
+module.exports = { ...helpers, URL_BASE, counter, nextMove, playNight };

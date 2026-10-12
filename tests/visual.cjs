@@ -4,7 +4,7 @@
 // landscape. Screenshots go to tests/artifacts/visual-*.png.
 const path = require('node:path');
 const assert = require('node:assert/strict');
-const { chromium, artifacts, URL_BASE, idle, click, playOrder, signIn } = require('./browser-helpers.cjs');
+const { launch, artifacts, URL_BASE, idle, click, playOrder, signIn } = require('./browser-helpers.cjs');
 
 const shot = (page, name) => page.screenshot({ path: path.join(artifacts, `visual-${name}.png`) });
 const speed = (page, value) => page.evaluate(v => { NSF.debug.time.speed = v; }, value);
@@ -30,7 +30,7 @@ async function finish(page, index) {
 }
 
 (async () => {
-  const browser = await chromium.launch({ headless: true, channel: 'chrome' });
+  const browser = await launch();
   const errors = [];
   try {
     const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });

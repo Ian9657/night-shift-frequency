@@ -10,6 +10,26 @@ const artifacts = path.join(__dirname, 'artifacts');
 fs.mkdirSync(artifacts, { recursive: true });
 const URL_BASE = pathToFileURL(path.resolve(__dirname, '../index.html')).href;
 
+// Test browsers make no sound. Chrome's output is muted, and speech synthesis, which on
+// macOS speaks through the system voice even from a headless browser, does nothing in
+// any page (a test that checks speech replaces `speak` itself).
+function launch(args = []) {
+  return chromium.launch({ headless: true, channel: 'chrome', args: ['--mute-audio', ...args] }).then(browser => {
+    const newContext = browser.newContext.bind(browser);
+    browser.newContext = async (...options) => {
+      const context = await newContext(...options);
+      await context.addInitScript(() => { if (globalThis.speechSynthesis) speechSynthesis.speak = () => {}; });
+      return context;
+    };
+    browser.newPage = async (options = {}) => {
+      const context = await browser.newContext(options), page = await context.newPage();
+      page.on('close', () => context.close().catch(() => {}));
+      return page;
+    };
+    return browser;
+  });
+}
+
 async function idle(page) {
   await page.waitForFunction(() => {
     const { game, dialogue } = NSF.debug;
@@ -99,7 +119,7 @@ async function signOut(page, shot) {
 // signed in (unless `signIn: false`) with the clock at `speed`. Page errors fail the
 // case. Every case runs; the process exits non-zero if any failed.
 async function suite(title, cases, { speed = 4, seed = 'interaction' } = {}) {
-  const browser = await chromium.launch({ headless: true, channel: 'chrome' });
+  const browser = await launch();
   const failed = [];
   try {
     for (const [name, run, options = {}] of cases) {
@@ -132,4 +152,4 @@ async function suite(title, cases, { speed = 4, seed = 'interaction' } = {}) {
   } else console.log(`PASS: ${title}: ${cases.length} cases`);
 }
 
-module.exports = { chromium, artifacts, URL_BASE, idle, click, playOrder, signIn, signOut, suite };
+module.exports = { launch, artifacts, URL_BASE, idle, click, playOrder, signIn, signOut, suite };

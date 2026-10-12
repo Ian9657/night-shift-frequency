@@ -1,9 +1,9 @@
 // Optional real-time probe. Enter orders through gameplay, never by editing state.
 const assert = require('node:assert/strict');
 const path = require('node:path');
-const { chromium, URL_BASE, signIn, playOrder, click, artifacts } = require('./browser-helpers.cjs');
+const { launch, URL_BASE, signIn, playOrder, click, artifacts } = require('./browser-helpers.cjs');
 (async () => {
-  const browser = await chromium.launch({ headless: true, channel: 'chrome' });
+  const browser = await launch();
   try {
     const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
     const errors = [];

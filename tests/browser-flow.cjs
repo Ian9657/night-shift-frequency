@@ -3,10 +3,10 @@
 // and rendering paths are unchanged.
 const path = require('node:path');
 const assert = require('node:assert/strict');
-const { chromium, artifacts, URL_BASE, idle, click, playOrder, signIn, signOut } = require('./browser-helpers.cjs');
+const { launch, artifacts, URL_BASE, idle, click, playOrder, signIn, signOut } = require('./browser-helpers.cjs');
 
 (async () => {
-  const browser = await chromium.launch({ headless: true, channel: 'chrome' });
+  const browser = await launch();
   try {
     for (const first of ['keep', 'correct']) for (const last of ['linked', 'independent']) {
       const name = `${first}-${last}`;
