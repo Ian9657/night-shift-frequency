@@ -53,7 +53,7 @@
 
   // What is heard now: a line, a song (`song` its id) or nothing. Everything heard is
   // reported to the listener (js/game/company.js).
-  function show(key, vars = {}, song = null, sting = null, durationOverride = null) {
+  function show(key, vars = {}, song = null, sting = null, durationOverride = null, audioOffset = 0) {
     if (view.song && !song) audio.stopSong();
     voice.stop();
     const delay = sting ? STING_MS[sting] : 0;
@@ -65,7 +65,7 @@
     view.startedAt = time.now;
     view.duration = durationOverride ?? (song ? songLength(song) : key ? lineDuration(key, vars) + delay : 0);
     if (song) audio.playSong(story.radio.songs[song]);
-    else if (key && key !== 'radio.static') voice.speak(key, vars, view.kind, view.duration - delay - 600, delay);
+    else if (key && key !== 'radio.static') voice.speak(key, vars, view.kind, view.duration - delay - 600, delay, audioOffset);
     if (key) listener(view);
     bed();
   }
@@ -105,7 +105,7 @@
     // A song with an `intro` is announced first; the two go (or are dropped) together.
     if (next.resume) {
       current = next;
-      show(next.key, next.vars, null, null, next.remaining);
+      show(next.key, next.vars, null, null, next.remaining, next.offset);
     } else if (next.song && next.intro && !next.introSaid) {
       next.introSaid = true;
       queue.unshift(next);
@@ -222,7 +222,8 @@
       if (view.song) {
         queue.unshift(current ? { ...current, introSaid: Boolean(current.song && view.song) } : { song: view.song });
       } else {
-        resumeLine = { ...(current || {}), key: view.key, vars: view.vars, remaining: Math.max(0, view.duration - (time.now - view.startedAt)), resume: true };
+        const elapsed = Math.max(0, time.now - view.startedAt);
+        resumeLine = { ...(current || {}), key: view.key, vars: view.vars, remaining: Math.max(0, view.duration - elapsed), offset: elapsed / 1000, resume: true };
       }
     }
     Object.assign(view, { freq: next, station: label(next), kind: heard.kind, target: heard.target, clarity: heard.clarity });

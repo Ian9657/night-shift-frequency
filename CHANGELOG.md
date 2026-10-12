@@ -5,6 +5,13 @@ verified and what was not.
 
 ## Unreleased
 
+### Fixed — resume now carries the audio offset
+
+- The first resume fix preserved the caption timing but restarted the decoded WAV at zero.
+  The radio now passes the elapsed audio offset through to `AudioBufferSourceNode.start`,
+  so tuning away and returning continues the actual recording where it stopped.
+- Verified with a real mid-line tune regression, radio/audio suites, and browser-flow.
+
 ### Fixed — interrupted radio lines no longer restart
 
 - Tuning away from Night Ferry now stores the current line's remaining time and resumes

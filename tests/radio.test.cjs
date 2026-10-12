@@ -18,19 +18,24 @@ suite('radio', [
   ['tuning away resumes an interrupted line instead of replaying it', async page => {
     const result = await page.evaluate(async () => {
       const r = NSF.radio;
+      const calls = [];
+      const original = NSF.audio.playClip;
+      NSF.audio.playClip = (key, data, profile, delay, offset) => { calls.push({ key, offset }); return original(key, data, profile, delay, offset); };
       r.play(['radio.o4']);
       for (let i = 0; i < 100 && r.view.key !== 'radio.o4'; i++) { if (r.view.key) r.skip(); await new Promise(resolve => setTimeout(resolve, 20)); }
+      await new Promise(resolve => setTimeout(resolve, 120));
       const before = { key: r.view.key, started: r.view.startedAt, duration: r.view.duration };
       r.setFrequency(8770);
       const leftAt = NSF.time.now;
       r.setFrequency(8760);
       await new Promise(resolve => setTimeout(resolve, 350));
-      return { before, leftAt, after: { key: r.view.key, started: r.view.startedAt, duration: r.view.duration } };
+      return { before, leftAt, after: { key: r.view.key, started: r.view.startedAt, duration: r.view.duration }, calls };
     });
     assert.equal(result.before.key, 'radio.o4');
     assert.equal(result.after.key, 'radio.o4');
     assert.ok(result.after.started >= result.leftAt, 'the resumed line starts after tuning back');
     assert.ok(result.after.duration < result.before.duration, 'only the remaining portion is scheduled');
+    assert.ok(result.calls.some(call => call.offset > 0), 'recording resumes at an audio offset');
   }],
 
   ['the dial is exclusive but live, and another frequency plays on across an order change', async page => {
