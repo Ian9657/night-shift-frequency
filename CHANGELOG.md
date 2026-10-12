@@ -5,6 +5,13 @@ verified and what was not.
 
 ## Unreleased
 
+### Fixed — GitHub quick entry no longer speaks on refresh
+
+- The GitHub Pages direct-to-counter entry now holds the radio bus at zero until the
+  first real pointer or keyboard gesture, so an automatic refresh does not trigger
+  June's opening line unexpectedly. The saved radio level is restored on that gesture.
+- Verified with content and browser-flow checks.
+
 ### Changed — cyberpunk scan activation
 
 - Shift inspection now opens with a short scan-in animation: a sweep line, cyan/magenta

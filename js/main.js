@@ -228,8 +228,23 @@
   // `?intro=1` when reviewing the full opening flow.
   const quickStart = location.hostname.endsWith('.github.io')
     && !new URLSearchParams(location.search).has('intro');
+  let quickAudioLocked = false;
+  let quickRadioLevel = 5;
+  const unlockQuickAudio = () => {
+    if (!quickAudioLocked) return;
+    audio.setLevel('radio', quickRadioLevel);
+    audio.unlock();
+    quickAudioLocked = false;
+  };
+  root.addEventListener('pointerdown', unlockQuickAudio, { once: false });
+  root.addEventListener('keydown', event => { if (event.key !== 'Shift') unlockQuickAudio(); }, { once: false });
   if (quickStart) {
     game.startShift();
     signin.sign();
+    // The automatic test entry must not speak over the first paint. The radio resumes
+    // at its saved level on the first real user gesture.
+    quickRadioLevel = audio.level('radio');
+    audio.setLevel('radio', 0);
+    quickAudioLocked = true;
   }
 })(globalThis);
