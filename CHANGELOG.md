@@ -5,6 +5,19 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — scan mode outlines the objects themselves
+
+- Hold-Shift scan no longer frames every target's bounding box (the boxes include empty
+  sprite space, such as the radio's antenna column, so brackets landed on the shelves and
+  44 corners crowded the screen). Each object now gets a faint pixel outline of its own
+  sprite and a quiet frameless name tag; one object is locked and drawn bright green with a
+  leader: the one pointed at, else the next thing the sale needs. A new lock closes in with
+  split magenta/cyan ghosts. Names decode from scrambled letters of the caption itself, so
+  no new glyphs are needed. The dimming is lighter (0.48 instead of 0.67) and the ordinary
+  hover label is hidden while scanning.
+- Verified with `node tests/run-all.cjs` and desktop screenshots (scan held, lock moving to
+  the radio, lock settled). Phone layout not checked.
+
 ### Changed — pixel HUD scan pass
 
 - Replaced vector scan lines with hard pixel-grid brackets and orthogonal connector paths,

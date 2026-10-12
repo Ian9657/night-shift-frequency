@@ -35,8 +35,9 @@ to show the title and sign-in screens.
 - On a touch screen, tap to use things and hold one to see its name.
 - With a keyboard, Tab moves between the things on the counter, Enter uses one and
   Escape lets go.
-- Hold **Shift** to dim the scene and show the name of every interactive object; release it
-  to return to the normal view.
+- Hold **Shift** to dim the scene, outline every interactive object and show its name; the
+  one you point at (or the next thing to do) is locked in green. Release it to return to
+  the normal view.
 
 `index.html?seed=review-01` replays the same shift. The current shift's seed is shown
 on the closing card and printed to the browser console. Reloading starts a new shift;

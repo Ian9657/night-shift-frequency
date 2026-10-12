@@ -150,7 +150,7 @@
   // small label over it; the outline itself is drawn with the object (world.js).
   function hoverLabel(ctx, game) {
     const name = game.state.focusTarget || game.state.hoverTarget;
-    if (!name || game.state.phase !== 'shift' || overlay.view.active) return;
+    if (!name || inspectMode || game.state.phase !== 'shift' || overlay.view.active) return;     // the scan names it instead
     const target = game.targets().find(item => item.name === name);
     if (!target) return;
     const item = name.startsWith('item:') && game.order().items.find(entry => entry.id === name.slice(5));
@@ -173,13 +173,16 @@
 
   // Hold Shift to dim the scene and name every available object. This is deliberately
   // transient: it helps a player learn the counter without leaving instruction panels
-  // over the normal composition.
+  // over the normal composition. Every object gets a faint pixel outline and a quiet tag;
+  // one is locked (the one pointed at, else the next thing the sale needs) and drawn bright.
+  const SCAN = { quiet: '#63d4d0', lock: '#aef08c', echo: '#ff63c3' };
+  let inspectLock = null, inspectLockSince = 0;
   function inspectView(ctx, game) {
     if ((!inspectMode && time.uiNow - inspectClosing > 180) || game.state.phase !== 'shift' || overlay.view.active) return;
     const opening = Math.min(1, Math.max(0, (time.uiNow - inspectSince) / 260));
     const closing = inspectMode ? 1 : Math.max(0, 1 - (time.uiNow - inspectClosing) / 180);
     const amount = Math.min(opening, closing);
-    ctx.fillStyle = `rgba(3,5,15,${(0.12 + amount * 0.55).toFixed(3)})`;
+    ctx.fillStyle = `rgba(3,5,15,${(0.08 + amount * 0.4).toFixed(3)})`;
     ctx.fillRect(0, 0, SW, SH);
     // A scanline sweeps down on entry, then idles as a quiet HUD pulse.
     const scanY = opening < 1 ? 28 + Math.floor(opening * (SH - 56)) : 34 + Math.floor((time.uiNow / 16) % (SH - 68));
@@ -187,46 +190,53 @@
     ctx.fillRect(0, scanY, SW, 2);
     ctx.fillStyle = `rgba(255,99,195,${(0.04 + amount * 0.06).toFixed(3)})`;
     ctx.fillRect(0, scanY + 3, SW, 1);
-    // Pixel HUD: no vector strokes. Every lock-on mark lands on the 2px screen grid.
     const title = t('ui.inspectTitle');
     const titleWidth = text.width(title) + 42;
     box(ctx, Math.round((SW - titleWidth) / 2), 8, titleWidth, 18, 'rgba(7,9,15,0.92)', C.cyan);
     text.draw(ctx, '[ ' + title + ' ]', SW / 2, 12, C.cyan, { align: 'center' });
     const named = game.targets().map(target => ({ target, caption: inspectLabel(target.name, game) })).filter(x => x.caption);
+    const { state, scene } = game;
+    const lock = [state.hoverTarget, state.focusTarget, ...scene.cues].find(name => named.some(x => x.target.name === name)) || null;
+    if (lock !== inspectLock) { inspectLock = lock; inspectLockSince = time.uiNow; }
+    const k = layout.screen.scale;
+    const outline = (target, tone, dx) => {
+      const image = sprites.get(target.sprite, { outline: tone });
+      ctx.drawImage(image, (target.x - 1) * k + dx, (target.y - 1) * k, image.width * k, image.height * k);
+    };
     for (const [index, { target, caption }] of named.entries()) {
       const labelAmount = Math.min(1, Math.max(0, (opening - index * 0.025) / 0.55));
       if (!labelAmount) continue;
-      const width = text.width(caption) + 14;
-      const cx = Math.round((target.x + target.w / 2) * layout.screen.scale);
-      const targetY = Math.round(target.y * layout.screen.scale);
+      const locked = target.name === lock;
+      const tone = locked ? SCAN.lock : target.name === 'radio' && radio.view.echo ? SCAN.echo : SCAN.quiet;
+      const cx = Math.round((target.x + target.w / 2) * k);
+      const top = Math.round(target.y * k), bottom = Math.round((target.y + target.h) * k);
+      // The radio's antenna reaches into the shelf, and the phone sits under the radio: both are named from below.
       const isLower = target.name === 'radio' || target.name === 'phone';
-      const y = isLower
-        ? Math.min(SH - 42, targetY + Math.round(target.h * layout.screen.scale) + 10)
-        : Math.max(36, targetY - 24);
+      const width = text.width(caption) + 14;
+      const y = isLower ? Math.min(SH - 42, bottom + 10) : Math.max(36, top - 24);
       const x = Math.max(4, Math.min(SW - width - 4, cx - Math.round(width / 2)));
-      const lineX = Math.max(x + 5, Math.min(x + width - 5, cx));
-      const cue = game.scene.cues.has(target.name);
-      const tone = cue ? '#aef08c' : target.name === 'radio' && radio.view.echo ? '#ff63c3' : '#63d4d0';
-      ctx.globalAlpha = labelAmount;
-      const objectBottom = targetY + Math.round(target.h * layout.screen.scale);
-      const lineTop = isLower ? objectBottom : y + 16;
-      const lineBottom = isLower ? y : targetY;
-      const elbowY = isLower ? lineBottom - 6 : lineBottom + 6;
-      ctx.fillStyle = tone;
-      ctx.fillRect(lineX, Math.min(elbowY, lineTop), 2, Math.abs(lineTop - elbowY) + 2);
-      ctx.fillRect(Math.min(lineX, cx), elbowY, Math.abs(cx - lineX) + 2, 2);
-      ctx.fillStyle = tone;
-      const markerY = isLower ? objectBottom - 2 : targetY - 2;
-      ctx.fillRect(cx - 2, markerY, 4, 4);
-      // Four small pixel brackets lock to the target's actual bounds.
-      const left = Math.round(target.x * layout.screen.scale) - 4, top = targetY - 4;
-      const right = Math.round((target.x + target.w) * layout.screen.scale) + 2, bottom = objectBottom + 2;
-      const arm = 6;
-      for (const [x0, y0, sx, sy] of [[left, top, 1, 1], [right, top, -1, 1], [left, bottom, 1, -1], [right, bottom, -1, -1]]) {
-        ctx.fillRect(x0, y0, arm * sx, 2); ctx.fillRect(x0 + (sx > 0 ? 0 : -2), y0, 2, arm * sy);
+      // Names decode: letters cycle through the caption's own glyphs until they settle.
+      const settled = Math.floor(caption.length * labelAmount);
+      const shown = labelAmount >= 1 ? caption : [...caption].map((ch, i) => i < settled || ch === ' ' ? ch : caption[(i * 7 + Math.floor(time.uiNow / 40)) % caption.length]).join('');
+      if (!locked) {
+        ctx.globalAlpha = labelAmount * 0.45;
+        outline(target, tone, 0);
+        ctx.globalAlpha = labelAmount * 0.85;
+        box(ctx, x, y, width, 16, 'rgba(7,9,15,0.78)', 'rgba(7,9,15,0.78)');
+        text.draw(ctx, shown, x + width / 2, y + 3, tone, { align: 'center' });
+        ctx.globalAlpha = 1;
+        continue;
       }
-      box(ctx, x, y, width, 16, 'rgba(7,9,15,0.84)', tone);
-      text.draw(ctx, caption, x + width / 2, y + 3, tone, { align: 'center' });
+      // The lock: split pink and cyan ghosts of the outline close in on the object.
+      const split = Math.round((1 - Math.min(1, (time.uiNow - inspectLockSince) / 180)) * 6);
+      ctx.globalAlpha = labelAmount;
+      if (split) { outline(target, SCAN.echo, -split * 2); outline(target, SCAN.quiet, split * 2); }
+      outline(target, tone, 0);
+      ctx.fillStyle = tone;
+      const edge = isLower ? bottom + 2 : top - 2, end = isLower ? y : y + 16;
+      ctx.fillRect(cx - 1, Math.min(edge, end), 2, Math.abs(end - edge));
+      box(ctx, x, y, width, 16, 'rgba(7,9,15,0.92)', tone);
+      text.draw(ctx, shown, x + width / 2, y + 3, tone, { align: 'center' });
       ctx.globalAlpha = 1;
     }
     text.draw(ctx, t('ui.inspectHint'), SW - 10, SH - 18, 'rgba(174,240,140,0.72)', { align: 'right' });
