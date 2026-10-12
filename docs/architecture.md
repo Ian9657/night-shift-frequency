@@ -120,9 +120,11 @@ disk, where scripts may not read local files; base64 in a script is the one way 
 
 The radio's voice is chosen in `voice.js`: a recorded clip of the line if one matches its
 current text (`audio.playClip`, through the radio's speaker), otherwise the formant
-murmur (`audio.radioSpeech`), or the browser's speech synthesis if the player picks READ
-ALOUD (it can't be routed through Web Audio, so it skips the radio's sound). A recorded
-line's length sets its time on air.
+murmur (`audio.radioSpeech`, a decaying harmonic source with broad formants and a
+1800 Hz low-pass filter), or clear browser speech for runtime-variable lines that cannot
+be pre-recorded. The browser's speech synthesis is also available through READ ALOUD
+(it can't be routed through Web Audio, so it skips the radio's sound). A recorded line's
+length sets its time on air.
 
 `assets/` is build output that is committed so players need no build. Tests rebuild it
 and fail if the committed copy is stale.
@@ -180,7 +182,7 @@ and audio checks are suites of cases, each in a fresh page (`suite()` in
 | `browser-flow.cjs` | Real pointer input through the whole night on all four branches: sign-in with a typed or default name, eight orders, a text and a call to Night Ferry, listening to all three frequencies and being recognised, lost and found, the report, the dawn clock only moving forward, sign-out; audio smoke for every sound; recovery from a failing action; dragging the dial; the phone's settings; seed; narrow viewport |
 | `counter.test.cjs` | Keyboard focus, Enter, Escape and the live announcement; touch tap and hold; first-sale guidance with its outline; refused clicks and their reasons; the action queue (dedupe, held by a panel, stale dropped quietly, carried to the next customer); the scanner past a selected scanned item; customers' speech queued, never cut or swallowed |
 | `radio.test.cjs` | The live dial and another frequency across an order change; reception off a station's centre; the clerk's call kept on air; a pausing panel holding the radio; Night Ferry carried across orders, unstarted songs let go, on-time segments first, the story kept at the closing; the tuning nudge only when nothing was found |
-| `audio.test.cjs` | Which voice a line gets (murmured, recorded, a stale recording ignored, read aloud and the setting saved) and that it stops on tuning away; the room and radio bed after a silent start (#1) |
+| `audio.test.cjs` | Rendered murmur levels and high-frequency energy for all three profiles; which voice a line gets (murmured, recorded, a stale recording ignored, read aloud and the setting saved) and that it stops on tuning away; the room and radio bed after a silent start (#1) |
 | `visual.cjs` | Screenshots of key moments for human review |
 | `radio-pacing.cjs` (optional) | The first order at normal speed: the second order's dial hint, introduction and song in sequence, and the taxi found with the dial's keys |
 

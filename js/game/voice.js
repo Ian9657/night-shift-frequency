@@ -2,7 +2,8 @@
 // module gives it a voice, one of three ways:
 // - a recorded clip of the line (assets/voice-data.js, built by art/tools/build-voice.cjs),
 //   played through the radio's speaker like everything else;
-// - otherwise the murmur synthesised from the line's shape (audio.radioSpeech);
+// - otherwise the browser reads the line clearly (runtime-variable lines cannot be
+//   pre-recorded); only browsers without speech synthesis use the old radio murmur;
 // - or, if the player sets VOICE to READ ALOUD, the browser's own speech synthesis. That
 //   can't go through the radio's sound (no speaker, hiss or fading), so it is a reading
 //   aid more than part of the set.
@@ -50,6 +51,10 @@
     }
     const clip = clipFor(key);
     if (clip) audio.playClip(key, clip.data, profile, delay);
+    else if (speech) {
+      if (delay) root.setTimeout(() => speakAloud(text, profile, ms), delay);
+      else speakAloud(text, profile, ms);
+    }
     else audio.radioSpeech(text, Math.max(400, ms), profile, delay);
   }
 

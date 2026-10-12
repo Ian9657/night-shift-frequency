@@ -218,16 +218,16 @@
   }
 
   // A voice through the radio's small speaker, murmured from the shape of the line: one
-  // buzzing source (the vocal folds) through three resonances (the mouth's formants) that
+  // soft harmonic source through three broad resonances (the mouth's formants) that
   // move to each syllable's vowel, a breath of noise for consonants, pauses at commas and
   // full stops, pitch falling across a sentence and rising for a question. The words
   // aren't there; the speaking is. Profiles: June on Night Ferry, the echo (lower,
   // further off) and the people between the stations (rougher, breaking up).
   const VOWELS = { a: [760, 1250, 2550], e: [520, 1850, 2550], i: [320, 2250, 2950], o: [520, 900, 2450], u: [360, 850, 2350] };
   const PROFILES = {
-    ferry: { pitch: 205, formant: 1.1, gain: 0.16, breath: 0.012, dropouts: 0 },
-    echo: { pitch: 150, formant: 0.92, gain: 0.12, breath: 0.006, dropouts: 0 },
-    signal: { pitch: 118, formant: 0.95, gain: 0.13, breath: 0.016, dropouts: 0.25 },
+    ferry: { pitch: 175, formant: 1, gain: 0.065, breath: 0.004, dropouts: 0 },
+    echo: { pitch: 135, formant: 0.92, gain: 0.05, breath: 0.003, dropouts: 0 },
+    signal: { pitch: 118, formant: 0.95, gain: 0.052, breath: 0.005, dropouts: 0.25 },
   };
   // The line as a timeline of syllables and pauses, scaled to fill `ms`.
   function syllables(text, ms) {
@@ -263,15 +263,18 @@
     const profile = PROFILES[profileName] || PROFILES.ferry;
     const { units, unit } = syllables(text, ms);
     const start = ctx.currentTime + 0.05 + delay / 1000;
-    const out = ctx.createGain(), speaker = ctx.createBiquadFilter(), voiced = ctx.createGain();
+    const out = ctx.createGain(), speaker = ctx.createBiquadFilter(), softness = ctx.createBiquadFilter(), voiced = ctx.createGain();
     out.gain.value = 1;
     speaker.type = 'bandpass'; speaker.frequency.value = 1300; speaker.Q.value = 0.55;
-    out.connect(speaker); speaker.connect(bus.signal);
+    softness.type = 'lowpass'; softness.frequency.value = 1800; softness.Q.value = 0.5;
+    out.connect(speaker); speaker.connect(softness); softness.connect(bus.signal);
     const source = ctx.createOscillator();
-    source.type = 'sawtooth';
+    // A short, gently decaying harmonic series avoids the sawtooth's metallic edge.
+    const harmonics = Float32Array.from([0, 1, 0.45, 0.24, 0.12, 0.06, 0.03, 0.015]);
+    source.setPeriodicWave(ctx.createPeriodicWave(new Float32Array(harmonics.length), harmonics));
     const formants = [0, 1, 2].map(n => {
       const f = ctx.createBiquadFilter(), g = ctx.createGain();
-      f.type = 'bandpass'; f.Q.value = [7, 10, 12][n]; g.gain.value = [1, 0.55, 0.25][n];
+      f.type = 'bandpass'; f.Q.value = [1.5, 2, 2.5][n]; g.gain.value = [1, 0.3, 0.08][n];
       source.connect(f); f.connect(g); g.connect(voiced);
       return f;
     });
@@ -279,7 +282,7 @@
     voiced.gain.setValueAtTime(0.0001, start);
     const breathSource = ctx.createBufferSource(), breathFilter = ctx.createBiquadFilter(), breath = ctx.createGain();
     breathSource.buffer = noiseBuffer(ctx, ms / 1000 + 1.5);           // as long as the line, not a loop
-    breathFilter.type = 'bandpass'; breathFilter.frequency.value = 4200; breathFilter.Q.value = 0.8;
+    breathFilter.type = 'bandpass'; breathFilter.frequency.value = 1800; breathFilter.Q.value = 0.5;
     breath.gain.setValueAtTime(0.0001, start);
     breathSource.connect(breathFilter); breathFilter.connect(breath); breath.connect(out);
     let t = start, sentence = 0;
@@ -297,12 +300,12 @@
       VOWELS[u.vowel].forEach((hz, n) => formants[n].frequency.setTargetAtTime(hz * profile.formant, t, 0.025));
       if (u.onset) {
         const hiss = /[sfzhx]/.test(u.onset) ? 2.2 : 1;
-        breath.gain.setTargetAtTime(profile.breath * hiss, t, 0.005);
+        breath.gain.setTargetAtTime(profile.breath * hiss, t, 0.015);
         breath.gain.setTargetAtTime(0.0001, t + 0.04 * hiss, 0.01);
       }
       // A signal from further off drops out now and then.
       const level = Math.random() < profile.dropouts ? 0.0001 : profile.gain * (u.stress ? 1 : 0.8);
-      voiced.gain.setTargetAtTime(level, t + 0.02, 0.015);
+      voiced.gain.setTargetAtTime(level, t + 0.02, 0.03);
       voiced.gain.setTargetAtTime(level * 0.35, t + length * 0.75, 0.03);
       t += length;
       sentence += 1;

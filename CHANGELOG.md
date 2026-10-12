@@ -5,6 +5,34 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — softer radio voice
+
+- Reworked the synthesised radio murmur into a quieter, warmer harmonic voice with broad
+  formants, gentler syllable attacks and a low-pass speaker filter, reducing the metallic
+  high-frequency edge while keeping each profile distinct.
+- Added rendered audio checks for audibility, peak level and high-frequency energy across
+  ferry, echo and signal voices. Verified with the audio suite and the levels/record probes;
+  full browser-flow and visual checks were not rerun after this audio-only change.
+
+### Changed — recorded Night Ferry voice
+
+- Generated the current radio lines as calm, restrained English broadcasts with Kokoro
+  (`af_nicole`, q8, speed 0.9), then added the WAV sources under `art/voice/` and rebuilt
+  `assets/voice-data.js`. The game now plays these recordings wherever the text has no
+  runtime variable; variable record lines retain the softened synthesised fallback.
+- The generation model was used only during authoring; the game still ships as a static
+  page and does not download a model at runtime. The model and JS runtime are Apache 2.0;
+  the generated recordings remain covered by this project's artwork/text terms.
+- Verified with content and audio suites, plus a recorded June probe. Full visual checks
+  were not rerun after adding the recordings.
+
+### Fixed — runtime record lines were still unintelligible
+
+- Lines containing order-specific values, such as `REG#02`, cannot use a fixed recording.
+  They now use clear browser speech in RADIO mode when available, with the radio murmur
+  retained only as a last-resort fallback on browsers without speech synthesis.
+- Verified with the audio suite and the radio suite.
+
 ### Removed — exports nothing used, and code paths in the design notes
 
 - `audio.stopMicrowave`, `records.activate` and `voice.modes` were exported but only used

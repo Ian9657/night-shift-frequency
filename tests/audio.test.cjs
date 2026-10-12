@@ -20,14 +20,51 @@ const watchAmbience = silent => [silent => {
 let loopsWithSound = null;
 
 suite('audio', [
-  ['the line on air is murmured with its profile and stops when the dial leaves it', async page => {
+  ['synthesised voices stay quiet and soften high frequencies at the speaker', async (page, browser) => {
+    for (const profile of ['ferry', 'echo', 'signal']) {
+      const probe = await browser.newPage();
+      try {
+        await probe.goto(page.url());
+        const levels = await probe.evaluate(async profile => {
+          const ctx = new OfflineAudioContext(2, 48000 * 4, 48000);
+          window.AudioContext = function () { return ctx; };
+          // Measure the actual output, alongside its portion above 2500 Hz.
+          const connect = AudioNode.prototype.connect;
+          AudioNode.prototype.connect = function (target, ...args) {
+            if (target === ctx.destination) {
+              const high = ctx.createBiquadFilter(), right = ctx.createChannelMerger(2);
+              high.type = 'highpass'; high.frequency.value = 2500; high.Q.value = 0.5;
+              connect.call(this, right, 0, 0);
+              connect.call(this, high); high.connect(right, 0, 1); connect.call(right, target);
+              return target;
+            }
+            return connect.call(this, target, ...args);
+          };
+          NSF.audio.radioSpeech('Softly, the ferry crosses the sleeping bay.', 2600, profile);
+          const buffer = await ctx.startRendering();
+          const samples = buffer.getChannelData(0), high = buffer.getChannelData(1);
+          let peak = 0, energy = 0, highEnergy = 0;
+          for (let i = 0; i < samples.length; i++) {
+            peak = Math.max(peak, Math.abs(samples[i]));
+            energy += samples[i] ** 2; highEnergy += high[i] ** 2;
+          }
+          return { peak, rms: Math.sqrt(energy / samples.length), highFraction: highEnergy / energy };
+        }, profile);
+        assert.ok(levels.rms > 0.002, profile + ' stays audible: ' + JSON.stringify(levels));
+        assert.ok(levels.peak < 0.12, profile + ' avoids loud peaks: ' + JSON.stringify(levels));
+        assert.ok(levels.highFraction < 0.02, profile + ' limits high-frequency energy: ' + JSON.stringify(levels));
+      } finally { await probe.close(); }
+    }
+  }, { signIn: false }],
+
+  ['the line on air uses its recorded voice and stops when the dial leaves it', async page => {
     const voiced = await page.evaluate(async () => {
-      const a = NSF.audio, r = NSF.radio, calls = [], speak = a.radioSpeech, stop = a.stopSpeech;
-      a.radioSpeech = (text, ms, profile) => { calls.push('speak ' + profile + ': ' + text); return speak(text, ms, profile); };
+      const a = NSF.audio, r = NSF.radio, calls = [], play = a.playClip, stop = a.stopSpeech;
+      a.playClip = (key, data, profile) => { calls.push('clip ' + profile + ': ' + key); return play(key, data, profile); };
       a.stopSpeech = () => { calls.push('stop'); return stop(); };
       r.play(['radio.o4']);
       for (let i = 0; i < 100 && r.view.key !== 'radio.o4'; i++) { if (r.view.key) r.skip(); await new Promise(go => setTimeout(go, 30)); }
-      const spoke = calls.includes('speak ferry: ' + NSF.strings.t('radio.o4'));
+      const spoke = calls.includes('clip ferry: radio.o4');
       calls.length = 0;
       r.setFrequency(8700, { fine: true });
       return { spoke, stopped: calls[0] === 'stop' };
@@ -39,6 +76,7 @@ suite('audio', [
     const tone = toRadioWav({ rate: 11025, samples: Float32Array.from({ length: 13230 }, (_, i) => Math.sin(i / 9)) });
     const recorded = await page.evaluate(async ({ data, ms }) => {
       const a = NSF.audio, r = NSF.radio, t = NSF.strings.t, used = new Set();
+      speechSynthesis.speak = u => used.add('browser:' + u.text);
       const clip = a.playClip, synth = a.radioSpeech;
       a.playClip = (key, ...rest) => { used.add('clip:' + key); return clip(key, ...rest); };
       a.radioSpeech = (text, ...rest) => { used.add('synth:' + text); return synth(text, ...rest); };
@@ -52,7 +90,7 @@ suite('audio', [
       return {
         duration,
         o4: [used.has('clip:radio.o4'), used.has('synth:' + t('radio.o4'))],
-        o3a: [used.has('clip:radio.o3a'), used.has('synth:' + t('radio.o3a'))],
+        o3a: [used.has('clip:radio.o3a'), used.has('browser:' + t('radio.o3a'))],
       };
     }, { data: tone.wav.toString('base64'), ms: tone.ms });
     assert.deepEqual(recorded.o4, [true, false], 'the recording, not the murmur');
