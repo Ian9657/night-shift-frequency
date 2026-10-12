@@ -20,6 +20,8 @@
   const narrow = () => root.innerWidth < 900 || (root.visualViewport && root.visualViewport.width < 900);
   let targets = [];
   let inspectMode = false;
+  let inspectSince = -Infinity;
+  let inspectClosing = -Infinity;
 
   const money = value => (value / 100).toFixed(2);
   const label = key => t(key);
@@ -173,35 +175,52 @@
   // transient: it helps a player learn the counter without leaving instruction panels
   // over the normal composition.
   function inspectView(ctx, game) {
-    if (!inspectMode || game.state.phase !== 'shift' || overlay.view.active) return;
-    ctx.fillStyle = 'rgba(3,5,9,0.62)';
+    if ((!inspectMode && time.uiNow - inspectClosing > 180) || game.state.phase !== 'shift' || overlay.view.active) return;
+    const opening = Math.min(1, Math.max(0, (time.uiNow - inspectSince) / 260));
+    const closing = inspectMode ? 1 : Math.max(0, 1 - (time.uiNow - inspectClosing) / 180);
+    const amount = Math.min(opening, closing);
+    ctx.fillStyle = `rgba(3,5,15,${(0.12 + amount * 0.55).toFixed(3)})`;
     ctx.fillRect(0, 0, SW, SH);
-    // A slow scanline gives the held key a sense of state without turning the mode
-    // into a flashing overlay.
-    const scanY = 34 + Math.floor((time.uiNow / 16) % (SH - 68));
-    ctx.fillStyle = 'rgba(99,212,208,0.07)';
+    // A scanline sweeps down on entry, then idles as a quiet HUD pulse.
+    const scanY = opening < 1 ? 28 + Math.floor(opening * (SH - 56)) : 34 + Math.floor((time.uiNow / 16) % (SH - 68));
+    ctx.fillStyle = `rgba(99,212,208,${(0.08 + amount * 0.12).toFixed(3)})`;
     ctx.fillRect(0, scanY, SW, 2);
+    ctx.fillStyle = `rgba(255,99,195,${(0.04 + amount * 0.06).toFixed(3)})`;
+    ctx.fillRect(0, scanY + 3, SW, 1);
+    // Four HUD corner brackets frame the scan without covering the store.
+    ctx.strokeStyle = `rgba(99,212,208,${(0.3 + amount * 0.5).toFixed(3)})`;
+    ctx.lineWidth = 2; ctx.beginPath();
+    for (const [x, y, sx, sy] of [[14, 30, 1, 1], [SW - 14, 30, -1, 1], [14, SH - 30, 1, -1], [SW - 14, SH - 30, -1, -1]]) {
+      ctx.moveTo(x, y + sy * 18); ctx.lineTo(x, y); ctx.lineTo(x + sx * 18, y);
+    }
+    ctx.stroke();
     const title = t('ui.inspectTitle');
-    const titleWidth = text.width(title) + 20;
-    box(ctx, Math.round((SW - titleWidth) / 2), 8, titleWidth, 18, 'rgba(7,9,15,0.9)', C.cyan);
-    text.draw(ctx, title, SW / 2, 12, C.cyan, { align: 'center' });
+    const titleWidth = text.width(title) + 42;
+    box(ctx, Math.round((SW - titleWidth) / 2), 8, titleWidth, 18, 'rgba(7,9,15,0.92)', C.cyan);
+    text.draw(ctx, '[ ' + title + ' ]', SW / 2, 12, C.cyan, { align: 'center' });
     const named = game.targets().map(target => ({ target, caption: inspectLabel(target.name, game) })).filter(x => x.caption);
-    for (const { target, caption } of named) {
+    for (const [index, { target, caption }] of named.entries()) {
+      const labelAmount = Math.min(1, Math.max(0, (opening - index * 0.025) / 0.55));
+      if (!labelAmount) continue;
       const width = text.width(caption) + 14;
       const cx = Math.round((target.x + target.w / 2) * layout.screen.scale);
       const targetY = Math.round(target.y * layout.screen.scale);
       const y = Math.max(36, targetY - 24);
       const x = Math.max(4, Math.min(SW - width - 4, cx - Math.round(width / 2)));
       const lineX = Math.max(x + 5, Math.min(x + width - 5, cx));
-      ctx.strokeStyle = 'rgba(174,240,140,0.7)';
+      const tone = index % 3 === 1 ? '#ff63c3' : '#aef08c';
+      ctx.globalAlpha = labelAmount;
+      ctx.strokeStyle = tone;
       ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(lineX, y + 16); ctx.lineTo(cx, targetY); ctx.stroke();
-      ctx.fillStyle = C.phosphor;
+      ctx.fillStyle = tone;
       ctx.fillRect(cx - 2, targetY - 2, 4, 4);
-      box(ctx, x, y, width, 16, 'rgba(7,9,15,0.82)', C.phosphor);
-      text.draw(ctx, caption, x + width / 2, y + 3, C.phosphor, { align: 'center' });
+      box(ctx, x, y, width, 16, 'rgba(7,9,15,0.84)', tone);
+      text.draw(ctx, caption, x + width / 2, y + 3, tone, { align: 'center' });
+      ctx.globalAlpha = 1;
     }
     text.draw(ctx, t('ui.inspectHint'), SW - 10, SH - 18, 'rgba(174,240,140,0.72)', { align: 'right' });
+    ctx.globalAlpha = 1;
   }
 
   // ------------------------------------------------------------ speech bubble
@@ -723,5 +742,10 @@
     return null;
   }
 
-  root.NSF.ui = { draw, hitTest, interactionAnnouncement, setInspect(value) { inspectMode = Boolean(value); }, get targets() { return targets.slice(); } };
+  root.NSF.ui = { draw, hitTest, interactionAnnouncement, setInspect(value) {
+    const next = Boolean(value);
+    if (next && !inspectMode) inspectSince = time.uiNow;
+    if (!next && inspectMode) inspectClosing = time.uiNow;
+    inspectMode = next;
+  }, get targets() { return targets.slice(); } };
 })(globalThis);

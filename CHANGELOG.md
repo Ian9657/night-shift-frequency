@@ -5,6 +5,13 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — cyberpunk scan activation
+
+- Shift inspection now opens with a short scan-in animation: a sweep line, cyan/magenta
+  signal accents, HUD corner brackets and staggered label reveal. Releasing Shift performs
+  a quick scan-out instead of snapping off.
+- Verified with counter, content, art and visual suites.
+
 ### Changed — counter scan mode has a quieter visual language
 
 - Reworked Shift inspection from a heavy black overlay and floating yellow boxes into a
