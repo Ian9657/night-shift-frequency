@@ -5,6 +5,13 @@ verified and what was not.
 
 ## Unreleased
 
+### Changed — counter scan mode has a quieter visual language
+
+- Reworked Shift inspection from a heavy black overlay and floating yellow boxes into a
+  restrained scan view: translucent dimming, a slow scanline, a small header, phosphor
+  labels and connector lines anchored to each object.
+- Verified with counter, content, art and visual suites.
+
 ### Changed — hold Shift to inspect the counter
 
 - Replaced the persistent next-action callout with a temporary inspection mode: holding

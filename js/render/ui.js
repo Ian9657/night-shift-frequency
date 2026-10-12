@@ -174,18 +174,34 @@
   // over the normal composition.
   function inspectView(ctx, game) {
     if (!inspectMode || game.state.phase !== 'shift' || overlay.view.active) return;
-    ctx.fillStyle = 'rgba(3,5,9,0.76)';
+    ctx.fillStyle = 'rgba(3,5,9,0.62)';
     ctx.fillRect(0, 0, SW, SH);
+    // A slow scanline gives the held key a sense of state without turning the mode
+    // into a flashing overlay.
+    const scanY = 34 + Math.floor((time.uiNow / 16) % (SH - 68));
+    ctx.fillStyle = 'rgba(99,212,208,0.07)';
+    ctx.fillRect(0, scanY, SW, 2);
+    const title = t('ui.inspectTitle');
+    const titleWidth = text.width(title) + 20;
+    box(ctx, Math.round((SW - titleWidth) / 2), 8, titleWidth, 18, 'rgba(7,9,15,0.9)', C.cyan);
+    text.draw(ctx, title, SW / 2, 12, C.cyan, { align: 'center' });
     const named = game.targets().map(target => ({ target, caption: inspectLabel(target.name, game) })).filter(x => x.caption);
     for (const { target, caption } of named) {
       const width = text.width(caption) + 14;
       const cx = Math.round((target.x + target.w / 2) * layout.screen.scale);
-      const y = Math.max(6, Math.round(target.y * layout.screen.scale - 19));
+      const targetY = Math.round(target.y * layout.screen.scale);
+      const y = Math.max(36, targetY - 24);
       const x = Math.max(4, Math.min(SW - width - 4, cx - Math.round(width / 2)));
-      box(ctx, x, y, width, 16, 'rgba(7,9,15,0.95)', C.amber);
-      text.draw(ctx, caption, x + width / 2, y + 3, C.amber, { align: 'center' });
+      const lineX = Math.max(x + 5, Math.min(x + width - 5, cx));
+      ctx.strokeStyle = 'rgba(174,240,140,0.7)';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(lineX, y + 16); ctx.lineTo(cx, targetY); ctx.stroke();
+      ctx.fillStyle = C.phosphor;
+      ctx.fillRect(cx - 2, targetY - 2, 4, 4);
+      box(ctx, x, y, width, 16, 'rgba(7,9,15,0.82)', C.phosphor);
+      text.draw(ctx, caption, x + width / 2, y + 3, C.phosphor, { align: 'center' });
     }
-    text.draw(ctx, t('ui.inspectHint'), SW - 10, SH - 18, C.amber, { align: 'right' });
+    text.draw(ctx, t('ui.inspectHint'), SW - 10, SH - 18, 'rgba(174,240,140,0.72)', { align: 'right' });
   }
 
   // ------------------------------------------------------------ speech bubble

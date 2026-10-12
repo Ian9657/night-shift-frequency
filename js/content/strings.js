@@ -138,6 +138,7 @@
     'ui.target.lostFound': 'LOST AND FOUND',
     'ui.guide.scan': 'SCAN THE ITEM',
     'ui.inspectHint': 'HOLD SHIFT TO INSPECT',
+    'ui.inspectTitle': 'COUNTER SCAN',
     'ui.guide.cash': 'CASH: DRAWER',
     'ui.guide.card': 'CARD: TERMINAL',
     'ui.target.recordKey': 'RECORDS',
